@@ -24,3 +24,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Plantilla de variables de entorno (la regla .env.* de arriba la excluiria)
+!.env.example
+
+# Configuracion local de Claude Code (launch.json se queda en disco, fuera de git)
+.claude/

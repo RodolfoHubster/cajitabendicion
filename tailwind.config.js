@@ -7,6 +7,9 @@ export default {
         principal: '#1B3A6B',
         accion: '#F5A03C',
         fondo: '#FFFFFF',
+        // Resultados del escaneo (ver CLAUDE.md > Colores).
+        'puede-pasar': '#2E8B57',
+        'ya-recibio': '#C4453D',
       },
     },
   },
