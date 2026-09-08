@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Banco de Alimentos Comunitario"
+  },
+  "common": {
+    "comingSoon": "Contenido en construcción",
+    "todo": "TODO: aquí irá la lógica de negocio"
+  },
+  "actions": {
+    "switchLanguage": "EN",
+    "primary": "Continuar"
+  },
+  "pages": {
+    "inicio": "Inicio",
+    "calendario": "Calendario",
+    "horarios": "Horarios",
+    "registro": "Registro",
+    "confirmacion": "Confirmación",
+    "escanear": "Escanear",
+    "adminLogin": "Acceso administrativo",
+    "adminCitasHoy": "Citas de hoy",
+    "adminHorarios": "Gestión de horarios",
+    "adminPersonas": "Personas",
+    "adminReportes": "Reportes"
+  }
+}
