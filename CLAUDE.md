@@ -160,6 +160,8 @@ exactamente el bug del Google Form**. No usarlo.
   modificar el SPF, el MX ni los TXT del dominio principal.** El correo
   transaccional se manda desde el subdominio (`citas@citas.casadealabanzasd.com`)
   con su propio SPF y DKIM, para no tocar el correo del pastor.
+  
+  Detalle completo de dominio, hosting, DNS y correo en `docs/infraestructura.md`.
 
 ---
 
