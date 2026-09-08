@@ -1,0 +1,39 @@
+{
+  "appNombre": "Cajita Blessing",
+  "idioma": "Language",
+  "cambiarIdioma": "Change language",
+  "acciones": {
+    "continuar": "Continue",
+    "guardar": "Save",
+    "ingresar": "Sign in"
+  },
+  "publico": {
+    "inicio": "Home",
+    "calendario": "Calendar",
+    "horarios": "Time slots",
+    "registro": "Registration",
+    "confirmacion": "Confirmation",
+    "tituloInicio": "Community food bank appointment system",
+    "subtituloInicio": "Book an appointment in a few steps.",
+    "tituloCalendario": "Choose date",
+    "tituloHorarios": "Choose a 15-minute block",
+    "tituloRegistro": "Person details",
+    "tituloConfirmacion": "Appointment confirmation",
+    "qrPlaceholder": "QR code will be shown here"
+  },
+  "admin": {
+    "panel": "Admin panel",
+    "login": "Sign in",
+    "citasHoy": "Today's appointments",
+    "horarios": "Schedules",
+    "personas": "People",
+    "reportes": "Reports"
+  },
+  "escaneo": {
+    "titulo": "Scan code"
+  },
+  "placeholders": {
+    "nombre": "Full name",
+    "telefono": "Phone"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "appNombre": "Cajita Bendición",
+  "idioma": "Idioma",
+  "cambiarIdioma": "Cambiar idioma",
+  "acciones": {
+    "continuar": "Continuar",
+    "guardar": "Guardar",
+    "ingresar": "Ingresar"
+  },
+  "publico": {
+    "inicio": "Inicio",
+    "calendario": "Calendario",
+    "horarios": "Horarios",
+    "registro": "Registro",
+    "confirmacion": "Confirmación",
+    "tituloInicio": "Sistema de citas del banco de alimentos",
+    "subtituloInicio": "Reserva una cita en pocos pasos.",
+    "tituloCalendario": "Elegir fecha",
+    "tituloHorarios": "Elegir bloque de 15 minutos",
+    "tituloRegistro": "Datos de la persona",
+    "tituloConfirmacion": "Confirmación de cita",
+    "qrPlaceholder": "Aquí se mostrará el código QR"
+  },
+  "admin": {
+    "panel": "Panel administrativo",
+    "login": "Iniciar sesión",
+    "citasHoy": "Citas de hoy",
+    "horarios": "Horarios",
+    "personas": "Personas",
+    "reportes": "Reportes"
+  },
+  "escaneo": {
+    "titulo": "Escanear código"
+  },
+  "placeholders": {
+    "nombre": "Nombre completo",
+    "telefono": "Teléfono"
+  }
+}
