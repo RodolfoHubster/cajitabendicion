@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Community Food Bank"
+  },
+  "common": {
+    "comingSoon": "Content under construction",
+    "todo": "TODO: business logic will be added here"
+  },
+  "actions": {
+    "switchLanguage": "ES",
+    "primary": "Continue"
+  },
+  "pages": {
+    "inicio": "Home",
+    "calendario": "Calendar",
+    "horarios": "Time slots",
+    "registro": "Registration",
+    "confirmacion": "Confirmation",
+    "escanear": "Scan",
+    "adminLogin": "Admin Login",
+    "adminCitasHoy": "Today's appointments",
+    "adminHorarios": "Schedule management",
+    "adminPersonas": "People",
+    "adminReportes": "Reports"
+  }
+}
