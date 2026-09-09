@@ -10,6 +10,127 @@
     "switchLanguage": "EN",
     "primary": "Continuar"
   },
+  "admin": {
+    "verificando": "Verificando tu sesión…",
+    "soloPersonal": "Solo para el personal de Cajita de Bendición.",
+    "correo": "Correo",
+    "contrasena": "Contraseña",
+    "entrar": "Entrar",
+    "entrando": "Entrando…",
+    "salir": "Salir",
+    "errores": {
+      "CREDENCIALES_INVALIDAS": "El correo o la contraseña no coinciden.",
+      "CORREO_SIN_CONFIRMAR": "Esta cuenta todavía no está confirmada. Pide a un administrador que la active.",
+      "DEMASIADOS_INTENTOS": "Demasiados intentos seguidos. Espera un momento y vuelve a intentar.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles.",
+      "ERROR_DESCONOCIDO": "No pudimos iniciar sesión. Intenta de nuevo."
+    }
+  },
+  "panel": {
+    "cargando": "Cargando el día…",
+    "errores": {
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para ver esto. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
+      "ERROR_DESCONOCIDO": "No pudimos cargar los datos del día. Vuelve a intentar en un momento."
+    },
+    "subtitulo": "Entrega de hoy",
+    "conCita": "Con cita hoy",
+    "yaRecibieron": "Ya recibieron",
+    "faltan": "Faltan por llegar",
+    "sinCita": "Entraron sin cita",
+    "repetidos": "Intentos repetidos",
+    "cupoPorHorario": "Cupo de cada horario",
+    "cupoAyuda": "Los horarios cerrados no aceptan registros nuevos.",
+    "sinBloques": "Hoy no hay horarios abiertos.",
+    "cerrado": "Cerrado por hoy",
+    "deTotal": "{{ocupados}} de {{total}}",
+    "citasDelDia_one": "{{count}} cita del día",
+    "citasDelDia_other": "{{count}} citas del día",
+    "sinCitas": "Todavía no hay citas para hoy.",
+    "col": {
+      "hora": "Hora",
+      "nombre": "Nombre",
+      "codigo": "Código",
+      "estado": "Estado",
+      "ciudad": "Ciudad"
+    },
+    "estado": {
+      "reservada": "Aún no llega",
+      "llego": "Llegó",
+      "entregada": "Recibió",
+      "no_asistio": "No asistió"
+    }
+  },
+  "confirmacion": {
+    "cargando": "Preparando tu código…",
+    "noEncontrada": "No encontramos esa cita. Puede que el enlace esté incompleto.",
+    "volverInicio": "Volver al inicio",
+    "lista": "Tu cita está lista",
+    "qrAlt": "Código QR de tu cita",
+    "siNoSeLee": "Si el código no se lee, da este número:",
+    "aNombreDe": "A nombre de",
+    "unSoloUso": "Este código sirve una sola vez y es para una sola caja. Si otra persona de tu casa necesita una, debe registrarse por su cuenta.",
+    "guardarImagen": "Guardar imagen",
+    "consejoCaptura": "También puedes tomarle una captura de pantalla."
+  },
+  "registro": {
+    "cargando": "Preparando tu registro…",
+    "sinHorario": "Primero elige el día y la hora de tu cita.",
+    "horarioNoDisponible": "Ese horario ya no está disponible. Elige otro.",
+    "nombre": "Nombre completo",
+    "telefono": "Teléfono celular",
+    "correo": "Correo electrónico",
+    "correoAyuda": "Aquí te enviaremos tu código de entrada.",
+    "zona": "¿De dónde nos visitas? (opcional)",
+    "zonaSinResponder": "Prefiero no decirlo",
+    "zonaOtra": "Otro lugar",
+    "zonaOtraEtiqueta": "¿De dónde?",
+    "zonaAyuda": "Nos ayuda a saber a qué zonas estamos llegando.",
+    "privacidad": "Usamos tus datos solo para organizar la entrega y preparar reportes del programa. No se comparten con nadie más.",
+    "confirmar": "Confirmar mi cita",
+    "enviando": "Apartando tu lugar…",
+    "errores": {
+      "BLOQUE_LLENO": "Ese horario se llenó mientras llenabas el formulario. Elige otro.",
+      "BLOQUE_CERRADO": "Ese horario ya está cerrado.",
+      "BLOQUE_NO_EXISTE": "Ese horario ya no existe. Elige otro.",
+      "FECHA_PASADA": "Esa fecha ya pasó.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Ya hay una cita registrada para esta semana. Se puede reservar una por semana: lunes o jueves, no ambos.",
+      "LIMITE_DISPOSITIVO": "Desde este teléfono ya se registró una cita esta semana. Cada persona necesita registrarse desde su propio teléfono.",
+      "NOMBRE_REQUERIDO": "Falta tu nombre.",
+      "TELEFONO_REQUERIDO": "Falta tu teléfono.",
+      "EMAIL_REQUERIDO": "Falta tu correo electrónico.",
+      "EMAIL_INVALIDO": "Ese correo no parece estar bien escrito. Revísalo, por favor.",
+      "SIN_CODIGOS_DISPONIBLES": "Tuvimos un problema al generar tu código. Intenta de nuevo.",
+      "ERROR_DESCONOCIDO": "No pudimos apartar tu lugar. Intenta de nuevo en un momento."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Avance del registro",
+    "fecha": "Fecha",
+    "horario": "Horario",
+    "datos": "Tus datos"
+  },
+  "horarios": {
+    "duracion": "Cada horario dura 15 minutos.",
+    "cargando": "Buscando horarios…",
+    "error": "No pudimos cargar los horarios. Vuelve a intentar en un momento.",
+    "sinBloques": "Ya no quedan horarios para este día.",
+    "fechaInvalida": "Esa fecha no es válida.",
+    "volverCalendario": "Elegir otra fecha",
+    "lleno": "Lleno",
+    "quedan_one": "Queda {{count}} lugar",
+    "quedan_other": "Quedan {{count}} lugares"
+  },
+  "calendario": {
+    "instruccion": "Elige el día que te queda mejor.",
+    "cargando": "Buscando días disponibles…",
+    "error": "No pudimos cargar los días disponibles. Vuelve a intentar en un momento.",
+    "sinFechas": "Por ahora no hay días abiertos. Vuelve a revisar más adelante.",
+    "agotado": "Lleno",
+    "libres_one": "{{count}} lugar",
+    "libres_other": "{{count}} lugares"
+  },
   "pages": {
     "inicio": "Inicio",
     "calendario": "Calendario",

@@ -10,6 +10,127 @@
     "switchLanguage": "ES",
     "primary": "Continue"
   },
+  "admin": {
+    "verificando": "Checking your session…",
+    "soloPersonal": "For Cajita de Bendición staff only.",
+    "correo": "Email",
+    "contrasena": "Password",
+    "entrar": "Sign in",
+    "entrando": "Signing in…",
+    "salir": "Sign out",
+    "errores": {
+      "CREDENCIALES_INVALIDAS": "That email and password do not match.",
+      "CORREO_SIN_CONFIRMAR": "This account is not confirmed yet. Ask an administrator to activate it.",
+      "DEMASIADOS_INTENTOS": "Too many attempts in a row. Wait a moment and try again.",
+      "SIN_CONEXION": "No connection. Check your mobile data.",
+      "ERROR_DESCONOCIDO": "We could not sign you in. Please try again."
+    }
+  },
+  "panel": {
+    "cargando": "Loading today…",
+    "errores": {
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "SIN_PERMISO": "Your account does not have permission to see this. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your mobile data and try again.",
+      "ERROR_DESCONOCIDO": "We could not load today's data. Please try again in a moment."
+    },
+    "subtitulo": "Today's distribution",
+    "conCita": "With an appointment",
+    "yaRecibieron": "Already received",
+    "faltan": "Still to arrive",
+    "sinCita": "Came without an appointment",
+    "repetidos": "Repeat attempts",
+    "cupoPorHorario": "Capacity per time slot",
+    "cupoAyuda": "Closed time slots do not take new registrations.",
+    "sinBloques": "There are no open time slots today.",
+    "cerrado": "Closed for today",
+    "deTotal": "{{ocupados}} of {{total}}",
+    "citasDelDia_one": "{{count}} appointment today",
+    "citasDelDia_other": "{{count}} appointments today",
+    "sinCitas": "There are no appointments for today yet.",
+    "col": {
+      "hora": "Time",
+      "nombre": "Name",
+      "codigo": "Code",
+      "estado": "Status",
+      "ciudad": "City"
+    },
+    "estado": {
+      "reservada": "Not here yet",
+      "llego": "Arrived",
+      "entregada": "Received",
+      "no_asistio": "No show"
+    }
+  },
+  "confirmacion": {
+    "cargando": "Getting your code ready…",
+    "noEncontrada": "We could not find that appointment. The link may be incomplete.",
+    "volverInicio": "Back to home",
+    "lista": "Your appointment is set",
+    "qrAlt": "QR code for your appointment",
+    "siNoSeLee": "If the code will not scan, give this number:",
+    "aNombreDe": "Under the name of",
+    "unSoloUso": "This code works once and is for one box only. If someone else in your household needs one, they must register on their own.",
+    "guardarImagen": "Save image",
+    "consejoCaptura": "You can also take a screenshot of it."
+  },
+  "registro": {
+    "cargando": "Getting your registration ready…",
+    "sinHorario": "First pick the day and time for your appointment.",
+    "horarioNoDisponible": "That time slot is no longer available. Please pick another.",
+    "nombre": "Full name",
+    "telefono": "Mobile phone",
+    "correo": "Email",
+    "correoAyuda": "This is where we will send your entry code.",
+    "zona": "Where are you visiting us from? (optional)",
+    "zonaSinResponder": "I'd rather not say",
+    "zonaOtra": "Somewhere else",
+    "zonaOtraEtiqueta": "Where from?",
+    "zonaAyuda": "It helps us know which areas we are reaching.",
+    "privacidad": "We use your information only to organize the distribution and prepare program reports. It is not shared with anyone else.",
+    "confirmar": "Confirm my appointment",
+    "enviando": "Holding your spot…",
+    "errores": {
+      "BLOQUE_LLENO": "That time slot filled up while you were filling the form. Please pick another.",
+      "BLOQUE_CERRADO": "That time slot is closed.",
+      "BLOQUE_NO_EXISTE": "That time slot no longer exists. Please pick another.",
+      "FECHA_PASADA": "That date has already passed.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "There is already an appointment for this week. You can book one per week: Monday or Thursday, not both.",
+      "LIMITE_DISPOSITIVO": "An appointment was already booked from this phone this week. Each person needs to register from their own phone.",
+      "NOMBRE_REQUERIDO": "Your name is missing.",
+      "TELEFONO_REQUERIDO": "Your phone number is missing.",
+      "EMAIL_REQUERIDO": "Your email is missing.",
+      "EMAIL_INVALIDO": "That email does not look right. Please check it.",
+      "SIN_CODIGOS_DISPONIBLES": "We had trouble generating your code. Please try again.",
+      "ERROR_DESCONOCIDO": "We could not hold your spot. Please try again in a moment."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Booking progress",
+    "fecha": "Date",
+    "horario": "Time",
+    "datos": "Your details"
+  },
+  "horarios": {
+    "duracion": "Each time slot lasts 15 minutes.",
+    "cargando": "Looking for time slots…",
+    "error": "We could not load the time slots. Please try again in a moment.",
+    "sinBloques": "There are no time slots left for this day.",
+    "fechaInvalida": "That date is not valid.",
+    "volverCalendario": "Pick another date",
+    "lleno": "Full",
+    "quedan_one": "{{count}} spot left",
+    "quedan_other": "{{count}} spots left"
+  },
+  "calendario": {
+    "instruccion": "Pick the day that works best for you.",
+    "cargando": "Looking for available days…",
+    "error": "We could not load the available days. Please try again in a moment.",
+    "sinFechas": "No days are open right now. Please check back later.",
+    "agotado": "Full",
+    "libres_one": "{{count}} spot",
+    "libres_other": "{{count}} spots"
+  },
   "pages": {
     "inicio": "Home",
     "calendario": "Calendar",

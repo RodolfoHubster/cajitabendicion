@@ -30,3 +30,4 @@ dist-ssr
 
 # Configuracion local de Claude Code (launch.json se queda en disco, fuera de git)
 .claude/
+.sesion-prueba.json
