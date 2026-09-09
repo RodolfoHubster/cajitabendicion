@@ -158,9 +158,14 @@ exactamente el bug del Google Form**. No usarlo.
 - **El correo de la iglesia corre por Microsoft 365** y el registro SPF
   termina en `-all`, que rechaza cualquier remitente no autorizado. **No
   modificar el SPF, el MX ni los TXT del dominio principal.** El correo
-  transaccional se manda desde el subdominio (`citas@citas.casadealabanzasd.com`)
-  con su propio SPF y DKIM, para no tocar el correo del pastor.
-  
+  transaccional se manda desde un subdominio propio, para no tocar el correo
+  del pastor.
+- **El remitente no puede ser `citas@citas.casadealabanzasd.com`.** Por regla
+  de DNS, un nombre que tiene un CNAME no admite ningún otro registro, y
+  `citas` ya apunta al hosting. Ahí no cabe el TXT del SPF. Hay que mandar
+  desde un subdominio hermano, por ejemplo `envios.casadealabanzasd.com`.
+  El DKIM sí podría convivir, porque vive bajo `_domainkey`; el SPF no.
+
   Detalle completo de dominio, hosting, DNS y correo en `docs/infraestructura.md`.
 
 ---
@@ -171,10 +176,32 @@ Hecho:
 - Repo creado con estructura base (Vite + React + Tailwind + Router + i18next)
 - Proyecto en Cloudflare Pages conectado a `main`
 - Mockups de todas las pantallas aprobados por el Pastor David
+- `public/_redirects` en su lugar, verificado con enlaces directos en producción
+- `citas.casadealabanzasd.com` en línea, con certificado. El correo y el sitio
+  de la iglesia quedaron intactos: solo se agregó un CNAME, no se editó nada
+- Proyecto en Supabase (`us-west-1`) con `supabase/schema.sql` aplicado
+- **Las dos pruebas de concurrencia pasan.** 50 llamadas simultáneas sobre un
+  bloque de capacidad 2 dejan exactamente 2 citas; 10 escaneos simultáneos del
+  mismo QR devuelven un solo `VALIDO`. Ver `scripts/prueba-concurrencia.mjs` y
+  `scripts/prueba-escaneo.mjs`
 
 Pendiente inmediato:
-- `public/_redirects` con `/*  /index.html  200` (sin esto React Router da 404
-  al recargar o al abrir un enlace directo)
-- Crear proyecto en Supabase y correr `supabase/schema.sql`
-- Pruebas de concurrencia de las dos funciones
-- CNAME en GoDaddy y dominio personalizado en Cloudflare
+- Borrar los datos de prueba (`personas` con `codigo_corto like 'TEST-%'` y sus
+  citas) antes de que entren familias reales
+- Pasar Supabase al plan Pro **antes del primer día de entrega**. No es por
+  capacidad —el plan gratis sobra por años— sino porque no incluye respaldos,
+  y esta base guarda el padrón y el historial de entregas
+- Políticas de RLS para lectura: hoy las tablas están cerradas y solo se entra
+  por las dos funciones. `/calendario` y `/horarios/:fecha` necesitan leer
+  bloques y disponibilidad
+- Programar las pantallas, que hoy son cascarones
+
+Cambios respecto al esquema original, ya aplicados:
+- `registrar_entrega` **recibe un solo argumento**: `registrar_entrega(p_token)`.
+  El voluntario sale de `auth.uid()`, no de un parámetro, para que la bitácora
+  de auditoría no se pueda falsificar. Requiere sesión iniciada
+- Las dos funciones son `security definer` con `search_path` fijo: son la única
+  puerta a unas tablas cerradas con RLS
+- La base corre en `America/Los_Angeles`. En UTC, todo lo posterior a las 5 PM
+  caía en el día siguiente y el escáner habría rechazado citas válidas con
+  `OTRA_FECHA` justo en la hora más cargada

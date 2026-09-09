@@ -141,7 +141,7 @@ create table escaneos (
 
 create table entradas_sin_cita (
   id              uuid primary key default gen_random_uuid(),
-  fecha           date not null default current_date,
+  fecha           date not null default (now() at time zone 'America/Los_Angeles')::date,
   registrado_por  uuid not null,
   registrado_en   timestamptz not null default now()
 );
@@ -246,10 +246,7 @@ $$;
 --  voluntarios escaneando el mismo QR al mismo tiempo registren
 --  dos entregas. El segundo recibe YA_USADO.
 
-create or replace function registrar_entrega(
-  p_token   text,
-  p_usuario uuid
-)
+create or replace function registrar_entrega(p_token text)
 returns table (
   resultado    text,
   nombre       text,
@@ -262,7 +259,16 @@ declare
   v_cita    citas;
   v_persona personas;
   v_bloque  bloques;
+  -- El voluntario sale de la sesion, no de un parametro. Si viniera
+  -- como argumento, cualquiera podria firmar un escaneo con el id de
+  -- otro y la bitacora de auditoria dejaria de servir para responder
+  -- "quien entrego esta caja".
+  v_usuario uuid := auth.uid();
 begin
+  if v_usuario is null then
+    raise exception 'SIN_SESION';
+  end if;
+
   select * into v_cita
     from citas
    where token_qr = p_token
@@ -278,7 +284,7 @@ begin
 
   if v_bloque.fecha <> current_date then
     insert into escaneos (cita_id, usuario_id, resultado)
-    values (v_cita.id, p_usuario, 'OTRA_FECHA');
+    values (v_cita.id, v_usuario, 'OTRA_FECHA');
 
     return query select 'OTRA_FECHA'::text, v_persona.nombre,
                         v_persona.codigo_corto, v_bloque.hora;
@@ -287,7 +293,7 @@ begin
 
   if v_cita.estado = 'entregada' then
     insert into escaneos (cita_id, usuario_id, resultado)
-    values (v_cita.id, p_usuario, 'YA_USADO');
+    values (v_cita.id, v_usuario, 'YA_USADO');
 
     return query select 'YA_USADO'::text, v_persona.nombre,
                         v_persona.codigo_corto, v_bloque.hora;
@@ -306,7 +312,7 @@ begin
    where id = v_cita.id;
 
   insert into escaneos (cita_id, usuario_id, resultado)
-  values (v_cita.id, p_usuario, 'VALIDO');
+  values (v_cita.id, v_usuario, 'VALIDO');
 
   return query select 'VALIDO'::text, v_persona.nombre,
                       v_persona.codigo_corto, v_bloque.hora;
@@ -333,6 +339,79 @@ select
 from bloques b
 left join citas c on c.bloque_id = b.id
 group by b.fecha;
+
+
+-- ============================================================
+--  10. ROW LEVEL SECURITY
+-- ============================================================
+--  Se activa aqui, explicitamente, y no se deja a la casilla
+--  "Enable automatic RLS" del panel de Supabase: este archivo tiene
+--  que bastarse solo. Si alguien recrea la base sin esa casilla
+--  palomeada, las tablas nacerian abiertas.
+--
+--  Sin politicas, RLS significa "no pasa nadie". Ese es el estado
+--  seguro de partida. El acceso legitimo entra por las dos funciones
+--  de mas abajo, nunca tocando las tablas directamente.
+
+alter table personas          enable row level security;
+alter table bloques           enable row level security;
+alter table citas             enable row level security;
+alter table escaneos          enable row level security;
+alter table entradas_sin_cita enable row level security;
+alter table excepciones       enable row level security;
+
+
+-- ============================================================
+--  11. ZONA HORARIA
+-- ============================================================
+--  Supabase deja la base en UTC. Con entregas de 2:45 a 6:30 PM en
+--  San Diego, todo lo que pasa despues de las 5 PM cae en el "dia
+--  siguiente" segun UTC. Sin esto, registrar_entrega() rechazaria
+--  citas validas con OTRA_FECHA y reservar_cita() las rechazaria con
+--  FECHA_PASADA, justo en la hora mas cargada y con la fila afuera.
+--
+--  Se usa el NOMBRE de la zona, no un desfase fijo: America/Los_Angeles
+--  se ajusta solo al horario de verano. Un -8 escrito a mano se
+--  romperia dos veces al año.
+
+alter database postgres set timezone to 'America/Los_Angeles';
+
+
+-- ============================================================
+--  12. PERMISOS
+-- ============================================================
+--  Las tablas estan cerradas. Estas dos funciones son la unica puerta,
+--  y por eso corren con los permisos de su dueño en vez de los de
+--  quien las llama.
+--
+--  El search_path fijo NO es opcional: sin el, una funcion security
+--  definer se puede secuestrar apuntandola a tablas falsas. El schema
+--  extensions hace falta para gen_random_bytes().
+--
+--  La zona se fija tambien aqui para no depender de la sesion ni de
+--  conexiones viejas que sigan en el pool con la configuracion previa.
+
+alter function reservar_cita(uuid, uuid)
+  security definer
+  set search_path = public, extensions, pg_temp
+  set timezone    = 'America/Los_Angeles';
+
+alter function registrar_entrega(text)
+  security definer
+  set search_path = public, extensions, pg_temp
+  set timezone    = 'America/Los_Angeles';
+
+--  Postgres regala EXECUTE a todo el mundo por defecto. Con security
+--  definer eso es peligroso: se retira y se entrega a mano.
+revoke execute on function reservar_cita(uuid, uuid) from public;
+revoke execute on function registrar_entrega(text)   from public;
+
+--  reservar_cita     -> el publico, porque en la V1 las familias no
+--                       tienen cuenta de usuario.
+--  registrar_entrega -> solo personal con sesion iniciada. Un visitante
+--                       no tiene por que poder quemar codigos QR.
+grant execute on function reservar_cita(uuid, uuid) to anon, authenticated;
+grant execute on function registrar_entrega(text)   to authenticated;
 
 
 -- ============================================================
