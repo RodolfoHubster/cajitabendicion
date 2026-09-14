@@ -7,7 +7,6 @@
     "todo": "TODO: aquí irá la lógica de negocio"
   },
   "actions": {
-    "switchLanguage": "EN",
     "primary": "Continuar"
   },
   "admin": {
@@ -26,6 +25,74 @@
       "ERROR_DESCONOCIDO": "No pudimos iniciar sesión. Intenta de nuevo."
     }
   },
+  "nav": {
+    "citasHoy": "Citas de hoy",
+    "horarios": "Horarios y cupos",
+    "personas": "Personas",
+    "reportes": "Reportes",
+    "escanear": "Escanear",
+    "registrar": "Registrar persona"
+  },
+  "escaneo": {
+    "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
+    "apunta": "Buscando un código…",
+    "buscarManual": "Buscar por nombre o código",
+    "buscarEtiqueta": "Nombre o código",
+    "buscar": "Buscar",
+    "sinResultados": "No encontramos citas que coincidan. Por nombre solo se buscan las de hoy; con el código completo (por ejemplo CB-4871) también las de otros días.",
+    "volverCamara": "Volver a la cámara",
+    "escanearOtro": "Escanear otro",
+    "registrarEntrega": "Registrar entrega",
+    "registrando": "Registrando…",
+    "estadoPrevio": {
+      "reservada": "Tiene cita para hoy y no ha recibido.",
+      "llego": "Ya se registró su llegada.",
+      "entregada": "Este código ya se usó hoy.",
+      "no_asistio": "Marcada como no asistió."
+    },
+    "resultado": {
+      "VALIDO": "Puede pasar",
+      "YA_USADO": "Ya recibió",
+      "OTRA_FECHA": "Otra fecha",
+      "CANCELADA": "Cita cancelada",
+      "NO_EXISTE": "Código no reconocido",
+      "VALIDO_AUTORIZADO": "Puede pasar (autorizado)"
+    },
+    "explicacion": {
+      "VALIDO": "Cita válida para hoy. Entrégale su caja.",
+      "YA_USADO": "Este código ya se usó hoy. No procede otra entrega.",
+      "OTRA_FECHA": "Su cita es para otro día. No procede.",
+      "CANCELADA": "Esta cita fue cancelada. No procede.",
+      "NO_EXISTE": "Ese código no corresponde a ninguna cita. Búscala por nombre.",
+      "VALIDO_AUTORIZADO": "Entrega autorizada fuera de la fecha de su cita. Quedó registrado quién la autorizó."
+    },
+    "camara": {
+      "SIN_PERMISO": "No diste permiso para usar la cámara.",
+      "SIN_CAMARA": "Este dispositivo no tiene cámara disponible.",
+      "SIN_HTTPS": "La cámara solo funciona en sitios seguros (https).",
+      "ERROR_CAMARA": "No pudimos encender la cámara.",
+      "usaManual": "Puedes seguir trabajando: busca a la persona por nombre o código."
+    },
+    "errores": {
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para escanear. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles.",
+      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
+      "CODIGO_INVALIDO": "Ese código de autorización no es válido.",
+      "BLOQUEADO": "Demasiados intentos fallidos. Espera 15 minutos antes de volver a intentar."
+    },
+    "otraFechaDetalle": "Su cita es para el {{fecha}} a las {{hora}}. No procede.",
+    "autorizar": {
+      "boton": "Autorizar de todos modos",
+      "explicacion": "Solo con el código personal de quien autoriza. Queda registrado quién lo autorizó.",
+      "etiqueta": "Código de autorización",
+      "confirmar": "Confirmar entrega",
+      "cancelar": "Cancelar",
+      "botonAdmin": "Entregar de todos modos",
+      "explicacionAdmin": "Como administrador puedes autorizarlo sin código. Quedará registrado a tu nombre."
+    },
+    "verCita": "Ver cita"
+  },
   "panel": {
     "cargando": "Cargando el día…",
     "errores": {
@@ -35,6 +102,10 @@
       "ERROR_DESCONOCIDO": "No pudimos cargar los datos del día. Vuelve a intentar en un momento."
     },
     "subtitulo": "Entrega de hoy",
+    "otroDia": "Estás viendo otro día, no el de hoy.",
+    "verDia": "Ver el día",
+    "volverHoy": "Volver a hoy",
+    "irProxima": "Ir a la próxima entrega",
     "conCita": "Con cita hoy",
     "yaRecibieron": "Ya recibieron",
     "faltan": "Faltan por llegar",
@@ -78,7 +149,7 @@
     "cargando": "Preparando tu registro…",
     "sinHorario": "Primero elige el día y la hora de tu cita.",
     "horarioNoDisponible": "Ese horario ya no está disponible. Elige otro.",
-    "nombre": "Nombre completo",
+    "nombre": "Nombre(s)",
     "telefono": "Teléfono celular",
     "correo": "Correo electrónico",
     "correoAyuda": "Aquí te enviaremos tu código de entrada.",
@@ -96,14 +167,24 @@
       "BLOQUE_NO_EXISTE": "Ese horario ya no existe. Elige otro.",
       "FECHA_PASADA": "Esa fecha ya pasó.",
       "YA_TIENE_CITA_ESTA_SEMANA": "Ya hay una cita registrada para esta semana. Se puede reservar una por semana: lunes o jueves, no ambos.",
-      "LIMITE_DISPOSITIVO": "Desde este teléfono ya se registró una cita esta semana. Cada persona necesita registrarse desde su propio teléfono.",
+      "LIMITE_DISPOSITIVO": "Desde este dispositivo ya se registró una cita esta semana. Cada persona necesita registrarse desde su propio celular o computadora.",
       "NOMBRE_REQUERIDO": "Falta tu nombre.",
       "TELEFONO_REQUERIDO": "Falta tu teléfono.",
       "EMAIL_REQUERIDO": "Falta tu correo electrónico.",
       "EMAIL_INVALIDO": "Ese correo no parece estar bien escrito. Revísalo, por favor.",
       "SIN_CODIGOS_DISPONIBLES": "Tuvimos un problema al generar tu código. Intenta de nuevo.",
-      "ERROR_DESCONOCIDO": "No pudimos apartar tu lugar. Intenta de nuevo en un momento."
-    }
+      "ERROR_DESCONOCIDO": "No pudimos apartar tu lugar. Intenta de nuevo en un momento.",
+      "AUN_NO_ABRE": "Los registros para este día todavía no abren.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Tu código de suscriptor ya no es válido. Puede que lo hayan cambiado; revisa la publicación de Facebook.",
+      "DIA_CERRADO": "Este día ya no acepta registros.",
+      "APELLIDOS_REQUERIDOS": "Faltan tus apellidos.",
+      "NOMBRE_INVALIDO": "El nombre y los apellidos no llevan números.",
+      "TELEFONO_INVALIDO": "Revisa tu teléfono: el número no está completo o tiene algo de más."
+    },
+    "apellidos": "Apellidos",
+    "pais": "País del teléfono",
+    "paisesPrincipales": "Más comunes",
+    "paisesTodos": "Todos los países"
   },
   "pasos": {
     "etiqueta": "Avance del registro",
@@ -120,20 +201,18 @@
     "volverCalendario": "Elegir otra fecha",
     "lleno": "Lleno",
     "quedan_one": "Queda {{count}} lugar",
-    "quedan_other": "Quedan {{count}} lugares"
+    "quedan_other": "Quedan {{count}} lugares",
+    "conCodigo": "Entraste con tu código de suscriptor. Elige tu horario.",
+    "revisandoCodigo": "Revisando tu código…"
   },
   "calendario": {
-    "instruccion": "Elige el día que te queda mejor.",
     "cargando": "Buscando días disponibles…",
     "error": "No pudimos cargar los días disponibles. Vuelve a intentar en un momento.",
-    "sinFechas": "Por ahora no hay días abiertos. Vuelve a revisar más adelante.",
-    "agotado": "Lleno",
-    "libres_one": "{{count}} lugar",
-    "libres_other": "{{count}} lugares"
+    "abre": "Abre el {{cuando}}"
   },
   "pages": {
     "inicio": "Inicio",
-    "calendario": "Calendario",
+    "calendario": "Próxima entrega",
     "horarios": "Horarios",
     "registro": "Registro",
     "confirmacion": "Confirmación",
@@ -143,5 +222,261 @@
     "adminHorarios": "Gestión de horarios",
     "adminPersonas": "Personas",
     "adminReportes": "Reportes"
+  },
+  "inicio": {
+    "iglesia": "Iglesia Casa de Alabanza",
+    "titulo": "Reserva tu cita",
+    "subtitulo": "Despensa gratuita, lunes y jueves",
+    "antesDeEmpezar": "Antes de empezar",
+    "regla1": "Puedes reservar una cita por semana: lunes o jueves, no ambos.",
+    "regla2": "Cada persona mayor de 18 años que reciba una caja necesita su propio registro y su propio código.",
+    "proximaFecha": "Próxima fecha disponible",
+    "horariosLibres_one": "{{count}} horario libre",
+    "horariosLibres_other": "{{count}} horarios libres",
+    "sinProxima": "Por ahora no hay fechas abiertas. Vuelve a revisar más adelante.",
+    "elegir": "Ver la próxima entrega",
+    "gratuito": "Los alimentos son gratuitos. No se requiere ninguna donación.",
+    "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega."
+  },
+  "navegacion": {
+    "inicio": "Volver al inicio",
+    "cambiarFecha": "Cambiar fecha",
+    "cambiarHorario": "Cambiar horario",
+    "accesoPersonal": "Acceso para personal",
+    "verSitio": "Ver sitio público"
+  },
+  "construccion": {
+    "aviso": "Esta sección todavía está en construcción.",
+    "mientras": "Mientras tanto puedes usar Citas de hoy y Escanear."
+  },
+  "pie": {
+    "bienvenidos": "Bienvenidos a",
+    "comunidad": "Comunidad en Cristo",
+    "servicios": "Servicios de la iglesia",
+    "horarioServicios": "Jueves 7:00 PM · Domingo 6:00 PM",
+    "sitioIglesia": "Sitio de la iglesia",
+    "siguenos": "Síguenos",
+    "apoya": "Apoya a Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Facebook de Cajita de Bendición",
+      "facebookIglesia": "Facebook de la iglesia"
+    }
+  },
+  "donar": {
+    "titulo": "¿Quieres apoyar a Cajita de Bendición?",
+    "tituloTrasRegistro": "Si te es posible, no olvides apoyarnos",
+    "aclaracion": "Tu cita no depende de ninguna donación: los alimentos son gratuitos.",
+    "texto": "Si puedes y quieres ayudar, cualquier aporte nos permite llegar a más familias cada semana.",
+    "paypal": "Donar con PayPal",
+    "gofundme": "Apoyar en GoFundMe",
+    "suscribirse": "Suscribirte en Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Dónde estamos",
+    "entregas": "Entrega de despensas: lunes y jueves por la tarde, con cita.",
+    "googleMaps": "Abrir en Google Maps",
+    "appleMaps": "Abrir en Apple Maps",
+    "llamar": "Llamar"
+  },
+  "marca": {
+    "ministerio": "Un ministerio de {{iglesia}}"
+  },
+  "rol": {
+    "sinRolTitulo": "Tu cuenta todavía no tiene acceso",
+    "sinRolTexto": "Pide al pastor que te asigne el rol de administrador o de voluntario.",
+    "nombre": {
+      "admin": "Administrador",
+      "voluntario": "Voluntario"
+    },
+    "errorTitulo": "No pudimos revisar tu acceso"
+  },
+  "registrarPanel": {
+    "titulo": "Registrar persona",
+    "ayuda": "Para quien no puede registrarse por su cuenta. Desde aquí no aplica el límite por dispositivo y el correo es opcional.",
+    "fecha": "Fecha",
+    "elegirFecha": "Elige una fecha",
+    "horario": "Horario",
+    "elegirHorario": "Elige un horario",
+    "lugares_one": "{{count}} lugar",
+    "lugares_other": "{{count}} lugares",
+    "lleno": "lleno",
+    "correoOpcional": "Correo electrónico (opcional)",
+    "registrar": "Registrar",
+    "registrando": "Registrando…",
+    "listo": "Persona registrada",
+    "verQR": "Ver código QR",
+    "otra": "Registrar a otra persona",
+    "sinFechas": "No hay fechas con horarios abiertos.",
+    "errorCarga": "No pudimos cargar los horarios."
+  },
+  "diasAdmin": {
+    "titulo": "Horarios y cupos",
+    "ayuda": "Toca una fecha para cambiar cuándo se abren sus registros, el acceso de suscriptores y los lugares de cada horario.",
+    "nueva": "Nueva fecha",
+    "fecha": "Fecha de la entrega",
+    "desde": "Primer horario",
+    "hasta": "Último horario",
+    "capacidad": "Lugares por horario",
+    "cuandoAbre": "¿Cuándo se abren los registros?",
+    "abreProgramado": "En una fecha y hora",
+    "abreAhora": "Ahora mismo",
+    "eligeFecha": "Primero elige la fecha de la entrega.",
+    "abreEn": "Se abren al público el",
+    "anticipo": {
+      "unaHora": "1 hora antes que el público",
+      "dosHoras": "2 horas antes que el público",
+      "unDia": "1 día antes que el público",
+      "personalizado": "En otra fecha y hora"
+    },
+    "crear": "Crear fecha",
+    "creando": "Creando…",
+    "cancelar": "Cancelar",
+    "creada": "Fecha creada.",
+    "creadaConCodigo": "Fecha creada. Copia este código y pégalo en la publicación para suscriptores:",
+    "lista": "Fechas de entrega",
+    "cargando": "Cargando fechas…",
+    "sinDias": "Todavía no hay fechas. Crea la primera con «Nueva fecha».",
+    "estado": {
+      "abierta": "Abierta",
+      "programada": "Aún no abre",
+      "cerrada": "Cerrada"
+    },
+    "lugares": "{{ocupados}} de {{total}} lugares",
+    "seAbren": "Los registros se abren el {{cuando}}.",
+    "abrirAhora": "Abrir ahora",
+    "guardar": "Guardar",
+    "registrosAbiertos": "Los registros están abiertos.",
+    "cerrarRegistros": "Cerrar registros",
+    "confirmarCerrar": "Nadie más podrá registrarse en esta fecha. Las citas que ya existen se respetan. ¿Cerrar los registros?",
+    "registrosCerrados": "Registros cerrados. Las citas que ya existen se respetan.",
+    "reabrirRegistros": "Reabrir registros",
+    "copiar": "Copiar",
+    "copiado": "Copiado",
+    "codigoDetalle": "Los suscriptores entran desde el {{cuando}}.",
+    "anticipadas_one": "{{count}} persona ya lo usó.",
+    "anticipadas_other": "{{count}} personas ya lo usaron.",
+    "cargandoHorarios": "Cargando horarios…",
+    "ocupados": "{{ocupados}} de {{total}}",
+    "horarioCerrado": "Cerrado",
+    "cupoDe": "Lugares a las {{hora}}",
+    "cerrarHorario": "Cerrar",
+    "abrirHorario": "Abrir",
+    "eliminarHorario": "Eliminar el horario de las {{hora}}",
+    "confirmarEliminarHorario": "¿Eliminar este horario?",
+    "hora": "Hora",
+    "cupo": "Lugares",
+    "agregar": "Agregar horario",
+    "eliminarFecha": "Eliminar esta fecha",
+    "confirmarEliminarFecha": "¿Eliminar esta fecha y todos sus horarios? Solo se puede si nadie se ha registrado.",
+    "errores": {
+      "FECHA_PASADA": "Esa fecha ya pasó.",
+      "HORARIO_INVALIDO": "Revisa los horarios: el último no puede ser antes del primero.",
+      "CAPACIDAD_INVALIDA": "Los lugares por horario tienen que ser 0 o más.",
+      "APERTURA_REQUERIDA": "Falta la fecha y hora de apertura.",
+      "ANTICIPADO_DESPUES_DE_APERTURA": "El acceso de suscriptores tiene que empezar antes de la apertura al público.",
+      "DIA_YA_EXISTE": "Esa fecha ya existe. Búscala en la lista.",
+      "DIA_NO_EXISTE": "Esa fecha ya no existe. Recarga la página.",
+      "DIA_CON_CITAS": "Esta fecha ya tiene registros y no se puede eliminar. Puedes cerrar sus registros.",
+      "BLOQUE_YA_EXISTE": "Ese horario ya existe en esta fecha.",
+      "BLOQUE_CON_CITAS": "Este horario ya tiene registros y no se puede eliminar. Puedes cerrarlo.",
+      "BLOQUE_NO_EXISTE": "Ese horario ya no existe. Recarga la página.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
+      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
+      "SUSCRIPTORES_FECHA_ABIERTA": "Para pedir el código a los suscriptores, «Se abren al público el» tiene que ser una hora futura."
+    },
+    "activarSuscriptores": "Activar acceso para suscriptores de Facebook",
+    "entran": "Los suscriptores entran",
+    "abreAnticipado": "Los suscriptores entran desde",
+    "codigoPublicacion": "Código para la publicación de suscriptores",
+    "guardaParaCodigo": "Guarda los cambios para generar el código.",
+    "codigoGenerado": "Código generado. Cópialo y pégalo en la publicación para suscriptores.",
+    "seccionApertura": "Apertura de registros",
+    "guardarCambios": "Guardar cambios",
+    "guardado": "Cambios guardados.",
+    "regenerar": "Generar otro",
+    "confirmarRegenerar": "El código actual dejará de funcionar. ¿Generar uno nuevo?",
+    "seccionLugares": "Lugares por horario",
+    "todos": "Todos los horarios",
+    "aplicarTodos": "Aplicar a todos",
+    "suscriptoresYaAbierta": "Esa hora ya pasó: la fecha está abierta para todos y el código no se pediría. Para que primero entren solo los suscriptores, pon una hora futura en «Se abren al público el»."
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Falta tu nombre.",
+      "NUMEROS": "El nombre no lleva números.",
+      "SIMBOLOS": "Usa solo letras. Se permiten espacios, guion (-) y apóstrofo (').",
+      "CORTO": "Escribe tu nombre completo, no solo una letra."
+    },
+    "apellidos": {
+      "VACIO": "Faltan tus apellidos.",
+      "NUMEROS": "Los apellidos no llevan números.",
+      "SIMBOLOS": "Usa solo letras. Se permiten espacios, guion (-) y apóstrofo (').",
+      "CORTO": "Escribe tus apellidos completos, no solo una letra."
+    },
+    "correo": {
+      "VACIO": "Falta tu correo electrónico.",
+      "ESPACIOS": "El correo no lleva espacios.",
+      "SIN_ARROBA": "Falta la @ (arroba). Por ejemplo: nombre@gmail.com",
+      "VARIAS_ARROBAS": "El correo lleva una sola @.",
+      "SIN_USUARIO": "Falta lo que va antes de la @.",
+      "SIN_DOMINIO": "Falta lo que va después de la @, por ejemplo gmail.com",
+      "SIN_PUNTO": "Falta la terminación después de un punto, por ejemplo .com",
+      "DOMINIO_INVALIDO": "Revisa lo que va después de la @, por ejemplo gmail.com",
+      "sugerencia": "¿Quisiste decir {{correo}}?",
+      "usarSugerencia": "Sí, corregir"
+    },
+    "telefono": {
+      "VACIO": "Falta tu teléfono.",
+      "CARACTERES": "El teléfono solo lleva números. Puedes usar espacios, guiones y un + al inicio.",
+      "LADA_DESCONOCIDA": "No reconocemos esa clave de país. Elige tu país en la lista.",
+      "CORTO": "Faltan dígitos: un teléfono de {{pais}} lleva {{digitos}} dígitos y escribiste {{llevan}}.",
+      "LARGO": "Sobran dígitos: un teléfono de {{pais}} lleva {{digitos}} dígitos y escribiste {{llevan}}.",
+      "EMPIEZA_CON_1": "Falta un dígito: un teléfono de {{pais}} lleva {{max}} dígitos sin contar el 1 del inicio.",
+      "entre": "entre {{min}} y {{max}}"
+    }
+  },
+  "proxima": {
+    "etiqueta": "Próxima entrega",
+    "horario": "De {{inicio}} a {{fin}}",
+    "duracion": "Cada horario dura 15 minutos.",
+    "lugares_one": "{{count}} lugar disponible",
+    "lugares_other": "{{count}} lugares disponibles",
+    "lleno": "Ya no quedan lugares para esta entrega.",
+    "abiertos": "Los registros están abiertos.",
+    "abreEl": "Los registros abren el {{cuando}}.",
+    "faltan": "Faltan {{tiempo}}",
+    "suscriptoresDesde": "Los suscriptores de Facebook pueden registrarse desde el {{cuando}}.",
+    "suscriptoresAhora": "Los suscriptores de Facebook ya pueden registrarse con su código.",
+    "conCodigo": "Registrarme con código de suscriptor de Facebook",
+    "registrarme": "Registrarme",
+    "sinLugares": "Sin lugares",
+    "seActivara": "El botón «Registrarme» se activa solo a la hora de apertura.",
+    "sinFechas": "Por ahora no hay entregas programadas. Vuelve a revisar más adelante.",
+    "tiempo": {
+      "dias_one": "{{count}} día",
+      "dias_other": "{{count}} días",
+      "horas": "{{n}} h",
+      "minutos": "{{n}} min",
+      "segundos": "{{n}} s"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Registro anticipado para suscriptores",
+    "explicacion": "Si eres suscriptor de Cajita de Bendición en Facebook, escribe el código que viene en la publicación exclusiva para suscriptores.",
+    "desde": "Podrás usar tu código desde el {{cuando}}.",
+    "ahora": "Ya puedes usar tu código para registrarte antes que el público.",
+    "sinAnticipado": "Esta entrega no tiene registro anticipado para suscriptores.",
+    "yaAbierto": "Los registros ya están abiertos para todos: no necesitas código.",
+    "irRegistro": "Ir a registrarme",
+    "codigo": "Código de suscriptor",
+    "entrar": "Entrar con mi código",
+    "validando": "Revisando…",
+    "invalido": "Ese código no es válido o todavía no se puede usar.",
+    "noSuscriptor": "¿Todavía no eres suscriptor?",
+    "invitacion": "Suscríbete a Cajita de Bendición en Facebook para registrarte antes que el público en cada entrega.",
+    "suscribirme": "Suscribirme en Facebook",
+    "cerrar": "Cerrar"
   }
 }

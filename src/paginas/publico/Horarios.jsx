@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
+import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
+import {
+  borrarCodigoAnticipado,
+  leerCodigoAnticipado,
+  validarCodigoAnticipado,
+} from '../../datos/anticipado'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
 
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/
@@ -20,6 +26,8 @@ export default function Horarios() {
   // Con una fecha invalida no se consulta nada, asi que no hay nada que cargar.
   const [cargando, setCargando] = useState(fechaValida)
   const [error, setError] = useState(null)
+  // Fecha aun cerrada al publico: null mientras se revisa el codigo guardado.
+  const [codigoValido, setCodigoValido] = useState(null)
 
   useEffect(() => {
     if (!fechaValida) return
@@ -41,6 +49,32 @@ export default function Horarios() {
       vigente = false
     }
   }, [fecha, fechaValida])
+
+  const cerradoAlPublico = bloques[0]?.abierto === false
+
+  // El codigo guardado se vuelve a revisar: pudo cambiarse o vencer.
+  useEffect(() => {
+    if (!cerradoAlPublico) return
+
+    const guardado = leerCodigoAnticipado(fecha)
+    if (!guardado) return
+
+    let vigente = true
+
+    validarCodigoAnticipado(fecha, guardado)
+      .then((valido) => {
+        if (!vigente) return
+        if (!valido) borrarCodigoAnticipado(fecha)
+        setCodigoValido(valido)
+      })
+      .catch(() => {
+        if (vigente) setCodigoValido(false)
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [cerradoAlPublico, fecha])
 
   if (!fechaValida) {
     return (
@@ -71,6 +105,22 @@ export default function Horarios() {
     )
   }
 
+  if (cerradoAlPublico) {
+    // Bloqueada: sin un codigo de suscriptor valido no se entra, ni
+    // escribiendo la direccion a mano. El codigo se escribe en el calendario.
+    if (!leerCodigoAnticipado(fecha) || codigoValido === false) {
+      return <Navigate replace to="/calendario" />
+    }
+
+    if (codigoValido === null) {
+      return (
+        <Tarjeta>
+          <p className="text-base">{t('horarios.revisandoCodigo')}</p>
+        </Tarjeta>
+      )
+    }
+  }
+
   const titulo = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
     day: 'numeric',
@@ -79,10 +129,17 @@ export default function Horarios() {
 
   return (
     <Tarjeta>
+      <EnlaceVolver a="/calendario">{t('navegacion.cambiarFecha')}</EnlaceVolver>
       <Pasos actual={2} />
 
-      <h1 className="mb-1 text-2xl font-bold">{titulo}</h1>
+      <h1 className="mb-1 text-2xl font-bold first-letter:uppercase">{titulo}</h1>
       <p className="mb-4 text-base text-principal/70">{t('horarios.duracion')}</p>
+
+      {cerradoAlPublico && (
+        <p className="mb-4 rounded-xl bg-puede-pasar/10 p-3 text-base text-puede-pasar">
+          {t('horarios.conCodigo')}
+        </p>
+      )}
 
       {bloques.length === 0 ? (
         <>
@@ -119,12 +176,8 @@ export default function Horarios() {
                     >
                       {formatearHora(bloque.hora)}
                     </span>
-                    <span
-                      className={`text-base ${lleno ? 'text-ya-recibio' : 'text-puede-pasar'}`}
-                    >
-                      {lleno
-                        ? t('horarios.lleno')
-                        : t('horarios.quedan', { count: bloque.libres })}
+                    <span className={`text-base ${lleno ? 'text-ya-recibio' : 'text-puede-pasar'}`}>
+                      {lleno ? t('horarios.lleno') : t('horarios.quedan', { count: bloque.libres })}
                     </span>
                   </button>
                 </li>
@@ -133,9 +186,9 @@ export default function Horarios() {
           </ul>
 
           <Boton
+            className={elegido ? '' : 'opacity-40'}
             disabled={!elegido}
             onClick={() => navegar(`/registro?bloque=${elegido}&fecha=${fecha}`)}
-            className={elegido ? '' : 'opacity-40'}
           >
             {t('actions.primary')}
           </Boton>

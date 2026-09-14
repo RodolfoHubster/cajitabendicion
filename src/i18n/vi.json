@@ -1,0 +1,480 @@
+{
+  "app": {
+    "title": "Cajita de Bendición"
+  },
+  "avisoIdioma": {
+    "titulo": "Tiếng Việt đang được phát triển",
+    "detalle": "Bản dịch này vẫn đang được hoàn thiện và có thể có lỗi. Nếu có chỗ nào chưa rõ, bạn có thể chuyển sang tiếng Anh hoặc tiếng Tây Ban Nha ở phía trên.",
+    "ingles": "Vietnamese is still in development and may contain errors."
+  },
+  "common": {
+    "comingSoon": "Nội dung đang được xây dựng",
+    "todo": "TODO: phần xử lý sẽ được thêm vào đây"
+  },
+  "actions": {
+    "primary": "Tiếp tục"
+  },
+  "admin": {
+    "verificando": "Đang kiểm tra phiên đăng nhập…",
+    "soloPersonal": "Chỉ dành cho nhân viên của Cajita de Bendición.",
+    "correo": "Email",
+    "contrasena": "Mật khẩu",
+    "entrar": "Đăng nhập",
+    "entrando": "Đang đăng nhập…",
+    "salir": "Đăng xuất",
+    "errores": {
+      "CREDENCIALES_INVALIDAS": "Email hoặc mật khẩu không đúng.",
+      "CORREO_SIN_CONFIRMAR": "Tài khoản này chưa được xác nhận. Hãy nhờ quản trị viên kích hoạt.",
+      "DEMASIADOS_INTENTOS": "Bạn đã thử quá nhiều lần. Vui lòng đợi một lát rồi thử lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động.",
+      "ERROR_DESCONOCIDO": "Không thể đăng nhập. Vui lòng thử lại."
+    }
+  },
+  "nav": {
+    "citasHoy": "Lịch hẹn hôm nay",
+    "horarios": "Khung giờ và số chỗ",
+    "personas": "Người đăng ký",
+    "reportes": "Báo cáo",
+    "escanear": "Quét mã",
+    "registrar": "Đăng ký cho người khác"
+  },
+  "escaneo": {
+    "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
+    "apunta": "Đang tìm mã…",
+    "buscarManual": "Tìm theo tên hoặc mã",
+    "buscarEtiqueta": "Tên hoặc mã",
+    "buscar": "Tìm",
+    "sinResultados": "Không tìm thấy lịch hẹn phù hợp. Tìm theo tên chỉ áp dụng cho hôm nay; nhập đủ mã (ví dụ CB-4871) sẽ tìm cả các ngày khác.",
+    "volverCamara": "Quay lại camera",
+    "escanearOtro": "Quét mã khác",
+    "registrarEntrega": "Ghi nhận đã nhận hàng",
+    "registrando": "Đang ghi nhận…",
+    "estadoPrevio": {
+      "reservada": "Có lịch hẹn hôm nay và chưa nhận hàng.",
+      "llego": "Đã ghi nhận người này đã đến.",
+      "entregada": "Mã này đã được sử dụng hôm nay.",
+      "no_asistio": "Đã đánh dấu là không đến."
+    },
+    "resultado": {
+      "VALIDO": "Được vào",
+      "YA_USADO": "Đã nhận rồi",
+      "OTRA_FECHA": "Khác ngày",
+      "CANCELADA": "Lịch hẹn đã hủy",
+      "NO_EXISTE": "Không nhận ra mã",
+      "VALIDO_AUTORIZADO": "Được vào (đã cho phép)"
+    },
+    "explicacion": {
+      "VALIDO": "Lịch hẹn hợp lệ cho hôm nay. Hãy đưa thùng hàng cho họ.",
+      "YA_USADO": "Mã này đã được sử dụng hôm nay. Không phát thêm.",
+      "OTRA_FECHA": "Lịch hẹn của họ là vào ngày khác. Không hợp lệ.",
+      "CANCELADA": "Lịch hẹn này đã bị hủy. Không hợp lệ.",
+      "NO_EXISTE": "Mã này không khớp với lịch hẹn nào. Hãy tìm theo tên.",
+      "VALIDO_AUTORIZADO": "Đã cho phép nhận hàng ngoài ngày hẹn. Hệ thống đã ghi lại người cho phép."
+    },
+    "camara": {
+      "SIN_PERMISO": "Bạn chưa cho phép sử dụng camera.",
+      "SIN_CAMARA": "Thiết bị này không có camera.",
+      "SIN_HTTPS": "Camera chỉ hoạt động trên trang web bảo mật (https).",
+      "ERROR_CAMARA": "Không thể bật camera.",
+      "usaManual": "Bạn vẫn có thể tiếp tục: hãy tìm người đó theo tên hoặc mã."
+    },
+    "errores": {
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền quét mã. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động.",
+      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
+      "CODIGO_INVALIDO": "Mã cho phép không hợp lệ.",
+      "BLOQUEADO": "Nhập sai quá nhiều lần. Vui lòng đợi 15 phút rồi thử lại."
+    },
+    "otraFechaDetalle": "Lịch hẹn của họ vào {{fecha}} lúc {{hora}}. Không hợp lệ.",
+    "autorizar": {
+      "boton": "Vẫn cho phép nhận hàng",
+      "explicacion": "Chỉ khi có mã cá nhân của người cho phép. Hệ thống sẽ ghi lại ai đã cho phép.",
+      "etiqueta": "Mã cho phép",
+      "confirmar": "Xác nhận nhận hàng",
+      "cancelar": "Hủy",
+      "botonAdmin": "Vẫn phát hàng",
+      "explicacionAdmin": "Là quản trị viên, bạn có thể cho phép mà không cần mã. Hệ thống sẽ ghi lại tên bạn."
+    },
+    "verCita": "Xem lịch hẹn"
+  },
+  "panel": {
+    "cargando": "Đang tải dữ liệu trong ngày…",
+    "errores": {
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền xem mục này. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động rồi thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể tải dữ liệu trong ngày. Vui lòng thử lại sau."
+    },
+    "subtitulo": "Buổi phát hàng hôm nay",
+    "otroDia": "Bạn đang xem một ngày khác, không phải hôm nay.",
+    "verDia": "Xem ngày",
+    "volverHoy": "Quay về hôm nay",
+    "irProxima": "Đến buổi phát hàng tiếp theo",
+    "conCita": "Có lịch hẹn",
+    "yaRecibieron": "Đã nhận",
+    "faltan": "Chưa đến",
+    "sinCita": "Vào không có lịch hẹn",
+    "repetidos": "Lần quét trùng",
+    "cupoPorHorario": "Số chỗ theo khung giờ",
+    "cupoAyuda": "Khung giờ đã đóng không nhận đăng ký mới.",
+    "sinBloques": "Hôm nay không có khung giờ nào mở.",
+    "cerrado": "Đã đóng hôm nay",
+    "deTotal": "{{ocupados}} / {{total}}",
+    "citasDelDia_other": "{{count}} lịch hẹn trong ngày",
+    "sinCitas": "Hôm nay chưa có lịch hẹn nào.",
+    "col": {
+      "hora": "Giờ",
+      "nombre": "Tên",
+      "codigo": "Mã",
+      "estado": "Trạng thái",
+      "ciudad": "Thành phố"
+    },
+    "estado": {
+      "reservada": "Chưa đến",
+      "llego": "Đã đến",
+      "entregada": "Đã nhận",
+      "no_asistio": "Không đến"
+    }
+  },
+  "confirmacion": {
+    "cargando": "Đang chuẩn bị mã của bạn…",
+    "noEncontrada": "Không tìm thấy lịch hẹn này. Có thể đường liên kết chưa đầy đủ.",
+    "volverInicio": "Về trang chủ",
+    "lista": "Lịch hẹn của bạn đã sẵn sàng",
+    "qrAlt": "Mã QR cho lịch hẹn của bạn",
+    "siNoSeLee": "Nếu không quét được mã, hãy đọc số này:",
+    "aNombreDe": "Đăng ký cho",
+    "unSoloUso": "Mã này chỉ dùng được một lần và cho một thùng hàng. Nếu người khác trong gia đình cũng cần, người đó phải tự đăng ký.",
+    "guardarImagen": "Lưu hình",
+    "consejoCaptura": "Bạn cũng có thể chụp màn hình."
+  },
+  "registro": {
+    "cargando": "Đang chuẩn bị đăng ký…",
+    "sinHorario": "Trước tiên, hãy chọn ngày và giờ hẹn.",
+    "horarioNoDisponible": "Khung giờ này không còn trống. Hãy chọn khung giờ khác.",
+    "nombre": "Tên",
+    "telefono": "Số điện thoại di động",
+    "correo": "Email",
+    "correoAyuda": "Chúng tôi sẽ gửi mã vào cửa cho bạn qua email này.",
+    "zona": "Bạn đến từ khu vực nào? (không bắt buộc)",
+    "zonaSinResponder": "Tôi không muốn trả lời",
+    "zonaOtra": "Nơi khác",
+    "zonaOtraEtiqueta": "Từ đâu?",
+    "zonaAyuda": "Giúp chúng tôi biết mình đang phục vụ những khu vực nào.",
+    "privacidad": "Chúng tôi chỉ dùng thông tin của bạn để tổ chức buổi phát hàng và làm báo cáo cho chương trình. Thông tin không được chia sẻ với bất kỳ ai khác.",
+    "confirmar": "Xác nhận lịch hẹn",
+    "enviando": "Đang giữ chỗ cho bạn…",
+    "errores": {
+      "BLOQUE_LLENO": "Khung giờ này đã hết chỗ trong lúc bạn điền thông tin. Hãy chọn khung giờ khác.",
+      "BLOQUE_CERRADO": "Khung giờ này đã đóng.",
+      "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa. Hãy chọn khung giờ khác.",
+      "FECHA_PASADA": "Ngày này đã qua.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Tuần này đã có lịch hẹn. Mỗi tuần chỉ được đặt một lần: thứ Hai hoặc thứ Năm, không được cả hai.",
+      "LIMITE_DISPOSITIVO": "Thiết bị này đã đặt lịch hẹn trong tuần này. Mỗi người cần đăng ký bằng điện thoại hoặc máy tính của riêng mình.",
+      "NOMBRE_REQUERIDO": "Bạn chưa nhập họ tên.",
+      "TELEFONO_REQUERIDO": "Bạn chưa nhập số điện thoại.",
+      "EMAIL_REQUERIDO": "Bạn chưa nhập email.",
+      "EMAIL_INVALIDO": "Email này có vẻ chưa đúng. Vui lòng kiểm tra lại.",
+      "SIN_CODIGOS_DISPONIBLES": "Có lỗi khi tạo mã cho bạn. Vui lòng thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể giữ chỗ cho bạn. Vui lòng thử lại sau.",
+      "AUN_NO_ABRE": "Chưa mở đăng ký cho ngày này.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Mã người theo dõi của bạn không còn hợp lệ. Có thể mã đã được thay đổi; hãy xem lại bài đăng trên Facebook.",
+      "DIA_CERRADO": "Ngày này không còn nhận đăng ký.",
+      "APELLIDOS_REQUERIDOS": "Bạn chưa nhập họ.",
+      "NOMBRE_INVALIDO": "Tên và họ không được có số.",
+      "TELEFONO_INVALIDO": "Hãy kiểm tra số điện thoại: số chưa đủ hoặc thừa ký tự."
+    },
+    "apellidos": "Họ",
+    "pais": "Quốc gia của số điện thoại",
+    "paisesPrincipales": "Phổ biến nhất",
+    "paisesTodos": "Tất cả quốc gia"
+  },
+  "pasos": {
+    "etiqueta": "Tiến trình đăng ký",
+    "fecha": "Ngày",
+    "horario": "Giờ",
+    "datos": "Thông tin của bạn"
+  },
+  "horarios": {
+    "duracion": "Mỗi khung giờ kéo dài 15 phút.",
+    "cargando": "Đang tìm khung giờ…",
+    "error": "Không thể tải khung giờ. Vui lòng thử lại sau.",
+    "sinBloques": "Ngày này không còn khung giờ nào.",
+    "fechaInvalida": "Ngày này không hợp lệ.",
+    "volverCalendario": "Chọn ngày khác",
+    "lleno": "Hết chỗ",
+    "quedan_other": "Còn {{count}} chỗ",
+    "conCodigo": "Bạn đã vào bằng mã người theo dõi. Hãy chọn giờ.",
+    "revisandoCodigo": "Đang kiểm tra mã của bạn…"
+  },
+  "calendario": {
+    "cargando": "Đang tìm ngày còn trống…",
+    "error": "Không thể tải các ngày còn trống. Vui lòng thử lại sau.",
+    "abre": "Mở lúc {{cuando}}"
+  },
+  "pages": {
+    "inicio": "Trang chủ",
+    "calendario": "Buổi phát hàng tiếp theo",
+    "horarios": "Khung giờ",
+    "registro": "Đăng ký",
+    "confirmacion": "Xác nhận",
+    "escanear": "Quét mã",
+    "adminLogin": "Đăng nhập quản trị",
+    "adminCitasHoy": "Lịch hẹn hôm nay",
+    "adminHorarios": "Quản lý khung giờ",
+    "adminPersonas": "Người đăng ký",
+    "adminReportes": "Báo cáo"
+  },
+  "inicio": {
+    "iglesia": "Iglesia Casa de Alabanza",
+    "titulo": "Đặt lịch hẹn",
+    "subtitulo": "Thực phẩm miễn phí, thứ Hai và thứ Năm",
+    "antesDeEmpezar": "Trước khi bắt đầu",
+    "regla1": "Mỗi tuần bạn chỉ được đặt một lịch hẹn: thứ Hai hoặc thứ Năm, không được cả hai.",
+    "regla2": "Mỗi người từ 18 tuổi trở lên nhận một thùng hàng cần có đăng ký và mã riêng.",
+    "proximaFecha": "Ngày gần nhất còn trống",
+    "horariosLibres_other": "{{count}} khung giờ còn trống",
+    "sinProxima": "Hiện chưa có ngày nào mở. Vui lòng quay lại sau.",
+    "elegir": "Xem buổi phát hàng tiếp theo",
+    "gratuito": "Thực phẩm hoàn toàn miễn phí. Không cần quyên góp.",
+    "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng."
+  },
+  "navegacion": {
+    "inicio": "Về trang chủ",
+    "cambiarFecha": "Đổi ngày",
+    "cambiarHorario": "Đổi giờ",
+    "accesoPersonal": "Dành cho nhân viên",
+    "verSitio": "Xem trang công khai"
+  },
+  "construccion": {
+    "aviso": "Mục này vẫn đang được xây dựng.",
+    "mientras": "Trong lúc chờ, bạn có thể dùng Lịch hẹn hôm nay và Quét mã."
+  },
+  "pie": {
+    "bienvenidos": "Chào mừng đến với",
+    "comunidad": "Cộng đồng trong Đấng Christ",
+    "servicios": "Giờ lễ của nhà thờ",
+    "horarioServicios": "Thứ Năm 7:00 PM · Chủ Nhật 6:00 PM",
+    "sitioIglesia": "Trang web nhà thờ",
+    "siguenos": "Theo dõi chúng tôi",
+    "apoya": "Ủng hộ Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Facebook của Cajita de Bendición",
+      "facebookIglesia": "Facebook của nhà thờ"
+    }
+  },
+  "donar": {
+    "titulo": "Bạn muốn ủng hộ Cajita de Bendición?",
+    "tituloTrasRegistro": "Nếu có thể, xin đừng quên ủng hộ chúng tôi",
+    "aclaracion": "Lịch hẹn của bạn không phụ thuộc vào việc quyên góp: thực phẩm hoàn toàn miễn phí.",
+    "texto": "Nếu bạn có thể và muốn giúp đỡ, mọi đóng góp đều giúp chúng tôi đến với nhiều gia đình hơn mỗi tuần.",
+    "paypal": "Quyên góp qua PayPal",
+    "gofundme": "Ủng hộ trên GoFundMe",
+    "suscribirse": "Đăng ký theo dõi trên Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Địa điểm",
+    "entregas": "Phát thực phẩm: chiều thứ Hai và thứ Năm, theo lịch hẹn.",
+    "googleMaps": "Mở trong Google Maps",
+    "appleMaps": "Mở trong Apple Maps",
+    "llamar": "Gọi"
+  },
+  "marca": {
+    "ministerio": "Một mục vụ của {{iglesia}}"
+  },
+  "rol": {
+    "sinRolTitulo": "Tài khoản của bạn chưa được cấp quyền",
+    "sinRolTexto": "Hãy nhờ mục sư cấp cho bạn vai trò quản trị viên hoặc tình nguyện viên.",
+    "nombre": {
+      "admin": "Quản trị viên",
+      "voluntario": "Tình nguyện viên"
+    },
+    "errorTitulo": "Không thể kiểm tra quyền truy cập của bạn"
+  },
+  "registrarPanel": {
+    "titulo": "Đăng ký cho người khác",
+    "ayuda": "Dành cho người không thể tự đăng ký. Ở đây không áp dụng giới hạn theo thiết bị và email là không bắt buộc.",
+    "fecha": "Ngày",
+    "elegirFecha": "Chọn ngày",
+    "horario": "Giờ",
+    "elegirHorario": "Chọn giờ",
+    "lugares_other": "{{count}} chỗ",
+    "lleno": "hết chỗ",
+    "correoOpcional": "Email (không bắt buộc)",
+    "registrar": "Đăng ký",
+    "registrando": "Đang đăng ký…",
+    "listo": "Đã đăng ký",
+    "verQR": "Xem mã QR",
+    "otra": "Đăng ký người khác",
+    "sinFechas": "Không có ngày nào còn khung giờ mở.",
+    "errorCarga": "Không thể tải khung giờ."
+  },
+  "diasAdmin": {
+    "titulo": "Khung giờ và số chỗ",
+    "ayuda": "Chạm vào một ngày để đổi giờ mở đăng ký, quyền đăng ký sớm cho người theo dõi và số chỗ của từng khung giờ.",
+    "nueva": "Ngày mới",
+    "fecha": "Ngày phát hàng",
+    "desde": "Khung giờ đầu tiên",
+    "hasta": "Khung giờ cuối cùng",
+    "capacidad": "Số chỗ mỗi khung giờ",
+    "cuandoAbre": "Khi nào mở đăng ký?",
+    "abreProgramado": "Vào ngày giờ cụ thể",
+    "abreAhora": "Ngay bây giờ",
+    "eligeFecha": "Trước tiên hãy chọn ngày phát hàng.",
+    "abreEn": "Mở cho công chúng vào",
+    "anticipo": {
+      "unaHora": "Sớm hơn công chúng 1 giờ",
+      "dosHoras": "Sớm hơn công chúng 2 giờ",
+      "unDia": "Sớm hơn công chúng 1 ngày",
+      "personalizado": "Vào ngày giờ khác"
+    },
+    "crear": "Tạo ngày",
+    "creando": "Đang tạo…",
+    "cancelar": "Hủy",
+    "creada": "Đã tạo ngày.",
+    "creadaConCodigo": "Đã tạo ngày. Hãy sao chép mã này và dán vào bài đăng dành cho người theo dõi:",
+    "lista": "Các ngày phát hàng",
+    "cargando": "Đang tải các ngày…",
+    "sinDias": "Chưa có ngày nào. Hãy tạo ngày đầu tiên bằng nút «Ngày mới».",
+    "estado": {
+      "abierta": "Đang mở",
+      "programada": "Chưa mở",
+      "cerrada": "Đã đóng"
+    },
+    "lugares": "{{ocupados}} / {{total}} chỗ",
+    "seAbren": "Mở đăng ký vào {{cuando}}.",
+    "abrirAhora": "Mở ngay",
+    "guardar": "Lưu",
+    "registrosAbiertos": "Đang mở đăng ký.",
+    "cerrarRegistros": "Đóng đăng ký",
+    "confirmarCerrar": "Sẽ không ai đăng ký thêm cho ngày này. Các lịch hẹn hiện có vẫn được giữ. Đóng đăng ký?",
+    "registrosCerrados": "Đã đóng đăng ký. Các lịch hẹn hiện có vẫn được giữ.",
+    "reabrirRegistros": "Mở lại đăng ký",
+    "copiar": "Sao chép",
+    "copiado": "Đã sao chép",
+    "codigoDetalle": "Người theo dõi được đăng ký từ {{cuando}}.",
+    "anticipadas_other": "{{count}} người đã dùng mã này.",
+    "cargandoHorarios": "Đang tải khung giờ…",
+    "ocupados": "{{ocupados}} / {{total}}",
+    "horarioCerrado": "Đã đóng",
+    "cupoDe": "Số chỗ lúc {{hora}}",
+    "cerrarHorario": "Đóng",
+    "abrirHorario": "Mở",
+    "eliminarHorario": "Xóa khung giờ {{hora}}",
+    "confirmarEliminarHorario": "Xóa khung giờ này?",
+    "hora": "Giờ",
+    "cupo": "Số chỗ",
+    "agregar": "Thêm khung giờ",
+    "eliminarFecha": "Xóa ngày này",
+    "confirmarEliminarFecha": "Xóa ngày này và tất cả khung giờ? Chỉ được khi chưa có ai đăng ký.",
+    "errores": {
+      "FECHA_PASADA": "Ngày này đã qua.",
+      "HORARIO_INVALIDO": "Hãy kiểm tra lại giờ: khung giờ cuối không được trước khung giờ đầu.",
+      "CAPACIDAD_INVALIDA": "Số chỗ mỗi khung giờ phải từ 0 trở lên.",
+      "APERTURA_REQUERIDA": "Thiếu ngày giờ mở đăng ký.",
+      "ANTICIPADO_DESPUES_DE_APERTURA": "Giờ đăng ký sớm phải trước giờ mở cho công chúng.",
+      "DIA_YA_EXISTE": "Ngày này đã tồn tại. Hãy tìm trong danh sách.",
+      "DIA_NO_EXISTE": "Ngày này không còn nữa. Hãy tải lại trang.",
+      "DIA_CON_CITAS": "Ngày này đã có người đăng ký nên không thể xóa. Bạn có thể đóng đăng ký.",
+      "BLOQUE_YA_EXISTE": "Khung giờ này đã có trong ngày.",
+      "BLOQUE_CON_CITAS": "Khung giờ này đã có người đăng ký nên không thể xóa. Bạn có thể đóng khung giờ.",
+      "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa. Hãy tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
+      "SUSCRIPTORES_FECHA_ABIERTA": "Để yêu cầu mã với người theo dõi, «Mở cho công chúng vào» phải là giờ trong tương lai."
+    },
+    "activarSuscriptores": "Bật đăng ký sớm cho người theo dõi trên Facebook",
+    "entran": "Người theo dõi được vào",
+    "abreAnticipado": "Người theo dõi được đăng ký từ",
+    "codigoPublicacion": "Mã cho bài đăng dành riêng cho người theo dõi",
+    "guardaParaCodigo": "Hãy lưu thay đổi để tạo mã.",
+    "codigoGenerado": "Đã tạo mã. Hãy sao chép và dán vào bài đăng dành cho người theo dõi.",
+    "seccionApertura": "Mở đăng ký",
+    "guardarCambios": "Lưu thay đổi",
+    "guardado": "Đã lưu thay đổi.",
+    "regenerar": "Tạo mã khác",
+    "confirmarRegenerar": "Mã hiện tại sẽ ngừng hoạt động. Tạo mã mới?",
+    "seccionLugares": "Số chỗ mỗi khung giờ",
+    "todos": "Tất cả khung giờ",
+    "aplicarTodos": "Áp dụng cho tất cả",
+    "suscriptoresYaAbierta": "Giờ này đã qua: ngày này đang mở cho mọi người nên mã sẽ không được yêu cầu. Để chỉ người theo dõi được vào trước, hãy đặt giờ trong tương lai ở mục «Mở cho công chúng vào»."
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Bạn chưa nhập tên.",
+      "NUMEROS": "Tên không được có số.",
+      "SIMBOLOS": "Chỉ dùng chữ cái. Có thể dùng khoảng trắng, dấu gạch ngang (-) và dấu nháy (').",
+      "CORTO": "Hãy viết đầy đủ tên, không chỉ một chữ cái."
+    },
+    "apellidos": {
+      "VACIO": "Bạn chưa nhập họ.",
+      "NUMEROS": "Họ không được có số.",
+      "SIMBOLOS": "Chỉ dùng chữ cái. Có thể dùng khoảng trắng, dấu gạch ngang (-) và dấu nháy (').",
+      "CORTO": "Hãy viết đầy đủ họ, không chỉ một chữ cái."
+    },
+    "correo": {
+      "VACIO": "Bạn chưa nhập email.",
+      "ESPACIOS": "Email không có khoảng trắng.",
+      "SIN_ARROBA": "Thiếu dấu @. Ví dụ: ten@gmail.com",
+      "VARIAS_ARROBAS": "Email chỉ có một dấu @.",
+      "SIN_USUARIO": "Thiếu phần trước dấu @.",
+      "SIN_DOMINIO": "Thiếu phần sau dấu @, ví dụ gmail.com",
+      "SIN_PUNTO": "Thiếu phần đuôi sau dấu chấm, ví dụ .com",
+      "DOMINIO_INVALIDO": "Hãy kiểm tra phần sau dấu @, ví dụ gmail.com",
+      "sugerencia": "Có phải ý bạn là {{correo}}?",
+      "usarSugerencia": "Đúng, sửa lại"
+    },
+    "telefono": {
+      "VACIO": "Bạn chưa nhập số điện thoại.",
+      "CARACTERES": "Số điện thoại chỉ gồm chữ số. Có thể dùng khoảng trắng, dấu gạch ngang và dấu + ở đầu.",
+      "LADA_DESCONOCIDA": "Không nhận ra mã quốc gia này. Hãy chọn quốc gia trong danh sách.",
+      "CORTO": "Thiếu chữ số: số điện thoại của {{pais}} có {{digitos}} chữ số, bạn đã nhập {{llevan}}.",
+      "LARGO": "Thừa chữ số: số điện thoại của {{pais}} có {{digitos}} chữ số, bạn đã nhập {{llevan}}.",
+      "EMPIEZA_CON_1": "Thiếu một chữ số: số điện thoại của {{pais}} có {{max}} chữ số, không tính số 1 ở đầu.",
+      "entre": "từ {{min}} đến {{max}}"
+    }
+  },
+  "proxima": {
+    "etiqueta": "Buổi phát hàng tiếp theo",
+    "horario": "Từ {{inicio}} đến {{fin}}",
+    "duracion": "Mỗi khung giờ kéo dài 15 phút.",
+    "lugares_other": "Còn {{count}} chỗ",
+    "lleno": "Buổi phát hàng này đã hết chỗ.",
+    "abiertos": "Đang mở đăng ký.",
+    "abreEl": "Mở đăng ký vào {{cuando}}.",
+    "faltan": "Còn {{tiempo}}",
+    "suscriptoresDesde": "Người theo dõi trên Facebook được đăng ký từ {{cuando}}.",
+    "suscriptoresAhora": "Người theo dõi trên Facebook đã có thể đăng ký bằng mã.",
+    "conCodigo": "Đăng ký bằng mã người theo dõi Facebook",
+    "registrarme": "Đăng ký",
+    "sinLugares": "Hết chỗ",
+    "seActivara": "Nút «Đăng ký» sẽ tự bật khi đến giờ mở.",
+    "sinFechas": "Hiện chưa có buổi phát hàng nào. Vui lòng quay lại sau.",
+    "tiempo": {
+      "dias_other": "{{count}} ngày",
+      "horas": "{{n}} giờ",
+      "minutos": "{{n}} phút",
+      "segundos": "{{n}} giây"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Đăng ký sớm cho người theo dõi",
+    "explicacion": "Nếu bạn là người theo dõi Cajita de Bendición trên Facebook, hãy nhập mã trong bài đăng dành riêng cho người theo dõi.",
+    "desde": "Bạn có thể dùng mã từ {{cuando}}.",
+    "ahora": "Bạn đã có thể dùng mã để đăng ký trước công chúng.",
+    "sinAnticipado": "Buổi phát hàng này không có đăng ký sớm cho người theo dõi.",
+    "yaAbierto": "Đăng ký đã mở cho mọi người: bạn không cần mã.",
+    "irRegistro": "Đi đến đăng ký",
+    "codigo": "Mã người theo dõi",
+    "entrar": "Vào bằng mã của tôi",
+    "validando": "Đang kiểm tra…",
+    "invalido": "Mã này không hợp lệ hoặc chưa thể sử dụng.",
+    "noSuscriptor": "Bạn chưa là người theo dõi?",
+    "invitacion": "Hãy theo dõi Cajita de Bendición trên Facebook để đăng ký trước công chúng ở mỗi buổi phát hàng.",
+    "suscribirme": "Theo dõi trên Facebook",
+    "cerrar": "Đóng"
+  }
+}

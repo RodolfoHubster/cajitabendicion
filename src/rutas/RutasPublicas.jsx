@@ -1,5 +1,4 @@
 import { Route } from 'react-router-dom'
-import Escanear from '../paginas/escaneo/Escanear'
 import Calendario from '../paginas/publico/Calendario'
 import Confirmacion from '../paginas/publico/Confirmacion'
 import Horarios from '../paginas/publico/Horarios'
@@ -14,7 +13,6 @@ export default function RutasPublicas() {
       <Route element={<Horarios />} path="/horarios/:fecha" />
       <Route element={<Registro />} path="/registro" />
       <Route element={<Confirmacion />} path="/confirmacion/:id" />
-      <Route element={<Escanear />} path="/escanear" />
     </>
   )
 }

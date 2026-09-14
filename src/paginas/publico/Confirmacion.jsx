@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { LuCircleCheck, LuDownload } from 'react-icons/lu'
 import { Link, useLocation, useParams } from 'react-router-dom'
+import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
+import TarjetaDonar from '../../componentes/TarjetaDonar'
 import { consultarCita, dibujarQR } from '../../datos/cita'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 
@@ -71,40 +74,59 @@ export default function Confirmacion() {
   }).format(aFechaLocal(cita.fecha))
 
   return (
-    <Tarjeta>
-      <p className="text-base font-semibold text-puede-pasar">{t('confirmacion.lista')}</p>
+    <div className="space-y-4">
+      <Tarjeta className="overflow-hidden p-0">
+        <div className="bg-puede-pasar/10 px-5 py-4">
+          <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
+            <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
+            {t('confirmacion.lista')}
+          </p>
+          {/* first-letter y no capitalize: capitalize pondria "14 De Septiembre" */}
+          <h1 className="mt-1 text-2xl font-bold first-letter:uppercase">{fechaLarga}</h1>
+          <p className="font-titulo text-4xl font-bold text-principal">{formatearHora(cita.hora)}</p>
+        </div>
 
-      {/* first-letter y no capitalize: capitalize pondria "14 De Septiembre" */}
-      <h1 className="mt-1 text-2xl font-bold first-letter:uppercase">{fechaLarga}</h1>
-      <p className="mb-4 text-3xl font-bold text-principal">{formatearHora(cita.hora)}</p>
+        <div className="p-5">
+          <img
+            alt={t('confirmacion.qrAlt')}
+            className="mx-auto w-full max-w-[280px] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
+            src={qr}
+          />
 
-      <img
-        alt={t('confirmacion.qrAlt')}
-        className="mx-auto w-full max-w-[280px] rounded-xl border border-principal/15"
-        src={qr}
-      />
+          <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-4 text-center">
+            <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+            <p className="my-1 font-titulo text-4xl font-bold tracking-wide text-principal">
+              {cita.codigo_corto}
+            </p>
+            <p className="text-base text-principal/70">
+              {t('confirmacion.aNombreDe')} <span className="font-semibold">{cita.nombre}</span>
+            </p>
+          </div>
 
-      <div className="mt-4 rounded-xl bg-principal/5 p-4 text-center">
-        <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-        <p className="my-1 text-4xl font-bold tracking-wide text-principal">{cita.codigo_corto}</p>
-        <p className="text-base text-principal/70">
-          {t('confirmacion.aNombreDe')} <span className="font-semibold">{cita.nombre}</span>
-        </p>
-      </div>
+          <p className="mt-4 text-base text-principal/80">{t('confirmacion.unSoloUso')}</p>
 
-      <p className="mt-4 text-base text-principal/80">{t('confirmacion.unSoloUso')}</p>
+          <a
+            className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-principal shadow-sm transition hover:brightness-95"
+            download={`${cita.codigo_corto}.png`}
+            href={qr}
+          >
+            <LuDownload aria-hidden="true" className="h-5 w-5" />
+            {t('confirmacion.guardarImagen')}
+          </a>
 
-      <a
-        className="mt-4 inline-flex min-h-14 w-full items-center justify-center rounded-xl bg-accion px-4 text-base font-semibold text-white transition hover:opacity-90"
-        download={`${cita.codigo_corto}.png`}
-        href={qr}
-      >
-        {t('confirmacion.guardarImagen')}
-      </a>
+          <p className="mt-3 text-center text-base text-principal/60">
+            {t('confirmacion.consejoCaptura')}
+          </p>
 
-      <p className="mt-3 text-center text-base text-principal/60">
-        {t('confirmacion.consejoCaptura')}
-      </p>
-    </Tarjeta>
+          <div className="mt-2 text-center">
+            <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
+          </div>
+        </div>
+      </Tarjeta>
+
+      {/* Despues de tener su codigo, no antes: primero se asegura que la
+          persona tiene su cita, y solo entonces se invita a apoyar. */}
+      <TarjetaDonar titulo={t('donar.tituloTrasRegistro')} />
+    </div>
   )
 }

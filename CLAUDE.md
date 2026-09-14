@@ -43,9 +43,23 @@ es confiable, el sistema no sirve.
 ### Fuera de alcance de la V1
 
 Cuentas de usuario con login de Google (va en V2), mensajes SMS (costo por
-mensaje, se evalúa después), código de acceso anticipado para suscriptores de
-Facebook, modo sin conexión (confirmado que no hace falta: el personal usa
-datos móviles), donaciones.
+mensaje, se evalúa después), modo sin conexión (confirmado que no hace falta:
+el personal usa datos móviles).
+
+### Fechas de entrega y apertura
+
+Cada fecha se crea desde **Horarios y cupos** en el panel (tabla
+`dias_entrega`), ya no con SQL a mano: todo horario necesita su fecha. La
+fecha se ve en el calendario con candado hasta `abre_en`. Antes de esa hora
+solo reserva quien trae el código de suscriptor de Facebook de esa fecha, y
+solo desde `abre_anticipado_en`. La regla vive en `registrar_y_reservar()`,
+no en la pantalla, y `reservar_cita()` ya no se puede llamar desde el
+navegador.
+
+Las **donaciones sí entran**, como enlaces opcionales (PayPal, GoFundMe y la
+suscripción de Facebook). **Nunca condicionan la cita**: cada invitación a
+apoyar dice primero que los alimentos son gratuitos y que la cita no depende
+de donar.
 
 ---
 
@@ -54,7 +68,7 @@ datos móviles), donaciones.
 - **Vite + React** (JavaScript, no TypeScript)
 - **Tailwind CSS**
 - **React Router**
-- **react-i18next** (español e inglés)
+- **react-i18next** (español, inglés y vietnamita)
 - **Supabase** (PostgreSQL) — base de datos y autenticación
 - **Cloudflare Pages** — hosting, despliegue automático desde `main`
 - **Amazon SES** — correo transaccional (pendiente de configurar)
@@ -99,11 +113,36 @@ exactamente el bug del Google Form**. No usarlo.
 
 ---
 
+## Pruebas
+
+- **`npm test`**: pruebas unitarias con Vitest (`src/**/*.test.js`). Revisan
+  las validaciones de nombre, correo y teléfono (México, Estados Unidos, China,
+  Japón, Vietnam y el resto de países), fechas y horas, el acceso de
+  suscriptores, las traducciones y la capa de datos con Supabase simulado. No
+  tocan la base real.
+- **`supabase/pruebas/reglas.sql`**: las reglas dentro de la base (registro,
+  apertura y código de suscriptores, cupo, una cita por semana, límite por
+  dispositivo, panel, escaneo y roles). Se pega completo en el SQL Editor;
+  termina con un error a propósito que trae el resultado y deshace todo.
+- **`scripts/prueba-concurrencia.mjs` y `scripts/prueba-escaneo.mjs`**: personas
+  al mismo tiempo contra la base real (la prueba obligatoria de arriba).
+
+Al cambiar una regla se actualiza todo junto: la función en `schema.sql` y su
+migración, la validación en pantalla, y sus pruebas.
+
+---
+
 ## Convenciones
 
-- **Idioma de la interfaz**: español e inglés. Detección automática desde el
-  navegador, con botón visible en el encabezado mostrando **las dos palabras**
-  ("Español | English") para que nadie quede atrapado en el idioma equivocado.
+- **Idioma de la interfaz**: español, inglés y vietnamita. Detección automática
+  desde el navegador, con un selector visible en el encabezado que muestra
+  **cada idioma escrito en su propio idioma** ("Español · English · Tiếng Việt")
+  para que nadie quede atrapado en uno que no entiende.
+- **El vietnamita está marcado como en desarrollo.** Muestra un aviso de que
+  puede tener errores, porque la traducción la escribió Claude y todavía no la
+  revisa un hablante nativo. Quitar el aviso (`enDesarrollo` en
+  `src/i18n/config.js`) solo después de esa revisión. Si falta un texto en
+  vietnamita se muestra en inglés, no en español.
 - **Textos en código**: nombres de variables, tablas y columnas en español,
   para que coincidan con el vocabulario del cliente.
 - **Mobile first.** La mayoría entra desde un celular, y hay muchos adultos
@@ -117,6 +156,17 @@ exactamente el bug del Google Form**. No usarlo.
 - **Logo**: el logo completo es circular y con mucho detalle, no se lee a
   tamaño pequeño. En encabezados va solo el techo naranja; el logo completo
   va en la pantalla de inicio y en los correos.
+- **Datos de la organización** (teléfono, dirección, redes, enlaces de
+  donación y rutas de logos) viven en `src/datos/organizacion.js`. Un enlace
+  vacío no se muestra.
+- **Marca**: Cajita de Bendición es un ministerio de Iglesia Casa de
+  Alabanza. Encabezado y pie son azules y llevan el logo de la iglesia, cuyo
+  nombre va en letras blancas y no se lee sobre blanco. La portada lleva el
+  logo circular de Cajita. Archivos en `public/logos/`; el favicon se genera
+  desde el logo de Cajita con `scripts/generar-favicon.ps1`. Ver
+  `docs/logos.md`.
+- **Botón principal con texto azul sobre naranja**, no blanco: blanco sobre
+  `#F5A03C` no alcanza el contraste mínimo legible.
 
 ---
 
@@ -124,7 +174,7 @@ exactamente el bug del Google Form**. No usarlo.
 
 ```
 /                        Inicio
-/calendario              elegir fecha (solo lunes y jueves)
+/calendario              próxima entrega: registrarse o entrar con código de suscriptor
 /horarios/:fecha         elegir bloque de 15 minutos
 /registro                datos de la persona
 /confirmacion/:id        muestra el código QR
@@ -145,7 +195,17 @@ exactamente el bug del Google Form**. No usarlo.
   operación privilegiada, va en una Edge Function.
 - Row Level Security activo en todas las tablas. Un voluntario no debe poder
   leer el padrón completo de personas, solo lo necesario para escanear.
-- Roles: administrador, coordinador, voluntario, consulta.
+- **Roles** (tabla `personal`; se asignan desde el SQL Editor con
+  `definir_personal(correo, 'admin' | 'voluntario')`):
+  - `admin` (el pastor): ve todo el panel y las estadísticas, registra
+    personas desde el panel sin límite por dispositivo, y autoriza entregas
+    de otra fecha sin código.
+  - `voluntario`: solo escanea. Entrega las citas del día; para una de otra
+    fecha necesita el código de autorización de un admin.
+  - `usuario`: el público. En la V1 no tiene cuenta; se registra desde el
+    formulario, con el límite por dispositivo.
+  Una cuenta sin rol no puede hacer nada en el panel. Los permisos se
+  revisan dentro de las funciones de la base de datos, no solo en pantalla.
 
 ---
 

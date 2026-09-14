@@ -40,3 +40,5 @@ hace lo segundo, el día que alguien recree la base desde cero le va a faltar.
 | Archivo | Qué trae |
 |---|---|
 | `2026-09-09-registro-publico.sql` | `consultar_disponibilidad()`, tabla `configuracion`, columna `citas.dispositivo_id`, `registrar_y_reservar()` y `consultar_cita()` |
+| `2026-09-12-dias-de-entrega.sql` | Tabla `dias_entrega` (apertura y código de suscriptores), funciones de Horarios y cupos, y `reservar_cita()` cerrada al navegador |
+| `2026-09-12-nombre-y-telefono.sql` | Columnas `personas.nombres` y `personas.apellidos`; `registrar_y_reservar()` y `registrar_desde_panel()` piden apellidos y teléfono internacional (+lada) |

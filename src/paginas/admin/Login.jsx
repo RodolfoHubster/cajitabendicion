@@ -4,7 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import Tarjeta from '../../componentes/Tarjeta'
-import { iniciarSesion, obtenerSesion } from '../../datos/sesion'
+import { iniciarSesion, obtenerRol, obtenerSesion } from '../../datos/sesion'
+
+// A donde entra cada rol si no venia de otra pantalla: el voluntario va
+// directo a escanear, que es lo unico que hace.
+async function inicioSegunRol() {
+  const rol = await obtenerRol().catch(() => null)
+  return rol === 'voluntario' ? '/escanear' : '/admin'
+}
 
 export default function Login() {
   const { t } = useTranslation()
@@ -16,20 +23,22 @@ export default function Login() {
   const [entrando, setEntrando] = useState(false)
   const [error, setError] = useState(null)
 
-  const destino = state?.destino ?? '/admin'
+  const destinoPedido = state?.destino
 
   // Si ya hay sesion, no tiene caso mostrar el formulario.
   useEffect(() => {
     let vigente = true
 
-    obtenerSesion().then((sesion) => {
-      if (vigente && sesion) navegar(destino, { replace: true })
+    obtenerSesion().then(async (sesion) => {
+      if (!vigente || !sesion) return
+      const destino = destinoPedido ?? (await inicioSegunRol())
+      if (vigente) navegar(destino, { replace: true })
     })
 
     return () => {
       vigente = false
     }
-  }, [destino, navegar])
+  }, [destinoPedido, navegar])
 
   async function enviar(evento) {
     evento.preventDefault()
@@ -38,7 +47,7 @@ export default function Login() {
 
     try {
       await iniciarSesion(correo, contrasena)
-      navegar(destino, { replace: true })
+      navegar(destinoPedido ?? (await inicioSegunRol()), { replace: true })
     } catch (e) {
       setError(e.message)
       setEntrando(false)

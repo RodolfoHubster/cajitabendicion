@@ -1,3 +1,4 @@
+import { leerCodigoAnticipado } from './anticipado'
 import { supabase } from '../lib/supabase'
 
 const LLAVE_DISPOSITIVO = 'cb_dispositivo'
@@ -32,15 +33,21 @@ export function obtenerDispositivo() {
 /**
  * Crea la persona y aparta su lugar en una sola llamada.
  * Devuelve el codigo corto y el token del QR para /confirmacion.
+ *
+ * telefono llega ya en formato internacional (+526641234567): lo convierte
+ * normalizarTelefono() en la pantalla. Si la persona entro a la fecha con
+ * codigo de suscriptor, se manda: la base decide si todavia sirve.
  */
-export async function registrarYReservar({ nombre, telefono, email, ciudad, bloqueId }) {
+export async function registrarYReservar({ nombres, apellidos, telefono, email, ciudad, bloqueId, fecha }) {
   const { data, error } = await supabase.rpc('registrar_y_reservar', {
-    p_nombre: nombre,
+    p_nombre: nombres,
+    p_apellidos: apellidos,
     p_telefono: telefono,
     p_bloque_id: bloqueId,
     p_email: email || null,
     p_ciudad: ciudad || null,
     p_dispositivo: obtenerDispositivo(),
+    p_codigo_anticipado: (fecha && leerCodigoAnticipado(fecha)) || null,
   })
 
   if (error) {
@@ -61,7 +68,7 @@ export async function registrarYReservar({ nombre, telefono, email, ciudad, bloq
  * Postgres para que la pantalla los traduzca a algo que una persona
  * entienda, sin mostrar jerga de base de datos.
  */
-const CODIGOS = [
+export const CODIGOS = [
   'BLOQUE_LLENO',
   'BLOQUE_CERRADO',
   'BLOQUE_NO_EXISTE',
@@ -69,12 +76,18 @@ const CODIGOS = [
   'YA_TIENE_CITA_ESTA_SEMANA',
   'LIMITE_DISPOSITIVO',
   'NOMBRE_REQUERIDO',
+  'APELLIDOS_REQUERIDOS',
+  'NOMBRE_INVALIDO',
   'TELEFONO_REQUERIDO',
+  'TELEFONO_INVALIDO',
   'EMAIL_REQUERIDO',
   'EMAIL_INVALIDO',
   'SIN_CODIGOS_DISPONIBLES',
+  'CODIGO_ANTICIPADO_INVALIDO',
+  'AUN_NO_ABRE',
+  'DIA_CERRADO',
 ]
 
-function traducirError(mensaje) {
+export function traducirError(mensaje) {
   return CODIGOS.find((codigo) => mensaje?.includes(codigo)) ?? 'ERROR_DESCONOCIDO'
 }

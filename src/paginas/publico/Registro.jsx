@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
+import CampoTelefono from '../../componentes/CampoTelefono'
+import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
+import { mensajeCorreo, mensajeNombre, mensajeTelefono } from '../../componentes/mensajesValidacion'
+import { leerCodigoAnticipado } from '../../datos/anticipado'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
 import { registrarYReservar } from '../../datos/registro'
+import { normalizarTelefono } from '../../datos/telefono'
+import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
 import { OTRA_ZONA, ZONAS } from '../../datos/zonas'
+
+// En este orden se revisan; se enfoca el primero que tenga error.
+const CAMPOS = ['nombres', 'apellidos', 'telefono', 'correo']
 
 export default function Registro() {
   const { t, i18n } = useTranslation()
@@ -22,11 +31,18 @@ export default function Registro() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
 
-  const [nombre, setNombre] = useState('')
+  const [nombres, setNombres] = useState('')
+  const [apellidos, setApellidos] = useState('')
+  const [pais, setPais] = useState('US')
   const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
   const [zona, setZona] = useState('')
   const [otraZona, setOtraZona] = useState('')
+
+  // Un campo se marca en rojo al salir de el o al intentar enviar. Desde ahi
+  // el mensaje cambia mientras escribe y desaparece en cuanto queda bien.
+  const [tocados, setTocados] = useState(() => new Set())
+  const [intento, setIntento] = useState(false)
 
   useEffect(() => {
     if (!bloqueId || !fecha) return
@@ -83,30 +99,64 @@ export default function Registro() {
     )
   }
 
+  // Fecha bloqueada: sin codigo de suscriptor no se llega aqui ni escribiendo
+  // la direccion. La base de datos lo vuelve a revisar al guardar.
+  if (bloque.abierto === false && !leerCodigoAnticipado(fecha)) {
+    return <Navigate replace to="/calendario" />
+  }
+
   const encabezado = `${new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
   }).format(aFechaLocal(bloque.fecha))}, ${formatearHora(bloque.hora)}`
 
+  const telefonoRevisado = normalizarTelefono(pais, telefono)
+
+  const errores = {
+    nombres: mensajeNombre(t, validarNombre(nombres), 'nombres'),
+    apellidos: mensajeNombre(t, validarNombre(apellidos), 'apellidos'),
+    telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
+    correo: mensajeCorreo(t, validarCorreo(email)),
+  }
+
+  const errorDe = (campo) => (intento || tocados.has(campo) ? errores[campo] : undefined)
+  const tocar = (campo) => setTocados((actuales) => new Set(actuales).add(campo))
+  const sugerencia = errores.correo ? null : sugerirCorreo(email)
+
   async function enviar(evento) {
     evento.preventDefault()
     setError(null)
+
+    const conError = CAMPOS.find((campo) => errores[campo])
+    if (conError) {
+      setIntento(true)
+      document.getElementById(conError)?.focus()
+      return
+    }
+
     setEnviando(true)
+
+    const nombresListos = formatearNombre(nombres)
+    const apellidosListos = formatearNombre(apellidos)
 
     try {
       const cita = await registrarYReservar({
-        nombre,
-        telefono,
-        email,
+        nombres: nombresListos,
+        apellidos: apellidosListos,
+        telefono: telefonoRevisado.e164,
+        email: email.trim(),
         ciudad: zona === OTRA_ZONA ? otraZona : zona,
         bloqueId,
+        fecha,
       })
 
       // Se pasa el nombre porque la funcion no lo devuelve y la pantalla de
       // confirmacion lo muestra ("A nombre de..."). Al recargar se obtiene
       // de consultar_cita.
-      navegar(`/confirmacion/${cita.token_qr}`, { state: { ...cita, nombre: nombre.trim() } })
+      navegar(`/confirmacion/${cita.token_qr}`, {
+        state: { ...cita, nombre: `${nombresListos} ${apellidosListos}` },
+      })
     } catch (e) {
       setError(e.message)
       setEnviando(false)
@@ -115,43 +165,80 @@ export default function Registro() {
 
   return (
     <Tarjeta>
+      <EnlaceVolver a={`/horarios/${fecha}`}>{t('navegacion.cambiarHorario')}</EnlaceVolver>
       <Pasos actual={3} />
 
       <h1 className="mb-1 text-2xl font-bold">{t('pages.registro')}</h1>
       <p className="mb-4 text-base text-principal/70">{encabezado}</p>
 
-      <form className="space-y-4" onSubmit={enviar}>
-        <Campo
-          autoComplete="name"
-          etiqueta={t('registro.nombre')}
-          id="nombre"
-          onChange={(e) => setNombre(e.target.value)}
-          required
-          value={nombre}
-        />
+      {/* noValidate: los avisos del navegador salen en ingles y en globitos que
+          desaparecen; los nuestros se quedan junto al campo y en su idioma. */}
+      <form className="space-y-4" noValidate onSubmit={enviar}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Campo
+            autoComplete="given-name"
+            error={errorDe('nombres')}
+            etiqueta={t('registro.nombre')}
+            id="nombres"
+            onBlur={() => {
+              tocar('nombres')
+              setNombres(formatearNombre(nombres))
+            }}
+            onChange={(e) => setNombres(e.target.value)}
+            required
+            value={nombres}
+          />
+          <Campo
+            autoComplete="family-name"
+            error={errorDe('apellidos')}
+            etiqueta={t('registro.apellidos')}
+            id="apellidos"
+            onBlur={() => {
+              tocar('apellidos')
+              setApellidos(formatearNombre(apellidos))
+            }}
+            onChange={(e) => setApellidos(e.target.value)}
+            required
+            value={apellidos}
+          />
+        </div>
 
-        <Campo
-          autoComplete="tel"
+        <CampoTelefono
+          alCambiarPais={setPais}
+          alCambiarValor={setTelefono}
+          error={errorDe('telefono')}
           etiqueta={t('registro.telefono')}
           id="telefono"
-          inputMode="tel"
-          onChange={(e) => setTelefono(e.target.value)}
-          required
-          type="tel"
-          value={telefono}
+          onBlur={() => tocar('telefono')}
+          pais={pais}
+          valor={telefono}
         />
 
         <div>
           <Campo
             autoComplete="email"
+            error={errorDe('correo')}
             etiqueta={t('registro.correo')}
             id="correo"
             inputMode="email"
+            onBlur={() => tocar('correo')}
             onChange={(e) => setEmail(e.target.value)}
             required
             type="email"
             value={email}
           />
+          {sugerencia && (
+            <p className="mt-1 text-base text-principal">
+              {t('validacion.correo.sugerencia', { correo: sugerencia })}{' '}
+              <button
+                className="min-h-10 font-semibold underline underline-offset-4"
+                onClick={() => setEmail(sugerencia)}
+                type="button"
+              >
+                {t('validacion.correo.usarSugerencia')}
+              </button>
+            </p>
+          )}
           <p className="mt-1 text-base text-principal/60">{t('registro.correoAyuda')}</p>
         </div>
 

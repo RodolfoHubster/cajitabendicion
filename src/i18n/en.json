@@ -7,7 +7,6 @@
     "todo": "TODO: business logic will be added here"
   },
   "actions": {
-    "switchLanguage": "ES",
     "primary": "Continue"
   },
   "admin": {
@@ -26,6 +25,74 @@
       "ERROR_DESCONOCIDO": "We could not sign you in. Please try again."
     }
   },
+  "nav": {
+    "citasHoy": "Today",
+    "horarios": "Slots & capacity",
+    "personas": "People",
+    "reportes": "Reports",
+    "escanear": "Scan",
+    "registrar": "Register a person"
+  },
+  "escaneo": {
+    "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
+    "apunta": "Looking for a code…",
+    "buscarManual": "Search by name or code",
+    "buscarEtiqueta": "Name or code",
+    "buscar": "Search",
+    "sinResultados": "No matching appointments. Name search only covers today; with the full code (for example CB-4871) other days are included too.",
+    "volverCamara": "Back to camera",
+    "escanearOtro": "Scan another",
+    "registrarEntrega": "Record delivery",
+    "registrando": "Recording…",
+    "estadoPrevio": {
+      "reservada": "Has an appointment today and has not received yet.",
+      "llego": "Their arrival is already recorded.",
+      "entregada": "This code was already used today.",
+      "no_asistio": "Marked as no show."
+    },
+    "resultado": {
+      "VALIDO": "Let them through",
+      "YA_USADO": "Already received",
+      "OTRA_FECHA": "Different date",
+      "CANCELADA": "Appointment cancelled",
+      "NO_EXISTE": "Code not recognized",
+      "VALIDO_AUTORIZADO": "Let them through (authorized)"
+    },
+    "explicacion": {
+      "VALIDO": "Valid appointment for today. Hand them their box.",
+      "YA_USADO": "This code was already used today. No second delivery.",
+      "OTRA_FECHA": "Their appointment is for another day. Not valid.",
+      "CANCELADA": "This appointment was cancelled. Not valid.",
+      "NO_EXISTE": "That code does not match any appointment. Look them up by name.",
+      "VALIDO_AUTORIZADO": "Delivery authorized outside the appointment date. Who authorized it was recorded."
+    },
+    "camara": {
+      "SIN_PERMISO": "You did not allow camera access.",
+      "SIN_CAMARA": "This device has no camera available.",
+      "SIN_HTTPS": "The camera only works on secure sites (https).",
+      "ERROR_CAMARA": "We could not turn on the camera.",
+      "usaManual": "You can keep working: look the person up by name or code."
+    },
+    "errores": {
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones.",
+      "SIN_PERMISO": "Your account cannot scan. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your mobile data.",
+      "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
+      "CODIGO_INVALIDO": "That authorization code is not valid.",
+      "BLOQUEADO": "Too many failed attempts. Wait 15 minutes before trying again."
+    },
+    "otraFechaDetalle": "Their appointment is on {{fecha}} at {{hora}}. Not valid.",
+    "autorizar": {
+      "boton": "Authorize anyway",
+      "explicacion": "Only with the personal code of the person authorizing. Who authorized it is recorded.",
+      "etiqueta": "Authorization code",
+      "confirmar": "Confirm delivery",
+      "cancelar": "Cancel",
+      "botonAdmin": "Deliver anyway",
+      "explicacionAdmin": "As an administrator you can authorize it without a code. It will be recorded under your name."
+    },
+    "verCita": "View appointment"
+  },
   "panel": {
     "cargando": "Loading today…",
     "errores": {
@@ -35,6 +102,10 @@
       "ERROR_DESCONOCIDO": "We could not load today's data. Please try again in a moment."
     },
     "subtitulo": "Today's distribution",
+    "otroDia": "You are viewing another day, not today.",
+    "verDia": "View day",
+    "volverHoy": "Back to today",
+    "irProxima": "Go to the next distribution",
     "conCita": "With an appointment",
     "yaRecibieron": "Already received",
     "faltan": "Still to arrive",
@@ -78,7 +149,7 @@
     "cargando": "Getting your registration ready…",
     "sinHorario": "First pick the day and time for your appointment.",
     "horarioNoDisponible": "That time slot is no longer available. Please pick another.",
-    "nombre": "Full name",
+    "nombre": "First name(s)",
     "telefono": "Mobile phone",
     "correo": "Email",
     "correoAyuda": "This is where we will send your entry code.",
@@ -96,14 +167,24 @@
       "BLOQUE_NO_EXISTE": "That time slot no longer exists. Please pick another.",
       "FECHA_PASADA": "That date has already passed.",
       "YA_TIENE_CITA_ESTA_SEMANA": "There is already an appointment for this week. You can book one per week: Monday or Thursday, not both.",
-      "LIMITE_DISPOSITIVO": "An appointment was already booked from this phone this week. Each person needs to register from their own phone.",
+      "LIMITE_DISPOSITIVO": "An appointment was already booked from this device this week. Each person needs to register from their own phone or computer.",
       "NOMBRE_REQUERIDO": "Your name is missing.",
       "TELEFONO_REQUERIDO": "Your phone number is missing.",
       "EMAIL_REQUERIDO": "Your email is missing.",
       "EMAIL_INVALIDO": "That email does not look right. Please check it.",
       "SIN_CODIGOS_DISPONIBLES": "We had trouble generating your code. Please try again.",
-      "ERROR_DESCONOCIDO": "We could not hold your spot. Please try again in a moment."
-    }
+      "ERROR_DESCONOCIDO": "We could not hold your spot. Please try again in a moment.",
+      "AUN_NO_ABRE": "Registration for this day is not open yet.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Your subscriber code is no longer valid. It may have changed; check the Facebook post.",
+      "DIA_CERRADO": "This day is no longer taking registrations.",
+      "APELLIDOS_REQUERIDOS": "Your last name is missing.",
+      "NOMBRE_INVALIDO": "First and last names do not contain numbers.",
+      "TELEFONO_INVALIDO": "Check your phone number: it is incomplete or has something extra."
+    },
+    "apellidos": "Last name(s)",
+    "pais": "Phone country",
+    "paisesPrincipales": "Most common",
+    "paisesTodos": "All countries"
   },
   "pasos": {
     "etiqueta": "Booking progress",
@@ -120,20 +201,18 @@
     "volverCalendario": "Pick another date",
     "lleno": "Full",
     "quedan_one": "{{count}} spot left",
-    "quedan_other": "{{count}} spots left"
+    "quedan_other": "{{count}} spots left",
+    "conCodigo": "You entered with your subscriber code. Pick your time.",
+    "revisandoCodigo": "Checking your code…"
   },
   "calendario": {
-    "instruccion": "Pick the day that works best for you.",
     "cargando": "Looking for available days…",
     "error": "We could not load the available days. Please try again in a moment.",
-    "sinFechas": "No days are open right now. Please check back later.",
-    "agotado": "Full",
-    "libres_one": "{{count}} spot",
-    "libres_other": "{{count}} spots"
+    "abre": "Opens {{cuando}}"
   },
   "pages": {
     "inicio": "Home",
-    "calendario": "Calendar",
+    "calendario": "Next distribution",
     "horarios": "Time slots",
     "registro": "Registration",
     "confirmacion": "Confirmation",
@@ -143,5 +222,261 @@
     "adminHorarios": "Schedule management",
     "adminPersonas": "People",
     "adminReportes": "Reports"
+  },
+  "inicio": {
+    "iglesia": "Iglesia Casa de Alabanza",
+    "titulo": "Book your appointment",
+    "subtitulo": "Free groceries, Mondays and Thursdays",
+    "antesDeEmpezar": "Before you start",
+    "regla1": "You can book one appointment per week: Monday or Thursday, not both.",
+    "regla2": "Every person 18 or older who receives a box needs their own registration and their own code.",
+    "proximaFecha": "Next available date",
+    "horariosLibres_one": "{{count}} open time slot",
+    "horariosLibres_other": "{{count}} open time slots",
+    "sinProxima": "No dates are open right now. Please check back later.",
+    "elegir": "See the next distribution",
+    "gratuito": "The food is free. No donation is required.",
+    "yaTienesCita": "Already have an appointment? Bring the saved image or screenshot of your code on distribution day."
+  },
+  "navegacion": {
+    "inicio": "Back to home",
+    "cambiarFecha": "Change date",
+    "cambiarHorario": "Change time",
+    "accesoPersonal": "Staff access",
+    "verSitio": "View public site"
+  },
+  "construccion": {
+    "aviso": "This section is still under construction.",
+    "mientras": "In the meantime, you can use Today and Scan."
+  },
+  "pie": {
+    "bienvenidos": "Welcome to",
+    "comunidad": "Community in Christ",
+    "servicios": "Church services",
+    "horarioServicios": "Thursday 7:00 PM · Sunday 6:00 PM",
+    "sitioIglesia": "Church website",
+    "siguenos": "Follow us",
+    "apoya": "Support Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Cajita de Bendición on Facebook",
+      "facebookIglesia": "The church on Facebook"
+    }
+  },
+  "donar": {
+    "titulo": "Would you like to support Cajita de Bendición?",
+    "tituloTrasRegistro": "If you are able, please remember to support us",
+    "aclaracion": "Your appointment does not depend on any donation: the food is free.",
+    "texto": "If you can and want to help, any gift lets us reach more families every week.",
+    "paypal": "Donate with PayPal",
+    "gofundme": "Support on GoFundMe",
+    "suscribirse": "Subscribe on Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Where we are",
+    "entregas": "Grocery distribution: Mondays and Thursdays in the afternoon, by appointment.",
+    "googleMaps": "Open in Google Maps",
+    "appleMaps": "Open in Apple Maps",
+    "llamar": "Call"
+  },
+  "marca": {
+    "ministerio": "A ministry of {{iglesia}}"
+  },
+  "rol": {
+    "sinRolTitulo": "Your account does not have access yet",
+    "sinRolTexto": "Ask the pastor to assign you the administrator or volunteer role.",
+    "nombre": {
+      "admin": "Administrator",
+      "voluntario": "Volunteer"
+    },
+    "errorTitulo": "We could not check your access"
+  },
+  "registrarPanel": {
+    "titulo": "Register a person",
+    "ayuda": "For people who cannot register on their own. The per-device limit does not apply here and email is optional.",
+    "fecha": "Date",
+    "elegirFecha": "Pick a date",
+    "horario": "Time",
+    "elegirHorario": "Pick a time",
+    "lugares_one": "{{count}} spot",
+    "lugares_other": "{{count}} spots",
+    "lleno": "full",
+    "correoOpcional": "Email (optional)",
+    "registrar": "Register",
+    "registrando": "Registering…",
+    "listo": "Person registered",
+    "verQR": "View QR code",
+    "otra": "Register another person",
+    "sinFechas": "There are no dates with open time slots.",
+    "errorCarga": "We could not load the time slots."
+  },
+  "diasAdmin": {
+    "titulo": "Slots & capacity",
+    "ayuda": "Tap a date to change when its registration opens, subscriber access, and the spots in each time slot.",
+    "nueva": "New date",
+    "fecha": "Distribution date",
+    "desde": "First time slot",
+    "hasta": "Last time slot",
+    "capacidad": "Spots per time slot",
+    "cuandoAbre": "When does registration open?",
+    "abreProgramado": "On a date and time",
+    "abreAhora": "Right now",
+    "eligeFecha": "First pick the distribution date.",
+    "abreEn": "Opens to the public on",
+    "anticipo": {
+      "unaHora": "1 hour before the public",
+      "dosHoras": "2 hours before the public",
+      "unDia": "1 day before the public",
+      "personalizado": "At another date and time"
+    },
+    "crear": "Create date",
+    "creando": "Creating…",
+    "cancelar": "Cancel",
+    "creada": "Date created.",
+    "creadaConCodigo": "Date created. Copy this code and paste it into the subscribers-only post:",
+    "lista": "Distribution dates",
+    "cargando": "Loading dates…",
+    "sinDias": "There are no dates yet. Create the first one with “New date”.",
+    "estado": {
+      "abierta": "Open",
+      "programada": "Not open yet",
+      "cerrada": "Closed"
+    },
+    "lugares": "{{ocupados}} of {{total}} spots",
+    "seAbren": "Registration opens {{cuando}}.",
+    "abrirAhora": "Open now",
+    "guardar": "Save",
+    "registrosAbiertos": "Registration is open.",
+    "cerrarRegistros": "Close registration",
+    "confirmarCerrar": "Nobody else will be able to register for this date. Existing appointments are kept. Close registration?",
+    "registrosCerrados": "Registration closed. Existing appointments are kept.",
+    "reabrirRegistros": "Reopen registration",
+    "copiar": "Copy",
+    "copiado": "Copied",
+    "codigoDetalle": "Subscribers can register starting {{cuando}}.",
+    "anticipadas_one": "{{count}} person has used it.",
+    "anticipadas_other": "{{count}} people have used it.",
+    "cargandoHorarios": "Loading time slots…",
+    "ocupados": "{{ocupados}} of {{total}}",
+    "horarioCerrado": "Closed",
+    "cupoDe": "Spots at {{hora}}",
+    "cerrarHorario": "Close",
+    "abrirHorario": "Open",
+    "eliminarHorario": "Delete the {{hora}} time slot",
+    "confirmarEliminarHorario": "Delete this time slot?",
+    "hora": "Time",
+    "cupo": "Spots",
+    "agregar": "Add time slot",
+    "eliminarFecha": "Delete this date",
+    "confirmarEliminarFecha": "Delete this date and all its time slots? Only possible if nobody has registered.",
+    "errores": {
+      "FECHA_PASADA": "That date has already passed.",
+      "HORARIO_INVALIDO": "Check the times: the last slot cannot be before the first.",
+      "CAPACIDAD_INVALIDA": "Spots per time slot must be 0 or more.",
+      "APERTURA_REQUERIDA": "The opening date and time are missing.",
+      "ANTICIPADO_DESPUES_DE_APERTURA": "Subscriber access has to start before the public opening.",
+      "DIA_YA_EXISTE": "That date already exists. Find it in the list.",
+      "DIA_NO_EXISTE": "That date no longer exists. Reload the page.",
+      "DIA_CON_CITAS": "This date already has registrations and cannot be deleted. You can close registration.",
+      "BLOQUE_YA_EXISTE": "That time slot already exists on this date.",
+      "BLOQUE_CON_CITAS": "This time slot already has registrations and cannot be deleted. You can close it.",
+      "BLOQUE_NO_EXISTE": "That time slot no longer exists. Reload the page.",
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your internet and try again.",
+      "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
+      "SUSCRIPTORES_FECHA_ABIERTA": "To ask subscribers for the code, “Opens to the public on” has to be a future time."
+    },
+    "activarSuscriptores": "Turn on access for Facebook subscribers",
+    "entran": "Subscribers get in",
+    "abreAnticipado": "Subscribers can register from",
+    "codigoPublicacion": "Code for the subscribers-only post",
+    "guardaParaCodigo": "Save changes to generate the code.",
+    "codigoGenerado": "Code generated. Copy it and paste it into the subscribers-only post.",
+    "seccionApertura": "Registration opening",
+    "guardarCambios": "Save changes",
+    "guardado": "Changes saved.",
+    "regenerar": "Generate another",
+    "confirmarRegenerar": "The current code will stop working. Generate a new one?",
+    "seccionLugares": "Spots per time slot",
+    "todos": "All time slots",
+    "aplicarTodos": "Apply to all",
+    "suscriptoresYaAbierta": "That time has already passed: the date is open to everyone and the code would not be asked for. So that only subscribers get in first, set a future time in “Opens to the public on”."
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Your first name is missing.",
+      "NUMEROS": "Names do not contain numbers.",
+      "SIMBOLOS": "Use letters only. Spaces, hyphens (-) and apostrophes (') are fine.",
+      "CORTO": "Write your full first name, not just one letter."
+    },
+    "apellidos": {
+      "VACIO": "Your last name is missing.",
+      "NUMEROS": "Last names do not contain numbers.",
+      "SIMBOLOS": "Use letters only. Spaces, hyphens (-) and apostrophes (') are fine.",
+      "CORTO": "Write your full last name, not just one letter."
+    },
+    "correo": {
+      "VACIO": "Your email is missing.",
+      "ESPACIOS": "Emails do not contain spaces.",
+      "SIN_ARROBA": "The @ is missing. For example: name@gmail.com",
+      "VARIAS_ARROBAS": "An email has only one @.",
+      "SIN_USUARIO": "The part before the @ is missing.",
+      "SIN_DOMINIO": "The part after the @ is missing, for example gmail.com",
+      "SIN_PUNTO": "The ending after a dot is missing, for example .com",
+      "DOMINIO_INVALIDO": "Check the part after the @, for example gmail.com",
+      "sugerencia": "Did you mean {{correo}}?",
+      "usarSugerencia": "Yes, fix it"
+    },
+    "telefono": {
+      "VACIO": "Your phone number is missing.",
+      "CARACTERES": "Phone numbers only contain digits. You can use spaces, hyphens and a + at the start.",
+      "LADA_DESCONOCIDA": "We do not recognize that country code. Pick your country from the list.",
+      "CORTO": "Digits are missing: a phone number from {{pais}} has {{digitos}} digits and you wrote {{llevan}}.",
+      "LARGO": "Too many digits: a phone number from {{pais}} has {{digitos}} digits and you wrote {{llevan}}.",
+      "EMPIEZA_CON_1": "A digit is missing: a phone number from {{pais}} has {{max}} digits not counting the 1 at the start.",
+      "entre": "between {{min}} and {{max}}"
+    }
+  },
+  "proxima": {
+    "etiqueta": "Next distribution",
+    "horario": "From {{inicio}} to {{fin}}",
+    "duracion": "Each time slot lasts 15 minutes.",
+    "lugares_one": "{{count}} spot available",
+    "lugares_other": "{{count}} spots available",
+    "lleno": "There are no spots left for this distribution.",
+    "abiertos": "Registration is open.",
+    "abreEl": "Registration opens {{cuando}}.",
+    "faltan": "{{tiempo}} to go",
+    "suscriptoresDesde": "Facebook subscribers can register starting {{cuando}}.",
+    "suscriptoresAhora": "Facebook subscribers can already register with their code.",
+    "conCodigo": "Register with a Facebook subscriber code",
+    "registrarme": "Register",
+    "sinLugares": "No spots left",
+    "seActivara": "The “Register” button turns on by itself at opening time.",
+    "sinFechas": "There are no distributions scheduled right now. Please check back later.",
+    "tiempo": {
+      "dias_one": "{{count}} day",
+      "dias_other": "{{count}} days",
+      "horas": "{{n}} h",
+      "minutos": "{{n}} min",
+      "segundos": "{{n}} s"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Early registration for subscribers",
+    "explicacion": "If you subscribe to Cajita de Bendición on Facebook, enter the code from the subscribers-only post.",
+    "desde": "You can use your code starting {{cuando}}.",
+    "ahora": "You can use your code now to register before the public.",
+    "sinAnticipado": "This distribution has no early registration for subscribers.",
+    "yaAbierto": "Registration is already open to everyone: you do not need a code.",
+    "irRegistro": "Go to registration",
+    "codigo": "Subscriber code",
+    "entrar": "Enter with my code",
+    "validando": "Checking…",
+    "invalido": "That code is not valid or cannot be used yet.",
+    "noSuscriptor": "Not a subscriber yet?",
+    "invitacion": "Subscribe to Cajita de Bendición on Facebook to register before the public at every distribution.",
+    "suscribirme": "Subscribe on Facebook",
+    "cerrar": "Close"
   }
 }

@@ -1,10 +1,11 @@
+import { clasificarError } from './errores'
 import { supabase } from '../lib/supabase'
 
 /**
- * Sesion del personal administrativo.
+ * Sesion del personal: admin y voluntario.
  *
- * Solo el personal tiene cuenta. Las familias no: en la V1 se registran
- * sin crear usuario. El login de Google para el publico es V2.
+ * Las familias no tienen cuenta: en la V1 se registran sin crear usuario.
+ * El login de Google para el publico es V2.
  */
 
 export async function iniciarSesion(correo, contrasena) {
@@ -27,6 +28,22 @@ export async function cerrarSesion() {
 export async function obtenerSesion() {
   const { data } = await supabase.auth.getSession()
   return data.session
+}
+
+/**
+ * El rol de la cuenta con sesion: 'admin', 'voluntario', o null si la
+ * cuenta no es del personal.
+ *
+ * Sirve para decidir que pantallas mostrar. El permiso real lo revisa la
+ * base de datos en cada funcion; esto solo evita ensenar una pantalla que
+ * de todos modos fallaria.
+ */
+export async function obtenerRol() {
+  const { data, error } = await supabase.rpc('mi_rol')
+
+  if (error) throw new Error(clasificarError(error))
+
+  return data ?? null
 }
 
 /**
