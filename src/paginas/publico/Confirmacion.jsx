@@ -1,22 +1,31 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleCheck, LuDownload } from 'react-icons/lu'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { LuCircleCheck, LuCircleX, LuDownload } from 'react-icons/lu'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
 import TarjetaDonar from '../../componentes/TarjetaDonar'
 import { consultarCita, dibujarQR } from '../../datos/cita'
+import { cancelarMiCita } from '../../datos/citas'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
+import { hoyLocal } from '../../datos/panel'
 
 export default function Confirmacion() {
   const { t, i18n } = useTranslation()
   const { id: token } = useParams()
   const { state } = useLocation()
+  const navegar = useNavigate()
 
   const [cita, setCita] = useState(null)
   const [qr, setQr] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+
+  // Cancelar: primero se pregunta, y solo con el "si" se cancela.
+  const [preguntando, setPreguntando] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
+  const [errorCancelar, setErrorCancelar] = useState(null)
 
   useEffect(() => {
     let vigente = true
@@ -47,6 +56,21 @@ export default function Confirmacion() {
     }
   }, [token, state])
 
+  async function cancelar() {
+    setCancelando(true)
+    setErrorCancelar(null)
+
+    try {
+      await cancelarMiCita(token)
+      setCita((actual) => ({ ...actual, estado: 'cancelada' }))
+      setPreguntando(false)
+    } catch (e) {
+      setErrorCancelar(e.message)
+    } finally {
+      setCancelando(false)
+    }
+  }
+
   if (cargando) {
     return (
       <Tarjeta>
@@ -72,6 +96,33 @@ export default function Confirmacion() {
     day: 'numeric',
     month: 'long',
   }).format(aFechaLocal(cita.fecha))
+
+  // Recien registrada, la cita llega sin estado: es "reservada".
+  const estado = cita.estado ?? 'reservada'
+
+  if (estado === 'cancelada') {
+    return (
+      <Tarjeta>
+        <p className="flex items-center gap-2 text-lg font-bold text-ya-recibio">
+          <LuCircleX aria-hidden="true" className="h-6 w-6" />
+          {t('confirmacion.canceladaTitulo')}
+        </p>
+        <p className="mt-1 text-2xl font-bold first-letter:uppercase">
+          {fechaLarga}, {formatearHora(cita.hora)}
+        </p>
+        <p className="mt-2 text-base text-principal/80">{t('confirmacion.canceladaTexto')}</p>
+        <Boton className="mt-4" onClick={() => navegar('/calendario')}>
+          {t('confirmacion.registrarOtra')}
+        </Boton>
+        <div className="mt-2 text-center">
+          <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
+        </div>
+      </Tarjeta>
+    )
+  }
+
+  // Solo una cita que no se ha usado y cuyo dia no ha pasado.
+  const cancelable = estado === 'reservada' && cita.fecha >= hoyLocal()
 
   return (
     <div className="space-y-4">
@@ -121,6 +172,59 @@ export default function Confirmacion() {
           <div className="mt-2 text-center">
             <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
           </div>
+
+          {cancelable && (
+            <div className="mt-6 border-t border-principal/10 pt-4">
+              {!preguntando ? (
+                <button
+                  className="min-h-12 w-full text-base font-semibold text-ya-recibio underline underline-offset-4"
+                  onClick={() => setPreguntando(true)}
+                  type="button"
+                >
+                  {t('confirmacion.cancelar')}
+                </button>
+              ) : (
+                <div
+                  aria-labelledby="pregunta-cancelar"
+                  className="rounded-xl border border-ya-recibio/30 bg-ya-recibio/5 p-4"
+                  role="alertdialog"
+                >
+                  <p className="text-base font-semibold text-principal" id="pregunta-cancelar">
+                    {t('confirmacion.cancelarPregunta')}
+                  </p>
+
+                  {errorCancelar && (
+                    <p className="mt-2 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+                      {t(`citas.errores.${errorCancelar}`, {
+                        defaultValue: t('citas.errores.ERROR_DESCONOCIDO'),
+                      })}
+                    </p>
+                  )}
+
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <button
+                      className="inline-flex min-h-14 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={cancelando}
+                      onClick={cancelar}
+                      type="button"
+                    >
+                      {cancelando ? t('confirmacion.cancelando') : t('confirmacion.cancelarSi')}
+                    </button>
+                    <button
+                      className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+                      onClick={() => {
+                        setPreguntando(false)
+                        setErrorCancelar(null)
+                      }}
+                      type="button"
+                    >
+                      {t('confirmacion.cancelarNo')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </Tarjeta>
 

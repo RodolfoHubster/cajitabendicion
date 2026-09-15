@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FcGoogle } from 'react-icons/fc'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import Tarjeta from '../../componentes/Tarjeta'
-import { iniciarSesion, obtenerRol, obtenerSesion } from '../../datos/sesion'
+import { iniciarSesion, iniciarSesionConGoogle, obtenerRol, obtenerSesion } from '../../datos/sesion'
 
 // A donde entra cada rol si no venia de otra pantalla: el voluntario va
 // directo a escanear, que es lo unico que hace.
@@ -54,10 +55,40 @@ export default function Login() {
     }
   }
 
+  // La pagina se va a Google y regresa al panel; el voluntario que llegue a
+  // /admin es enviado a escanear por SoloRol.
+  async function entrarConGoogle() {
+    setError(null)
+    setEntrando(true)
+
+    try {
+      await iniciarSesionConGoogle(destinoPedido ?? '/admin')
+    } catch (e) {
+      setError(e.message)
+      setEntrando(false)
+    }
+  }
+
   return (
     <Tarjeta>
       <h1 className="mb-1 text-2xl font-bold">{t('pages.adminLogin')}</h1>
       <p className="mb-4 text-base text-principal/70">{t('admin.soloPersonal')}</p>
+
+      <button
+        className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal shadow-sm transition hover:border-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-principal/20 disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={entrando}
+        onClick={entrarConGoogle}
+        type="button"
+      >
+        <FcGoogle aria-hidden="true" className="h-6 w-6 shrink-0" />
+        {t('admin.google')}
+      </button>
+
+      <div className="my-5 flex items-center gap-3 text-base text-principal/60">
+        <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />
+        {t('admin.oCorreo')}
+        <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />
+      </div>
 
       <form className="space-y-4" onSubmit={enviar}>
         <Campo

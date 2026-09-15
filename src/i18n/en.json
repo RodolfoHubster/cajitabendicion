@@ -23,7 +23,9 @@
       "DEMASIADOS_INTENTOS": "Too many attempts in a row. Wait a moment and try again.",
       "SIN_CONEXION": "No connection. Check your mobile data.",
       "ERROR_DESCONOCIDO": "We could not sign you in. Please try again."
-    }
+    },
+    "google": "Continue with Google",
+    "oCorreo": "or with email and password"
   },
   "nav": {
     "citasHoy": "Today",
@@ -31,7 +33,8 @@
     "personas": "People",
     "reportes": "Reports",
     "escanear": "Scan",
-    "registrar": "Register a person"
+    "registrar": "Register a person",
+    "equipo": "Team & access"
   },
   "escaneo": {
     "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
@@ -124,7 +127,8 @@
       "nombre": "Name",
       "codigo": "Code",
       "estado": "Status",
-      "ciudad": "City"
+      "ciudad": "City",
+      "paso": "Checked in"
     },
     "estado": {
       "reservada": "Not here yet",
@@ -143,7 +147,15 @@
     "aNombreDe": "Under the name of",
     "unSoloUso": "This code works once and is for one box only. If someone else in your household needs one, they must register on their own.",
     "guardarImagen": "Save image",
-    "consejoCaptura": "You can also take a screenshot of it."
+    "consejoCaptura": "You can also take a screenshot of it.",
+    "cancelar": "Cancel my appointment",
+    "cancelarPregunta": "Are you sure you want to cancel your appointment? Your spot will be freed for someone else.",
+    "cancelarSi": "Yes, cancel my appointment",
+    "cancelarNo": "No, keep my appointment",
+    "cancelando": "Cancelling…",
+    "canceladaTitulo": "Your appointment was cancelled",
+    "canceladaTexto": "Your spot is now free. If you need to, you can register again.",
+    "registrarOtra": "Register again"
   },
   "registro": {
     "cargando": "Getting your registration ready…",
@@ -288,7 +300,8 @@
       "admin": "Administrator",
       "voluntario": "Volunteer"
     },
-    "errorTitulo": "We could not check your access"
+    "errorTitulo": "We could not check your access",
+    "cuentaActual": "You signed in as {{correo}}. If that is not the right account, sign out and use another one."
   },
   "registrarPanel": {
     "titulo": "Register a person",
@@ -435,6 +448,12 @@
       "LARGO": "Too many digits: a phone number from {{pais}} has {{digitos}} digits and you wrote {{llevan}}.",
       "EMPIEZA_CON_1": "A digit is missing: a phone number from {{pais}} has {{max}} digits not counting the 1 at the start.",
       "entre": "between {{min}} and {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Write the person's name.",
+      "NUMEROS": "Names do not contain numbers.",
+      "SIMBOLOS": "Use letters only. Spaces, hyphens (-) and apostrophes (') are fine.",
+      "CORTO": "Write the full name, not just one letter."
     }
   },
   "proxima": {
@@ -478,5 +497,172 @@
     "invitacion": "Subscribe to Cajita de Bendición on Facebook to register before the public at every distribution.",
     "suscribirme": "Subscribe on Facebook",
     "cerrar": "Close"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "We could not find that appointment.",
+      "CITA_YA_CANCELADA": "This appointment was already cancelled.",
+      "CITA_YA_ENTREGADA": "This appointment was already used: the box was delivered.",
+      "FECHA_PASADA": "That date has already passed.",
+      "MOTIVO_REQUERIDO": "Write the reason for the exception.",
+      "PERSONA_NO_EXISTE": "No one has that code. Please check it (for example CB-4871).",
+      "NO_NECESITA_EXCEPCION": "This person has no appointment that week, so no exception is needed: register them normally.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "This person already has an exception that week. Only one is allowed.",
+      "BLOQUE_LLENO": "That time slot is full. Please pick another.",
+      "BLOQUE_CERRADO": "That time slot is closed.",
+      "BLOQUE_NO_EXISTE": "That time slot no longer exists.",
+      "DIA_CERRADO": "That day is closed.",
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your internet and try again.",
+      "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
+      "NOMBRE_REQUERIDO": "Write the person's name.",
+      "NOMBRE_INVALIDO": "Names do not contain numbers.",
+      "ENTRADA_NO_EXISTE": "We could not find that entry.",
+      "ENTRADA_YA_ANULADA": "That entry was already voided.",
+      "SIN_CODIGOS_DISPONIBLES": "Could not generate the code. Please try again."
+    }
+  },
+  "sinCita": {
+    "boton": "Record walk-in",
+    "registrando": "Recording…",
+    "ayuda": "Record someone who came through without an appointment. Only their name is asked; they get a receipt code, and who recorded it and when is saved.",
+    "nombre": "Person's name",
+    "anotado": "Recorded. {{total}} without an appointment today.",
+    "comprobante": "Receipt code",
+    "darCodigo": "Give this code to the person or ask them to take a photo of it, in case something needs to be cleared up later.",
+    "anular": "Void this entry",
+    "preguntaAnular": "Void the entry for {{nombre}}? It will stop counting, but it stays on record as voided.",
+    "confirmarAnular": "Yes, void it",
+    "noAnular": "No",
+    "anulada": "The entry for {{nombre}} was voided.",
+    "lista": "Came without an appointment",
+    "listaAyuda": "Who came through without an appointment, who recorded it and when.",
+    "sinEntradas": "No one came without an appointment this day.",
+    "cargando": "Loading…",
+    "col": {
+      "hora": "Time",
+      "nombre": "Name",
+      "codigo": "Code",
+      "anoto": "Recorded by",
+      "estado": "Status"
+    },
+    "vigente": "Counts",
+    "anuladaEstado": "Voided",
+    "anuladaPor": "by {{quien}} at {{hora}}",
+    "sinNombre": "(no name)",
+    "titulo": "Someone came without an appointment?"
+  },
+  "cancelarPanel": {
+    "columna": "Action",
+    "boton": "Cancel",
+    "titulo": "Cancel the appointment for {{nombre}} ({{hora}})",
+    "motivo": "Reason (optional)",
+    "confirmar": "Yes, cancel the appointment",
+    "cancelando": "Cancelling…",
+    "volver": "No, keep it",
+    "listo": "The appointment for {{nombre}} was cancelled. The spot is free."
+  },
+  "excepcion": {
+    "titulo": "Second appointment in the same week",
+    "ayuda": "Only for a special reason, such as illness or an emergency. The person must already have their appointment that week; the reason and who authorized it are recorded.",
+    "abrir": "Authorize an exception",
+    "codigo": "Person's code (CB-…)",
+    "motivo": "Reason",
+    "motivoEjemplo": "For example: illness in the family",
+    "autorizar": "Authorize and hold a spot",
+    "autorizando": "Authorizing…",
+    "listo": "Exception authorized",
+    "cerrar": "Cancel"
+  },
+  "equipo": {
+    "titulo": "Team & access",
+    "ayuda": "Who can sign in to the panel and what they can do. Changes apply right away.",
+    "darAcceso": "Give access",
+    "correo": "Person's email",
+    "faltaCorreo": "Write the person's email.",
+    "rol": "Role",
+    "descripcion": {
+      "admin": "Sees the whole panel: appointments, time slots, registrations, reports and the team. Authorizes deliveries from another date without a code.",
+      "voluntario": "Only scans codes in line. For an appointment from another date they need an administrator's code."
+    },
+    "guardar": "Give access",
+    "guardando": "Saving…",
+    "listo": "Done: {{correo}} is now {{rol}}.",
+    "listoPendiente": "Done: {{correo}} will be {{rol}} as soon as they sign in with Google for the first time.",
+    "avisoGoogle": "If they will sign in with Google, their email also has to be in “Test users” in Google Cloud. Ask whoever manages the system.",
+    "lista": "Team",
+    "buscar": "Search by email",
+    "filtroEstado": "Status",
+    "todos": "All",
+    "estado": {
+      "activo": "Active",
+      "pendiente": "Waiting to sign in",
+      "sin_acceso": "No access"
+    },
+    "tu": "you",
+    "ultimoAcceso": "Last sign-in: {{cuando}}",
+    "nuncaEntro": "Has not signed in yet",
+    "guardarRol": "Save change",
+    "quitar": "Remove access",
+    "devolver": "Restore access",
+    "preguntaQuitar": "Remove access for {{correo}}? They will no longer be able to sign in to the panel; their history is kept.",
+    "confirmarQuitar": "Yes, remove access",
+    "noQuitar": "No",
+    "cargando": "Loading team…",
+    "sinResultados": "No one matches the search.",
+    "miCodigo": "Your authorization code",
+    "miCodigoAyuda": "This is the code a volunteer asks you for to deliver an appointment from another date. Give it only in person, never by message.",
+    "conCodigo": "You already have a code. If you change it, the old one stops working.",
+    "sinCodigo": "You do not have a code yet: volunteers will not be able to ask you to authorize a delivery from another date.",
+    "codigoNuevo": "New code",
+    "codigoConfirmar": "Type it again",
+    "codigoCorto": "It must have at least 6 characters.",
+    "codigoNoCoincide": "The two codes do not match.",
+    "guardarCodigo": "Save my code",
+    "codigoGuardado": "Code saved.",
+    "errores": {
+      "CORREO_INVALIDO": "That email does not look right.",
+      "ROL_INVALIDO": "Choose administrator or volunteer.",
+      "NO_PUEDES_QUITARTE_ADMIN": "You cannot remove your own administrator role. Ask another administrator.",
+      "PERSONAL_NO_EXISTE": "That person is no longer on the team. Reload the page.",
+      "CODIGO_MUY_CORTO": "The code must have at least 6 characters.",
+      "NO_ES_ADMIN": "Only an administrator can have an authorization code.",
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your internet and try again.",
+      "ERROR_DESCONOCIDO": "Could not complete. Please try again."
+    }
+  },
+  "filtros": {
+    "buscar": "Search by name or code",
+    "buscarEjemplo": "E.g. María López or CB-4871",
+    "buscarEjemploSinCita": "E.g. Pedro Ruiz or SC-0012",
+    "masFiltros": "More filters",
+    "ocultarFiltros": "Hide filters",
+    "horario": "Appointment time",
+    "estado": "Status",
+    "ciudad": "City",
+    "sinCiudad": "(no city)",
+    "todos": "All",
+    "todas": "All",
+    "pasoDesde": "Checked in from",
+    "pasoHasta": "Checked in until",
+    "anotadaDesde": "Recorded from",
+    "anotadaHasta": "Recorded until",
+    "anotoPor": "Recorded by",
+    "sinDato": "(unknown)",
+    "cuentan": "Only counted",
+    "anuladas": "Only voided",
+    "limpiar": "Clear filters",
+    "sinResultados": "Nothing matches the search or filters.",
+    "mostrando": "Showing {{desde}}–{{hasta}} of {{total}}",
+    "deTotal": "({{total}} in total)",
+    "porPagina": "Per page",
+    "anterior": "Previous page",
+    "siguiente": "Next page",
+    "pagina": "Page {{pagina}} of {{total}}",
+    "irPagina": "Go to page {{pagina}}",
+    "paginacion": "List pages"
   }
 }

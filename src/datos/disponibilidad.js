@@ -171,6 +171,24 @@ export function desglosarSegundos(total) {
   }
 }
 
+/** Un momento guardado en la base ('2026-09-14T21:05:00+00:00') -> '2:05 PM' en San Diego. */
+export function horaSanDiego(marca) {
+  if (!marca) return ''
+
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(new Date(marca))
+      .map((parte) => [parte.type, parte.value]),
+  )
+
+  return formatearHora(`${p.hour}:${p.minute}`)
+}
+
 /**
  * '2026-09-11T12:00:00' (hora local de San Diego, como la entrega la base)
  * -> 'viernes, 11 de septiembre, 12:00 PM'.

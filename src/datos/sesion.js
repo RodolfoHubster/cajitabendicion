@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
  * Sesion del personal: admin y voluntario.
  *
  * Las familias no tienen cuenta: en la V1 se registran sin crear usuario.
- * El login de Google para el publico es V2.
+ * El login de Google para el publico es V2; el personal ya puede usarlo.
  */
 
 export async function iniciarSesion(correo, contrasena) {
@@ -19,6 +19,28 @@ export async function iniciarSesion(correo, contrasena) {
   }
 
   return data.user
+}
+
+/**
+ * Entrar con Google: lleva a la pagina de Google y regresa al panel.
+ *
+ * Google solo confirma quien es; el permiso lo da la tabla personal. Si la
+ * cuenta no tiene rol, el panel muestra "sin acceso" y no deja hacer nada.
+ */
+export async function iniciarSesionConGoogle(destino = '/admin') {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}${destino}`,
+      // Siempre deja escoger la cuenta: en la computadora de la iglesia
+      // puede haber varias cuentas de Google abiertas.
+      queryParams: { prompt: 'select_account' },
+    },
+  })
+
+  if (error) {
+    throw new Error(traducirError(error))
+  }
 }
 
 export async function cerrarSesion() {

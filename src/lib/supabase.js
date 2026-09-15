@@ -21,4 +21,10 @@ if (faltantes.length > 0) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // PKCE: al volver de Google, la sesion llega como un codigo de un solo
+    // uso en vez de viajar los tokens en la direccion de la pagina.
+    flowType: 'pkce',
+  },
+})

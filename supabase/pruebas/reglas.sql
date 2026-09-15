@@ -55,6 +55,7 @@ declare
   v_email        text;
   v_numero       int;
   v_si           boolean;
+  v_numero2      int;
 
   v_total        int;
   v_pasaron      int;
@@ -385,6 +386,39 @@ begin
     pg_temp.registro(v_b_jueves));
 
   -- ==========================================================
+  --  10b. Cancelar la propia cita (desde el enlace de confirmacion)
+  -- ==========================================================
+  select token_qr into v_token from citas where bloque_id = v_b_uno and estado <> 'cancelada' limit 1;
+
+  perform pg_temp.esperar_ok('Cancelar: la persona cancela su cita desde su enlace',
+    format('select cancelar_mi_cita(%L)', v_token));
+  select estado into v_texto from citas where token_qr = v_token;
+  perform pg_temp.comprobar('Cancelar: queda cancelada, con la hora y sin "quién" (fue la propia persona)',
+    v_texto = 'cancelada'
+    and (select cancelada_en is not null and cancelada_por is null from citas where token_qr = v_token),
+    v_texto);
+  perform pg_temp.esperar_ok('Cancelar: su lugar queda libre para otra persona',
+    pg_temp.registro(v_b_uno));
+  perform pg_temp.esperar_error('Cancelar: no se cancela dos veces',
+    format('select cancelar_mi_cita(%L)', v_token), 'CITA_YA_CANCELADA');
+  perform pg_temp.esperar_error('Cancelar: un enlace que no existe',
+    'select cancelar_mi_cita(''no-existe'')', 'CITA_NO_EXISTE');
+
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+  values ('CB-PRB6', 'Prueba Entregada', 'Prueba', 'Entregada', '+16195550006') returning id into v_persona;
+  insert into citas (persona_id, bloque_id, semana, token_qr, estado)
+  values (v_persona, v_b_programada, date_trunc('week', v_programada)::date, 'token-prueba-entregada', 'entregada');
+  perform pg_temp.esperar_error('Cancelar: una cita que ya se usó no se cancela',
+    'select cancelar_mi_cita(''token-prueba-entregada'')', 'CITA_YA_ENTREGADA');
+
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+  values ('CB-PRB7', 'Prueba Pasada', 'Prueba', 'Pasada', '+16195550007') returning id into v_persona;
+  insert into citas (persona_id, bloque_id, semana, token_qr)
+  values (v_persona, v_b_pasada, date_trunc('week', v_pasada)::date, 'token-prueba-pasada');
+  perform pg_temp.esperar_error('Cancelar: una cita de un día que ya pasó no se cancela',
+    'select cancelar_mi_cita(''token-prueba-pasada'')', 'FECHA_PASADA');
+
+  -- ==========================================================
   --  11. Panel, escaneo y roles (como la primera cuenta admin)
   -- ==========================================================
   select usuario_id into v_admin from personal where rol = 'admin' and activo order by creado_en limit 1;
@@ -510,6 +544,172 @@ begin
     select resultado into v_texto from registrar_entrega_autorizada(v_token_otro, null);
     perform pg_temp.comprobar('Escaneo: autorizado tampoco entrega dos veces', v_texto = 'YA_USADO', v_texto);
 
+    -- ---------- Entraron sin cita ----------
+    select sin_cita into v_numero from resumen_del_dia(null);
+
+    perform pg_temp.esperar_error('Sin cita: sin nombre no se anota',
+      'select * from registrar_entrada_sin_cita(''   '')', 'NOMBRE_REQUERIDO');
+    perform pg_temp.esperar_error('Sin cita: el nombre no lleva números',
+      'select * from registrar_entrada_sin_cita(''Juan 2'')', 'NOMBRE_INVALIDO');
+
+    begin
+      select r.codigo into v_codigo from registrar_entrada_sin_cita('  josé   ramírez ') r;
+      perform pg_temp.comprobar('Sin cita: se anota con nombre y da un código de comprobante',
+        v_codigo ~ '^SC-[0-9]{4}$', v_codigo);
+    exception when others then
+      perform pg_temp.comprobar('Sin cita: se anota con nombre y da un código de comprobante', false, sqlerrm);
+    end;
+
+    perform pg_temp.esperar_ok('Sin cita: se anota otra persona',
+      'select * from registrar_entrada_sin_cita(''Ana López'')');
+
+    select sin_cita into v_numero2 from resumen_del_dia(null);
+    perform pg_temp.comprobar('Sin cita: el resumen del día las cuenta', v_numero2 = v_numero + 2,
+      format('%s -> %s', v_numero, v_numero2));
+
+    select count(*) into v_numero2
+      from entradas_sin_cita_del_dia(null) e
+     where e.codigo = v_codigo
+       and e.nombre = 'josé ramírez'
+       and e.anotado_por is not null
+       and e.registrado_en is not null
+       and not e.anulada;
+    perform pg_temp.comprobar('Sin cita: la lista del día muestra nombre, código, quién lo anotó y a qué hora',
+      v_numero2 = 1, v_numero2::text);
+
+    perform pg_temp.esperar_ok('Sin cita: se anula una anotada por error',
+      format('select anular_entrada_sin_cita(%L)', v_codigo));
+    select sin_cita into v_numero2 from resumen_del_dia(null);
+    perform pg_temp.comprobar('Sin cita: la anulada ya no cuenta', v_numero2 = v_numero + 1,
+      format('%s -> %s', v_numero, v_numero2));
+
+    select count(*) into v_numero2
+      from entradas_sin_cita_del_dia(null) e
+     where e.codigo = v_codigo and e.anulada and e.anulada_por is not null and e.anulada_en is not null;
+    perform pg_temp.comprobar('Sin cita: la anulada no se borra, queda quién la anuló y cuándo',
+      v_numero2 = 1, v_numero2::text);
+
+    perform pg_temp.esperar_error('Sin cita: no se anula dos veces',
+      format('select anular_entrada_sin_cita(%L)', v_codigo), 'ENTRADA_YA_ANULADA');
+    perform pg_temp.esperar_error('Sin cita: un código que no existe',
+      'select anular_entrada_sin_cita(''SC-XXXX'')', 'ENTRADA_NO_EXISTE');
+
+    -- ---------- Excepción: segunda cita en la semana ----------
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRB8', 'Prueba Excepcion', 'Prueba', 'Excepcion', '+16195550008') returning id into v_persona;
+
+    perform pg_temp.esperar_error('Excepción: si no tiene cita esa semana, no hace falta',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_lunes, 'Enfermedad'),
+      'NO_NECESITA_EXCEPCION');
+
+    perform reservar_cita(v_persona, v_b_lunes);
+
+    perform pg_temp.esperar_error('Excepción: sin motivo no se autoriza',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, '  '),
+      'MOTIVO_REQUERIDO');
+    perform pg_temp.esperar_error('Excepción: un código que no existe',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-NOEXISTE', v_b_jueves, 'Enfermedad'),
+      'PERSONA_NO_EXISTE');
+    perform pg_temp.esperar_error('Excepción: tampoco se pasa del cupo',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_uno, 'Enfermedad'),
+      'BLOQUE_LLENO');
+    perform pg_temp.esperar_ok('Excepción: el pastor autoriza la segunda cita con su motivo',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'cb-prb8', v_b_jueves, '  Enfermedad en la familia '));
+
+    select count(*) into v_numero from citas where persona_id = v_persona and estado <> 'cancelada';
+    perform pg_temp.comprobar('Excepción: la persona queda con dos citas esa semana', v_numero = 2, v_numero::text);
+    select count(*) into v_numero from excepciones
+     where persona_id = v_persona and motivo = 'Enfermedad en la familia' and autorizado_por = v_admin;
+    perform pg_temp.comprobar('Excepción: queda guardado el motivo y quién la autorizó', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Excepción: no se autoriza una tercera',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Otra vez'),
+      'YA_TIENE_EXCEPCION_ESTA_SEMANA');
+    perform pg_temp.esperar_error('Excepción: sin autorización sigue sin poder tener otra',
+      format('select reservar_cita(%L::uuid, %L::uuid)', v_persona, v_b_jueves), 'YA_TIENE_CITA_ESTA_SEMANA');
+
+    -- ---------- Cancelar desde el panel ----------
+    perform pg_temp.esperar_error('Cancelar (panel): una cita que no existe',
+      format('select cancelar_cita_panel(%L, %L::date, %L::time, null)', 'CB-PRB8', v_programada, '14:00'),
+      'CITA_NO_EXISTE');
+    perform pg_temp.esperar_ok('Cancelar (panel): el pastor cancela con motivo',
+      format('select cancelar_cita_panel(%L, %L::date, %L::time, %L)', 'cb-prb8', v_jueves, '14:00', 'Avisó que no puede'));
+
+    select count(*) into v_numero from citas
+     where persona_id = v_persona and estado = 'cancelada'
+       and cancelada_por = v_admin and motivo_cancelacion = 'Avisó que no puede';
+    perform pg_temp.comprobar('Cancelar (panel): queda quién canceló y por qué', v_numero = 1, v_numero::text);
+    perform pg_temp.esperar_ok('Excepción: si se cancela, se puede autorizar otra',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Nueva fecha'));
+
+    -- ---------- Equipo y accesos desde el panel ----------
+    select count(*) into v_numero from listar_personal() l where l.es_yo and l.rol = 'admin' and l.estado = 'activo';
+    perform pg_temp.comprobar('Equipo: el pastor se ve a sí mismo en la lista, como admin activo', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Equipo: correo mal escrito',
+      'select guardar_personal(''sin-arroba'', ''voluntario'')', 'CORREO_INVALIDO');
+    perform pg_temp.esperar_error('Equipo: rol que no existe',
+      'select guardar_personal(''alguien@gmail.com'', ''supervisor'')', 'ROL_INVALIDO');
+    perform pg_temp.esperar_error('Equipo: nadie se quita a sí mismo el rol de admin',
+      format('select guardar_personal((select email from auth.users where id = %L::uuid), ''voluntario'')', v_admin),
+      'NO_PUEDES_QUITARTE_ADMIN');
+    perform pg_temp.esperar_error('Equipo: nadie se quita a sí mismo el acceso',
+      format('select quitar_acceso_personal((select email from auth.users where id = %L::uuid))', v_admin),
+      'NO_PUEDES_QUITARTE_ADMIN');
+
+    select guardar_personal('Nuevo.Voluntario.CB@gmail.com', 'voluntario') into v_texto;
+    perform pg_temp.comprobar('Equipo: da acceso a alguien que todavía no ha entrado (queda pendiente)',
+      v_texto like 'PENDIENTE%', v_texto);
+    select count(*) into v_numero from listar_personal() l
+     where l.correo = 'nuevo.voluntario.cb@gmail.com' and l.estado = 'pendiente' and l.rol = 'voluntario';
+    perform pg_temp.comprobar('Equipo: aparece en la lista como pendiente de entrar', v_numero = 1, v_numero::text);
+
+    select quitar_acceso_personal('nuevo.voluntario.cb@gmail.com') into v_texto;
+    perform pg_temp.comprobar('Equipo: se le quita la autorización antes de que entre',
+      v_texto = 'AUTORIZACION_QUITADA'
+      and not exists (select 1 from listar_personal() l where l.correo = 'nuevo.voluntario.cb@gmail.com'),
+      v_texto);
+    perform pg_temp.esperar_error('Equipo: quitar a alguien que no está en el equipo',
+      'select quitar_acceso_personal(''nadie.cb@gmail.com'')', 'PERSONAL_NO_EXISTE');
+
+    begin
+      select guardar_personal('otro.admin.cb@gmail.com', 'admin') into v_texto;
+      insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at,
+                              raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+      values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated',
+              'otro.admin.cb@gmail.com', now(),
+              '{"provider":"google","providers":["google"]}', '{}', now(), now())
+      returning id into v_persona;
+      insert into autorizadores (usuario_id, codigo_hash) values (v_persona, crypt('codigo-otro-admin', gen_salt('bf')));
+
+      select count(*) into v_numero from listar_personal() l
+       where l.correo = 'otro.admin.cb@gmail.com' and l.estado = 'activo' and l.rol = 'admin';
+      perform pg_temp.comprobar('Equipo: al entrar con Google queda activo con su rol', v_numero = 1, v_numero::text);
+
+      select quitar_acceso_personal('otro.admin.cb@gmail.com') into v_texto;
+      perform pg_temp.comprobar('Equipo: se le quita el acceso a otro admin (no se borra, queda sin acceso)',
+        v_texto = 'ACCESO_QUITADO'
+        and exists (select 1 from listar_personal() l where l.correo = 'otro.admin.cb@gmail.com' and l.estado = 'sin_acceso'),
+        v_texto);
+      perform pg_temp.comprobar('Equipo: al quitarle el acceso, su código de autorización deja de servir',
+        not exists (select 1 from autorizadores a where a.usuario_id = v_persona and a.activo));
+
+      select guardar_personal('otro.admin.cb@gmail.com', 'voluntario') into v_texto;
+      perform pg_temp.comprobar('Equipo: se le devuelve el acceso, ahora como voluntario',
+        exists (select 1 from listar_personal() l
+                 where l.correo = 'otro.admin.cb@gmail.com' and l.estado = 'activo' and l.rol = 'voluntario'),
+        v_texto);
+    exception when others then
+      perform pg_temp.comprobar('Equipo: cuenta de prueba de otro admin', false, sqlerrm);
+    end;
+
+    perform pg_temp.esperar_error('Equipo: el código de autorización necesita al menos 6 caracteres',
+      'select definir_mi_codigo_autorizacion(''123'')', 'CODIGO_MUY_CORTO');
+    perform pg_temp.esperar_ok('Equipo: el pastor pone su propio código de autorización',
+      'select definir_mi_codigo_autorizacion(''codigo-prueba-cb'')');
+    select count(*) into v_numero from listar_personal() l where l.es_yo and l.tiene_codigo;
+    perform pg_temp.comprobar('Equipo: la lista indica que ya tiene código', v_numero = 1, v_numero::text);
+
     -- ---------- Roles: voluntario ----------
     update personal set rol = 'voluntario' where usuario_id = v_admin;
 
@@ -519,6 +719,20 @@ begin
       'select * from citas_del_dia(null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no registra desde el panel',
       pg_temp.panel(v_b_lunes), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no anota "entró sin cita"',
+      'select * from registrar_entrada_sin_cita(''Nombre Prueba'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve quién entró sin cita',
+      'select * from entradas_sin_cita_del_dia(null)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve el equipo',
+      'select * from listar_personal()', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no da accesos',
+      'select guardar_personal(''alguien.cb@gmail.com'', ''admin'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no pone código de autorización',
+      'select definir_mi_codigo_autorizacion(''codigo-voluntario'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no autoriza excepciones',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Motivo'), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no cancela citas',
+      format('select cancelar_cita_panel(%L, %L::date, %L::time, null)', 'CB-PRB8', v_lunes, '14:00'), 'SIN_PERMISO');
 
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
     values ('CB-PRB4', 'Prueba Voluntario', 'Prueba', 'Voluntario', '+16195550003') returning id into v_persona;
@@ -541,7 +755,61 @@ begin
       pg_temp.crear(v_nueva, '14:00', '18:30', 20, now() + interval '1 day'), 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se escanea',
       'select * from registrar_entrega(''x'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se anota "entró sin cita"',
+      'select * from registrar_entrada_sin_cita(''Nombre Prueba'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve el equipo',
+      'select * from listar_personal()', 'SIN_SESION');
   end if;
+
+  -- ==========================================================
+  --  12. Personal autorizado antes de entrar con Google
+  -- ==========================================================
+  select definir_personal('  Pastor.Prueba.CB@Gmail.com ', 'admin') into v_texto;
+  perform pg_temp.comprobar('Google: se autoriza un correo que todavía no tiene cuenta',
+    v_texto like 'PENDIENTE%'
+    and exists (select 1 from personal_pendiente where correo = 'pastor.prueba.cb@gmail.com' and rol = 'admin'),
+    v_texto);
+  perform pg_temp.esperar_error('Google: un correo mal escrito no se autoriza',
+    'select definir_personal(''pastor@'', ''admin'')', 'CORREO_INVALIDO');
+  perform pg_temp.esperar_error('Google: un rol que no existe',
+    'select definir_personal(''otro@gmail.com'', ''supervisor'')', 'ROL_INVALIDO');
+
+  begin
+    --  Alguien crea una cuenta de correo y contrasena con el correo del pastor.
+    insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at,
+                            raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+    values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated',
+            'pastor.prueba.cb@gmail.com', now(),
+            '{"provider":"email","providers":["email"]}', '{}', now(), now())
+    returning id into v_persona;
+
+    perform pg_temp.comprobar('Google: una cuenta con contraseña y ese mismo correo NO recibe el rol',
+      not exists (select 1 from personal where usuario_id = v_persona));
+
+    delete from auth.users where id = v_persona;
+
+    --  El pastor entra por primera vez con Google.
+    insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at,
+                            raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+    values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated',
+            'pastor.prueba.cb@gmail.com', now(),
+            '{"provider":"google","providers":["google"]}', '{}', now(), now())
+    returning id into v_persona;
+
+    select rol into v_texto from personal where usuario_id = v_persona and activo;
+    perform pg_temp.comprobar('Google: al entrar por primera vez con Google ya tiene su rol',
+      v_texto = 'admin', coalesce(v_texto, 'sin rol'));
+    perform pg_temp.comprobar('Google: la autorización pendiente se usa una sola vez',
+      not exists (select 1 from personal_pendiente where correo = 'pastor.prueba.cb@gmail.com'));
+
+    select definir_personal('pastor.prueba.cb@gmail.com', 'voluntario') into v_texto;
+    perform pg_temp.comprobar('Google: con la cuenta ya creada, definir_personal cambia el rol al momento',
+      v_texto like 'PERSONAL_LISTO%'
+      and (select rol from personal where usuario_id = v_persona) = 'voluntario',
+      v_texto);
+  exception when others then
+    perform pg_temp.comprobar('Google: cuentas de prueba en auth.users', false, sqlerrm);
+  end;
 
   -- ==========================================================
   --  Resultado (y deshacer todo)

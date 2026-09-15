@@ -23,7 +23,9 @@
       "DEMASIADOS_INTENTOS": "Demasiados intentos seguidos. Espera un momento y vuelve a intentar.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles.",
       "ERROR_DESCONOCIDO": "No pudimos iniciar sesión. Intenta de nuevo."
-    }
+    },
+    "google": "Continuar con Google",
+    "oCorreo": "o con correo y contraseña"
   },
   "nav": {
     "citasHoy": "Citas de hoy",
@@ -31,7 +33,8 @@
     "personas": "Personas",
     "reportes": "Reportes",
     "escanear": "Escanear",
-    "registrar": "Registrar persona"
+    "registrar": "Registrar persona",
+    "equipo": "Equipo y accesos"
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
@@ -124,7 +127,8 @@
       "nombre": "Nombre",
       "codigo": "Código",
       "estado": "Estado",
-      "ciudad": "Ciudad"
+      "ciudad": "Ciudad",
+      "paso": "Pasó"
     },
     "estado": {
       "reservada": "Aún no llega",
@@ -143,7 +147,15 @@
     "aNombreDe": "A nombre de",
     "unSoloUso": "Este código sirve una sola vez y es para una sola caja. Si otra persona de tu casa necesita una, debe registrarse por su cuenta.",
     "guardarImagen": "Guardar imagen",
-    "consejoCaptura": "También puedes tomarle una captura de pantalla."
+    "consejoCaptura": "También puedes tomarle una captura de pantalla.",
+    "cancelar": "Cancelar mi cita",
+    "cancelarPregunta": "¿Seguro que quieres cancelar tu cita? Tu lugar quedará libre para otra persona.",
+    "cancelarSi": "Sí, cancelar mi cita",
+    "cancelarNo": "No, conservar mi cita",
+    "cancelando": "Cancelando…",
+    "canceladaTitulo": "Tu cita fue cancelada",
+    "canceladaTexto": "Tu lugar ya quedó libre. Si lo necesitas, puedes volver a registrarte.",
+    "registrarOtra": "Registrarme de nuevo"
   },
   "registro": {
     "cargando": "Preparando tu registro…",
@@ -288,7 +300,8 @@
       "admin": "Administrador",
       "voluntario": "Voluntario"
     },
-    "errorTitulo": "No pudimos revisar tu acceso"
+    "errorTitulo": "No pudimos revisar tu acceso",
+    "cuentaActual": "Entraste como {{correo}}. Si no es la cuenta correcta, sal y entra con otra."
   },
   "registrarPanel": {
     "titulo": "Registrar persona",
@@ -435,6 +448,12 @@
       "LARGO": "Sobran dígitos: un teléfono de {{pais}} lleva {{digitos}} dígitos y escribiste {{llevan}}.",
       "EMPIEZA_CON_1": "Falta un dígito: un teléfono de {{pais}} lleva {{max}} dígitos sin contar el 1 del inicio.",
       "entre": "entre {{min}} y {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Escribe el nombre de la persona.",
+      "NUMEROS": "El nombre no lleva números.",
+      "SIMBOLOS": "Usa solo letras. Se permiten espacios, guion (-) y apóstrofo (').",
+      "CORTO": "Escribe el nombre completo, no solo una letra."
     }
   },
   "proxima": {
@@ -478,5 +497,172 @@
     "invitacion": "Suscríbete a Cajita de Bendición en Facebook para registrarte antes que el público en cada entrega.",
     "suscribirme": "Suscribirme en Facebook",
     "cerrar": "Cerrar"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "No encontramos esa cita.",
+      "CITA_YA_CANCELADA": "Esta cita ya estaba cancelada.",
+      "CITA_YA_ENTREGADA": "Esta cita ya se usó: la caja ya fue entregada.",
+      "FECHA_PASADA": "Esa fecha ya pasó.",
+      "MOTIVO_REQUERIDO": "Escribe el motivo de la excepción.",
+      "PERSONA_NO_EXISTE": "No hay nadie con ese código. Revísalo (por ejemplo CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Esta persona no tiene cita esa semana, así que no necesita excepción: regístrala normal.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "Esta persona ya tiene una excepción esa semana. Solo se permite una.",
+      "BLOQUE_LLENO": "Ese horario ya está lleno. Elige otro.",
+      "BLOQUE_CERRADO": "Ese horario está cerrado.",
+      "BLOQUE_NO_EXISTE": "Ese horario ya no existe.",
+      "DIA_CERRADO": "Ese día está cerrado.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
+      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
+      "NOMBRE_REQUERIDO": "Escribe el nombre de la persona.",
+      "NOMBRE_INVALIDO": "El nombre no lleva números.",
+      "ENTRADA_NO_EXISTE": "No encontramos esa entrada.",
+      "ENTRADA_YA_ANULADA": "Esa entrada ya estaba anulada.",
+      "SIN_CODIGOS_DISPONIBLES": "No se pudo generar el código. Intenta de nuevo."
+    }
+  },
+  "sinCita": {
+    "boton": "Anotar entrada sin cita",
+    "registrando": "Anotando…",
+    "ayuda": "Anota a una persona que pasó sin cita. Solo se pide su nombre; se le da un código de comprobante y queda quién la anotó y a qué hora.",
+    "nombre": "Nombre de la persona",
+    "anotado": "Anotado. Hoy van {{total}} sin cita.",
+    "comprobante": "Código de comprobante",
+    "darCodigo": "Dale este código a la persona o pídele que le tome foto, por si hay que aclarar algo después.",
+    "anular": "Anular esta entrada",
+    "preguntaAnular": "¿Anular la entrada de {{nombre}}? Dejará de contar, pero queda registrada como anulada.",
+    "confirmarAnular": "Sí, anular",
+    "noAnular": "No",
+    "anulada": "Se anuló la entrada de {{nombre}}.",
+    "lista": "Entraron sin cita",
+    "listaAyuda": "Quién pasó sin cita, quién lo anotó y a qué hora.",
+    "sinEntradas": "Nadie ha entrado sin cita este día.",
+    "cargando": "Cargando…",
+    "col": {
+      "hora": "Hora",
+      "nombre": "Nombre",
+      "codigo": "Código",
+      "anoto": "Anotó",
+      "estado": "Estado"
+    },
+    "vigente": "Cuenta",
+    "anuladaEstado": "Anulada",
+    "anuladaPor": "por {{quien}} a las {{hora}}",
+    "sinNombre": "(sin nombre)",
+    "titulo": "¿Pasó alguien sin cita?"
+  },
+  "cancelarPanel": {
+    "columna": "Acción",
+    "boton": "Cancelar",
+    "titulo": "Cancelar la cita de {{nombre}} ({{hora}})",
+    "motivo": "Motivo (opcional)",
+    "confirmar": "Sí, cancelar la cita",
+    "cancelando": "Cancelando…",
+    "volver": "No, dejarla",
+    "listo": "Se canceló la cita de {{nombre}}. El lugar quedó libre."
+  },
+  "excepcion": {
+    "titulo": "Segunda cita en la misma semana",
+    "ayuda": "Solo por una razón especial, como enfermedad o emergencia. La persona ya debe tener su cita de esa semana; queda guardado el motivo y quién lo autorizó.",
+    "abrir": "Autorizar una excepción",
+    "codigo": "Código de la persona (CB-…)",
+    "motivo": "Motivo",
+    "motivoEjemplo": "Por ejemplo: enfermedad en la familia",
+    "autorizar": "Autorizar y apartar lugar",
+    "autorizando": "Autorizando…",
+    "listo": "Excepción autorizada",
+    "cerrar": "Cancelar"
+  },
+  "equipo": {
+    "titulo": "Equipo y accesos",
+    "ayuda": "Quién puede entrar al panel y qué puede hacer. Los cambios se aplican al momento.",
+    "darAcceso": "Dar acceso",
+    "correo": "Correo de la persona",
+    "faltaCorreo": "Escribe el correo de la persona.",
+    "rol": "Rol",
+    "descripcion": {
+      "admin": "Ve todo el panel: citas, horarios, registros, reportes y el equipo. Autoriza entregas de otra fecha sin código.",
+      "voluntario": "Solo escanea los códigos en la fila. Para una cita de otra fecha necesita el código de un administrador."
+    },
+    "guardar": "Dar acceso",
+    "guardando": "Guardando…",
+    "listo": "Listo: {{correo}} ya es {{rol}}.",
+    "listoPendiente": "Listo: {{correo}} será {{rol}} en cuanto entre con Google por primera vez.",
+    "avisoGoogle": "Si va a entrar con Google, su correo también tiene que estar en «Usuarios de prueba» de Google Cloud. Pídeselo a quien administra el sistema.",
+    "lista": "Equipo",
+    "buscar": "Buscar por correo",
+    "filtroEstado": "Estado",
+    "todos": "Todos",
+    "estado": {
+      "activo": "Activo",
+      "pendiente": "Pendiente de entrar",
+      "sin_acceso": "Sin acceso"
+    },
+    "tu": "tú",
+    "ultimoAcceso": "Último acceso: {{cuando}}",
+    "nuncaEntro": "Todavía no ha entrado",
+    "guardarRol": "Guardar cambio",
+    "quitar": "Quitar acceso",
+    "devolver": "Devolver acceso",
+    "preguntaQuitar": "¿Quitarle el acceso a {{correo}}? Ya no podrá entrar al panel; su historial se conserva.",
+    "confirmarQuitar": "Sí, quitar acceso",
+    "noQuitar": "No",
+    "cargando": "Cargando equipo…",
+    "sinResultados": "Nadie coincide con la búsqueda.",
+    "miCodigo": "Tu código de autorización",
+    "miCodigoAyuda": "Es el código que te pide un voluntario para entregar una cita de otra fecha. Dáselo solo en persona, nunca por mensaje.",
+    "conCodigo": "Ya tienes un código. Si lo cambias, el anterior deja de servir.",
+    "sinCodigo": "Todavía no tienes código: los voluntarios no podrán pedirte autorización para una entrega de otra fecha.",
+    "codigoNuevo": "Código nuevo",
+    "codigoConfirmar": "Escríbelo otra vez",
+    "codigoCorto": "Debe tener al menos 6 caracteres.",
+    "codigoNoCoincide": "Los dos códigos no coinciden.",
+    "guardarCodigo": "Guardar mi código",
+    "codigoGuardado": "Código guardado.",
+    "errores": {
+      "CORREO_INVALIDO": "Ese correo no parece estar bien escrito.",
+      "ROL_INVALIDO": "Elige administrador o voluntario.",
+      "NO_PUEDES_QUITARTE_ADMIN": "No puedes quitarte a ti mismo el rol de administrador. Pídeselo a otro administrador.",
+      "PERSONAL_NO_EXISTE": "Esa persona ya no está en el equipo. Recarga la página.",
+      "CODIGO_MUY_CORTO": "El código debe tener al menos 6 caracteres.",
+      "NO_ES_ADMIN": "Solo un administrador puede tener código de autorización.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
+      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar."
+    }
+  },
+  "filtros": {
+    "buscar": "Buscar por nombre o código",
+    "buscarEjemplo": "Ej. María López o CB-4871",
+    "buscarEjemploSinCita": "Ej. Pedro Ruiz o SC-0012",
+    "masFiltros": "Más filtros",
+    "ocultarFiltros": "Ocultar filtros",
+    "horario": "Horario de la cita",
+    "estado": "Estado",
+    "ciudad": "Ciudad",
+    "sinCiudad": "(sin ciudad)",
+    "todos": "Todos",
+    "todas": "Todas",
+    "pasoDesde": "Pasó desde las",
+    "pasoHasta": "Pasó hasta las",
+    "anotadaDesde": "Anotada desde las",
+    "anotadaHasta": "Anotada hasta las",
+    "anotoPor": "Quién la anotó",
+    "sinDato": "(sin dato)",
+    "cuentan": "Solo las que cuentan",
+    "anuladas": "Solo las anuladas",
+    "limpiar": "Quitar filtros",
+    "sinResultados": "Nada coincide con la búsqueda o los filtros.",
+    "mostrando": "Mostrando {{desde}}–{{hasta}} de {{total}}",
+    "deTotal": "(de {{total}} en total)",
+    "porPagina": "Por página",
+    "anterior": "Página anterior",
+    "siguiente": "Página siguiente",
+    "pagina": "Página {{pagina}} de {{total}}",
+    "irPagina": "Ir a la página {{pagina}}",
+    "paginacion": "Páginas de la lista"
   }
 }

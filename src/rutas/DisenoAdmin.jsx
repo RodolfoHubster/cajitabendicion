@@ -9,6 +9,7 @@ const SECCIONES = [
   { a: '/admin/horarios', clave: 'horarios', roles: ['admin'] },
   { a: '/admin/personas', clave: 'personas', roles: ['admin'] },
   { a: '/admin/reportes', clave: 'reportes', roles: ['admin'] },
+  { a: '/admin/equipo', clave: 'equipo', roles: ['admin'] },
   { a: '/escanear', clave: 'escanear', roles: ['admin', 'voluntario'] },
 ]
 
@@ -46,14 +47,14 @@ export default function DisenoAdmin() {
   )
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-start">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
       {/*
         En movil la navegacion es una fila que se desliza; en pantalla
         grande, una columna a un lado. El voluntario trabaja de pie con
         el telefono en una mano, asi que en movil no se roba altura.
       */}
-      <nav className="md:w-56 md:shrink-0">
-        <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-col md:overflow-visible">
+      <nav className="lg:sticky lg:top-24 lg:w-60 lg:shrink-0">
+        <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:flex-col lg:overflow-visible">
           {secciones.map(({ a, clave, exacta }) => (
             <li key={a}>
               <NavLink className={estilo} end={exacta} to={a}>
@@ -63,13 +64,13 @@ export default function DisenoAdmin() {
           ))}
         </ul>
 
-        <div className="mt-3 hidden rounded-xl bg-principal/5 p-3 md:block">{cuenta}</div>
+        <div className="mt-3 hidden rounded-xl bg-principal/5 p-3 lg:block">{cuenta}</div>
       </nav>
 
       <div className="min-w-0 flex-1">
         <Outlet context={contexto} />
 
-        <div className="mt-4 rounded-xl bg-principal/5 p-3 md:hidden">{cuenta}</div>
+        <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden">{cuenta}</div>
       </div>
     </div>
   )

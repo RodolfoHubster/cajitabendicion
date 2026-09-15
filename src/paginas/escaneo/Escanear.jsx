@@ -4,6 +4,7 @@ import { LuKeyRound, LuShieldCheck } from 'react-icons/lu'
 import { useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
+import EntradaSinCita from '../../componentes/EntradaSinCita'
 import LectorQR from '../../componentes/LectorQR'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
@@ -165,7 +166,7 @@ export default function Escanear() {
   )
 
   return (
-    <div className="space-y-4">
+    <div className="grid items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <Tarjeta>
         <h1 className="mb-1 text-2xl font-bold">{t('pages.escanear')}</h1>
         <p className="mb-4 text-base text-principal/70">{t('escaneo.instruccion')}</p>
@@ -379,6 +380,15 @@ export default function Escanear() {
           </>
         )}
       </Tarjeta>
+
+      {/* Solo el pastor: en la fila tambien pasa gente sin cita. En computadora va a un lado. */}
+      {esAdmin && vista === 'camara' && (
+        <Tarjeta>
+          <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
+          <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
+          <EntradaSinCita />
+        </Tarjeta>
+      )}
     </div>
   )
 }

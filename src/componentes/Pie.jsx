@@ -4,6 +4,7 @@ import { LuClock, LuGlobe, LuMapPin, LuPhone } from 'react-icons/lu'
 import { SiGofundme } from 'react-icons/si'
 import { Link, useLocation } from 'react-router-dom'
 import { ORGANIZACION } from '../datos/organizacion'
+import { anchoPagina } from '../rutas/anchoPagina'
 import { LogoIglesia } from './Logo'
 
 const EXTERNO = { rel: 'noopener noreferrer', target: '_blank' }
@@ -18,7 +19,7 @@ export default function Pie() {
 
   if (enPanel) {
     return (
-      <footer className="mx-auto w-full max-w-3xl px-4 pb-8 pt-2 text-center">
+      <footer className={`mx-auto w-full ${anchoPagina(pathname)} px-4 pb-8 pt-2 text-center`}>
         <Link
           className="inline-flex min-h-14 items-center text-base text-principal/70 underline underline-offset-4 hover:text-principal"
           to="/"

@@ -28,7 +28,9 @@
       "DEMASIADOS_INTENTOS": "Bạn đã thử quá nhiều lần. Vui lòng đợi một lát rồi thử lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động.",
       "ERROR_DESCONOCIDO": "Không thể đăng nhập. Vui lòng thử lại."
-    }
+    },
+    "google": "Tiếp tục với Google",
+    "oCorreo": "hoặc bằng email và mật khẩu"
   },
   "nav": {
     "citasHoy": "Lịch hẹn hôm nay",
@@ -36,7 +38,8 @@
     "personas": "Người đăng ký",
     "reportes": "Báo cáo",
     "escanear": "Quét mã",
-    "registrar": "Đăng ký cho người khác"
+    "registrar": "Đăng ký cho người khác",
+    "equipo": "Nhóm và quyền truy cập"
   },
   "escaneo": {
     "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
@@ -128,7 +131,8 @@
       "nombre": "Tên",
       "codigo": "Mã",
       "estado": "Trạng thái",
-      "ciudad": "Thành phố"
+      "ciudad": "Thành phố",
+      "paso": "Đã đến"
     },
     "estado": {
       "reservada": "Chưa đến",
@@ -147,7 +151,15 @@
     "aNombreDe": "Đăng ký cho",
     "unSoloUso": "Mã này chỉ dùng được một lần và cho một thùng hàng. Nếu người khác trong gia đình cũng cần, người đó phải tự đăng ký.",
     "guardarImagen": "Lưu hình",
-    "consejoCaptura": "Bạn cũng có thể chụp màn hình."
+    "consejoCaptura": "Bạn cũng có thể chụp màn hình.",
+    "cancelar": "Hủy lịch hẹn của tôi",
+    "cancelarPregunta": "Bạn có chắc muốn hủy lịch hẹn? Chỗ của bạn sẽ được nhường cho người khác.",
+    "cancelarSi": "Có, hủy lịch hẹn",
+    "cancelarNo": "Không, giữ lịch hẹn",
+    "cancelando": "Đang hủy…",
+    "canceladaTitulo": "Lịch hẹn của bạn đã được hủy",
+    "canceladaTexto": "Chỗ của bạn đã được trả lại. Nếu cần, bạn có thể đăng ký lại.",
+    "registrarOtra": "Đăng ký lại"
   },
   "registro": {
     "cargando": "Đang chuẩn bị đăng ký…",
@@ -290,7 +302,8 @@
       "admin": "Quản trị viên",
       "voluntario": "Tình nguyện viên"
     },
-    "errorTitulo": "Không thể kiểm tra quyền truy cập của bạn"
+    "errorTitulo": "Không thể kiểm tra quyền truy cập của bạn",
+    "cuentaActual": "Bạn đã đăng nhập bằng {{correo}}. Nếu không đúng tài khoản, hãy đăng xuất và dùng tài khoản khác."
   },
   "registrarPanel": {
     "titulo": "Đăng ký cho người khác",
@@ -435,6 +448,12 @@
       "LARGO": "Thừa chữ số: số điện thoại của {{pais}} có {{digitos}} chữ số, bạn đã nhập {{llevan}}.",
       "EMPIEZA_CON_1": "Thiếu một chữ số: số điện thoại của {{pais}} có {{max}} chữ số, không tính số 1 ở đầu.",
       "entre": "từ {{min}} đến {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Hãy nhập tên của người đó.",
+      "NUMEROS": "Tên không được có số.",
+      "SIMBOLOS": "Chỉ dùng chữ cái. Có thể dùng khoảng trắng, dấu gạch ngang (-) và dấu nháy (').",
+      "CORTO": "Hãy viết đầy đủ tên, không chỉ một chữ cái."
     }
   },
   "proxima": {
@@ -476,5 +495,172 @@
     "invitacion": "Hãy theo dõi Cajita de Bendición trên Facebook để đăng ký trước công chúng ở mỗi buổi phát hàng.",
     "suscribirme": "Theo dõi trên Facebook",
     "cerrar": "Đóng"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "Không tìm thấy lịch hẹn này.",
+      "CITA_YA_CANCELADA": "Lịch hẹn này đã được hủy trước đó.",
+      "CITA_YA_ENTREGADA": "Lịch hẹn này đã được sử dụng: thùng hàng đã được phát.",
+      "FECHA_PASADA": "Ngày này đã qua.",
+      "MOTIVO_REQUERIDO": "Hãy ghi lý do ngoại lệ.",
+      "PERSONA_NO_EXISTE": "Không có ai với mã này. Hãy kiểm tra lại (ví dụ CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Người này chưa có lịch hẹn trong tuần đó nên không cần ngoại lệ: hãy đăng ký bình thường.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "Người này đã có một ngoại lệ trong tuần đó. Chỉ được một lần.",
+      "BLOQUE_LLENO": "Khung giờ này đã hết chỗ. Hãy chọn khung giờ khác.",
+      "BLOQUE_CERRADO": "Khung giờ này đã đóng.",
+      "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa.",
+      "DIA_CERRADO": "Ngày này đã đóng.",
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
+      "NOMBRE_REQUERIDO": "Hãy nhập tên của người đó.",
+      "NOMBRE_INVALIDO": "Tên không được có số.",
+      "ENTRADA_NO_EXISTE": "Không tìm thấy mục này.",
+      "ENTRADA_YA_ANULADA": "Mục này đã được hủy trước đó.",
+      "SIN_CODIGOS_DISPONIBLES": "Không thể tạo mã. Vui lòng thử lại."
+    }
+  },
+  "sinCita": {
+    "boton": "Ghi người vào không có lịch hẹn",
+    "registrando": "Đang ghi…",
+    "ayuda": "Ghi lại người được vào mà không có lịch hẹn. Chỉ hỏi tên; người đó nhận một mã biên nhận, và hệ thống lưu ai đã ghi và lúc nào.",
+    "nombre": "Tên của người đó",
+    "anotado": "Đã ghi. Hôm nay có {{total}} người không có lịch hẹn.",
+    "comprobante": "Mã biên nhận",
+    "darCodigo": "Hãy đưa mã này cho người đó hoặc nhờ họ chụp ảnh, phòng khi cần làm rõ sau này.",
+    "anular": "Hủy mục này",
+    "preguntaAnular": "Hủy mục của {{nombre}}? Mục này sẽ không còn được tính, nhưng vẫn được lưu là đã hủy.",
+    "confirmarAnular": "Có, hủy",
+    "noAnular": "Không",
+    "anulada": "Đã hủy mục của {{nombre}}.",
+    "lista": "Vào không có lịch hẹn",
+    "listaAyuda": "Ai đã vào không có lịch hẹn, ai đã ghi và lúc nào.",
+    "sinEntradas": "Không có ai vào mà không có lịch hẹn trong ngày này.",
+    "cargando": "Đang tải…",
+    "col": {
+      "hora": "Giờ",
+      "nombre": "Tên",
+      "codigo": "Mã",
+      "anoto": "Người ghi",
+      "estado": "Trạng thái"
+    },
+    "vigente": "Được tính",
+    "anuladaEstado": "Đã hủy",
+    "anuladaPor": "bởi {{quien}} lúc {{hora}}",
+    "sinNombre": "(không có tên)",
+    "titulo": "Có người đến mà không có lịch hẹn?"
+  },
+  "cancelarPanel": {
+    "columna": "Thao tác",
+    "boton": "Hủy",
+    "titulo": "Hủy lịch hẹn của {{nombre}} ({{hora}})",
+    "motivo": "Lý do (không bắt buộc)",
+    "confirmar": "Có, hủy lịch hẹn",
+    "cancelando": "Đang hủy…",
+    "volver": "Không, giữ lại",
+    "listo": "Đã hủy lịch hẹn của {{nombre}}. Chỗ đã được trả lại."
+  },
+  "excepcion": {
+    "titulo": "Lịch hẹn thứ hai trong cùng tuần",
+    "ayuda": "Chỉ dành cho trường hợp đặc biệt, như bệnh hoặc khẩn cấp. Người đó phải đã có lịch hẹn trong tuần; lý do và người cho phép sẽ được lưu lại.",
+    "abrir": "Cho phép ngoại lệ",
+    "codigo": "Mã của người đó (CB-…)",
+    "motivo": "Lý do",
+    "motivoEjemplo": "Ví dụ: người nhà bị bệnh",
+    "autorizar": "Cho phép và giữ chỗ",
+    "autorizando": "Đang cho phép…",
+    "listo": "Đã cho phép ngoại lệ",
+    "cerrar": "Hủy"
+  },
+  "equipo": {
+    "titulo": "Nhóm và quyền truy cập",
+    "ayuda": "Ai được vào bảng quản lý và được làm gì. Thay đổi có hiệu lực ngay.",
+    "darAcceso": "Cấp quyền truy cập",
+    "correo": "Email của người đó",
+    "faltaCorreo": "Hãy nhập email của người đó.",
+    "rol": "Vai trò",
+    "descripcion": {
+      "admin": "Xem toàn bộ bảng quản lý: lịch hẹn, khung giờ, đăng ký, báo cáo và nhóm. Cho phép phát hàng khác ngày mà không cần mã.",
+      "voluntario": "Chỉ quét mã ở hàng chờ. Với lịch hẹn khác ngày cần mã của quản trị viên."
+    },
+    "guardar": "Cấp quyền truy cập",
+    "guardando": "Đang lưu…",
+    "listo": "Xong: {{correo}} giờ là {{rol}}.",
+    "listoPendiente": "Xong: {{correo}} sẽ là {{rol}} ngay khi đăng nhập bằng Google lần đầu.",
+    "avisoGoogle": "Nếu người đó đăng nhập bằng Google, email của họ cũng phải có trong «Người dùng thử» của Google Cloud. Hãy nhờ người quản lý hệ thống.",
+    "lista": "Nhóm",
+    "buscar": "Tìm theo email",
+    "filtroEstado": "Trạng thái",
+    "todos": "Tất cả",
+    "estado": {
+      "activo": "Đang hoạt động",
+      "pendiente": "Chờ đăng nhập",
+      "sin_acceso": "Không có quyền"
+    },
+    "tu": "bạn",
+    "ultimoAcceso": "Lần đăng nhập gần nhất: {{cuando}}",
+    "nuncaEntro": "Chưa đăng nhập lần nào",
+    "guardarRol": "Lưu thay đổi",
+    "quitar": "Gỡ quyền truy cập",
+    "devolver": "Cấp lại quyền",
+    "preguntaQuitar": "Gỡ quyền truy cập của {{correo}}? Người đó sẽ không vào được bảng quản lý; lịch sử vẫn được giữ.",
+    "confirmarQuitar": "Có, gỡ quyền",
+    "noQuitar": "Không",
+    "cargando": "Đang tải nhóm…",
+    "sinResultados": "Không có ai khớp với tìm kiếm.",
+    "miCodigo": "Mã cho phép của bạn",
+    "miCodigoAyuda": "Đây là mã mà tình nguyện viên hỏi bạn để phát hàng cho lịch hẹn khác ngày. Chỉ đưa trực tiếp, không bao giờ gửi qua tin nhắn.",
+    "conCodigo": "Bạn đã có mã. Nếu đổi, mã cũ sẽ không còn hiệu lực.",
+    "sinCodigo": "Bạn chưa có mã: tình nguyện viên sẽ không thể xin bạn cho phép phát hàng khác ngày.",
+    "codigoNuevo": "Mã mới",
+    "codigoConfirmar": "Nhập lại mã",
+    "codigoCorto": "Mã phải có ít nhất 6 ký tự.",
+    "codigoNoCoincide": "Hai mã không khớp nhau.",
+    "guardarCodigo": "Lưu mã của tôi",
+    "codigoGuardado": "Đã lưu mã.",
+    "errores": {
+      "CORREO_INVALIDO": "Email này có vẻ chưa đúng.",
+      "ROL_INVALIDO": "Hãy chọn quản trị viên hoặc tình nguyện viên.",
+      "NO_PUEDES_QUITARTE_ADMIN": "Bạn không thể tự gỡ vai trò quản trị viên của mình. Hãy nhờ quản trị viên khác.",
+      "PERSONAL_NO_EXISTE": "Người này không còn trong nhóm. Hãy tải lại trang.",
+      "CODIGO_MUY_CORTO": "Mã phải có ít nhất 6 ký tự.",
+      "NO_ES_ADMIN": "Chỉ quản trị viên mới có mã cho phép.",
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại."
+    }
+  },
+  "filtros": {
+    "buscar": "Tìm theo tên hoặc mã",
+    "buscarEjemplo": "Ví dụ: María López hoặc CB-4871",
+    "buscarEjemploSinCita": "Ví dụ: Pedro Ruiz hoặc SC-0012",
+    "masFiltros": "Thêm bộ lọc",
+    "ocultarFiltros": "Ẩn bộ lọc",
+    "horario": "Giờ hẹn",
+    "estado": "Trạng thái",
+    "ciudad": "Thành phố",
+    "sinCiudad": "(không có thành phố)",
+    "todos": "Tất cả",
+    "todas": "Tất cả",
+    "pasoDesde": "Đến từ lúc",
+    "pasoHasta": "Đến trước lúc",
+    "anotadaDesde": "Ghi nhận từ lúc",
+    "anotadaHasta": "Ghi nhận đến lúc",
+    "anotoPor": "Người ghi nhận",
+    "sinDato": "(không rõ)",
+    "cuentan": "Chỉ lượt được tính",
+    "anuladas": "Chỉ lượt đã hủy",
+    "limpiar": "Xóa bộ lọc",
+    "sinResultados": "Không có kết quả phù hợp với tìm kiếm hoặc bộ lọc.",
+    "mostrando": "Hiển thị {{desde}}–{{hasta}} / {{total}}",
+    "deTotal": "(tổng cộng {{total}})",
+    "porPagina": "Mỗi trang",
+    "anterior": "Trang trước",
+    "siguiente": "Trang sau",
+    "pagina": "Trang {{pagina}} / {{total}}",
+    "irPagina": "Đến trang {{pagina}}",
+    "paginacion": "Các trang của danh sách"
   }
 }

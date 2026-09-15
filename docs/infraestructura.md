@@ -197,6 +197,35 @@ de botella que se temía no apareció.
 
 ---
 
+## Acceso del personal con Google
+
+El pastor y los voluntarios pueden entrar al panel con su cuenta de Google.
+Google solo confirma quién es; el permiso lo da la tabla `personal`.
+
+- **Google Cloud**, proyecto `cajitabendicion`, en *Google Auth Platform*:
+  - Público externo, en estado **Prueba**. Solo pueden entrar los correos
+    agregados en *Usuarios de prueba* (límite de 100): cada persona del
+    personal que use Google tiene que estar ahí.
+  - Cliente web con orígenes `https://citas.casadealabanzasd.com` y
+    `http://localhost:5173`, y como redirección la *Callback URL* que muestra
+    Supabase.
+  - No se publicó: publicar pide política de privacidad y comprobar el
+    dominio, y la forma común es un TXT en el dominio principal, que no se
+    toca (ver "Regla absoluta").
+- **Supabase → Authentication → Sign In / Providers → Google**: activado con
+  el ID y el secreto del cliente. El secreto vive solo ahí, nunca en el repo.
+- **Supabase → Authentication → URL Configuration**: Site URL
+  `https://citas.casadealabanzasd.com`; Redirect URLs
+  `https://citas.casadealabanzasd.com/**` y `http://localhost:5173/**`.
+
+Para dar acceso a alguien nuevo:
+
+1. Agregar su Gmail en *Usuarios de prueba* de Google.
+2. En el panel, **Equipo y accesos → Dar acceso** (lo hace el pastor). Funciona
+   aunque todavía no haya entrado: el rol se aplica la primera vez que entre
+   con Google. Si nadie puede entrar al panel, el SQL Editor sigue sirviendo:
+   `select definir_personal('correo@gmail.com', 'admin');`
+
 ## Correo transaccional (pendiente)
 
 El sistema necesita mandar confirmaciones con el código QR. Proveedor

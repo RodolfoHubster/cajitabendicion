@@ -55,7 +55,7 @@ export default function RutaProtegida() {
   // la sesion siga siendo valida.
   if (estado.revisando) {
     return (
-      <Tarjeta>
+      <Tarjeta className="mx-auto max-w-xl">
         <p className="text-base">{t('admin.verificando')}</p>
       </Tarjeta>
     )
@@ -68,7 +68,7 @@ export default function RutaProtegida() {
 
   if (estado.error || !estado.rol) {
     return (
-      <Tarjeta>
+      <Tarjeta className="mx-auto max-w-xl">
         <h1 className="mb-2 text-2xl font-bold">
           {estado.error ? t('rol.errorTitulo') : t('rol.sinRolTitulo')}
         </h1>
@@ -77,6 +77,12 @@ export default function RutaProtegida() {
             ? t(`panel.errores.${estado.error}`, { defaultValue: t('panel.errores.ERROR_DESCONOCIDO') })
             : t('rol.sinRolTexto')}
         </p>
+        {/* Con Google es facil entrar con la cuenta equivocada: se dice cual. */}
+        {!estado.error && estado.sesion.user?.email && (
+          <p className="mb-4 text-base text-principal/70">
+            {t('rol.cuentaActual', { correo: estado.sesion.user.email })}
+          </p>
+        )}
         <Boton onClick={salir} variant="secondary">
           {t('admin.salir')}
         </Boton>

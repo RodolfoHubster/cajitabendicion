@@ -4,6 +4,7 @@ import { LuCircleCheck } from 'react-icons/lu'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
+import ExcepcionSemana from '../../componentes/ExcepcionSemana'
 import Tarjeta from '../../componentes/Tarjeta'
 import { mensajeCorreo, mensajeNombre, mensajeTelefono } from '../../componentes/mensajesValidacion'
 import {
@@ -32,6 +33,8 @@ const ESTILO_SELECT =
  * Solo admin. No aplica el limite por dispositivo (esta computadora
  * registra a muchas personas) y el correo es opcional. El cupo y la regla
  * de una cita por semana si aplican: los revisa la base de datos.
+ *
+ * Abajo, la excepcion para una segunda cita en la misma semana.
  */
 export default function RegistrarPersona() {
   const { t, i18n } = useTranslation()
@@ -134,7 +137,7 @@ export default function RegistrarPersona() {
 
   if (registrada) {
     return (
-      <Tarjeta>
+      <Tarjeta className="max-w-2xl">
         <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
           <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
           {t('registrarPanel.listo')}
@@ -169,171 +172,178 @@ export default function RegistrarPersona() {
   const horarios = (bloques ?? []).filter((bloque) => bloque.fecha === fecha)
 
   return (
-    <Tarjeta>
-      <h1 className="mb-1 text-2xl font-bold">{t('registrarPanel.titulo')}</h1>
-      <p className="mb-4 text-base text-principal/70">{t('registrarPanel.ayuda')}</p>
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <Tarjeta>
+        <h1 className="mb-1 text-2xl font-bold">{t('registrarPanel.titulo')}</h1>
+        <p className="mb-4 text-base text-principal/70">{t('registrarPanel.ayuda')}</p>
 
-      {errorCarga && (
-        <p className="mb-4 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
-          {t('registrarPanel.errorCarga')}
-        </p>
-      )}
-
-      {bloques && dias.length === 0 && (
-        <p className="mb-4 text-base">{t('registrarPanel.sinFechas')}</p>
-      )}
-
-      <form className="space-y-4" noValidate onSubmit={enviar}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-2" htmlFor="fecha">
-            <span className="text-base font-semibold text-principal">{t('registrarPanel.fecha')}</span>
-            <select
-              className={ESTILO_SELECT}
-              id="fecha"
-              onChange={(e) => {
-                setFecha(e.target.value)
-                setBloqueId('')
-              }}
-              value={fecha}
-            >
-              <option value="">{t('registrarPanel.elegirFecha')}</option>
-              {dias.map((dia) => (
-                <option disabled={dia.libres === 0} key={dia.fecha} value={dia.fecha}>
-                  {fechaLarga(dia.fecha)} ·{' '}
-                  {dia.libres > 0
-                    ? t('registrarPanel.lugares', { count: dia.libres })
-                    : t('registrarPanel.lleno')}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-2" htmlFor="horario">
-            <span className="text-base font-semibold text-principal">{t('registrarPanel.horario')}</span>
-            <select
-              className={ESTILO_SELECT}
-              disabled={!fecha}
-              id="horario"
-              onChange={(e) => setBloqueId(e.target.value)}
-              value={bloqueId}
-            >
-              <option value="">{t('registrarPanel.elegirHorario')}</option>
-              {horarios.map((bloque) => (
-                <option disabled={bloque.libres === 0} key={bloque.bloque_id} value={bloque.bloque_id}>
-                  {formatearHora(bloque.hora)} ·{' '}
-                  {bloque.libres > 0
-                    ? t('registrarPanel.lugares', { count: bloque.libres })
-                    : t('registrarPanel.lleno')}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Campo
-            error={errorDe('nombres')}
-            etiqueta={t('registro.nombre')}
-            id="nombres"
-            onBlur={() => {
-              tocar('nombres')
-              cambiar('nombres', formatearNombre(datos.nombres))
-            }}
-            onChange={(e) => cambiar('nombres', e.target.value)}
-            required
-            value={datos.nombres}
-          />
-          <Campo
-            error={errorDe('apellidos')}
-            etiqueta={t('registro.apellidos')}
-            id="apellidos"
-            onBlur={() => {
-              tocar('apellidos')
-              cambiar('apellidos', formatearNombre(datos.apellidos))
-            }}
-            onChange={(e) => cambiar('apellidos', e.target.value)}
-            required
-            value={datos.apellidos}
-          />
-        </div>
-
-        <CampoTelefono
-          alCambiarPais={setPais}
-          alCambiarValor={(valor) => cambiar('telefono', valor)}
-          error={errorDe('telefono')}
-          etiqueta={t('registro.telefono')}
-          id="telefono"
-          onBlur={() => tocar('telefono')}
-          pais={pais}
-          valor={datos.telefono}
-        />
-
-        <div>
-          <Campo
-            error={errorDe('correo')}
-            etiqueta={t('registrarPanel.correoOpcional')}
-            id="correo"
-            inputMode="email"
-            onBlur={() => tocar('correo')}
-            onChange={(e) => cambiar('email', e.target.value)}
-            type="email"
-            value={datos.email}
-          />
-          {sugerencia && (
-            <p className="mt-1 text-base text-principal">
-              {t('validacion.correo.sugerencia', { correo: sugerencia })}{' '}
-              <button
-                className="min-h-10 font-semibold underline underline-offset-4"
-                onClick={() => cambiar('email', sugerencia)}
-                type="button"
-              >
-                {t('validacion.correo.usarSugerencia')}
-              </button>
-            </p>
-          )}
-        </div>
-
-        <label className="flex flex-col gap-2" htmlFor="zona">
-          <span className="text-base font-semibold text-principal">{t('registro.zona')}</span>
-          <select
-            className={ESTILO_SELECT}
-            id="zona"
-            onChange={(e) => cambiar('zona', e.target.value)}
-            value={datos.zona}
-          >
-            <option value="">{t('registro.zonaSinResponder')}</option>
-            {ZONAS.map((nombreZona) => (
-              <option key={nombreZona} value={nombreZona}>
-                {nombreZona}
-              </option>
-            ))}
-            <option value={OTRA_ZONA}>{t('registro.zonaOtra')}</option>
-          </select>
-        </label>
-
-        {datos.zona === OTRA_ZONA && (
-          <Campo
-            etiqueta={t('registro.zonaOtraEtiqueta')}
-            id="otraZona"
-            onChange={(e) => cambiar('otraZona', e.target.value)}
-            value={datos.otraZona}
-          />
-        )}
-
-        {error && (
-          <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
-            {t(`registro.errores.${error}`, {
-              defaultValue: t(`panel.errores.${error}`, {
-                defaultValue: t('registro.errores.ERROR_DESCONOCIDO'),
-              }),
-            })}
+        {errorCarga && (
+          <p className="mb-4 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+            {t('registrarPanel.errorCarga')}
           </p>
         )}
 
-        <Boton disabled={enviando || !bloqueId} type="submit">
-          {enviando ? t('registrarPanel.registrando') : t('registrarPanel.registrar')}
-        </Boton>
-      </form>
-    </Tarjeta>
+        {bloques && dias.length === 0 && (
+          <p className="mb-4 text-base">{t('registrarPanel.sinFechas')}</p>
+        )}
+
+        <form className="space-y-4" noValidate onSubmit={enviar}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-2" htmlFor="fecha">
+              <span className="text-base font-semibold text-principal">{t('registrarPanel.fecha')}</span>
+              <select
+                className={ESTILO_SELECT}
+                id="fecha"
+                onChange={(e) => {
+                  setFecha(e.target.value)
+                  setBloqueId('')
+                }}
+                value={fecha}
+              >
+                <option value="">{t('registrarPanel.elegirFecha')}</option>
+                {dias.map((dia) => (
+                  <option disabled={dia.libres === 0} key={dia.fecha} value={dia.fecha}>
+                    {fechaLarga(dia.fecha)} ·{' '}
+                    {dia.libres > 0
+                      ? t('registrarPanel.lugares', { count: dia.libres })
+                      : t('registrarPanel.lleno')}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-2" htmlFor="horario">
+              <span className="text-base font-semibold text-principal">{t('registrarPanel.horario')}</span>
+              <select
+                className={ESTILO_SELECT}
+                disabled={!fecha}
+                id="horario"
+                onChange={(e) => setBloqueId(e.target.value)}
+                value={bloqueId}
+              >
+                <option value="">{t('registrarPanel.elegirHorario')}</option>
+                {horarios.map((bloque) => (
+                  <option disabled={bloque.libres === 0} key={bloque.bloque_id} value={bloque.bloque_id}>
+                    {formatearHora(bloque.hora)} ·{' '}
+                    {bloque.libres > 0
+                      ? t('registrarPanel.lugares', { count: bloque.libres })
+                      : t('registrarPanel.lleno')}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Campo
+              error={errorDe('nombres')}
+              etiqueta={t('registro.nombre')}
+              id="nombres"
+              onBlur={() => {
+                tocar('nombres')
+                cambiar('nombres', formatearNombre(datos.nombres))
+              }}
+              onChange={(e) => cambiar('nombres', e.target.value)}
+              required
+              value={datos.nombres}
+            />
+            <Campo
+              error={errorDe('apellidos')}
+              etiqueta={t('registro.apellidos')}
+              id="apellidos"
+              onBlur={() => {
+                tocar('apellidos')
+                cambiar('apellidos', formatearNombre(datos.apellidos))
+              }}
+              onChange={(e) => cambiar('apellidos', e.target.value)}
+              required
+              value={datos.apellidos}
+            />
+          </div>
+
+          <CampoTelefono
+            alCambiarPais={setPais}
+            alCambiarValor={(valor) => cambiar('telefono', valor)}
+            error={errorDe('telefono')}
+            etiqueta={t('registro.telefono')}
+            id="telefono"
+            onBlur={() => tocar('telefono')}
+            pais={pais}
+            valor={datos.telefono}
+          />
+
+          <div className="grid items-start gap-4 sm:grid-cols-2">
+            <div>
+              <Campo
+                error={errorDe('correo')}
+                etiqueta={t('registrarPanel.correoOpcional')}
+                id="correo"
+                inputMode="email"
+                onBlur={() => tocar('correo')}
+                onChange={(e) => cambiar('email', e.target.value)}
+                type="email"
+                value={datos.email}
+              />
+              {sugerencia && (
+                <p className="mt-1 text-base text-principal">
+                  {t('validacion.correo.sugerencia', { correo: sugerencia })}{' '}
+                  <button
+                    className="min-h-10 font-semibold underline underline-offset-4"
+                    onClick={() => cambiar('email', sugerencia)}
+                    type="button"
+                  >
+                    {t('validacion.correo.usarSugerencia')}
+                  </button>
+                </p>
+              )}
+            </div>
+
+            <label className="flex flex-col gap-2" htmlFor="zona">
+              <span className="text-base font-semibold text-principal">{t('registro.zona')}</span>
+              <select
+                className={ESTILO_SELECT}
+                id="zona"
+                onChange={(e) => cambiar('zona', e.target.value)}
+                value={datos.zona}
+              >
+                <option value="">{t('registro.zonaSinResponder')}</option>
+                {ZONAS.map((nombreZona) => (
+                  <option key={nombreZona} value={nombreZona}>
+                    {nombreZona}
+                  </option>
+                ))}
+                <option value={OTRA_ZONA}>{t('registro.zonaOtra')}</option>
+              </select>
+            </label>
+          </div>
+
+          {datos.zona === OTRA_ZONA && (
+            <Campo
+              etiqueta={t('registro.zonaOtraEtiqueta')}
+              id="otraZona"
+              onChange={(e) => cambiar('otraZona', e.target.value)}
+              value={datos.otraZona}
+            />
+          )}
+
+          {error && (
+            <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+              {t(`registro.errores.${error}`, {
+                defaultValue: t(`panel.errores.${error}`, {
+                  defaultValue: t('registro.errores.ERROR_DESCONOCIDO'),
+                }),
+              })}
+            </p>
+          )}
+
+          <Boton disabled={enviando || !bloqueId} type="submit">
+            {enviando ? t('registrarPanel.registrando') : t('registrarPanel.registrar')}
+          </Boton>
+        </form>
+      </Tarjeta>
+
+      {/* Para quien ya tiene su cita de la semana y necesita otra. */}
+      <ExcepcionSemana alAutorizar={() => setRecarga((n) => n + 1)} bloques={bloques} />
+    </div>
   )
 }

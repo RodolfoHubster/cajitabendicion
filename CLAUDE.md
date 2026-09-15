@@ -32,7 +32,7 @@ es confiable, el sistema no sirve.
 | Corte real de cupo | Al llenarse un bloque, se bloquea de verdad. Este es el bug que se está arreglando. |
 | QR de un solo uso | Se invalida al escanearse. Sin datos personales dentro del código. |
 | Código corto | Cada persona tiene un ID estable tipo matrícula (CB-4871). Es el respaldo cuando el QR no se deja leer. La búsqueda por nombre no basta: se repiten mucho. |
-| Entró sin cita | Botón **solo del panel administrativo**, nunca visible al público. Suma "uno más" al conteo del día. No captura nombre ni teléfono. Guarda quién lo autorizó y a qué hora. |
+| Entró sin cita | Botón **solo del panel administrativo**, nunca visible al público. Suma "uno más" al conteo del día. Pide solo el nombre (sin teléfono) y da un código de comprobante `SC-1234` para la persona. Guarda quién lo anotó y a qué hora, visible en Citas de hoy. Un error se anula, no se borra. |
 
 ### Alcance por fases
 
@@ -42,7 +42,8 @@ es confiable, el sistema no sirve.
 
 ### Fuera de alcance de la V1
 
-Cuentas de usuario con login de Google (va en V2), mensajes SMS (costo por
+Cuentas con login de Google para el público (va en V2; el personal ya entra
+con Google), mensajes SMS (costo por
 mensaje, se evalúa después), modo sin conexión (confirmado que no hace falta:
 el personal usa datos móviles).
 
@@ -195,8 +196,9 @@ migración, la validación en pantalla, y sus pruebas.
   operación privilegiada, va en una Edge Function.
 - Row Level Security activo en todas las tablas. Un voluntario no debe poder
   leer el padrón completo de personas, solo lo necesario para escanear.
-- **Roles** (tabla `personal`; se asignan desde el SQL Editor con
-  `definir_personal(correo, 'admin' | 'voluntario')`):
+- **Roles** (tabla `personal`; el pastor los asigna desde **Equipo y accesos**
+  en el panel. En el SQL Editor sigue funcionando
+  `definir_personal(correo, 'admin' | 'voluntario')` para recuperar el acceso):
   - `admin` (el pastor): ve todo el panel y las estadísticas, registra
     personas desde el panel sin límite por dispositivo, y autoriza entregas
     de otra fecha sin código.
@@ -206,6 +208,12 @@ migración, la validación en pantalla, y sus pruebas.
     formulario, con el límite por dispositivo.
   Una cuenta sin rol no puede hacer nada en el panel. Los permisos se
   revisan dentro de las funciones de la base de datos, no solo en pantalla.
+- **Personal con Google**: el pastor y los voluntarios pueden entrar al panel
+  con su cuenta de Google. Google solo confirma quién es; el rol lo sigue
+  dando `personal`. `definir_personal` funciona aunque la persona todavía no
+  haya entrado: el rol queda pendiente y se aplica la primera vez que entra
+  **con Google** (nunca a una cuenta de correo y contraseña con ese correo).
+  Configuración de Google y Supabase en `docs/infraestructura.md`.
 
 ---
 

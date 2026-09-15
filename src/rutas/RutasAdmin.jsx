@@ -1,5 +1,6 @@
 import { Route } from 'react-router-dom'
 import CitasDeHoy from '../paginas/admin/CitasDeHoy'
+import Equipo from '../paginas/admin/Equipo'
 import HorariosAdmin from '../paginas/admin/Horarios'
 import Login from '../paginas/admin/Login'
 import Personas from '../paginas/admin/Personas'
@@ -26,6 +27,7 @@ export default function RutasAdmin() {
             <Route element={<HorariosAdmin />} path="/admin/horarios" />
             <Route element={<Personas />} path="/admin/personas" />
             <Route element={<Reportes />} path="/admin/reportes" />
+            <Route element={<Equipo />} path="/admin/equipo" />
           </Route>
 
           <Route element={<SoloRol roles={['admin', 'voluntario']} />}>

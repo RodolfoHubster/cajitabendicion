@@ -15,6 +15,7 @@ import {
   formatearHora,
   horasEntre,
   restarHoras,
+  horaSanDiego,
   segundosHasta,
   sumarDias,
 } from './disponibilidad'
@@ -115,6 +116,20 @@ describe('hora de San Diego', () => {
     [259200.7, { dias: 3, horas: 0, minutos: 0, segundos: 0 }],
   ])('desglosarSegundos(%s)', (total, esperado) => {
     expect(desglosarSegundos(total)).toEqual(esperado)
+  })
+})
+
+describe('horaSanDiego', () => {
+  it.each([
+    ['2026-09-14T21:05:00+00:00', '2:05 PM'],
+    ['2026-09-14T07:30:00Z', '12:30 AM'],
+    ['2026-01-15T20:00:00Z', '12:00 PM'],
+  ])('%s -> %s', (marca, esperado) => {
+    expect(horaSanDiego(marca)).toBe(esperado)
+  })
+
+  it('sin marca, vacio', () => {
+    expect(horaSanDiego(null)).toBe('')
   })
 })
 

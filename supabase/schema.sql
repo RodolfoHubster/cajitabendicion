@@ -141,8 +141,8 @@ create table escaneos (
 --  5. ENTRADAS SIN CITA
 -- ============================================================
 --  El botón que pidió el Pastor David: una fila por cada persona
---  que se dejó pasar sin cita. No se guarda nombre ni teléfono,
---  es puro conteo. Se guarda quién lo autorizó y a qué hora para
+--  que se dejó pasar sin cita. Solo se guarda el nombre (sin
+--  teléfono) y un código de comprobante (sección 22), quién lo anotó y a qué hora para
 --  poder revisarlo después.
 
 create table entradas_sin_cita (
@@ -819,7 +819,8 @@ begin
     (select count(*)::int from citas c
        join bloques b on b.id = c.bloque_id
       where b.fecha = v_fecha and c.estado = 'reservada'),
-    (select count(*)::int from entradas_sin_cita s where s.fecha = v_fecha),
+    --  Las anotadas por error se anulan y ya no cuentan (seccion 22).
+    (select count(*)::int from entradas_sin_cita s where s.fecha = v_fecha and s.anulada_en is null),
     --  Intentos repetidos: alguien trato de usar dos veces el mismo
     --  codigo. Es la senal de que el corte esta funcionando y de que
     --  hay quien lo esta intentando.
@@ -1368,7 +1369,8 @@ grant  execute on function mi_rol() to authenticated;
 
 --  Da de alta o cambia el rol de una cuenta del personal.
 --
---  Uso, en el SQL Editor (la cuenta debe existir en Authentication):
+--  Uso, en el SQL Editor. Funciona aunque la persona todavia no haya
+--  entrado: el rol queda pendiente y se aplica al entrar con Google (seccion 23).
 --    select definir_personal('pastor@correo.com', 'admin');
 --    select definir_personal('voluntario@correo.com', 'voluntario');
 --
@@ -1382,18 +1384,31 @@ security definer
 set search_path = public, extensions, pg_temp
 as $$
 declare
+  v_correo  text := lower(trim(coalesce(p_correo, '')));
   v_usuario uuid;
 begin
   if p_rol not in ('admin', 'voluntario') then
     raise exception 'ROL_INVALIDO: usa admin o voluntario';
   end if;
 
+  if v_correo !~ '^[^@[:space:]]+@[^@[:space:]]+[.][^@[:space:]]+$' then
+    raise exception 'CORREO_INVALIDO: revisa como esta escrito el correo';
+  end if;
+
   select id into v_usuario
     from auth.users
-   where lower(email) = lower(trim(p_correo));
+   where lower(email) = v_correo;
 
+  --  Todavia no tiene cuenta (va a entrar con Google por primera vez): el
+  --  correo queda autorizado y el rol se aplica solo al entrar (seccion 23).
   if v_usuario is null then
-    raise exception 'USUARIO_NO_EXISTE: primero crea la cuenta en Authentication';
+    insert into personal_pendiente (correo, rol)
+    values (v_correo, p_rol)
+    on conflict (correo) do update
+       set rol       = excluded.rol,
+           creado_en = now();
+
+    return 'PENDIENTE: ' || v_correo || ' sera ' || p_rol || ' en cuanto entre con Google';
   end if;
 
   insert into personal (usuario_id, rol, activo)
@@ -1402,6 +1417,8 @@ begin
      set rol            = excluded.rol,
          activo         = true,
          actualizado_en = now();
+
+  delete from personal_pendiente where correo = v_correo;
 
   return 'PERSONAL_LISTO: ' || p_rol;
 end;
@@ -1926,6 +1943,653 @@ $$;
 
 revoke execute on function eliminar_bloque(uuid) from public;
 grant  execute on function eliminar_bloque(uuid) to authenticated;
+
+
+-- ============================================================
+--  22. CANCELAR, ENTRO SIN CITA Y EXCEPCION SEMANAL
+-- ============================================================
+--  Tres reglas del Pastor David que completan la V1:
+--    * Cancelar una cita libera el lugar al momento y deja reagendar esa
+--      semana. La persona cancela desde su enlace; el admin, desde el panel.
+--    * "Entro sin cita" anota a quien paso sin cita: solo su nombre, un codigo
+--      de comprobante, quien lo anoto y a que hora. Un error se anula, no se borra.
+--    * Una segunda cita en la misma semana solo con autorizacion del admin,
+--      guardando el motivo y quien la autorizo.
+
+--  Quien cancelo, cuando y por que. cancelada_por nulo: la propia persona.
+alter table citas add column if not exists cancelada_en       timestamptz;
+alter table citas add column if not exists cancelada_por      uuid;
+alter table citas add column if not exists motivo_cancelacion text;
+
+--  Una cita autorizada como excepcion apunta a su autorizacion.
+alter table citas add column if not exists excepcion_id uuid references excepciones(id);
+
+--  La regla de una cita por semana (seccion 3) deja fuera las citas de
+--  excepcion. Esas tienen su propio indice: UNA excepcion activa por persona
+--  por semana. En total, como maximo dos citas esa semana, y la segunda
+--  siempre autorizada.
+drop index if exists una_cita_activa_por_semana;
+create unique index una_cita_activa_por_semana
+  on citas (persona_id, semana)
+  where estado in ('reservada','llego','entregada') and excepcion_id is null;
+
+create unique index if not exists una_excepcion_activa_por_semana
+  on citas (persona_id, semana)
+  where estado in ('reservada','llego','entregada') and excepcion_id is not null;
+
+
+--  La persona cancela su propia cita desde /confirmacion/:token.
+--
+--  Tener el token es ser dueno de la cita: son 24 bytes al azar que solo
+--  estan en su QR y en su enlace. El candado de fila es el mismo que usa el
+--  escaneo: cancelar y escanear al mismo tiempo no pueden pasar los dos.
+create or replace function cancelar_mi_cita(p_token text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_cita  citas;
+  v_fecha date;
+begin
+  select * into v_cita from citas c where c.token_qr = p_token for update;
+  if not found then
+    raise exception 'CITA_NO_EXISTE';
+  end if;
+
+  if v_cita.estado = 'cancelada' then
+    raise exception 'CITA_YA_CANCELADA';
+  end if;
+
+  if v_cita.estado in ('entregada', 'llego') then
+    raise exception 'CITA_YA_ENTREGADA';
+  end if;
+
+  select b.fecha into v_fecha from bloques b where b.id = v_cita.bloque_id;
+  if v_fecha < current_date then
+    raise exception 'FECHA_PASADA';
+  end if;
+
+  update citas
+     set estado        = 'cancelada',
+         cancelada_en  = now(),
+         cancelada_por = null
+   where id = v_cita.id;
+
+  return 'CANCELADA';
+end;
+$$;
+
+revoke execute on function cancelar_mi_cita(text) from public;
+grant  execute on function cancelar_mi_cita(text) to anon, authenticated;
+
+
+--  El administrador cancela una cita desde Citas de hoy.
+--
+--  Se identifica con el codigo de la persona, la fecha y la hora, que es lo
+--  que muestra la lista. Asi el token del QR no tiene que viajar al panel.
+create or replace function cancelar_cita_panel(
+  p_codigo text,
+  p_fecha  date,
+  p_hora   time,
+  p_motivo text default null
+)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario uuid := auth.uid();
+  v_cita    citas;
+begin
+  perform exigir_rol(array['admin']);
+
+  select c.* into v_cita
+    from citas c
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id
+   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')))
+     and b.fecha = p_fecha
+     and b.hora  = p_hora
+     and c.estado <> 'cancelada'
+   limit 1
+     for update of c;
+
+  if not found then
+    raise exception 'CITA_NO_EXISTE';
+  end if;
+
+  if v_cita.estado in ('entregada', 'llego') then
+    raise exception 'CITA_YA_ENTREGADA';
+  end if;
+
+  if p_fecha < current_date then
+    raise exception 'FECHA_PASADA';
+  end if;
+
+  update citas
+     set estado             = 'cancelada',
+         cancelada_en       = now(),
+         cancelada_por      = v_usuario,
+         motivo_cancelacion = nullif(trim(p_motivo), '')
+   where id = v_cita.id;
+
+  return 'CANCELADA';
+end;
+$$;
+
+revoke execute on function cancelar_cita_panel(text, date, time, text) from public;
+grant  execute on function cancelar_cita_panel(text, date, time, text) to authenticated;
+
+
+--  "Entro sin cita" guarda el nombre (sin telefono) y un codigo de
+--  comprobante que se le da a la persona, por si hay que aclarar un error
+--  despues. No se borra: se anula, y queda quien lo anulo y cuando.
+alter table entradas_sin_cita add column if not exists nombre      text;
+alter table entradas_sin_cita add column if not exists codigo      text;
+alter table entradas_sin_cita add column if not exists anulada_en  timestamptz;
+alter table entradas_sin_cita add column if not exists anulada_por uuid;
+
+--  El codigo SC-1234 no se repite en un mismo dia.
+create unique index if not exists entradas_sin_cita_codigo_por_dia
+  on entradas_sin_cita (fecha, codigo)
+  where codigo is not null;
+
+
+--  "Entro sin cita": anota a una persona que paso sin cita. Devuelve su
+--  codigo de comprobante y cuantas van hoy.
+--
+--  Solo admin: CLAUDE.md pide que nunca este al alcance del publico ni de los
+--  voluntarios. Solo el nombre, sin telefono.
+create or replace function registrar_entrada_sin_cita(p_nombre text)
+returns table (
+  codigo text,
+  total  int
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario  uuid := auth.uid();
+  v_nombre   text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
+  v_codigo   text;
+  v_intentos int := 0;
+begin
+  perform exigir_rol(array['admin']);
+
+  if v_nombre = '' then
+    raise exception 'NOMBRE_REQUERIDO';
+  end if;
+
+  if v_nombre ~ '[0-9]' then
+    raise exception 'NOMBRE_INVALIDO';
+  end if;
+
+  --  Se reintenta si dos anotaciones del mismo dia sacan el mismo numero.
+  loop
+    v_codigo := 'SC-' || lpad((floor(random() * 10000))::int::text, 4, '0');
+
+    begin
+      insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por)
+      values (current_date, v_nombre, v_codigo, v_usuario);
+      exit;
+    exception when unique_violation then
+      v_intentos := v_intentos + 1;
+      if v_intentos > 50 then
+        raise exception 'SIN_CODIGOS_DISPONIBLES';
+      end if;
+    end;
+  end loop;
+
+  return query
+    select v_codigo,
+           (select count(*)::int from entradas_sin_cita s
+             where s.fecha = current_date and s.anulada_en is null);
+end;
+$$;
+
+revoke execute on function registrar_entrada_sin_cita(text) from public;
+grant  execute on function registrar_entrada_sin_cita(text) to authenticated;
+
+
+--  Anula una entrada sin cita anotada por error. No la borra: deja de contar
+--  y queda quien la anulo y cuando. Devuelve cuantas cuentan ese dia.
+create or replace function anular_entrada_sin_cita(p_codigo text, p_fecha date default null)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario uuid := auth.uid();
+  v_fecha   date := coalesce(p_fecha, current_date);
+  v_id      uuid;
+  v_anulada timestamptz;
+begin
+  perform exigir_rol(array['admin']);
+
+  select s.id, s.anulada_en into v_id, v_anulada
+    from entradas_sin_cita s
+   where s.fecha = v_fecha
+     and upper(s.codigo) = upper(trim(coalesce(p_codigo, '')))
+     for update;
+
+  if v_id is null then
+    raise exception 'ENTRADA_NO_EXISTE';
+  end if;
+
+  if v_anulada is not null then
+    raise exception 'ENTRADA_YA_ANULADA';
+  end if;
+
+  update entradas_sin_cita
+     set anulada_en  = now(),
+         anulada_por = v_usuario
+   where id = v_id;
+
+  return (select count(*)::int from entradas_sin_cita s
+           where s.fecha = v_fecha and s.anulada_en is null);
+end;
+$$;
+
+revoke execute on function anular_entrada_sin_cita(text, date) from public;
+grant  execute on function anular_entrada_sin_cita(text, date) to authenticated;
+
+
+--  La lista del dia: quien paso sin cita, quien lo anoto y a que hora.
+--  De quien anoto se muestra su correo, que es como el pastor reconoce
+--  a su equipo. Solo admin.
+create or replace function entradas_sin_cita_del_dia(p_fecha date default null)
+returns table (
+  codigo        text,
+  nombre        text,
+  registrado_en timestamptz,
+  anotado_por   text,
+  anulada       boolean,
+  anulada_en    timestamptz,
+  anulada_por   text
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  return query
+  select s.codigo,
+         s.nombre,
+         s.registrado_en,
+         u.email::text,
+         s.anulada_en is not null,
+         s.anulada_en,
+         ua.email::text
+    from entradas_sin_cita s
+    left join auth.users u  on u.id  = s.registrado_por
+    left join auth.users ua on ua.id = s.anulada_por
+   where s.fecha = coalesce(p_fecha, current_date)
+   order by s.registrado_en desc;
+end;
+$$;
+
+revoke execute on function entradas_sin_cita_del_dia(date) from public;
+grant  execute on function entradas_sin_cita_del_dia(date) to authenticated;
+
+
+--  Segunda cita en la misma semana, autorizada por el administrador.
+--
+--  Para una persona que YA tiene su cita de la semana (se busca por su
+--  codigo CB). Guarda el motivo y quien la autorizo en "excepciones".
+--
+--  No llama a reservar_cita(): esa rechaza, a proposito, una segunda cita
+--  en la semana. Repite su candado de fila sobre el bloque ("for update")
+--  para que el cupo no se pueda pasar ni con dos excepciones al mismo
+--  tiempo. NO usar el patron de "consulto y despues inserto" sin el candado.
+create or replace function reservar_con_excepcion(
+  p_codigo    text,
+  p_bloque_id uuid,
+  p_motivo    text
+)
+returns table (
+  codigo_corto text,
+  token_qr     text,
+  fecha        date,
+  hora         time
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario   uuid := auth.uid();
+  v_persona   personas;
+  v_bloque    bloques;
+  v_semana    date;
+  v_ocupados  int;
+  v_excepcion uuid;
+  v_cita      citas;
+begin
+  perform exigir_rol(array['admin']);
+
+  if length(trim(coalesce(p_motivo, ''))) < 3 then
+    raise exception 'MOTIVO_REQUERIDO';
+  end if;
+
+  select * into v_persona
+    from personas p
+   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')));
+  if not found then
+    raise exception 'PERSONA_NO_EXISTE';
+  end if;
+
+  --  El mismo candado que reservar_cita(): las demas reservas sobre este
+  --  horario esperan aqui.
+  select * into v_bloque from bloques b where b.id = p_bloque_id for update;
+  if not found then
+    raise exception 'BLOQUE_NO_EXISTE';
+  end if;
+
+  if v_bloque.cerrado then
+    raise exception 'BLOQUE_CERRADO';
+  end if;
+
+  if v_bloque.fecha < current_date then
+    raise exception 'FECHA_PASADA';
+  end if;
+
+  if not exists (select 1 from dias_entrega d where d.fecha = v_bloque.fecha and not d.cerrado) then
+    raise exception 'DIA_CERRADO';
+  end if;
+
+  v_semana := date_trunc('week', v_bloque.fecha)::date;
+
+  --  La excepcion es para una SEGUNDA cita. Sin cita esa semana no hace falta.
+  if not exists (select 1 from citas c
+                  where c.persona_id = v_persona.id
+                    and c.semana = v_semana
+                    and c.estado in ('reservada', 'llego', 'entregada')
+                    and c.excepcion_id is null) then
+    raise exception 'NO_NECESITA_EXCEPCION';
+  end if;
+
+  if exists (select 1 from citas c
+              where c.persona_id = v_persona.id
+                and c.semana = v_semana
+                and c.estado in ('reservada', 'llego', 'entregada')
+                and c.excepcion_id is not null) then
+    raise exception 'YA_TIENE_EXCEPCION_ESTA_SEMANA';
+  end if;
+
+  select count(*) into v_ocupados
+    from citas c
+   where c.bloque_id = p_bloque_id
+     and c.estado <> 'cancelada';
+
+  if v_ocupados >= v_bloque.capacidad then
+    raise exception 'BLOQUE_LLENO';
+  end if;
+
+  insert into excepciones (persona_id, semana, motivo, autorizado_por)
+  values (v_persona.id, v_semana, trim(p_motivo), v_usuario)
+  returning id into v_excepcion;
+
+  insert into citas (persona_id, bloque_id, semana, token_qr, excepcion_id, registrado_por)
+  values (v_persona.id, p_bloque_id, v_semana, encode(gen_random_bytes(24), 'hex'), v_excepcion, v_usuario)
+  returning * into v_cita;
+
+  return query
+    select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora;
+
+exception
+  --  Lo lanza el indice de una excepcion por semana si dos llegan juntas.
+  when unique_violation then
+    raise exception 'YA_TIENE_EXCEPCION_ESTA_SEMANA';
+end;
+$$;
+
+revoke execute on function reservar_con_excepcion(text, uuid, text) from public;
+grant  execute on function reservar_con_excepcion(text, uuid, text) to authenticated;
+
+
+-- ============================================================
+--  23. PERSONAL QUE ENTRA CON GOOGLE
+-- ============================================================
+--  El personal puede entrar al panel con su cuenta de Google (el publico
+--  sigue sin cuenta en la V1). Google solo confirma quien es; el permiso lo
+--  sigue dando la tabla personal.
+--
+--  Con Google, la cuenta no existe hasta la primera vez que la persona
+--  entra. Para no obligar al pastor a entrar, ver "sin acceso" y esperar a
+--  que alguien corra definir_personal(), su correo se autoriza ANTES: queda
+--  aqui pendiente y el rol se aplica solo en cuanto entra.
+
+create table if not exists personal_pendiente (
+  correo    text primary key,
+  rol       text not null check (rol in ('admin', 'voluntario')),
+  creado_en timestamptz not null default now()
+);
+
+alter table personal_pendiente enable row level security;
+
+
+--  Al crearse una cuenta, si su correo estaba autorizado, se le da su rol.
+--
+--  SOLO si la cuenta se creo entrando con Google, que ya comprobo que el
+--  correo es de esa persona. Una cuenta de correo y contrasena con el mismo
+--  correo NO recibe el rol: si en Supabase estuviera apagada la confirmacion
+--  de correo, cualquiera podria registrarse con el correo del pastor y
+--  quedarse con el panel. Esas cuentas se asignan a mano con definir_personal.
+create or replace function aplicar_personal_pendiente()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_rol text;
+begin
+  if coalesce(new.raw_app_meta_data ->> 'provider', '') <> 'google'
+     or new.email_confirmed_at is null
+     or new.email is null then
+    return new;
+  end if;
+
+  select p.rol into v_rol
+    from personal_pendiente p
+   where p.correo = lower(new.email);
+
+  if v_rol is not null then
+    insert into personal (usuario_id, rol, activo)
+    values (new.id, v_rol, true)
+    on conflict (usuario_id) do update
+       set rol            = excluded.rol,
+           activo         = true,
+           actualizado_en = now();
+
+    delete from personal_pendiente where correo = lower(new.email);
+  end if;
+
+  return new;
+
+exception
+  --  Un problema aqui nunca debe impedir que alguien entre: a lo mucho se
+  --  queda sin rol y se le asigna a mano.
+  when others then
+    return new;
+end;
+$$;
+
+revoke execute on function aplicar_personal_pendiente() from public, anon, authenticated;
+
+drop trigger if exists al_crear_cuenta_aplicar_personal on auth.users;
+create trigger al_crear_cuenta_aplicar_personal
+  after insert on auth.users
+  for each row execute function aplicar_personal_pendiente();
+
+
+-- ============================================================
+--  24. ADMINISTRAR AL EQUIPO DESDE EL PANEL
+-- ============================================================
+--  El pastor da y quita accesos desde el panel, sin entrar a Supabase.
+--
+--  Por dentro usa definir_personal() y definir_autorizador(), que siguen
+--  funcionando en el SQL Editor para recuperar el acceso si algo sale mal.
+--  Estas versiones del panel agregan un freno que el SQL Editor no tiene:
+--  nadie se quita a si mismo el rol de admin, asi el panel nunca se queda
+--  sin quien lo administre.
+
+--  El equipo: quienes tienen cuenta con rol y los correos autorizados que
+--  todavia no han entrado. Solo admin.
+create or replace function listar_personal()
+returns table (
+  correo        text,
+  rol           text,
+  estado        text,
+  ultimo_acceso timestamptz,
+  es_yo         boolean,
+  tiene_codigo  boolean
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  return query
+  select u.email::text,
+         pe.rol,
+         case when pe.activo then 'activo' else 'sin_acceso' end,
+         u.last_sign_in_at,
+         pe.usuario_id = auth.uid(),
+         exists (select 1 from autorizadores a where a.usuario_id = pe.usuario_id and a.activo)
+    from personal pe
+    join auth.users u on u.id = pe.usuario_id
+  union all
+  select pp.correo,
+         pp.rol,
+         'pendiente',
+         null::timestamptz,
+         false,
+         false
+    from personal_pendiente pp
+   order by 3, 2, 1;
+end;
+$$;
+
+revoke execute on function listar_personal() from public;
+grant  execute on function listar_personal() to authenticated;
+
+
+--  Da acceso o cambia el rol. Si la persona no ha entrado nunca, queda
+--  pendiente hasta que entre con Google (seccion 23).
+create or replace function guardar_personal(p_correo text, p_rol text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_correo  text := lower(trim(coalesce(p_correo, '')));
+  v_usuario uuid;
+begin
+  perform exigir_rol(array['admin']);
+
+  select u.id into v_usuario from auth.users u where lower(u.email) = v_correo;
+
+  if v_usuario = auth.uid() and p_rol is distinct from 'admin' then
+    raise exception 'NO_PUEDES_QUITARTE_ADMIN';
+  end if;
+
+  --  definir_personal revisa el rol y el correo, y hace el trabajo.
+  return definir_personal(v_correo, p_rol);
+end;
+$$;
+
+revoke execute on function guardar_personal(text, text) from public;
+grant  execute on function guardar_personal(text, text) to authenticated;
+
+
+--  Quita el acceso. A una cuenta la desactiva (no la borra: queda el
+--  historial de quien anoto y escaneo); a un correo pendiente le quita la
+--  autorizacion. Tambien apaga su codigo de autorizacion.
+create or replace function quitar_acceso_personal(p_correo text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_correo  text := lower(trim(coalesce(p_correo, '')));
+  v_usuario uuid;
+begin
+  perform exigir_rol(array['admin']);
+
+  delete from personal_pendiente where correo = v_correo;
+  if found then
+    return 'AUTORIZACION_QUITADA';
+  end if;
+
+  select u.id into v_usuario from auth.users u where lower(u.email) = v_correo;
+
+  if v_usuario is null
+     or not exists (select 1 from personal pe where pe.usuario_id = v_usuario and pe.activo) then
+    raise exception 'PERSONAL_NO_EXISTE';
+  end if;
+
+  if v_usuario = auth.uid() then
+    raise exception 'NO_PUEDES_QUITARTE_ADMIN';
+  end if;
+
+  update personal
+     set activo = false, actualizado_en = now()
+   where usuario_id = v_usuario;
+
+  update autorizadores
+     set activo = false, actualizado_en = now()
+   where usuario_id = v_usuario;
+
+  return 'ACCESO_QUITADO';
+end;
+$$;
+
+revoke execute on function quitar_acceso_personal(text) from public;
+grant  execute on function quitar_acceso_personal(text) to authenticated;
+
+
+--  El admin pone o cambia SU PROPIO codigo de autorizacion: el que le pide
+--  un voluntario para entregar una cita de otra fecha. Se guarda cifrado.
+create or replace function definir_mi_codigo_autorizacion(p_codigo text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_correo text;
+begin
+  perform exigir_rol(array['admin']);
+
+  select u.email into v_correo from auth.users u where u.id = auth.uid();
+
+  return definir_autorizador(v_correo, p_codigo);
+end;
+$$;
+
+revoke execute on function definir_mi_codigo_autorizacion(text) from public;
+grant  execute on function definir_mi_codigo_autorizacion(text) to authenticated;
 
 
 -- ============================================================

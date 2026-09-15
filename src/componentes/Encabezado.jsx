@@ -2,10 +2,12 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ORGANIZACION } from '../datos/organizacion'
 import { IDIOMAS } from '../i18n/config'
+import { useAnchoPagina } from '../rutas/anchoPagina'
 import { LogoIglesia } from './Logo'
 
 export default function Encabezado() {
   const { i18n } = useTranslation()
+  const ancho = useAnchoPagina()
 
   return (
     // Fijo solo en pantallas anchas. En el celular ocupa dos renglones
@@ -14,7 +16,9 @@ export default function Encabezado() {
     <header className="z-20 bg-principal text-white shadow-md sm:sticky sm:top-0">
       <div aria-hidden="true" className="h-1 bg-accion" />
 
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 px-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:py-3">
+      <div
+        className={`mx-auto flex w-full ${ancho} flex-col gap-2 px-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:py-3`}
+      >
         {/* El combo de marca: el logo de la iglesia y, junto, su ministerio. */}
         <Link
           className="flex min-h-14 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"

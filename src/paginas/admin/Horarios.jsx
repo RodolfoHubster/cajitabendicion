@@ -82,7 +82,7 @@ function NuevoDia({ alCrear, alCancelar }) {
     <Tarjeta>
       <h2 className="mb-4 text-xl font-bold">{t('diasAdmin.nueva')}</h2>
 
-      <form className="space-y-4" onSubmit={enviar}>
+      <form className="max-w-3xl space-y-4" onSubmit={enviar}>
         <Campo
           etiqueta={t('diasAdmin.fecha')}
           id="nuevaFecha"

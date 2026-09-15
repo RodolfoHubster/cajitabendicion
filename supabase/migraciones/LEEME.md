@@ -42,3 +42,7 @@ hace lo segundo, el día que alguien recree la base desde cero le va a faltar.
 | `2026-09-09-registro-publico.sql` | `consultar_disponibilidad()`, tabla `configuracion`, columna `citas.dispositivo_id`, `registrar_y_reservar()` y `consultar_cita()` |
 | `2026-09-12-dias-de-entrega.sql` | Tabla `dias_entrega` (apertura y código de suscriptores), funciones de Horarios y cupos, y `reservar_cita()` cerrada al navegador |
 | `2026-09-12-nombre-y-telefono.sql` | Columnas `personas.nombres` y `personas.apellidos`; `registrar_y_reservar()` y `registrar_desde_panel()` piden apellidos y teléfono internacional (+lada) |
+| `2026-09-14-cancelar-sin-cita-excepcion.sql` | Cancelar cita (la persona y el admin), "entró sin cita" con deshacer, y excepción de segunda cita en la semana |
+| `2026-09-14-sin-cita-con-nombre.sql` | "Entró sin cita" pide el nombre, da código de comprobante `SC-1234`, lista de quién lo anotó y a qué hora, y se anula en vez de borrar |
+| `2026-09-14-personal-con-google.sql` | Tabla `personal_pendiente`: `definir_personal` autoriza un correo antes de que entre con Google, y el rol se aplica solo al crearse su cuenta |
+| `2026-09-14-equipo-desde-el-panel.sql` | Equipo y accesos: listar al equipo, dar y quitar accesos, cambiar roles y poner el código de autorización desde el panel |
