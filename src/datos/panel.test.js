@@ -10,7 +10,7 @@ const PERSONA = {
   apellidos: 'Ramírez',
   telefono: '+16195551234',
   email: '',
-  domicilio: { pais: 'US', codigoPostal: '92105', colonia: '', calle: 'El Cajon Blvd', numero: '4250', interior: '', sinDomicilio: false },
+  domicilio: { pais: 'US', codigoPostal: '92105', colonia: '', calle: '4250 El Cajon Blvd', numero: '', interior: '', sinDomicilio: false },
   aceptoPrivacidad: true,
   bloqueId: 'bloque-1',
 }

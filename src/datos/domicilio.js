@@ -6,6 +6,10 @@ import { supabase } from '../lib/supabase'
  * codigos postales de California y Baja California (tabla codigos_postales,
  * datos de GeoNames). Sin API de mapas: las direcciones no salen de la base.
  *
+ * En Estados Unidos se escribe como se acostumbra, en un solo renglon
+ * ("7855 Lansing Dr"); aqui se separa en numero y calle para la base. En
+ * Mexico calle y numero van en casillas separadas (el numero puede ser S/N).
+ *
  * Estas reglas avisan a tiempo en la pantalla. Las mismas viven en
  * validar_domicilio() de la base, que es la que decide.
  */
@@ -64,6 +68,28 @@ export function validarCalle(texto) {
   if (letras.length < 3 || new Set(letras).size < 2) return 'SIN_LETRAS'
 
   return null
+}
+
+// El numero con el que empieza una direccion de Estados Unidos: 7855, 12B, 1234-5.
+const DIRECCION_US = /^(\d{1,6}[A-Za-z]?(?:-[0-9A-Za-z]{1,4})?)\s+(.+)$/
+
+/** "7855 Lansing Dr" -> { numero: '7855', calle: 'Lansing Dr' }. Sin numero al inicio, null. */
+export function separarDireccionUS(texto) {
+  const partes = DIRECCION_US.exec(limpiar(texto))
+  return partes ? { numero: partes[1].toUpperCase(), calle: partes[2] } : null
+}
+
+/** Direccion de Estados Unidos en un renglon: numero de la casa y nombre de la calle. */
+export function validarDireccionUS(texto) {
+  const direccion = limpiar(texto)
+  if (!direccion) return 'VACIO'
+  if (direccion.length > 120) return 'LARGO'
+
+  const partes = separarDireccionUS(direccion)
+  // Solo el numero ("7855"): falta la calle. Sin numero al inicio: falta el numero.
+  if (!partes) return /^\d/.test(direccion) ? 'SIN_LETRAS' : 'SIN_NUMERO'
+
+  return validarCalle(partes.calle) ? 'SIN_LETRAS' : null
 }
 
 const SIN_NUMERO = new Set(['SN', 'S/N', 'S.N.', 'S-N'])
@@ -126,8 +152,9 @@ export function validarDomicilio(domicilio, busqueda) {
   }
 
   if (!sinDomicilio) {
-    const errorCalle = validarCalle(calle)
-    const errorNumero = validarNumero(numero, pais)
+    // En Estados Unidos el numero va dentro del domicilio; en Mexico, en su casilla.
+    const errorCalle = pais === 'US' ? validarDireccionUS(calle) : validarCalle(calle)
+    const errorNumero = pais === 'US' ? null : validarNumero(numero, pais)
     const errorInterior = validarInterior(interior)
 
     if (errorCalle) errores.calle = errorCalle
@@ -141,13 +168,14 @@ export function validarDomicilio(domicilio, busqueda) {
 /** Lo que se manda a registrar_y_reservar() y registrar_desde_panel(). */
 export function parametrosDomicilio(domicilio) {
   const { pais, codigoPostal, colonia, calle, numero, interior, sinDomicilio } = domicilio
+  const us = pais === 'US' ? separarDireccionUS(calle) : null
 
   return {
     p_pais: pais,
     p_codigo_postal: normalizarCodigoPostal(codigoPostal),
     p_colonia: pais === 'MX' ? limpiar(colonia) || null : null,
-    p_calle: sinDomicilio ? null : limpiar(calle),
-    p_numero: sinDomicilio ? null : normalizarNumero(numero, pais),
+    p_calle: sinDomicilio ? null : limpiar(us ? us.calle : calle),
+    p_numero: sinDomicilio ? null : us ? us.numero : normalizarNumero(pais === 'US' ? '' : numero, pais),
     p_numero_interior: sinDomicilio ? null : normalizarInterior(interior) || null,
     p_sin_domicilio: Boolean(sinDomicilio),
   }

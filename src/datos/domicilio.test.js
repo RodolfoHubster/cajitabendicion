@@ -16,8 +16,10 @@ import {
   normalizarNumero,
   olvidarBusquedas,
   parametrosDomicilio,
+  separarDireccionUS,
   validarCalle,
   validarCodigoPostal,
+  validarDireccionUS,
   validarDomicilio,
   validarInterior,
   validarNumero,
@@ -38,7 +40,8 @@ const LISTO_MX = {
   ],
 }
 
-const US = { ...DOMICILIO_VACIO, pais: 'US', codigoPostal: '92105', calle: 'El Cajon Blvd', numero: '4250' }
+// En Estados Unidos el domicilio va en un renglon; en Mexico, calle y numero aparte.
+const US = { ...DOMICILIO_VACIO, pais: 'US', codigoPostal: '92105', calle: '7855 Lansing Dr' }
 const MX = { ...DOMICILIO_VACIO, pais: 'MX', codigoPostal: '22000', colonia: 'Zona Centro', calle: 'Av. Revolución', numero: '1234' }
 
 describe('codigo postal', () => {
@@ -67,10 +70,9 @@ describe('codigo postal', () => {
   })
 })
 
-describe('calle', () => {
+describe('calle (Mexico)', () => {
   it.each([
     ['Av. Revolución', null],
-    ['El Cajon Blvd', null],
     ['Calle 5 de Mayo', null],
     ['Oak', null],
     ['', 'VACIO'],
@@ -85,27 +87,56 @@ describe('calle', () => {
   })
 })
 
-describe('numero', () => {
+describe('domicilio de Estados Unidos (en un renglon)', () => {
   it.each([
-    ['4250', 'US', null],
-    ['12-B', 'US', null],
-    ['12b', 'US', null],
-    ['12 34', 'US', null],
+    ['7855 Lansing Dr', { numero: '7855', calle: 'Lansing Dr' }],
+    ['  4250   El Cajon Blvd ', { numero: '4250', calle: 'El Cajon Blvd' }],
+    ['12b Oak St', { numero: '12B', calle: 'Oak St' }],
+    ['1234-5 Main St', { numero: '1234-5', calle: 'Main St' }],
+    ['123 1/2 Main St', { numero: '123', calle: '1/2 Main St' }],
+    ['Lansing Dr', null],
+    ['7855', null],
+    ['', null],
+  ])('separa %j', (texto, esperado) => {
+    expect(separarDireccionUS(texto)).toEqual(esperado)
+  })
+
+  it.each([
+    ['7855 Lansing Dr', null],
+    ['4250 El Cajon Blvd', null],
+    ['12B Oak St', null],
+    ['', 'VACIO'],
+    ['   ', 'VACIO'],
+    ['Lansing Dr', 'SIN_NUMERO'],
+    ['.', 'SIN_NUMERO'],
+    ['7855', 'SIN_LETRAS'],
+    ['7855 .', 'SIN_LETRAS'],
+    ['7855 aaaa', 'SIN_LETRAS'],
+    ['1234567 Main St', 'SIN_LETRAS'],
+    [`1 ${'x'.repeat(120)}`, 'LARGO'],
+  ])('%j -> %j', (texto, esperado) => {
+    expect(validarDireccionUS(texto)).toBe(esperado)
+  })
+})
+
+describe('numero (Mexico)', () => {
+  it.each([
     ['1234-5', 'MX', null],
+    ['12b', 'MX', null],
+    ['12 34', 'MX', null],
     ['s/n', 'MX', null],
     ['SN', 'MX', null],
     ['S/N', 'US', 'FORMATO'],
     ['', 'MX', 'VACIO'],
     ['abc', 'MX', 'FORMATO_MX'],
     ['abc', 'US', 'FORMATO'],
-    ['.', 'US', 'FORMATO'],
-    ['1234567', 'US', 'FORMATO'],
+    ['1234567', 'MX', 'FORMATO_MX'],
   ])('%j en %s -> %j', (numero, pais, esperado) => {
     expect(validarNumero(numero, pais)).toBe(esperado)
   })
 
   it.each([
-    [' 12 b ', 'US', '12B'],
+    [' 12 b ', 'MX', '12B'],
     ['s.n.', 'MX', 'S/N'],
     ['sn', 'US', 'SN'],
   ])('normaliza %j en %s -> %j', (numero, pais, esperado) => {
@@ -137,12 +168,27 @@ describe('validarDomicilio', () => {
     expect(validarDomicilio(MX, LISTO_MX)).toEqual({})
   })
 
-  it('vacio: faltan codigo postal, calle y numero', () => {
+  it('vacio en Estados Unidos: faltan codigo postal y domicilio (el numero va dentro)', () => {
     expect(validarDomicilio(DOMICILIO_VACIO, { estado: 'vacio', filas: [] })).toEqual({
+      codigoPostal: 'VACIO',
+      calle: 'VACIO',
+    })
+  })
+
+  it('vacio en Mexico: faltan codigo postal, calle y numero', () => {
+    expect(validarDomicilio({ ...DOMICILIO_VACIO, pais: 'MX' }, { estado: 'vacio', filas: [] })).toEqual({
       codigoPostal: 'VACIO',
       calle: 'VACIO',
       numero: 'VACIO',
     })
+  })
+
+  it('en Estados Unidos, sin numero al inicio del domicilio', () => {
+    expect(validarDomicilio({ ...US, calle: 'Lansing Dr' }, LISTO_US)).toEqual({ calle: 'SIN_NUMERO' })
+  })
+
+  it('en Estados Unidos no importa lo que haya quedado en la casilla de numero de Mexico', () => {
+    expect(validarDomicilio({ ...US, numero: 'basura' }, LISTO_US)).toEqual({})
   })
 
   it('mientras busca el codigo, no deja enviar', () => {
@@ -177,9 +223,13 @@ describe('validarDomicilio', () => {
   })
 
   it('los errores de cada campo se combinan', () => {
-    expect(validarDomicilio({ ...US, calle: '.', numero: 'abc', interior: '5;x' }, LISTO_US)).toEqual({
+    expect(validarDomicilio({ ...US, calle: '.', interior: '5;x' }, LISTO_US)).toEqual({
+      calle: 'SIN_NUMERO',
+      interior: 'FORMATO',
+    })
+    expect(validarDomicilio({ ...MX, calle: '.', numero: 'abc', interior: '5;x' }, LISTO_MX)).toEqual({
       calle: 'SIN_LETRAS',
-      numero: 'FORMATO',
+      numero: 'FORMATO_MX',
       interior: 'FORMATO',
     })
   })
@@ -214,13 +264,22 @@ describe('parametrosDomicilio', () => {
     })
   })
 
-  it('Estados Unidos: sin colonia; interior vacio va como null', () => {
-    expect(parametrosDomicilio({ ...US, colonia: 'algo', codigoPostal: '92105-1234' })).toMatchObject({
+  it('Estados Unidos: el domicilio se separa en numero y calle para la base', () => {
+    expect(
+      parametrosDomicilio({ ...US, calle: '  7855   Lansing Dr ', colonia: 'algo', codigoPostal: '92105-1234', interior: ' apt 3 ' }),
+    ).toEqual({
       p_pais: 'US',
       p_codigo_postal: '92105',
       p_colonia: null,
-      p_numero_interior: null,
+      p_calle: 'Lansing Dr',
+      p_numero: '7855',
+      p_numero_interior: 'APT 3',
+      p_sin_domicilio: false,
     })
+  })
+
+  it('Estados Unidos: la casilla de numero de Mexico no se manda', () => {
+    expect(parametrosDomicilio({ ...US, numero: '999' })).toMatchObject({ p_calle: 'Lansing Dr', p_numero: '7855' })
   })
 
   it('sin domicilio fijo: calle, numero e interior van como null', () => {
@@ -263,7 +322,7 @@ describe('textos en pantalla', () => {
   const AVISOS = {
     codigoPostal: ['VACIO', 'FORMATO', 'NO_EXISTE', 'BUSCANDO'],
     colonia: ['VACIO', 'NO_COINCIDE'],
-    calle: ['VACIO', 'SIN_LETRAS', 'LARGO'],
+    calle: ['VACIO', 'SIN_LETRAS', 'SIN_NUMERO', 'LARGO'],
     numero: ['VACIO', 'FORMATO', 'FORMATO_MX'],
     interior: ['FORMATO'],
   }
@@ -279,7 +338,10 @@ describe('textos en pantalla', () => {
     for (const pais of ['MX', 'US']) {
       expect(textos.domicilio.codigoPostal[pais]).toBeTruthy()
       expect(textos.domicilio.paises[pais]).toBeTruthy()
+      expect(textos.domicilio.calle[pais]).toBeTruthy()
+      expect(textos.domicilio.interior[pais]).toBeTruthy()
     }
+    expect(textos.domicilio.numero.MX).toBeTruthy()
   })
 
   it.each(CODIGOS_DOMICILIO)('el error %s de la base tiene su mensaje', (codigo) => {
