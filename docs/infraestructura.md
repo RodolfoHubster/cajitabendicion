@@ -226,6 +226,24 @@ Para dar acceso a alguien nuevo:
    con Google. Si nadie puede entrar al panel, el SQL Editor sigue sirviendo:
    `select definir_personal('correo@gmail.com', 'admin');`
 
+## Catálogo de códigos postales
+
+El registro pide domicilio en México o Estados Unidos y lo revisa contra la
+tabla `codigos_postales` (California y Baja California). No se usa ninguna API
+de mapas: las direcciones de la comunidad no salen de la base de datos.
+
+- **Fuente:** [GeoNames](https://www.geonames.org/), archivos `US.zip` y
+  `MX.zip` de https://download.geonames.org/export/zip/. Licencia
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): hay que dar
+  crédito a GeoNames.
+- **Carga:** `supabase/migraciones/2026-09-15-codigos-postales-datos.sql`
+  (se puede repetir: borra el catálogo y lo vuelve a cargar).
+- **Actualizar:** descargar y descomprimir los dos archivos y correr
+  `node scripts/generar-codigos-postales.mjs US.txt MX.txt supabase/migraciones/AAAA-MM-DD-codigos-postales-datos.sql`;
+  luego pegar el archivo nuevo en el SQL Editor.
+- **Qué revisa:** que el código postal exista, que la colonia sea de ese código
+  y que calle y número tengan forma real. No comprueba que la casa exista.
+
 ## Correo transaccional (pendiente)
 
 El sistema necesita mandar confirmaciones con el código QR. Proveedor

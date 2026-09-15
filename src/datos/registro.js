@@ -1,4 +1,5 @@
 import { leerCodigoAnticipado } from './anticipado'
+import { CODIGOS_DOMICILIO, parametrosDomicilio } from './domicilio'
 import { supabase } from '../lib/supabase'
 
 const LLAVE_DISPOSITIVO = 'cb_dispositivo'
@@ -36,16 +37,27 @@ export function obtenerDispositivo() {
  *
  * telefono llega ya en formato internacional (+526641234567): lo convierte
  * normalizarTelefono() en la pantalla. Si la persona entro a la fecha con
- * codigo de suscriptor, se manda: la base decide si todavia sirve.
+ * codigo de suscriptor, se manda: la base decide si todavia sirve. El
+ * domicilio va limpio (parametrosDomicilio) y la base lo vuelve a revisar.
  */
-export async function registrarYReservar({ nombres, apellidos, telefono, email, ciudad, bloqueId, fecha }) {
+export async function registrarYReservar({
+  nombres,
+  apellidos,
+  telefono,
+  email,
+  domicilio,
+  aceptoPrivacidad,
+  bloqueId,
+  fecha,
+}) {
   const { data, error } = await supabase.rpc('registrar_y_reservar', {
     p_nombre: nombres,
     p_apellidos: apellidos,
     p_telefono: telefono,
     p_bloque_id: bloqueId,
     p_email: email || null,
-    p_ciudad: ciudad || null,
+    ...parametrosDomicilio(domicilio),
+    p_acepto_privacidad: Boolean(aceptoPrivacidad),
     p_dispositivo: obtenerDispositivo(),
     p_codigo_anticipado: (fecha && leerCodigoAnticipado(fecha)) || null,
   })
@@ -86,6 +98,7 @@ export const CODIGOS = [
   'CODIGO_ANTICIPADO_INVALIDO',
   'AUN_NO_ABRE',
   'DIA_CERRADO',
+  ...CODIGOS_DOMICILIO,
 ]
 
 export function traducirError(mensaje) {

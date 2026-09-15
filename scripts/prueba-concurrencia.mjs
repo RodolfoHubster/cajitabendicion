@@ -72,6 +72,11 @@ const resultados = await Promise.all(
         p_apellidos: `Concurrencia ${letras(i)}`,
         p_telefono: '+16195550100',
         p_bloque_id: bloque_id,
+        p_pais: 'US',
+        p_codigo_postal: '92105',
+        p_calle: 'El Cajon Blvd',
+        p_numero: '4250',
+        p_acepto_privacidad: true,
       })
       .then(({ error }) => (error ? { ok: false, msg: error.message } : { ok: true })),
   ),

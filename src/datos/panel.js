@@ -1,3 +1,4 @@
+import { CODIGOS_DOMICILIO, parametrosDomicilio } from './domicilio'
 import { clasificarError } from './errores'
 import { supabase } from '../lib/supabase'
 
@@ -50,21 +51,32 @@ const CODIGOS_REGISTRO = [
   'EMAIL_INVALIDO',
   'SIN_CODIGOS_DISPONIBLES',
   'DIA_CERRADO',
+  ...CODIGOS_DOMICILIO,
 ]
 
 /**
  * Registra a una persona desde el panel (solo admin). Sin limite por
  * dispositivo y con correo opcional. telefono llega en formato
- * internacional (+526641234567).
+ * internacional (+526641234567). El domicilio y la confirmacion de
+ * privacidad se piden igual que en el registro publico.
  */
-export async function registrarDesdePanel({ nombres, apellidos, telefono, email, ciudad, bloqueId }) {
+export async function registrarDesdePanel({
+  nombres,
+  apellidos,
+  telefono,
+  email,
+  domicilio,
+  aceptoPrivacidad,
+  bloqueId,
+}) {
   const { data, error } = await supabase.rpc('registrar_desde_panel', {
     p_nombre: nombres,
     p_apellidos: apellidos,
     p_telefono: telefono,
     p_bloque_id: bloqueId,
     p_email: email || null,
-    p_ciudad: ciudad || null,
+    ...parametrosDomicilio(domicilio),
+    p_acepto_privacidad: Boolean(aceptoPrivacidad),
   })
 
   if (error) {

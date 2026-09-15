@@ -1,27 +1,46 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCircleCheck } from 'react-icons/lu'
+import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
+import CamposDomicilio from '../../componentes/CamposDomicilio'
 import ExcepcionSemana from '../../componentes/ExcepcionSemana'
 import Tarjeta from '../../componentes/Tarjeta'
-import { mensajeCorreo, mensajeNombre, mensajeTelefono } from '../../componentes/mensajesValidacion'
+import {
+  mensajeCorreo,
+  mensajeNombre,
+  mensajeTelefono,
+  mensajesDomicilio,
+} from '../../componentes/mensajesValidacion'
+import useCodigoPostal from '../../componentes/useCodigoPostal'
 import {
   aFechaLocal,
   agruparPorFecha,
   consultarDisponibilidad,
   formatearHora,
 } from '../../datos/disponibilidad'
+import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
 import { registrarDesdePanel } from '../../datos/panel'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
-import { OTRA_ZONA, ZONAS } from '../../datos/zonas'
 
-const VACIO = { nombres: '', apellidos: '', telefono: '', email: '', zona: '', otraZona: '' }
+const VACIO = { nombres: '', apellidos: '', telefono: '', email: '' }
 
 // En este orden se revisan; se enfoca el primero que tenga error.
-const CAMPOS = ['nombres', 'apellidos', 'telefono', 'correo']
+const CAMPOS = [
+  'nombres',
+  'apellidos',
+  'telefono',
+  'correo',
+  'codigoPostal',
+  'colonia',
+  'calle',
+  'numero',
+  'interior',
+  'consentimiento',
+]
 
 const ESTILO_SELECT =
   'min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
@@ -31,8 +50,9 @@ const ESTILO_SELECT =
  * el adulto mayor sin telefono, la persona que llega a la oficina.
  *
  * Solo admin. No aplica el limite por dispositivo (esta computadora
- * registra a muchas personas) y el correo es opcional. El cupo y la regla
- * de una cita por semana si aplican: los revisa la base de datos.
+ * registra a muchas personas) y el correo es opcional. El domicilio y la
+ * confirmacion de privacidad se piden igual que en el registro publico. El
+ * cupo y la regla de una cita por semana si aplican: los revisa la base.
  *
  * Abajo, la excepcion para una segunda cita en la misma semana.
  */
@@ -47,11 +67,15 @@ export default function RegistrarPersona() {
   const [bloqueId, setBloqueId] = useState('')
   const [datos, setDatos] = useState(VACIO)
   const [pais, setPais] = useState('US')
+  const [domicilio, setDomicilio] = useState(DOMICILIO_VACIO)
+  const [acepto, setAcepto] = useState(false)
   const [tocados, setTocados] = useState(() => new Set())
   const [intento, setIntento] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
   const [registrada, setRegistrada] = useState(null)
+
+  const busqueda = useCodigoPostal(domicilio.pais, domicilio.codigoPostal)
 
   // Se vuelve a consultar despues de cada registro: los lugares cambiaron.
   useEffect(() => {
@@ -83,6 +107,7 @@ export default function RegistrarPersona() {
   const tocar = (campo) => setTocados((actuales) => new Set(actuales).add(campo))
 
   const telefonoRevisado = normalizarTelefono(pais, datos.telefono)
+  const erroresDomicilio = validarDomicilio(domicilio, busqueda)
 
   const errores = {
     nombres: mensajeNombre(t, validarNombre(datos.nombres), 'nombres'),
@@ -90,10 +115,25 @@ export default function RegistrarPersona() {
     telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
     // Muchos adultos mayores no tienen correo: aqui es opcional.
     correo: mensajeCorreo(t, validarCorreo(datos.email, { requerido: false })),
+    ...mensajesDomicilio(t, erroresDomicilio),
+    consentimiento: acepto ? undefined : t('privacidad.faltaPanel'),
   }
 
-  const errorDe = (campo) => (intento || tocados.has(campo) ? errores[campo] : undefined)
+  // La casilla y "revisando el codigo postal" solo se avisan al intentar enviar.
+  const errorDe = (campo) => {
+    if (!intento && (campo === 'consentimiento' || erroresDomicilio[campo] === 'BUSCANDO')) return undefined
+    return intento || tocados.has(campo) ? errores[campo] : undefined
+  }
+
   const sugerencia = errores.correo ? null : sugerirCorreo(datos.email)
+
+  // Mientras no haya escrito el codigo postal, el domicilio sigue al pais del telefono.
+  function cambiarPaisTelefono(nuevo) {
+    setPais(nuevo)
+    if (!domicilio.codigoPostal && PAISES_DOMICILIO.includes(nuevo)) {
+      setDomicilio((antes) => ({ ...antes, pais: nuevo }))
+    }
+  }
 
   async function enviar(evento) {
     evento.preventDefault()
@@ -117,12 +157,15 @@ export default function RegistrarPersona() {
         apellidos,
         telefono: telefonoRevisado.e164,
         email: datos.email.trim(),
-        ciudad: datos.zona === OTRA_ZONA ? datos.otraZona : datos.zona,
+        domicilio,
+        aceptoPrivacidad: acepto,
         bloqueId,
       })
 
       setRegistrada({ ...cita, nombre: `${nombres} ${apellidos}` })
       setDatos(VACIO)
+      setDomicilio(DOMICILIO_VACIO)
+      setAcepto(false)
       setTocados(new Set())
       setIntento(false)
       setFecha('')
@@ -262,7 +305,7 @@ export default function RegistrarPersona() {
           </div>
 
           <CampoTelefono
-            alCambiarPais={setPais}
+            alCambiarPais={cambiarPaisTelefono}
             alCambiarValor={(valor) => cambiar('telefono', valor)}
             error={errorDe('telefono')}
             etiqueta={t('registro.telefono')}
@@ -272,59 +315,41 @@ export default function RegistrarPersona() {
             valor={datos.telefono}
           />
 
-          <div className="grid items-start gap-4 sm:grid-cols-2">
-            <div>
-              <Campo
-                error={errorDe('correo')}
-                etiqueta={t('registrarPanel.correoOpcional')}
-                id="correo"
-                inputMode="email"
-                onBlur={() => tocar('correo')}
-                onChange={(e) => cambiar('email', e.target.value)}
-                type="email"
-                value={datos.email}
-              />
-              {sugerencia && (
-                <p className="mt-1 text-base text-principal">
-                  {t('validacion.correo.sugerencia', { correo: sugerencia })}{' '}
-                  <button
-                    className="min-h-10 font-semibold underline underline-offset-4"
-                    onClick={() => cambiar('email', sugerencia)}
-                    type="button"
-                  >
-                    {t('validacion.correo.usarSugerencia')}
-                  </button>
-                </p>
-              )}
-            </div>
-
-            <label className="flex flex-col gap-2" htmlFor="zona">
-              <span className="text-base font-semibold text-principal">{t('registro.zona')}</span>
-              <select
-                className={ESTILO_SELECT}
-                id="zona"
-                onChange={(e) => cambiar('zona', e.target.value)}
-                value={datos.zona}
-              >
-                <option value="">{t('registro.zonaSinResponder')}</option>
-                {ZONAS.map((nombreZona) => (
-                  <option key={nombreZona} value={nombreZona}>
-                    {nombreZona}
-                  </option>
-                ))}
-                <option value={OTRA_ZONA}>{t('registro.zonaOtra')}</option>
-              </select>
-            </label>
+          <div>
+            <Campo
+              error={errorDe('correo')}
+              etiqueta={t('registrarPanel.correoOpcional')}
+              id="correo"
+              inputMode="email"
+              onBlur={() => tocar('correo')}
+              onChange={(e) => cambiar('email', e.target.value)}
+              type="email"
+              value={datos.email}
+            />
+            {sugerencia && (
+              <p className="mt-1 text-base text-principal">
+                {t('validacion.correo.sugerencia', { correo: sugerencia })}{' '}
+                <button
+                  className="min-h-10 font-semibold underline underline-offset-4"
+                  onClick={() => cambiar('email', sugerencia)}
+                  type="button"
+                >
+                  {t('validacion.correo.usarSugerencia')}
+                </button>
+              </p>
+            )}
           </div>
 
-          {datos.zona === OTRA_ZONA && (
-            <Campo
-              etiqueta={t('registro.zonaOtraEtiqueta')}
-              id="otraZona"
-              onChange={(e) => cambiar('otraZona', e.target.value)}
-              value={datos.otraZona}
-            />
-          )}
+          <CamposDomicilio
+            alCambiar={setDomicilio}
+            busqueda={busqueda}
+            errorDe={errorDe}
+            panel
+            tocar={tocar}
+            valor={domicilio}
+          />
+
+          <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} panel />
 
           {error && (
             <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">

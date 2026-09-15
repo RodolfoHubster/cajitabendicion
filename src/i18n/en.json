@@ -172,12 +172,6 @@
     "telefono": "Mobile phone",
     "correo": "Email",
     "correoAyuda": "This is where we will send your entry code.",
-    "zona": "Where are you visiting us from? (optional)",
-    "zonaSinResponder": "I'd rather not say",
-    "zonaOtra": "Somewhere else",
-    "zonaOtraEtiqueta": "Where from?",
-    "zonaAyuda": "It helps us know which areas we are reaching.",
-    "privacidad": "We use your information only to organize the distribution and prepare program reports. It is not shared with anyone else.",
     "confirmar": "Confirm my appointment",
     "enviando": "Holding your spot…",
     "errores": {
@@ -198,7 +192,19 @@
       "DIA_CERRADO": "This day is no longer taking registrations.",
       "APELLIDOS_REQUERIDOS": "Your last name is missing.",
       "NOMBRE_INVALIDO": "First and last names do not contain numbers.",
-      "TELEFONO_INVALIDO": "Check your phone number: it is incomplete or has something extra."
+      "TELEFONO_INVALIDO": "Check your phone number: it is incomplete or has something extra.",
+      "PAIS_INVALIDO": "Choose Mexico or the United States.",
+      "CODIGO_POSTAL_REQUERIDO": "The postal code is missing.",
+      "CODIGO_POSTAL_INVALIDO": "The postal code has 5 digits.",
+      "CODIGO_POSTAL_NO_EXISTE": "We couldn't find that postal code in California or Baja California.",
+      "COLONIA_REQUERIDA": "Choose your colonia.",
+      "COLONIA_INVALIDA": "That colonia doesn't belong to that postal code.",
+      "CALLE_REQUERIDA": "The street is missing.",
+      "CALLE_INVALIDA": "Please check the street name.",
+      "NUMERO_REQUERIDO": "The house number is missing.",
+      "NUMERO_INVALIDO": "Please check the house number.",
+      "NUMERO_INTERIOR_INVALIDO": "Please check the apartment or interior number.",
+      "CONSENTIMIENTO_REQUERIDO": "Please confirm that you share your information of your own free will."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
@@ -725,5 +731,71 @@
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not load the report. Please try again."
     }
+  },
+  "domicilio": {
+    "titulo": "Your home address",
+    "tituloPanel": "Person's home address",
+    "zona": "We accept addresses in California (United States) and Baja California (Mexico).",
+    "pais": "Country of the address",
+    "paises": {
+      "MX": "Mexico",
+      "US": "United States"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (postal code)",
+      "US": "ZIP code"
+    },
+    "buscando": "Looking up the postal code…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (neighborhood)",
+    "coloniaOpcional": "Colonia (optional)",
+    "elegirColonia": "Choose your colonia",
+    "calle": {
+      "MX": "Street",
+      "US": "Street"
+    },
+    "numero": {
+      "MX": "Number",
+      "US": "House number"
+    },
+    "interior": {
+      "MX": "Interior (optional)",
+      "US": "Apt. (optional)"
+    },
+    "sinDomicilio": "I don't have a fixed address",
+    "sinDomicilioAyuda": "For example, if you live in your car or stay with relatives for a while. We only ask for your postal code.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "The postal code is missing.",
+        "FORMATO": "The postal code has 5 digits.",
+        "NO_EXISTE": "We couldn't find that postal code in California or Baja California. Please check it.",
+        "BUSCANDO": "One moment: we are checking the postal code."
+      },
+      "colonia": {
+        "VACIO": "Choose your colonia from the list.",
+        "NO_COINCIDE": "That colonia doesn't belong to that postal code. Choose it from the list."
+      },
+      "calle": {
+        "VACIO": "The street is missing.",
+        "SIN_LETRAS": "Write the street name.",
+        "LARGO": "The street name is too long."
+      },
+      "numero": {
+        "VACIO": "The number is missing.",
+        "FORMATO": "Write the house number, for example 4250 or 12-B.",
+        "FORMATO_MX": "Write the number, for example 1234 or 12-B. If there is none, write S/N."
+      },
+      "interior": {
+        "FORMATO": "Use only letters and numbers, for example 5 or B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Your information is private",
+    "texto": "We only use it for Cajita de Bendición's internal records and to organize the distribution. We don't share it with anyone, including the authorities.",
+    "casilla": "I confirm that I am sharing this information of my own free will.",
+    "casillaPanel": "The person confirmed to me that they share their information of their own free will.",
+    "falta": "To register, check the confirmation box.",
+    "faltaPanel": "Check the box: the person must confirm that they share their information."
   }
 }

@@ -1,22 +1,41 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
+import CamposDomicilio from '../../componentes/CamposDomicilio'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
-import { mensajeCorreo, mensajeNombre, mensajeTelefono } from '../../componentes/mensajesValidacion'
+import {
+  mensajeCorreo,
+  mensajeNombre,
+  mensajeTelefono,
+  mensajesDomicilio,
+} from '../../componentes/mensajesValidacion'
+import useCodigoPostal from '../../componentes/useCodigoPostal'
 import { leerCodigoAnticipado } from '../../datos/anticipado'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
+import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
 import { registrarYReservar } from '../../datos/registro'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
-import { OTRA_ZONA, ZONAS } from '../../datos/zonas'
 
 // En este orden se revisan; se enfoca el primero que tenga error.
-const CAMPOS = ['nombres', 'apellidos', 'telefono', 'correo']
+const CAMPOS = [
+  'nombres',
+  'apellidos',
+  'telefono',
+  'correo',
+  'codigoPostal',
+  'colonia',
+  'calle',
+  'numero',
+  'interior',
+  'consentimiento',
+]
 
 export default function Registro() {
   const { t, i18n } = useTranslation()
@@ -36,13 +55,15 @@ export default function Registro() {
   const [pais, setPais] = useState('US')
   const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
-  const [zona, setZona] = useState('')
-  const [otraZona, setOtraZona] = useState('')
+  const [domicilio, setDomicilio] = useState(DOMICILIO_VACIO)
+  const [acepto, setAcepto] = useState(false)
 
   // Un campo se marca en rojo al salir de el o al intentar enviar. Desde ahi
   // el mensaje cambia mientras escribe y desaparece en cuanto queda bien.
   const [tocados, setTocados] = useState(() => new Set())
   const [intento, setIntento] = useState(false)
+
+  const busqueda = useCodigoPostal(domicilio.pais, domicilio.codigoPostal)
 
   useEffect(() => {
     if (!bloqueId || !fecha) return
@@ -112,17 +133,33 @@ export default function Registro() {
   }).format(aFechaLocal(bloque.fecha))}, ${formatearHora(bloque.hora)}`
 
   const telefonoRevisado = normalizarTelefono(pais, telefono)
+  const erroresDomicilio = validarDomicilio(domicilio, busqueda)
 
   const errores = {
     nombres: mensajeNombre(t, validarNombre(nombres), 'nombres'),
     apellidos: mensajeNombre(t, validarNombre(apellidos), 'apellidos'),
     telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
     correo: mensajeCorreo(t, validarCorreo(email)),
+    ...mensajesDomicilio(t, erroresDomicilio),
+    consentimiento: acepto ? undefined : t('privacidad.falta'),
   }
 
-  const errorDe = (campo) => (intento || tocados.has(campo) ? errores[campo] : undefined)
+  // La casilla y "revisando el codigo postal" solo se avisan al intentar enviar.
+  const errorDe = (campo) => {
+    if (!intento && (campo === 'consentimiento' || erroresDomicilio[campo] === 'BUSCANDO')) return undefined
+    return intento || tocados.has(campo) ? errores[campo] : undefined
+  }
+
   const tocar = (campo) => setTocados((actuales) => new Set(actuales).add(campo))
   const sugerencia = errores.correo ? null : sugerirCorreo(email)
+
+  // Mientras no haya escrito su codigo postal, el domicilio sigue al pais del telefono.
+  function cambiarPaisTelefono(nuevo) {
+    setPais(nuevo)
+    if (!domicilio.codigoPostal && PAISES_DOMICILIO.includes(nuevo)) {
+      setDomicilio((antes) => ({ ...antes, pais: nuevo }))
+    }
+  }
 
   async function enviar(evento) {
     evento.preventDefault()
@@ -146,7 +183,8 @@ export default function Registro() {
         apellidos: apellidosListos,
         telefono: telefonoRevisado.e164,
         email: email.trim(),
-        ciudad: zona === OTRA_ZONA ? otraZona : zona,
+        domicilio,
+        aceptoPrivacidad: acepto,
         bloqueId,
         fecha,
       })
@@ -204,7 +242,7 @@ export default function Registro() {
         </div>
 
         <CampoTelefono
-          alCambiarPais={setPais}
+          alCambiarPais={cambiarPaisTelefono}
           alCambiarValor={setTelefono}
           error={errorDe('telefono')}
           etiqueta={t('registro.telefono')}
@@ -242,40 +280,15 @@ export default function Registro() {
           <p className="mt-1 text-base text-principal/60">{t('registro.correoAyuda')}</p>
         </div>
 
-        <div>
-          <label className="flex w-full flex-col gap-2 text-left" htmlFor="zona">
-            <span className="text-base font-medium text-principal">{t('registro.zona')}</span>
-            <select
-              className="min-h-14 rounded-xl border border-principal/20 bg-white px-3 text-base outline-none focus:border-principal"
-              id="zona"
-              onChange={(e) => setZona(e.target.value)}
-              value={zona}
-            >
-              <option value="">{t('registro.zonaSinResponder')}</option>
-              {ZONAS.map((nombreZona) => (
-                <option key={nombreZona} value={nombreZona}>
-                  {nombreZona}
-                </option>
-              ))}
-              <option value={OTRA_ZONA}>{t('registro.zonaOtra')}</option>
-            </select>
-          </label>
+        <CamposDomicilio
+          alCambiar={setDomicilio}
+          busqueda={busqueda}
+          errorDe={errorDe}
+          tocar={tocar}
+          valor={domicilio}
+        />
 
-          {zona === OTRA_ZONA && (
-            <div className="mt-3">
-              <Campo
-                etiqueta={t('registro.zonaOtraEtiqueta')}
-                id="otraZona"
-                onChange={(e) => setOtraZona(e.target.value)}
-                value={otraZona}
-              />
-            </div>
-          )}
-
-          <p className="mt-1 text-base text-principal/60">{t('registro.zonaAyuda')}</p>
-        </div>
-
-        <p className="text-base text-principal/70">{t('registro.privacidad')}</p>
+        <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} />
 
         {error && (
           <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">

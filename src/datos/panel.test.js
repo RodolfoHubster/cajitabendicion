@@ -10,7 +10,8 @@ const PERSONA = {
   apellidos: 'Ramírez',
   telefono: '+16195551234',
   email: '',
-  ciudad: '',
+  domicilio: { pais: 'US', codigoPostal: '92105', colonia: '', calle: 'El Cajon Blvd', numero: '4250', interior: '', sinDomicilio: false },
+  aceptoPrivacidad: true,
   bloqueId: 'bloque-1',
 }
 
@@ -23,7 +24,7 @@ afterEach(() => {
 })
 
 describe('registrarDesdePanel', () => {
-  it('manda nombres y apellidos separados; correo y zona opcionales van como null', async () => {
+  it('manda nombres y apellidos separados, el correo opcional como null y el domicilio completo', async () => {
     supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-1', token_qr: 't' }], error: null })
 
     await expect(registrarDesdePanel(PERSONA)).resolves.toEqual({ codigo_corto: 'CB-1', token_qr: 't' })
@@ -33,7 +34,14 @@ describe('registrarDesdePanel', () => {
       p_telefono: '+16195551234',
       p_bloque_id: 'bloque-1',
       p_email: null,
-      p_ciudad: null,
+      p_pais: 'US',
+      p_codigo_postal: '92105',
+      p_colonia: null,
+      p_calle: 'El Cajon Blvd',
+      p_numero: '4250',
+      p_numero_interior: null,
+      p_sin_domicilio: false,
+      p_acepto_privacidad: true,
     })
   })
 

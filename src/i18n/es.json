@@ -172,12 +172,6 @@
     "telefono": "Teléfono celular",
     "correo": "Correo electrónico",
     "correoAyuda": "Aquí te enviaremos tu código de entrada.",
-    "zona": "¿De dónde nos visitas? (opcional)",
-    "zonaSinResponder": "Prefiero no decirlo",
-    "zonaOtra": "Otro lugar",
-    "zonaOtraEtiqueta": "¿De dónde?",
-    "zonaAyuda": "Nos ayuda a saber a qué zonas estamos llegando.",
-    "privacidad": "Usamos tus datos solo para organizar la entrega y preparar reportes del programa. No se comparten con nadie más.",
     "confirmar": "Confirmar mi cita",
     "enviando": "Apartando tu lugar…",
     "errores": {
@@ -198,7 +192,19 @@
       "DIA_CERRADO": "Este día ya no acepta registros.",
       "APELLIDOS_REQUERIDOS": "Faltan tus apellidos.",
       "NOMBRE_INVALIDO": "El nombre y los apellidos no llevan números.",
-      "TELEFONO_INVALIDO": "Revisa tu teléfono: el número no está completo o tiene algo de más."
+      "TELEFONO_INVALIDO": "Revisa tu teléfono: el número no está completo o tiene algo de más.",
+      "PAIS_INVALIDO": "Elige México o Estados Unidos.",
+      "CODIGO_POSTAL_REQUERIDO": "Falta el código postal.",
+      "CODIGO_POSTAL_INVALIDO": "El código postal lleva 5 números.",
+      "CODIGO_POSTAL_NO_EXISTE": "No encontramos ese código postal en California ni en Baja California.",
+      "COLONIA_REQUERIDA": "Elige tu colonia.",
+      "COLONIA_INVALIDA": "Esa colonia no es de ese código postal.",
+      "CALLE_REQUERIDA": "Falta la calle.",
+      "CALLE_INVALIDA": "Revisa el nombre de la calle.",
+      "NUMERO_REQUERIDO": "Falta el número de la casa.",
+      "NUMERO_INVALIDO": "Revisa el número de la casa.",
+      "NUMERO_INTERIOR_INVALIDO": "Revisa el número interior o de apartamento.",
+      "CONSENTIMIENTO_REQUERIDO": "Falta confirmar que compartes tu información por tu propia voluntad."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
@@ -725,5 +731,71 @@
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar."
     }
+  },
+  "domicilio": {
+    "titulo": "Tu domicilio",
+    "tituloPanel": "Domicilio de la persona",
+    "zona": "Aceptamos domicilios de California (Estados Unidos) y de Baja California (México).",
+    "pais": "País del domicilio",
+    "paises": {
+      "MX": "México",
+      "US": "Estados Unidos"
+    },
+    "codigoPostal": {
+      "MX": "Código postal",
+      "US": "ZIP code (código postal)"
+    },
+    "buscando": "Buscando el código postal…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia",
+    "coloniaOpcional": "Colonia (opcional)",
+    "elegirColonia": "Elige tu colonia",
+    "calle": {
+      "MX": "Calle",
+      "US": "Calle"
+    },
+    "numero": {
+      "MX": "Número",
+      "US": "Número"
+    },
+    "interior": {
+      "MX": "Interior (opcional)",
+      "US": "Apt. (opcional)"
+    },
+    "sinDomicilio": "No tengo domicilio fijo",
+    "sinDomicilioAyuda": "Por ejemplo, si vives en tu carro o con familiares por temporada. Solo pedimos tu código postal.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Falta el código postal.",
+        "FORMATO": "El código postal lleva 5 números.",
+        "NO_EXISTE": "No encontramos ese código postal en California ni en Baja California. Revísalo.",
+        "BUSCANDO": "Espera un momento: estamos revisando el código postal."
+      },
+      "colonia": {
+        "VACIO": "Elige tu colonia de la lista.",
+        "NO_COINCIDE": "Esa colonia no es de ese código postal. Elígela de la lista."
+      },
+      "calle": {
+        "VACIO": "Falta la calle.",
+        "SIN_LETRAS": "Escribe el nombre de la calle.",
+        "LARGO": "El nombre de la calle es demasiado largo."
+      },
+      "numero": {
+        "VACIO": "Falta el número.",
+        "FORMATO": "Escribe el número de la casa, por ejemplo 4250 o 12-B.",
+        "FORMATO_MX": "Escribe el número, por ejemplo 1234 o 12-B. Si no tiene, escribe S/N."
+      },
+      "interior": {
+        "FORMATO": "Usa solo letras y números, por ejemplo 5 o B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Tu información es privada",
+    "texto": "Solo la usamos para el registro interno de Cajita de Bendición y para organizar la entrega. No la compartimos con nadie, tampoco con las autoridades.",
+    "casilla": "Confirmo que comparto esta información por mi propia voluntad.",
+    "casillaPanel": "La persona me confirmó que comparte su información por su propia voluntad.",
+    "falta": "Para registrarte, marca la casilla de confirmación.",
+    "faltaPanel": "Marca la casilla: la persona debe confirmar que comparte su información."
   }
 }

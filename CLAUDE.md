@@ -188,8 +188,17 @@ migración, la validación en pantalla, y sus pruebas.
 ## Seguridad y privacidad
 
 - Parte de la comunidad atendida tiene estatus migratorio delicado. Recopilar
-  solo lo necesario, dejar campos opcionales donde se pueda, y decir con
-  claridad que la información no se comparte con autoridades.
+  solo lo necesario y decir con claridad que la información no se comparte con
+  autoridades (aviso de privacidad en el registro).
+- **Domicilio obligatorio** (decisión del Pastor David, 15 sep 2026): México o
+  Estados Unidos, revisado contra el catálogo de códigos postales de California
+  y Baja California (tabla `codigos_postales`, datos de GeoNames, CC BY 4.0).
+  Sin API de mapas: las direcciones no salen de la base. Quien no tiene
+  domicilio fijo marca la casilla y basta su código postal. Quien se registró
+  antes de pedir domicilio se respeta tal cual: conserva su zona en `ciudad`,
+  su `pais` queda vacío, y su cita y su QR funcionan igual.
+- **Consentimiento**: la casilla "comparto esta información por mi voluntad"
+  es obligatoria, también desde el panel, y se guarda `acepto_privacidad_en`.
 - La `anon key` de Supabase es pública por diseño, va en el frontend sin
   problema. La **`service_role key` nunca** debe estar en el repo ni llegar al
   navegador: se salta todas las reglas de seguridad. Si hace falta una

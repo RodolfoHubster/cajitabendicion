@@ -9,7 +9,8 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-15-historial-y-reportes.sql.
+--  Requiere todas las migraciones, hasta 2026-09-15-domicilio-y-privacidad.sql.
+--  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
 --  cuenta con rol admin de la tabla personal. Si no hay ninguna, se omiten
@@ -117,39 +118,58 @@ begin
     $b$
   $f$;
 
-  --  Arma la llamada al registro publico con datos correctos por defecto.
+  --  Arma la llamada al registro publico con datos correctos por defecto,
+  --  domicilio incluido (92105, San Diego) y el aviso de privacidad aceptado.
   execute $f$
     create function pg_temp.registro(
-      p_bloque      uuid,
-      p_codigo      text default null,
-      p_dispositivo text default null,
-      p_nombre      text default 'María',
-      p_apellidos   text default 'Pérez',
-      p_telefono    text default '+16195551234',
-      p_email       text default 'maria@gmail.com'
+      p_bloque        uuid,
+      p_codigo        text    default null,
+      p_dispositivo   text    default null,
+      p_nombre        text    default 'María',
+      p_apellidos     text    default 'Pérez',
+      p_telefono      text    default '+16195551234',
+      p_email         text    default 'maria@gmail.com',
+      p_pais          text    default 'US',
+      p_cp            text    default '92105',
+      p_colonia       text    default null,
+      p_calle         text    default 'El Cajon Blvd',
+      p_numero        text    default '4250',
+      p_interior      text    default null,
+      p_sin_domicilio boolean default false,
+      p_acepto        boolean default true
     )
     returns text language sql as $b$
       select format(
         'select * from registrar_y_reservar(p_nombre => %L, p_apellidos => %L, p_telefono => %L, '
-        'p_bloque_id => %L::uuid, p_email => %L, p_dispositivo => %L, p_codigo_anticipado => %L)',
-        p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_dispositivo, p_codigo);
+        'p_bloque_id => %L::uuid, p_email => %L, p_dispositivo => %L, p_codigo_anticipado => %L, '
+        'p_pais => %L, p_codigo_postal => %L, p_colonia => %L, p_calle => %L, p_numero => %L, '
+        'p_numero_interior => %L, p_sin_domicilio => %L::boolean, p_acepto_privacidad => %L::boolean)',
+        p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_dispositivo, p_codigo,
+        p_pais, p_cp, p_colonia, p_calle, p_numero, p_interior, p_sin_domicilio, p_acepto);
     $b$
   $f$;
 
-  --  Arma la llamada al registro desde el panel.
+  --  Arma la llamada al registro desde el panel (domicilio en Tijuana).
   execute $f$
     create function pg_temp.panel(
       p_bloque    uuid,
-      p_nombre    text default 'José',
-      p_apellidos text default 'Ramírez',
-      p_telefono  text default '+526641234567',
-      p_email     text default null
+      p_nombre    text    default 'José',
+      p_apellidos text    default 'Ramírez',
+      p_telefono  text    default '+526641234567',
+      p_email     text    default null,
+      p_pais      text    default 'MX',
+      p_cp        text    default '22000',
+      p_colonia   text    default 'Zona Centro',
+      p_calle     text    default 'Av. Revolución',
+      p_numero    text    default '1234',
+      p_acepto    boolean default true
     )
     returns text language sql as $b$
       select format(
         'select * from registrar_desde_panel(p_nombre => %L, p_apellidos => %L, p_telefono => %L, '
-        'p_bloque_id => %L::uuid, p_email => %L)',
-        p_nombre, p_apellidos, p_telefono, p_bloque, p_email);
+        'p_bloque_id => %L::uuid, p_email => %L, p_pais => %L, p_codigo_postal => %L, p_colonia => %L, '
+        'p_calle => %L, p_numero => %L, p_acepto_privacidad => %L::boolean)',
+        p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_pais, p_cp, p_colonia, p_calle, p_numero, p_acepto);
     $b$
   $f$;
 
@@ -189,6 +209,12 @@ begin
   insert into bloques (fecha, hora, capacidad) values (v_cerrada, '14:00', 50) returning id into v_b_cerrada;
   insert into bloques (fecha, hora, capacidad) values (v_pasada, '14:00', 50) returning id into v_b_pasada;
 
+  --  Codigos postales de prueba, por si el catalogo real todavia no se carga.
+  insert into codigos_postales (pais, codigo, colonia, ciudad, municipio, estado) values
+    ('US', '92105', null,          'San Diego', 'San Diego', 'California'),
+    ('MX', '22000', 'Zona Centro', 'Tijuana',   'Tijuana',   'Baja California'),
+    ('MX', '22000', 'Zona Norte',  'Tijuana',   'Tijuana',   'Baja California');
+
   -- ==========================================================
   --  1. Registro publico: datos de la persona
   -- ==========================================================
@@ -222,6 +248,88 @@ begin
     pg_temp.registro(v_b_lunes, p_email => 'maria@gmail'), 'EMAIL_INVALIDO');
   perform pg_temp.esperar_error('Registro: correo con espacio',
     pg_temp.registro(v_b_lunes, p_email => 'maria @gmail.com'), 'EMAIL_INVALIDO');
+
+  -- ==========================================================
+  --  1b. Registro publico: domicilio y aviso de privacidad
+  -- ==========================================================
+  perform pg_temp.esperar_error('Domicilio: sin aceptar el aviso de privacidad no se registra',
+    pg_temp.registro(v_b_lunes, p_acepto => false), 'CONSENTIMIENTO_REQUERIDO');
+  perform pg_temp.esperar_error('Domicilio: solo México o Estados Unidos',
+    pg_temp.registro(v_b_lunes, p_pais => 'CA'), 'PAIS_INVALIDO');
+  perform pg_temp.esperar_error('Domicilio: sin código postal',
+    pg_temp.registro(v_b_lunes, p_cp => ' '), 'CODIGO_POSTAL_REQUERIDO');
+  perform pg_temp.esperar_error('Domicilio: código postal con letras',
+    pg_temp.registro(v_b_lunes, p_cp => '92A05'), 'CODIGO_POSTAL_INVALIDO');
+  perform pg_temp.esperar_error('Domicilio: código postal que no está en el catálogo',
+    pg_temp.registro(v_b_lunes, p_cp => '00000'), 'CODIGO_POSTAL_NO_EXISTE');
+  perform pg_temp.esperar_error('Domicilio: un código de México no sirve como ZIP de Estados Unidos',
+    pg_temp.registro(v_b_lunes, p_pais => 'US', p_cp => '22000'), 'CODIGO_POSTAL_NO_EXISTE');
+  perform pg_temp.esperar_error('Domicilio: sin calle',
+    pg_temp.registro(v_b_lunes, p_calle => '  '), 'CALLE_REQUERIDA');
+  perform pg_temp.esperar_error('Domicilio: una calle que es un punto',
+    pg_temp.registro(v_b_lunes, p_calle => '.'), 'CALLE_INVALIDA');
+  perform pg_temp.esperar_error('Domicilio: una calle de la misma letra repetida',
+    pg_temp.registro(v_b_lunes, p_calle => 'aaaaa'), 'CALLE_INVALIDA');
+  perform pg_temp.esperar_error('Domicilio: sin número',
+    pg_temp.registro(v_b_lunes, p_numero => ''), 'NUMERO_REQUERIDO');
+  perform pg_temp.esperar_error('Domicilio: número sin dígitos',
+    pg_temp.registro(v_b_lunes, p_numero => 'abc'), 'NUMERO_INVALIDO');
+  perform pg_temp.esperar_error('Domicilio: "S/N" solo se acepta en México',
+    pg_temp.registro(v_b_lunes, p_numero => 'S/N'), 'NUMERO_INVALIDO');
+  perform pg_temp.esperar_error('Domicilio: interior con símbolos',
+    pg_temp.registro(v_b_lunes, p_interior => '5; x'), 'NUMERO_INTERIOR_INVALIDO');
+  perform pg_temp.esperar_error('Domicilio: en México hay que elegir la colonia',
+    pg_temp.registro(v_b_lunes, p_pais => 'MX', p_cp => '22000'), 'COLONIA_REQUERIDA');
+  perform pg_temp.esperar_error('Domicilio: una colonia que no es de ese código postal',
+    pg_temp.registro(v_b_lunes, p_pais => 'MX', p_cp => '22000', p_colonia => 'Colonia Inventada'),
+    'COLONIA_INVALIDA');
+  perform pg_temp.esperar_ok('Domicilio: en México, "s/n" como número',
+    pg_temp.registro(v_b_lunes, p_pais => 'MX', p_cp => '22000', p_colonia => 'Zona Norte', p_numero => 's/n',
+                     p_telefono => '+526641110001'));
+  perform pg_temp.esperar_ok('Domicilio: sin domicilio fijo, basta el código postal',
+    pg_temp.registro(v_b_lunes, p_sin_domicilio => true, p_calle => null, p_numero => null,
+                     p_telefono => '+16195550199'));
+
+  select count(*) into v_numero from personas p
+   where p.telefono = '+16195550199' and p.sin_domicilio and p.codigo_postal = '92105'
+     and p.ciudad = 'San Diego' and p.calle is null and p.direccion like 'Sin domicilio fijo%'
+     and p.acepto_privacidad_en is not null;
+  perform pg_temp.comprobar('Domicilio: sin domicilio fijo queda marcado, con su ciudad y cuándo aceptó el aviso',
+    v_numero = 1, v_numero::text);
+
+  select count(*) into v_numero from personas p
+   where p.telefono = '+526641110001' and p.numero_exterior = 'S/N' and p.colonia = 'Zona Norte';
+  perform pg_temp.comprobar('Domicilio: el número "s/n" se guarda como S/N', v_numero = 1, v_numero::text);
+
+  select count(*) into v_numero from buscar_codigo_postal(' mx ', ' 22000 ') b
+   where b.colonia = 'Zona Centro' and b.ciudad = 'Tijuana';
+  perform pg_temp.comprobar('Domicilio: el formulario encuentra las colonias de un código postal',
+    v_numero = 1, v_numero::text);
+  select count(*) into v_numero from buscar_codigo_postal('US', '00000');
+  perform pg_temp.comprobar('Domicilio: un código que no existe no devuelve nada', v_numero = 0, v_numero::text);
+
+  -- ==========================================================
+  --  1c. Quien se registro antes de pedir domicilio
+  -- ==========================================================
+  --  Asi quedaron los registros de antes: zona en "ciudad", sin pais ni direccion.
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, email, ciudad)
+  values ('CB-PRA1', 'Prueba Antes Domicilio', 'Prueba', 'Antes Domicilio', '+16195550111', 'antes@gmail.com', 'Chula Vista')
+  returning id into v_persona;
+  select (reservar_cita(v_persona, v_b_jueves)).token_qr into v_token_otro;
+
+  perform pg_temp.comprobar('Antes del domicilio: la persona sigue igual (su zona, sin país ni dirección)',
+    exists (select 1 from personas p
+             where p.id = v_persona and p.ciudad = 'Chula Vista' and p.pais is null
+               and p.direccion is null and not p.sin_domicilio and p.acepto_privacidad_en is null));
+
+  select nombre into v_texto from consultar_cita(v_token_otro);
+  perform pg_temp.comprobar('Antes del domicilio: su enlace de confirmación sigue funcionando',
+    v_texto = 'Prueba Antes Domicilio', coalesce(v_texto, 'no encontró la cita'));
+
+  perform pg_temp.esperar_ok('Antes del domicilio: registrar a alguien nuevo (con domicilio) no le cambia nada',
+    pg_temp.registro(v_b_jueves, p_telefono => '+16195550113'));
+  perform pg_temp.comprobar('Antes del domicilio: después de registros nuevos, su zona sigue ahí',
+    (select ciudad from personas where id = v_persona) = 'Chula Vista');
 
   -- ==========================================================
   --  2. Registro publico: horario y fecha
@@ -261,7 +369,9 @@ begin
     select r.token_qr into v_token
       from registrar_y_reservar(p_nombre => '  maría   josé ', p_apellidos => 'Pérez   López',
                                 p_telefono => '+526641234567', p_bloque_id => v_b_lunes,
-                                p_email => ' maria@gmail.com ') r;
+                                p_email => ' maria@gmail.com ', p_pais => 'mx', p_codigo_postal => ' 22000 ',
+                                p_colonia => 'zona  centro', p_calle => '  Av.   Revolución ', p_numero => '1234-b',
+                                p_numero_interior => '5', p_acepto_privacidad => true) r;
     perform pg_temp.comprobar('Registro: fecha abierta, sin código, entra', v_token is not null);
   exception when others then
     perform pg_temp.comprobar('Registro: fecha abierta, sin código, entra', false, sqlerrm);
@@ -278,6 +388,18 @@ begin
     v_nombre = 'maría josé Pérez López', v_nombre);
   perform pg_temp.comprobar('Registro: guarda el teléfono internacional y el correo sin espacios',
     v_telefono = '+526641234567' and v_email = 'maria@gmail.com', format('%s | %s', v_telefono, v_email));
+
+  select p.* into v_fila from citas c join personas p on p.id = c.persona_id where c.token_qr = v_token;
+  perform pg_temp.comprobar('Registro: guarda el domicilio con la colonia y la ciudad del catálogo',
+    v_fila.pais = 'MX' and v_fila.codigo_postal = '22000' and v_fila.colonia = 'Zona Centro'
+    and v_fila.ciudad = 'Tijuana' and v_fila.estado = 'Baja California' and v_fila.calle = 'Av. Revolución'
+    and v_fila.numero_exterior = '1234-B' and v_fila.numero_interior = '5' and not v_fila.sin_domicilio,
+    format('%s | %s | %s | %s | %s | %s | %s', v_fila.pais, v_fila.codigo_postal, v_fila.colonia,
+           v_fila.ciudad, v_fila.calle, v_fila.numero_exterior, v_fila.numero_interior));
+  perform pg_temp.comprobar('Registro: arma la dirección completa y guarda cuándo aceptó el aviso',
+    v_fila.direccion = 'Av. Revolución 1234-B Int. 5, Zona Centro, 22000 Tijuana, Baja California, México'
+    and v_fila.acepto_privacidad_en is not null,
+    v_fila.direccion);
 
   select nombre into v_texto from consultar_cita(v_token);
   perform pg_temp.comprobar('Confirmación: consultar_cita devuelve el nombre completo',
@@ -513,6 +635,10 @@ begin
       pg_temp.panel(v_b_lunes, p_apellidos => ''), 'APELLIDOS_REQUERIDOS');
     perform pg_temp.esperar_error('Panel: correo mal escrito',
       pg_temp.panel(v_b_lunes, p_email => 'jose@'), 'EMAIL_INVALIDO');
+    perform pg_temp.esperar_error('Panel: también pide que la persona confirme el aviso de privacidad',
+      pg_temp.panel(v_b_lunes, p_acepto => false), 'CONSENTIMIENTO_REQUERIDO');
+    perform pg_temp.esperar_error('Panel: también revisa el código postal contra el catálogo',
+      pg_temp.panel(v_b_lunes, p_cp => '00000'), 'CODIGO_POSTAL_NO_EXISTE');
 
     -- ---------- Escaneo ----------
     if not exists (select 1 from dias_entrega where fecha = v_hoy) then
@@ -544,6 +670,18 @@ begin
     perform pg_temp.comprobar('Escaneo: el admin autoriza otro día sin código', v_texto = 'VALIDO_AUTORIZADO', v_texto);
     select resultado into v_texto from registrar_entrega_autorizada(v_token_otro, null);
     perform pg_temp.comprobar('Escaneo: autorizado tampoco entrega dos veces', v_texto = 'YA_USADO', v_texto);
+
+    --  Alguien que se registro antes de pedir domicilio llega hoy a recoger.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, ciudad)
+    values ('CB-PRA2', 'Prueba Antes Escaneo', 'Prueba', 'Antes Escaneo', '+16195550112', 'San Ysidro')
+    returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_hoy)).token_qr into v_token;
+    select resultado into v_texto from registrar_entrega(v_token);
+    perform pg_temp.comprobar('Antes del domicilio: quien se registró sin dirección sí recibe su caja',
+      v_texto = 'VALIDO', v_texto);
+    select count(*) into v_numero from citas_del_dia(v_hoy) c
+     where c.codigo_corto = 'CB-PRA2' and c.ciudad = 'San Ysidro' and c.estado = 'entregada';
+    perform pg_temp.comprobar('Antes del domicilio: sale en la lista del día con su zona', v_numero = 1, v_numero::text);
 
     -- ---------- Entraron sin cita ----------
     select sin_cita into v_numero from resumen_del_dia(null);

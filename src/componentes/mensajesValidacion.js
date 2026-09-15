@@ -29,3 +29,10 @@ export function mensajeTelefono(t, resultado, idioma) {
 
   return t(`validacion.telefono.${error}`, { pais: nombrePais(pais, idioma), digitos, llevan, max })
 }
+
+/** Los codigos de validarDomicilio() -> { campo: mensaje }. */
+export function mensajesDomicilio(t, errores) {
+  return Object.fromEntries(
+    Object.entries(errores).map(([campo, codigo]) => [campo, t(`domicilio.errores.${campo}.${codigo}`)]),
+  )
+}

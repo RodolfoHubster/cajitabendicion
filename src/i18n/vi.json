@@ -176,12 +176,6 @@
     "telefono": "Số điện thoại di động",
     "correo": "Email",
     "correoAyuda": "Chúng tôi sẽ gửi mã vào cửa cho bạn qua email này.",
-    "zona": "Bạn đến từ khu vực nào? (không bắt buộc)",
-    "zonaSinResponder": "Tôi không muốn trả lời",
-    "zonaOtra": "Nơi khác",
-    "zonaOtraEtiqueta": "Từ đâu?",
-    "zonaAyuda": "Giúp chúng tôi biết mình đang phục vụ những khu vực nào.",
-    "privacidad": "Chúng tôi chỉ dùng thông tin của bạn để tổ chức buổi phát hàng và làm báo cáo cho chương trình. Thông tin không được chia sẻ với bất kỳ ai khác.",
     "confirmar": "Xác nhận lịch hẹn",
     "enviando": "Đang giữ chỗ cho bạn…",
     "errores": {
@@ -202,7 +196,19 @@
       "DIA_CERRADO": "Ngày này không còn nhận đăng ký.",
       "APELLIDOS_REQUERIDOS": "Bạn chưa nhập họ.",
       "NOMBRE_INVALIDO": "Tên và họ không được có số.",
-      "TELEFONO_INVALIDO": "Hãy kiểm tra số điện thoại: số chưa đủ hoặc thừa ký tự."
+      "TELEFONO_INVALIDO": "Hãy kiểm tra số điện thoại: số chưa đủ hoặc thừa ký tự.",
+      "PAIS_INVALIDO": "Hãy chọn Mexico hoặc Hoa Kỳ.",
+      "CODIGO_POSTAL_REQUERIDO": "Thiếu mã bưu chính.",
+      "CODIGO_POSTAL_INVALIDO": "Mã bưu chính gồm 5 chữ số.",
+      "CODIGO_POSTAL_NO_EXISTE": "Không tìm thấy mã bưu chính này ở California hoặc Baja California.",
+      "COLONIA_REQUERIDA": "Hãy chọn khu phố của bạn.",
+      "COLONIA_INVALIDA": "Khu phố này không thuộc mã bưu chính đó.",
+      "CALLE_REQUERIDA": "Thiếu tên đường.",
+      "CALLE_INVALIDA": "Hãy kiểm tra lại tên đường.",
+      "NUMERO_REQUERIDO": "Thiếu số nhà.",
+      "NUMERO_INVALIDO": "Hãy kiểm tra lại số nhà.",
+      "NUMERO_INTERIOR_INVALIDO": "Hãy kiểm tra lại số căn hộ hoặc số phòng.",
+      "CONSENTIMIENTO_REQUERIDO": "Hãy xác nhận rằng bạn tự nguyện chia sẻ thông tin."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
@@ -723,5 +729,71 @@
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể tải báo cáo. Vui lòng thử lại."
     }
+  },
+  "domicilio": {
+    "titulo": "Địa chỉ nhà của bạn",
+    "tituloPanel": "Địa chỉ nhà của người đó",
+    "zona": "Chúng tôi nhận địa chỉ ở California (Hoa Kỳ) và Baja California (Mexico).",
+    "pais": "Quốc gia của địa chỉ",
+    "paises": {
+      "MX": "Mexico",
+      "US": "Hoa Kỳ"
+    },
+    "codigoPostal": {
+      "MX": "Mã bưu chính (código postal)",
+      "US": "Mã ZIP"
+    },
+    "buscando": "Đang tra mã bưu chính…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Khu phố (colonia)",
+    "coloniaOpcional": "Khu phố (không bắt buộc)",
+    "elegirColonia": "Chọn khu phố của bạn",
+    "calle": {
+      "MX": "Đường",
+      "US": "Đường"
+    },
+    "numero": {
+      "MX": "Số nhà",
+      "US": "Số nhà"
+    },
+    "interior": {
+      "MX": "Số phòng (không bắt buộc)",
+      "US": "Căn hộ (không bắt buộc)"
+    },
+    "sinDomicilio": "Tôi không có địa chỉ cố định",
+    "sinDomicilioAyuda": "Ví dụ: nếu bạn sống trong xe hoặc tạm ở nhà người thân. Chúng tôi chỉ hỏi mã bưu chính của bạn.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Thiếu mã bưu chính.",
+        "FORMATO": "Mã bưu chính gồm 5 chữ số.",
+        "NO_EXISTE": "Không tìm thấy mã bưu chính này ở California hoặc Baja California. Hãy kiểm tra lại.",
+        "BUSCANDO": "Vui lòng chờ: chúng tôi đang kiểm tra mã bưu chính."
+      },
+      "colonia": {
+        "VACIO": "Hãy chọn khu phố trong danh sách.",
+        "NO_COINCIDE": "Khu phố này không thuộc mã bưu chính đó. Hãy chọn trong danh sách."
+      },
+      "calle": {
+        "VACIO": "Thiếu tên đường.",
+        "SIN_LETRAS": "Hãy viết tên đường.",
+        "LARGO": "Tên đường quá dài."
+      },
+      "numero": {
+        "VACIO": "Thiếu số nhà.",
+        "FORMATO": "Hãy viết số nhà, ví dụ 4250 hoặc 12-B.",
+        "FORMATO_MX": "Hãy viết số nhà, ví dụ 1234 hoặc 12-B. Nếu không có, viết S/N."
+      },
+      "interior": {
+        "FORMATO": "Chỉ dùng chữ và số, ví dụ 5 hoặc B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Thông tin của bạn được giữ riêng tư",
+    "texto": "Chúng tôi chỉ dùng thông tin này cho hồ sơ nội bộ của Cajita de Bendición và để tổ chức buổi phát. Chúng tôi không chia sẻ với bất kỳ ai, kể cả cơ quan chức năng.",
+    "casilla": "Tôi xác nhận rằng tôi tự nguyện chia sẻ thông tin này.",
+    "casillaPanel": "Người này đã xác nhận với tôi rằng họ tự nguyện chia sẻ thông tin.",
+    "falta": "Để đăng ký, hãy đánh dấu ô xác nhận.",
+    "faltaPanel": "Hãy đánh dấu ô: người này cần xác nhận rằng họ tự nguyện chia sẻ thông tin."
   }
 }

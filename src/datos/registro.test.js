@@ -22,7 +22,16 @@ const PERSONA = {
   apellidos: 'Pérez López',
   telefono: '+526641234567',
   email: 'maria@gmail.com',
-  ciudad: 'Tijuana',
+  domicilio: {
+    pais: 'MX',
+    codigoPostal: ' 22000 ',
+    colonia: 'Zona Centro',
+    calle: ' Av.  Revolución ',
+    numero: '1234-b',
+    interior: '',
+    sinDomicilio: false,
+  },
+  aceptoPrivacidad: true,
   bloqueId: 'bloque-1',
   fecha: '2026-09-14',
 }
@@ -69,7 +78,14 @@ describe('registrarYReservar', () => {
       p_telefono: '+526641234567',
       p_bloque_id: 'bloque-1',
       p_email: 'maria@gmail.com',
-      p_ciudad: 'Tijuana',
+      p_pais: 'MX',
+      p_codigo_postal: '22000',
+      p_colonia: 'Zona Centro',
+      p_calle: 'Av. Revolución',
+      p_numero: '1234-B',
+      p_numero_interior: null,
+      p_sin_domicilio: false,
+      p_acepto_privacidad: true,
       p_dispositivo: obtenerDispositivo(),
       p_codigo_anticipado: null,
     })
@@ -93,12 +109,31 @@ describe('registrarYReservar', () => {
     expect(supabase.rpc.mock.calls[0][1].p_codigo_anticipado).toBeNull()
   })
 
-  it('correo y zona vacios van como null', async () => {
+  it('el correo vacio va como null', async () => {
     supabase.rpc.mockResolvedValue({ data: [{}], error: null })
 
-    await registrarYReservar({ ...PERSONA, email: '', ciudad: '' })
+    await registrarYReservar({ ...PERSONA, email: '' })
 
-    expect(supabase.rpc.mock.calls[0][1]).toMatchObject({ p_email: null, p_ciudad: null })
+    expect(supabase.rpc.mock.calls[0][1]).toMatchObject({ p_email: null })
+  })
+
+  it('sin domicilio fijo solo manda el codigo postal; sin la casilla, el consentimiento va en false', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{}], error: null })
+
+    await registrarYReservar({
+      ...PERSONA,
+      domicilio: { ...PERSONA.domicilio, sinDomicilio: true },
+      aceptoPrivacidad: undefined,
+    })
+
+    expect(supabase.rpc.mock.calls[0][1]).toMatchObject({
+      p_codigo_postal: '22000',
+      p_sin_domicilio: true,
+      p_calle: null,
+      p_numero: null,
+      p_numero_interior: null,
+      p_acepto_privacidad: false,
+    })
   })
 
   it('acepta la respuesta como objeto suelto', async () => {
