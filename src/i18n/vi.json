@@ -159,7 +159,7 @@
     "cancelando": "Đang hủy…",
     "canceladaTitulo": "Lịch hẹn của bạn đã được hủy",
     "canceladaTexto": "Chỗ của bạn đã được trả lại. Nếu cần, bạn có thể đăng ký lại.",
-    "registrarOtra": "Đăng ký lại"
+    "registrarOtra": "Đặt lịch hẹn lại"
   },
   "registro": {
     "cargando": "Đang chuẩn bị đăng ký…",
@@ -248,7 +248,7 @@
     "proximaFecha": "Ngày gần nhất còn trống",
     "horariosLibres_other": "{{count}} khung giờ còn trống",
     "sinProxima": "Hiện chưa có ngày nào mở. Vui lòng quay lại sau.",
-    "elegir": "Xem buổi phát hàng tiếp theo",
+    "elegir": "Đặt lịch hẹn tại đây",
     "gratuito": "Thực phẩm hoàn toàn miễn phí. Không cần quyên góp.",
     "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng."
   },
@@ -273,7 +273,10 @@
     "apoya": "Ủng hộ Cajita de Bendición",
     "redes": {
       "facebookDespensa": "Facebook của Cajita de Bendición",
-      "facebookIglesia": "Facebook của nhà thờ"
+      "facebookIglesia": "Facebook của nhà thờ",
+      "tiktokCajita": "TikTok của Cajita de Bendición",
+      "instagramIglesia": "Instagram của nhà thờ",
+      "tiktokIglesia": "TikTok của nhà thờ"
     }
   },
   "donar": {
@@ -467,10 +470,10 @@
     "faltan": "Còn {{tiempo}}",
     "suscriptoresDesde": "Người theo dõi trên Facebook được đăng ký từ {{cuando}}.",
     "suscriptoresAhora": "Người theo dõi trên Facebook đã có thể đăng ký bằng mã.",
-    "conCodigo": "Đăng ký bằng mã người theo dõi Facebook",
-    "registrarme": "Đăng ký",
+    "conCodigo": "Đặt lịch hẹn cho người theo dõi Facebook",
+    "registrarme": "Đặt lịch hẹn",
     "sinLugares": "Hết chỗ",
-    "seActivara": "Nút «Đăng ký» sẽ tự bật khi đến giờ mở.",
+    "seActivara": "Nút «Đặt lịch hẹn» sẽ tự bật vào giờ mở đăng ký.",
     "sinFechas": "Hiện chưa có buổi phát hàng nào. Vui lòng quay lại sau.",
     "tiempo": {
       "dias_other": "{{count}} ngày",
@@ -486,7 +489,7 @@
     "ahora": "Bạn đã có thể dùng mã để đăng ký trước công chúng.",
     "sinAnticipado": "Buổi phát hàng này không có đăng ký sớm cho người theo dõi.",
     "yaAbierto": "Đăng ký đã mở cho mọi người: bạn không cần mã.",
-    "irRegistro": "Đi đến đăng ký",
+    "irRegistro": "Đi đặt lịch hẹn",
     "codigo": "Mã người theo dõi",
     "entrar": "Vào bằng mã của tôi",
     "validando": "Đang kiểm tra…",

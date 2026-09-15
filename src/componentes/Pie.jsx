@@ -30,12 +30,27 @@ export default function Pie() {
     )
   }
 
-  const redes = [
-    { href: ORGANIZACION.redes.facebookDespensa, etiqueta: t('pie.redes.facebookDespensa'), Icono: FaFacebook },
-    { href: ORGANIZACION.redes.facebookIglesia, etiqueta: t('pie.redes.facebookIglesia'), Icono: FaFacebook },
-    { href: ORGANIZACION.redes.instagram, etiqueta: 'Instagram', Icono: FaInstagram },
-    { href: ORGANIZACION.redes.tiktok, etiqueta: 'TikTok', Icono: FaTiktok },
-  ].filter((red) => red.href)
+  // Agrupadas por cuenta: hay dos Facebook y dos TikTok, y un icono solo no
+  // dice de quien es. Un enlace vacio no se muestra.
+  const grupos = [
+    {
+      nombre: ORGANIZACION.programa,
+      redes: [
+        { href: ORGANIZACION.redes.facebookDespensa, etiqueta: t('pie.redes.facebookDespensa'), Icono: FaFacebook },
+        { href: ORGANIZACION.redes.tiktokCajita, etiqueta: t('pie.redes.tiktokCajita'), Icono: FaTiktok },
+      ],
+    },
+    {
+      nombre: ORGANIZACION.iglesia,
+      redes: [
+        { href: ORGANIZACION.redes.facebookIglesia, etiqueta: t('pie.redes.facebookIglesia'), Icono: FaFacebook },
+        { href: ORGANIZACION.redes.instagramIglesia, etiqueta: t('pie.redes.instagramIglesia'), Icono: FaInstagram },
+        { href: ORGANIZACION.redes.tiktokIglesia, etiqueta: t('pie.redes.tiktokIglesia'), Icono: FaTiktok },
+      ],
+    },
+  ]
+    .map((grupo) => ({ ...grupo, redes: grupo.redes.filter((red) => red.href) }))
+    .filter((grupo) => grupo.redes.length > 0)
 
   const apoyos = [
     { href: ORGANIZACION.apoyo.paypal, texto: t('donar.paypal'), Icono: FaPaypal },
@@ -109,24 +124,31 @@ export default function Pie() {
         </section>
 
         <section>
-          {redes.length > 0 && (
+          {grupos.length > 0 && (
             <>
               <h2 className="font-titulo text-lg font-bold">{t('pie.siguenos')}</h2>
-              <ul className="mt-3 flex flex-wrap gap-3">
-                {redes.map(({ href, etiqueta, Icono }) => (
-                  <li key={href}>
-                    <a
-                      aria-label={etiqueta}
-                      className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 transition hover:bg-accion hover:text-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"
-                      href={href}
-                      title={etiqueta}
-                      {...EXTERNO}
-                    >
-                      <Icono aria-hidden="true" className="h-6 w-6" />
-                    </a>
-                  </li>
+              <div className="mt-3 space-y-4">
+                {grupos.map(({ nombre, redes }) => (
+                  <div key={nombre}>
+                    <p className="text-base text-white/80">{nombre}</p>
+                    <ul className="mt-2 flex flex-wrap gap-3">
+                      {redes.map(({ href, etiqueta, Icono }) => (
+                        <li key={href}>
+                          <a
+                            aria-label={etiqueta}
+                            className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 transition hover:bg-accion hover:text-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"
+                            href={href}
+                            title={etiqueta}
+                            {...EXTERNO}
+                          >
+                            <Icono aria-hidden="true" className="h-6 w-6" />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </>
           )}
 

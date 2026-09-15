@@ -155,7 +155,7 @@
     "cancelando": "Cancelando…",
     "canceladaTitulo": "Tu cita fue cancelada",
     "canceladaTexto": "Tu lugar ya quedó libre. Si lo necesitas, puedes volver a registrarte.",
-    "registrarOtra": "Registrarme de nuevo"
+    "registrarOtra": "Hacer cita de nuevo"
   },
   "registro": {
     "cargando": "Preparando tu registro…",
@@ -246,7 +246,7 @@
     "horariosLibres_one": "{{count}} horario libre",
     "horariosLibres_other": "{{count}} horarios libres",
     "sinProxima": "Por ahora no hay fechas abiertas. Vuelve a revisar más adelante.",
-    "elegir": "Ver la próxima entrega",
+    "elegir": "Hacer cita aquí",
     "gratuito": "Los alimentos son gratuitos. No se requiere ninguna donación.",
     "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega."
   },
@@ -271,7 +271,10 @@
     "apoya": "Apoya a Cajita de Bendición",
     "redes": {
       "facebookDespensa": "Facebook de Cajita de Bendición",
-      "facebookIglesia": "Facebook de la iglesia"
+      "facebookIglesia": "Facebook de la iglesia",
+      "tiktokCajita": "TikTok de Cajita de Bendición",
+      "instagramIglesia": "Instagram de la iglesia",
+      "tiktokIglesia": "TikTok de la iglesia"
     }
   },
   "donar": {
@@ -468,10 +471,10 @@
     "faltan": "Faltan {{tiempo}}",
     "suscriptoresDesde": "Los suscriptores de Facebook pueden registrarse desde el {{cuando}}.",
     "suscriptoresAhora": "Los suscriptores de Facebook ya pueden registrarse con su código.",
-    "conCodigo": "Registrarme con código de suscriptor de Facebook",
-    "registrarme": "Registrarme",
+    "conCodigo": "Hacer cita para suscriptores de Facebook",
+    "registrarme": "Hacer cita",
     "sinLugares": "Sin lugares",
-    "seActivara": "El botón «Registrarme» se activa solo a la hora de apertura.",
+    "seActivara": "El botón «Hacer cita» se activa solo a la hora de apertura.",
     "sinFechas": "Por ahora no hay entregas programadas. Vuelve a revisar más adelante.",
     "tiempo": {
       "dias_one": "{{count}} día",
@@ -488,7 +491,7 @@
     "ahora": "Ya puedes usar tu código para registrarte antes que el público.",
     "sinAnticipado": "Esta entrega no tiene registro anticipado para suscriptores.",
     "yaAbierto": "Los registros ya están abiertos para todos: no necesitas código.",
-    "irRegistro": "Ir a registrarme",
+    "irRegistro": "Ir a hacer mi cita",
     "codigo": "Código de suscriptor",
     "entrar": "Entrar con mi código",
     "validando": "Revisando…",

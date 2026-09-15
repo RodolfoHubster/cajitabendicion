@@ -1,8 +1,9 @@
 /**
  * Datos de la organizacion, en un solo lugar.
  *
- * Cuando cambie un telefono o se abra la cuenta de Instagram, se edita
- * aqui y no hay que buscarlo pantalla por pantalla.
+ * Cuando cambie un telefono o se abra otra red social, se edita aqui y
+ * no hay que buscarlo pantalla por pantalla. Los enlaces van sin los
+ * parametros de rastreo que agregan las apps al compartir (_r, _t, stkn).
  *
  * Un enlace vacio ('') NO se muestra: es preferible no poner el icono a
  * mandar a alguien a una pagina que no existe.
@@ -34,13 +35,16 @@ export const ORGANIZACION = {
   redes: {
     facebookDespensa: 'https://www.facebook.com/DispesasCDA',
     facebookIglesia: 'https://www.facebook.com/iglesia.casa.de.alabanza.2025',
-    instagram: '', // pendiente: pegar aqui el enlace de Instagram
-    tiktok: '', // pendiente: pegar aqui el enlace de TikTok
+    tiktokCajita: 'https://www.tiktok.com/@cajita.de.bendici',
+    instagramIglesia: 'https://www.instagram.com/iglesiacasadealabanzaa',
+    tiktokIglesia: 'https://www.tiktok.com/@iglesiacasadealabanzaa',
   },
 
   apoyo: {
-    paypal:
-      'https://www.paypal.com/donate?token=Kgl75QcetyyJnsl7Nw-3_ytDfewent_bAev1kwj2Muteifbc6jjvTyvmQywyRNkwzJrx6ebHUMytY6-P',
+    // PayPal.me de la iglesia: enlace fijo, no caduca. NO pegar el enlace de
+    // la pagina a la que PayPal manda al donar (lleva un codigo de una sola
+    // sesion): caduca y luego PayPal dice que la pagina no existe.
+    paypal: 'https://www.paypal.me/IglesiaCDASD',
     // Sin los parametros de rastreo (utm, attribution_id) del enlace
     // compartido: la campana abre igual.
     gofundme: 'https://www.gofundme.com/f/support-iglesia-casa-de-alabanzas-mission',
