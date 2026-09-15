@@ -154,6 +154,7 @@
     "aNombreDe": "Under the name of",
     "unSoloUso": "This code works once and is for one box only. If someone else in your household needs one, they must register on their own.",
     "guardarImagen": "Save image",
+    "descargada": "The image was downloaded. If you don’t see it in your photos, press and hold the QR code above and choose “Save Image” or “Add to Photos”.",
     "consejoCaptura": "You can also take a screenshot of it.",
     "cancelar": "Cancel my appointment",
     "cancelarPregunta": "Are you sure you want to cancel your appointment? Your spot will be freed for someone else.",
@@ -752,11 +753,10 @@
     "elegirColonia": "Choose your colonia",
     "calle": {
       "MX": "Street",
-      "US": "Street"
+      "US": "Street address"
     },
     "numero": {
-      "MX": "Number",
-      "US": "House number"
+      "MX": "Number"
     },
     "interior": {
       "MX": "Interior (optional)",
@@ -778,6 +778,7 @@
       "calle": {
         "VACIO": "The street is missing.",
         "SIN_LETRAS": "Write the street name.",
+        "SIN_NUMERO": "Add the house number at the start, for example 7855 Lansing Dr.",
         "LARGO": "The street name is too long."
       },
       "numero": {

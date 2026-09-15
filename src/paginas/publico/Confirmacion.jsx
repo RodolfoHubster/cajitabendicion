@@ -9,6 +9,8 @@ import TarjetaDonar from '../../componentes/TarjetaDonar'
 import { consultarCita, dibujarQR } from '../../datos/cita'
 import { cancelarMiCita } from '../../datos/citas'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
+import { dibujarTarjetaCita, guardarImagen, nombreArchivoCita } from '../../datos/imagenCita'
+import { ORGANIZACION } from '../../datos/organizacion'
 import { hoyLocal } from '../../datos/panel'
 
 export default function Confirmacion() {
@@ -21,6 +23,11 @@ export default function Confirmacion() {
   const [qr, setQr] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+
+  // La tarjeta para guardar se dibuja al llegar, no al tocar el boton: el
+  // iPhone solo abre el menu de compartir si se pide en el mismo toque.
+  const [tarjeta, setTarjeta] = useState(null)
+  const [guardado, setGuardado] = useState(null)
 
   // Cancelar: primero se pregunta, y solo con el "si" se cancela.
   const [preguntando, setPreguntando] = useState(false)
@@ -55,6 +62,51 @@ export default function Confirmacion() {
       vigente = false
     }
   }, [token, state])
+
+  useEffect(() => {
+    if (!cita || !qr) return
+
+    let vigente = true
+    const idioma = i18n.language
+    const fecha = new Intl.DateTimeFormat(idioma, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      aFechaLocal(cita.fecha),
+    )
+
+    dibujarTarjetaCita({
+      qr,
+      codigo: cita.codigo_corto,
+      nombre: cita.nombre,
+      textos: {
+        programa: ORGANIZACION.programa,
+        iglesia: ORGANIZACION.iglesia,
+        lista: t('confirmacion.lista'),
+        fecha: fecha.charAt(0).toLocaleUpperCase(idioma) + fecha.slice(1),
+        hora: formatearHora(cita.hora),
+        siNoSeLee: t('confirmacion.siNoSeLee'),
+        aNombreDe: t('confirmacion.aNombreDe'),
+      },
+    })
+      .then((blob) => {
+        if (vigente) setTarjeta({ idioma, blob })
+      })
+      // Si el navegador no puede dibujarla, se guarda solo el QR.
+      .catch(() => {})
+
+    return () => {
+      vigente = false
+    }
+  }, [cita, qr, i18n.language, t])
+
+  async function guardar() {
+    setGuardado(null)
+
+    try {
+      const blob = tarjeta?.blob ?? (await (await fetch(qr)).blob())
+      setGuardado(await guardarImagen(blob, nombreArchivoCita(cita.codigo_corto)))
+    } catch {
+      setGuardado('descargada')
+    }
+  }
 
   async function cancelar() {
     setCancelando(true)
@@ -156,14 +208,20 @@ export default function Confirmacion() {
 
           <p className="mt-4 text-base text-principal/80">{t('confirmacion.unSoloUso')}</p>
 
-          <a
+          <button
             className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-principal shadow-sm transition hover:brightness-95"
-            download={`${cita.codigo_corto}.png`}
-            href={qr}
+            onClick={guardar}
+            type="button"
           >
             <LuDownload aria-hidden="true" className="h-5 w-5" />
             {t('confirmacion.guardarImagen')}
-          </a>
+          </button>
+
+          {guardado === 'descargada' && (
+            <p className="mt-3 rounded-xl bg-principal/5 p-3 text-base text-principal" role="status">
+              {t('confirmacion.descargada')}
+            </p>
+          )}
 
           <p className="mt-3 text-center text-base text-principal/60">
             {t('confirmacion.consejoCaptura')}

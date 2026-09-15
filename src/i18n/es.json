@@ -154,6 +154,7 @@
     "aNombreDe": "A nombre de",
     "unSoloUso": "Este código sirve una sola vez y es para una sola caja. Si otra persona de tu casa necesita una, debe registrarse por su cuenta.",
     "guardarImagen": "Guardar imagen",
+    "descargada": "Se descargó la imagen. Si no la ves en tus fotos, mantén presionado el código QR de arriba y elige «Guardar imagen» o «Agregar a Fotos».",
     "consejoCaptura": "También puedes tomarle una captura de pantalla.",
     "cancelar": "Cancelar mi cita",
     "cancelarPregunta": "¿Seguro que quieres cancelar tu cita? Tu lugar quedará libre para otra persona.",
@@ -752,11 +753,10 @@
     "elegirColonia": "Elige tu colonia",
     "calle": {
       "MX": "Calle",
-      "US": "Calle"
+      "US": "Domicilio"
     },
     "numero": {
-      "MX": "Número",
-      "US": "Número"
+      "MX": "Número"
     },
     "interior": {
       "MX": "Interior (opcional)",
@@ -778,6 +778,7 @@
       "calle": {
         "VACIO": "Falta la calle.",
         "SIN_LETRAS": "Escribe el nombre de la calle.",
+        "SIN_NUMERO": "Falta el número de la casa al inicio, por ejemplo 7855 Lansing Dr.",
         "LARGO": "El nombre de la calle es demasiado largo."
       },
       "numero": {
