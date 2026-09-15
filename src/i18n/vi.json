@@ -115,6 +115,7 @@
     "volverHoy": "Quay về hôm nay",
     "irProxima": "Đến buổi phát hàng tiếp theo",
     "conCita": "Có lịch hẹn",
+    "conCitaDia": "Có hẹn ngày đó",
     "yaRecibieron": "Đã nhận",
     "faltan": "Chưa đến",
     "sinCita": "Vào không có lịch hẹn",
@@ -138,8 +139,14 @@
       "reservada": "Chưa đến",
       "llego": "Đã đến",
       "entregada": "Đã nhận",
-      "no_asistio": "Không đến"
-    }
+      "no_asistio": "Không đến",
+      "cancelada": "Đã hủy"
+    },
+    "noAsistieron": "Không đến",
+    "canceladas": "Đã hủy",
+    "canceladaPor": "{{quien}} đã hủy lúc {{cuando}}",
+    "canceladaPorPersona": "Người đó tự hủy qua đường dẫn lúc {{cuando}}",
+    "motivo": "Lý do: {{motivo}}"
   },
   "confirmacion": {
     "cargando": "Đang chuẩn bị mã của bạn…",
@@ -664,6 +671,57 @@
     "siguiente": "Trang sau",
     "pagina": "Trang {{pagina}} / {{total}}",
     "irPagina": "Đến trang {{pagina}}",
-    "paginacion": "Các trang của danh sách"
+    "paginacion": "Các trang của danh sách",
+    "sinCanceladas": "Tất cả, trừ lịch đã hủy",
+    "canceladas": "Đã hủy"
+  },
+  "reportes": {
+    "titulo": "Báo cáo",
+    "ayuda": "Số hộp đã phát và tỷ lệ có mặt theo từng ngày. Chọn một khoảng thời gian hoặc ngày cụ thể.",
+    "periodo": "Khoảng thời gian",
+    "periodos": {
+      "esteMes": "Tháng này",
+      "mesPasado": "Tháng trước",
+      "ultimos30": "30 ngày qua",
+      "esteAnio": "Năm nay"
+    },
+    "desde": "Từ ngày",
+    "hasta": "Đến ngày",
+    "descargar": "Tải CSV",
+    "cargando": "Đang tải báo cáo…",
+    "porDia": "Theo từng ngày",
+    "nota": "Số hộp được tính vào ngày phát: lịch hẹn đã quét cộng với người đến không hẹn trước chưa bị hủy. «Không đến» là lịch hẹn của những ngày đã qua mà chưa từng được quét.",
+    "sinDatos": "Không có đợt phát nào trong những ngày này.",
+    "total": "Tổng cả kỳ",
+    "verDia": "Xem ngày",
+    "totales": {
+      "cajas": "Hộp đã phát",
+      "dias": "Ngày phát",
+      "recibieron": "Đã nhận (có hẹn)",
+      "sinCita": "Đến không hẹn",
+      "noAsistieron": "Không đến",
+      "asistencia": "Tỷ lệ có mặt"
+    },
+    "col": {
+      "fecha": "Ngày",
+      "capacidad": "Sức chứa",
+      "con_cita": "Có hẹn",
+      "recibieron": "Đã nhận",
+      "no_asistieron": "Không đến",
+      "pendientes": "Sắp tới",
+      "canceladas": "Đã hủy",
+      "con_excepcion": "Ngoại lệ",
+      "sin_cita": "Không hẹn",
+      "cajas": "Hộp",
+      "intentos_repetidos": "Quét lặp lại"
+    },
+    "errores": {
+      "RANGO_INVALIDO": "Ngày «Từ» phải trùng hoặc trước ngày «Đến».",
+      "RANGO_MUY_LARGO": "Hãy chọn khoảng thời gian tối đa một năm.",
+      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "SIN_PERMISO": "Tài khoản của bạn không có quyền xem mục này. Vui lòng đăng nhập lại.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
+      "ERROR_DESCONOCIDO": "Không thể tải báo cáo. Vui lòng thử lại."
+    }
   }
 }

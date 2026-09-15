@@ -105,7 +105,10 @@ function coincideValor(valor, filtro) {
   return valor === filtro
 }
 
-/** Las citas del dia: nombre o codigo, horario, estado, ciudad y a que hora pasaron. */
+/**
+ * Las citas del dia: nombre o codigo, horario, estado, ciudad y a que hora
+ * pasaron. Sin estado elegido no salen las canceladas: se ven solo si se piden.
+ */
 export function filtrarCitas(citas, filtros = FILTROS_CITAS) {
   const { texto = '', hora = '', estado = '', ciudad = '', desde = '', hasta = '' } = filtros
 
@@ -113,7 +116,7 @@ export function filtrarCitas(citas, filtros = FILTROS_CITAS) {
     (cita) =>
       coincideTexto([cita.nombre, cita.codigo_corto], texto) &&
       (!hora || minutosDeHora(cita.hora) === minutosDeHora(hora)) &&
-      coincideValor(cita.estado, estado) &&
+      (estado ? coincideValor(cita.estado, estado) : cita.estado !== 'cancelada') &&
       coincideValor(cita.ciudad, ciudad) &&
       enRango(horaLocal(cita.usado_en), desde, hasta),
   )

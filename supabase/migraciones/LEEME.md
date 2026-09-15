@@ -46,3 +46,4 @@ hace lo segundo, el día que alguien recree la base desde cero le va a faltar.
 | `2026-09-14-sin-cita-con-nombre.sql` | "Entró sin cita" pide el nombre, da código de comprobante `SC-1234`, lista de quién lo anotó y a qué hora, y se anula en vez de borrar |
 | `2026-09-14-personal-con-google.sql` | Tabla `personal_pendiente`: `definir_personal` autoriza un correo antes de que entre con Google, y el rol se aplica solo al crearse su cuenta |
 | `2026-09-14-equipo-desde-el-panel.sql` | Equipo y accesos: listar al equipo, dar y quitar accesos, cambiar roles y poner el código de autorización desde el panel |
+| `2026-09-15-historial-y-reportes.sql` | Días pasados: "no asistió" automático y canceladas visibles en Citas de hoy; `reporte_por_dias()` para Reportes (cajas por día) |

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import ListaCitas from '../../componentes/ListaCitas'
 import ListaSinCita from '../../componentes/ListaSinCita'
@@ -11,7 +12,12 @@ export default function CitasDeHoy() {
   const { t, i18n } = useTranslation()
   const hoy = hoyLocal()
 
-  const [fecha, setFecha] = useState(hoy)
+  const [parametros] = useSearchParams()
+  // Desde Reportes se llega con ?fecha=AAAA-MM-DD para ver ese dia.
+  const [fecha, setFecha] = useState(() => {
+    const pedida = parametros.get('fecha') ?? ''
+    return /^\d{4}-\d{2}-\d{2}$/.test(pedida) ? pedida : hoy
+  })
   const [proxima, setProxima] = useState(null)
   const [recarga, setRecarga] = useState(0)
 
@@ -24,6 +30,7 @@ export default function CitasDeHoy() {
   const cargando = datos?.fecha !== fecha && fallo?.fecha !== fecha
   const error = fallo?.fecha === fecha ? fallo.codigo : null
   const esHoy = fecha === hoy
+  const esPasado = fecha < hoy
 
   const recargar = () => setRecarga((n) => n + 1)
 
@@ -81,10 +88,14 @@ export default function CitasDeHoy() {
   const citas = datos?.citas ?? []
 
   const numeros = [
-    { clave: 'conCita', valor: resumen?.con_cita ?? 0, color: 'text-principal' },
+    { clave: esHoy ? 'conCita' : 'conCitaDia', valor: resumen?.con_cita ?? 0, color: 'text-principal' },
     { clave: 'yaRecibieron', valor: resumen?.ya_recibieron ?? 0, color: 'text-puede-pasar' },
-    { clave: 'faltan', valor: resumen?.faltan_por_llegar ?? 0, color: 'text-principal' },
+    // Un dia que ya paso no tiene "faltan": quien no llego, no asistio.
+    esPasado
+      ? { clave: 'noAsistieron', valor: resumen?.no_asistieron ?? 0, color: 'text-ya-recibio' }
+      : { clave: 'faltan', valor: resumen?.faltan_por_llegar ?? 0, color: 'text-principal' },
     { clave: 'sinCita', valor: resumen?.sin_cita ?? 0, color: 'text-principal' },
+    { clave: 'canceladas', valor: resumen?.canceladas ?? 0, color: 'text-principal/70' },
     { clave: 'repetidos', valor: resumen?.intentos_repetidos ?? 0, color: 'text-ya-recibio' },
   ]
 
@@ -135,7 +146,7 @@ export default function CitasDeHoy() {
         {cargando ? (
           <p className="text-base">{t('panel.cargando')}</p>
         ) : (
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
             {numeros.map(({ clave, valor, color }) => (
               <div className="rounded-xl bg-principal/5 p-3" key={clave}>
                 <dd className={`text-3xl font-bold ${color}`}>{valor}</dd>

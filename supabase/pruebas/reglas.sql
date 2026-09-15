@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-12-nombre-y-telefono.sql.
+--  Requiere todas las migraciones, hasta 2026-09-15-historial-y-reportes.sql.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
 --  cuenta con rol admin de la tabla personal. Si no hay ninguna, se omiten
@@ -56,6 +56,7 @@ declare
   v_numero       int;
   v_si           boolean;
   v_numero2      int;
+  v_fila         record;
 
   v_total        int;
   v_pasaron      int;
@@ -642,6 +643,72 @@ begin
     perform pg_temp.esperar_ok('Excepción: si se cancela, se puede autorizar otra',
       format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Nueva fecha'));
 
+    -- ---------- Días pasados y reportes ----------
+    --  En la fecha pasada de prueba ya hay una cita que nunca se escaneó (CB-PRB7).
+    --  Se agregan una entregada, una cancelada y dos entradas sin cita (una anulada).
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRB9', 'Prueba Recibio', 'Prueba', 'Recibio', '+16195550009') returning id into v_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado, usado_en)
+    values (v_persona, v_b_pasada, date_trunc('week', v_pasada)::date, 'token-prueba-recibio', 'entregada',
+            (v_pasada + time '14:05') at time zone 'America/Los_Angeles');
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRC1', 'Prueba Cancelo', 'Prueba', 'Cancelo', '+16195550010') returning id into v_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado, cancelada_en, cancelada_por, motivo_cancelacion)
+    values (v_persona, v_b_pasada, date_trunc('week', v_pasada)::date, 'token-prueba-cancelo', 'cancelada',
+            (v_pasada - 1 + time '10:00') at time zone 'America/Los_Angeles', v_admin, 'Motivo de prueba');
+
+    insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por, registrado_en)
+    values (v_pasada, 'Prueba Sin Cita', 'SC-9001', v_admin,
+            (v_pasada + time '15:00') at time zone 'America/Los_Angeles');
+    insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por, registrado_en, anulada_en, anulada_por)
+    values (v_pasada, 'Prueba Anulada', 'SC-9002', v_admin,
+            (v_pasada + time '15:10') at time zone 'America/Los_Angeles', now(), v_admin);
+
+    select c.estado into v_texto from citas_del_dia(v_pasada) c where c.codigo_corto = 'CB-PRB7';
+    perform pg_temp.comprobar('Días pasados: quien tenía cita y nunca se escaneó sale como "no asistió"',
+      v_texto = 'no_asistio', v_texto);
+    select count(*) into v_numero from citas_del_dia(v_lunes) c where c.estado = 'no_asistio';
+    perform pg_temp.comprobar('Días pasados: en un día que todavía no llega, nadie sale como "no asistió"',
+      v_numero = 0, v_numero::text);
+
+    select count(*) into v_numero from citas_del_dia(v_pasada) c
+     where c.codigo_corto = 'CB-PRC1' and c.estado = 'cancelada' and c.motivo_cancelacion = 'Motivo de prueba'
+       and c.cancelada_por is not null and c.cancelada_en is not null;
+    perform pg_temp.comprobar('Días pasados: las canceladas salen en la lista, con quién, cuándo y por qué',
+      v_numero = 1, v_numero::text);
+
+    select * into v_fila from resumen_del_dia(v_pasada);
+    perform pg_temp.comprobar('Días pasados: el resumen cuenta no asistieron y canceladas, y ya no "faltan por llegar"',
+      v_fila.con_cita = 2 and v_fila.ya_recibieron = 1 and v_fila.no_asistieron = 1
+      and v_fila.faltan_por_llegar = 0 and v_fila.canceladas = 1 and v_fila.sin_cita = 1,
+      format('con cita %s, recibieron %s, no asistieron %s, faltan %s, canceladas %s, sin cita %s',
+             v_fila.con_cita, v_fila.ya_recibieron, v_fila.no_asistieron,
+             v_fila.faltan_por_llegar, v_fila.canceladas, v_fila.sin_cita));
+
+    select * into v_fila from reporte_por_dias(v_pasada, v_pasada);
+    perform pg_temp.comprobar('Reportes: cajas = recibieron + sin cita (sin contar las anuladas)',
+      v_fila.recibieron = 1 and v_fila.sin_cita = 1 and v_fila.cajas = 2,
+      format('recibieron %s, sin cita %s, cajas %s', v_fila.recibieron, v_fila.sin_cita, v_fila.cajas));
+    perform pg_temp.comprobar('Reportes: cupo, con cita, no asistieron y canceladas del día',
+      v_fila.capacidad = 50 and v_fila.con_cita = 2 and v_fila.no_asistieron = 1
+      and v_fila.canceladas = 1 and v_fila.pendientes = 0,
+      format('cupo %s, con cita %s, no asistieron %s, canceladas %s, por venir %s',
+             v_fila.capacidad, v_fila.con_cita, v_fila.no_asistieron, v_fila.canceladas, v_fila.pendientes));
+
+    select count(*) into v_numero from reporte_por_dias(v_pasada - 3, v_pasada + 3);
+    perform pg_temp.comprobar('Reportes: solo salen los días con entrega', v_numero = 1, v_numero::text);
+
+    select * into v_fila from reporte_por_dias(v_lunes, v_lunes);
+    perform pg_temp.comprobar('Reportes: en un día que todavía no llega, las citas son "por venir"',
+      v_fila.pendientes > 0 and v_fila.no_asistieron = 0,
+      format('por venir %s, no asistieron %s', v_fila.pendientes, v_fila.no_asistieron));
+
+    perform pg_temp.esperar_error('Reportes: "desde" después de "hasta"',
+      format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy, v_hoy - 1), 'RANGO_INVALIDO');
+    perform pg_temp.esperar_error('Reportes: más de un año de una sola vez',
+      format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 400, v_hoy), 'RANGO_MUY_LARGO');
+
     -- ---------- Equipo y accesos desde el panel ----------
     select count(*) into v_numero from listar_personal() l where l.es_yo and l.rol = 'admin' and l.estado = 'activo';
     perform pg_temp.comprobar('Equipo: el pastor se ve a sí mismo en la lista, como admin activo', v_numero = 1, v_numero::text);
@@ -725,6 +792,8 @@ begin
       'select * from entradas_sin_cita_del_dia(null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve el equipo',
       'select * from listar_personal()', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve reportes',
+      format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no da accesos',
       'select guardar_personal(''alguien.cb@gmail.com'', ''admin'')', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no pone código de autorización',
@@ -759,6 +828,8 @@ begin
       'select * from registrar_entrada_sin_cita(''Nombre Prueba'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve el equipo',
       'select * from listar_personal()', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ven reportes',
+      format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_SESION');
   end if;
 
   -- ==========================================================

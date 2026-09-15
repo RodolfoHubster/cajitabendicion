@@ -110,6 +110,7 @@
     "volverHoy": "Volver a hoy",
     "irProxima": "Ir a la próxima entrega",
     "conCita": "Con cita hoy",
+    "conCitaDia": "Con cita ese día",
     "yaRecibieron": "Ya recibieron",
     "faltan": "Faltan por llegar",
     "sinCita": "Entraron sin cita",
@@ -134,8 +135,14 @@
       "reservada": "Aún no llega",
       "llego": "Llegó",
       "entregada": "Recibió",
-      "no_asistio": "No asistió"
-    }
+      "no_asistio": "No asistió",
+      "cancelada": "Cancelada"
+    },
+    "noAsistieron": "No asistieron",
+    "canceladas": "Canceladas",
+    "canceladaPor": "La canceló {{quien}} el {{cuando}}",
+    "canceladaPorPersona": "La canceló la persona desde su enlace el {{cuando}}",
+    "motivo": "Motivo: {{motivo}}"
   },
   "confirmacion": {
     "cargando": "Preparando tu código…",
@@ -666,6 +673,57 @@
     "siguiente": "Página siguiente",
     "pagina": "Página {{pagina}} de {{total}}",
     "irPagina": "Ir a la página {{pagina}}",
-    "paginacion": "Páginas de la lista"
+    "paginacion": "Páginas de la lista",
+    "sinCanceladas": "Todos, sin canceladas",
+    "canceladas": "Canceladas"
+  },
+  "reportes": {
+    "titulo": "Reportes",
+    "ayuda": "Cajas entregadas y asistencia por día. Elige un periodo o las fechas exactas.",
+    "periodo": "Periodo",
+    "periodos": {
+      "esteMes": "Este mes",
+      "mesPasado": "Mes pasado",
+      "ultimos30": "Últimos 30 días",
+      "esteAnio": "Este año"
+    },
+    "desde": "Desde",
+    "hasta": "Hasta",
+    "descargar": "Descargar CSV",
+    "cargando": "Cargando el reporte…",
+    "porDia": "Día por día",
+    "nota": "Las cajas cuentan el día en que se entregaron: las citas escaneadas más las entradas sin cita que no se anularon. «No asistieron» son citas de días que ya pasaron y nunca se escanearon.",
+    "sinDatos": "No hubo entregas en esas fechas.",
+    "total": "Total del periodo",
+    "verDia": "Ver el día",
+    "totales": {
+      "cajas": "Cajas entregadas",
+      "dias": "Días de entrega",
+      "recibieron": "Recibieron con cita",
+      "sinCita": "Entraron sin cita",
+      "noAsistieron": "No asistieron",
+      "asistencia": "Asistencia"
+    },
+    "col": {
+      "fecha": "Fecha",
+      "capacidad": "Cupo",
+      "con_cita": "Con cita",
+      "recibieron": "Recibieron",
+      "no_asistieron": "No asistieron",
+      "pendientes": "Por venir",
+      "canceladas": "Canceladas",
+      "con_excepcion": "Con excepción",
+      "sin_cita": "Sin cita",
+      "cajas": "Cajas",
+      "intentos_repetidos": "Intentos repetidos"
+    },
+    "errores": {
+      "RANGO_INVALIDO": "La fecha «Desde» debe ser igual o anterior a «Hasta».",
+      "RANGO_MUY_LARGO": "Elige un periodo de un año o menos.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para ver esto. Vuelve a iniciar sesión.",
+      "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
+      "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar."
+    }
   }
 }

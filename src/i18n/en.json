@@ -110,6 +110,7 @@
     "volverHoy": "Back to today",
     "irProxima": "Go to the next distribution",
     "conCita": "With an appointment",
+    "conCitaDia": "With appointment that day",
     "yaRecibieron": "Already received",
     "faltan": "Still to arrive",
     "sinCita": "Came without an appointment",
@@ -134,8 +135,14 @@
       "reservada": "Not here yet",
       "llego": "Arrived",
       "entregada": "Received",
-      "no_asistio": "No show"
-    }
+      "no_asistio": "No show",
+      "cancelada": "Canceled"
+    },
+    "noAsistieron": "Did not come",
+    "canceladas": "Canceled",
+    "canceladaPor": "Canceled by {{quien}} on {{cuando}}",
+    "canceladaPorPersona": "Canceled by the person from their link on {{cuando}}",
+    "motivo": "Reason: {{motivo}}"
   },
   "confirmacion": {
     "cargando": "Getting your code ready…",
@@ -666,6 +673,57 @@
     "siguiente": "Next page",
     "pagina": "Page {{pagina}} of {{total}}",
     "irPagina": "Go to page {{pagina}}",
-    "paginacion": "List pages"
+    "paginacion": "List pages",
+    "sinCanceladas": "All, without canceled",
+    "canceladas": "Canceled"
+  },
+  "reportes": {
+    "titulo": "Reports",
+    "ayuda": "Boxes delivered and attendance by day. Pick a period or exact dates.",
+    "periodo": "Period",
+    "periodos": {
+      "esteMes": "This month",
+      "mesPasado": "Last month",
+      "ultimos30": "Last 30 days",
+      "esteAnio": "This year"
+    },
+    "desde": "From",
+    "hasta": "To",
+    "descargar": "Download CSV",
+    "cargando": "Loading the report…",
+    "porDia": "Day by day",
+    "nota": "Boxes count on the day they were handed out: scanned appointments plus walk-ins that were not voided. “Did not come” means appointments on past days that were never scanned.",
+    "sinDatos": "There were no deliveries on those dates.",
+    "total": "Period total",
+    "verDia": "View day",
+    "totales": {
+      "cajas": "Boxes delivered",
+      "dias": "Delivery days",
+      "recibieron": "Received with appointment",
+      "sinCita": "Walk-ins",
+      "noAsistieron": "Did not come",
+      "asistencia": "Attendance"
+    },
+    "col": {
+      "fecha": "Date",
+      "capacidad": "Capacity",
+      "con_cita": "With appointment",
+      "recibieron": "Received",
+      "no_asistieron": "Did not come",
+      "pendientes": "Upcoming",
+      "canceladas": "Canceled",
+      "con_excepcion": "With exception",
+      "sin_cita": "Walk-ins",
+      "cajas": "Boxes",
+      "intentos_repetidos": "Repeated attempts"
+    },
+    "errores": {
+      "RANGO_INVALIDO": "The “From” date must be on or before “To”.",
+      "RANGO_MUY_LARGO": "Choose a period of one year or less.",
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "SIN_PERMISO": "Your account does not have permission to see this. Please sign in again.",
+      "SIN_CONEXION": "No connection. Check your internet and try again.",
+      "ERROR_DESCONOCIDO": "Could not load the report. Please try again."
+    }
   }
 }

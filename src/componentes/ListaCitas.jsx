@@ -27,14 +27,28 @@ const ESTILO_ESTADO = {
   reservada: 'bg-principal/10 text-principal/70',
   llego: 'bg-accion/20 text-principal',
   no_asistio: 'bg-ya-recibio/10 text-ya-recibio',
+  cancelada: 'bg-principal/5 text-principal/60',
+}
+
+/** '2026-09-12T17:05:00Z' -> '12 sep, 10:05 AM' (en San Diego). */
+function momento(marca, idioma) {
+  const dia = new Intl.DateTimeFormat(idioma, {
+    timeZone: 'America/Los_Angeles',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date(marca))
+
+  return `${dia}, ${horaSanDiego(marca)}`
 }
 
 /**
  * Las citas de un dia: buscador, filtros y paginas. Desde aqui el
- * administrador cancela las que aun no se usan.
+ * administrador cancela las que aun no se usan. Las canceladas no se
+ * mezclan con las demas: se ven eligiendo "Canceladas", con quien, cuando
+ * y por que.
  */
 export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const [filtros, setFiltros] = useState(FILTROS_CITAS)
   const [pagina, setPagina] = useState(1)
@@ -47,11 +61,16 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   const [errorCancelar, setErrorCancelar] = useState(null)
   const [cancelada, setCancelada] = useState(null)
 
+  const activas = citas.filter((cita) => cita.estado !== 'cancelada')
+  const canceladas = citas.length - activas.length
+  const viendoCanceladas = filtros.estado === 'cancelada'
+
   const filtradas = filtrarCitas(citas, filtros)
   const resultado = paginar(filtradas, pagina, porPagina)
-  const porHora = contarPor(citas, 'hora')
-  const porEstado = contarPor(citas, 'estado')
-  const porCiudad = contarPor(citas, 'ciudad')
+  // Los conteos de las opciones son de las citas vigentes: las que se ven sin elegir nada.
+  const porHora = contarPor(activas, 'hora')
+  const porEstado = contarPor(activas, 'estado')
+  const porCiudad = contarPor(activas, 'ciudad')
 
   function filtrar(campo, valor) {
     setFiltros((actuales) => ({ ...actuales, [campo]: valor }))
@@ -84,7 +103,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   return (
     <Tarjeta>
       <div className="scroll-mt-24" id="lista-citas">
-        <h2 className="mb-3 text-lg font-bold">{t('panel.citasDelDia', { count: citas.length })}</h2>
+        <h2 className="mb-3 text-lg font-bold">{t('panel.citasDelDia', { count: activas.length })}</h2>
 
         {cancelada && (
           <p
@@ -127,7 +146,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                 <option value="">{t('filtros.todos')}</option>
                 {valoresUnicos(citas, 'hora').map((hora) => (
                   <option key={hora} value={hora}>
-                    {`${formatearHora(hora)} · ${porHora[hora]}`}
+                    {`${formatearHora(hora)} · ${porHora[hora] ?? 0}`}
                   </option>
                 ))}
               </Selector>
@@ -139,12 +158,15 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                 onChange={(e) => filtrar('estado', e.target.value)}
                 value={filtros.estado}
               >
-                <option value="">{t('filtros.todos')}</option>
+                <option value="">{`${t('filtros.sinCanceladas')} · ${activas.length}`}</option>
                 {ESTADOS.map((estado) => (
                   <option key={estado} value={estado}>
                     {`${t(`panel.estado.${estado}`)} · ${porEstado[estado] ?? 0}`}
                   </option>
                 ))}
+                {canceladas > 0 && (
+                  <option value="cancelada">{`${t('filtros.canceladas')} · ${canceladas}`}</option>
+                )}
               </Selector>
 
               <Selector
@@ -157,7 +179,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                 <option value="">{t('filtros.todas')}</option>
                 {valoresUnicos(citas, 'ciudad').map((ciudad) => (
                   <option key={ciudad} value={ciudad}>
-                    {`${ciudad} · ${porCiudad[ciudad]}`}
+                    {`${ciudad} · ${porCiudad[ciudad] ?? 0}`}
                   </option>
                 ))}
                 {hayVacios(citas, 'ciudad') && <option value={SIN_VALOR}>{t('filtros.sinCiudad')}</option>}
@@ -212,7 +234,9 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                     </thead>
                     <tbody>
                       {resultado.filas.map((cita) => {
-                        const llave = `${cita.codigo_corto}-${cita.hora}`
+                        const esCancelada = cita.estado === 'cancelada'
+                        // Quien cancela y vuelve a sacar cita a la misma hora tiene dos filas.
+                        const llave = `${cita.codigo_corto}-${cita.hora}-${cita.cancelada_en ?? 'vigente'}`
                         // Solo lo que aun no se usa y de hoy en adelante.
                         const puedeCancelar = cita.estado === 'reservada' && fecha >= hoy
 
@@ -220,7 +244,25 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                           <Fragment key={llave}>
                             <tr className="border-b border-principal/10 last:border-0">
                               <td className="whitespace-nowrap py-2 pr-3">{formatearHora(cita.hora)}</td>
-                              <td className="py-2 pr-3">{cita.nombre}</td>
+                              <td className="py-2 pr-3">
+                                <span className={esCancelada ? 'text-principal/60 line-through' : ''}>
+                                  {cita.nombre}
+                                </span>
+                                {esCancelada && cita.cancelada_en && (
+                                  <span className="block text-base text-principal/60">
+                                    {cita.cancelada_por
+                                      ? t('panel.canceladaPor', {
+                                          quien: cita.cancelada_por,
+                                          cuando: momento(cita.cancelada_en, i18n.language),
+                                        })
+                                      : t('panel.canceladaPorPersona', {
+                                          cuando: momento(cita.cancelada_en, i18n.language),
+                                        })}
+                                    {cita.motivo_cancelacion &&
+                                      ` · ${t('panel.motivo', { motivo: cita.motivo_cancelacion })}`}
+                                  </span>
+                                )}
+                              </td>
                               <td className="whitespace-nowrap py-2 pr-3 font-semibold">{cita.codigo_corto}</td>
                               <td className="py-2 pr-3">
                                 <span
@@ -320,7 +362,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                   id="citas"
                   porPagina={porPagina}
                   resultado={resultado}
-                  totalSinFiltro={citas.length}
+                  totalSinFiltro={viendoCanceladas ? canceladas : activas.length}
                 />
               </>
             )}

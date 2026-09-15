@@ -185,6 +185,21 @@ describe('filtrarCitas', () => {
     expect(nombres(filtrarCitas(CITAS, filtros))).toEqual(['María López'])
     expect(filtrarCitas(CITAS, { ...filtros, hora: '15:00:00' })).toEqual([])
   })
+
+  it('las canceladas no salen salvo que se pidan', () => {
+    const conCancelada = [
+      ...CITAS,
+      { nombre: 'Rosa Cancelada', codigo_corto: 'CB-3005', ciudad: null, hora: '15:15:00', estado: 'cancelada', usado_en: null },
+    ]
+
+    expect(filtrarCitas(conCancelada)).toHaveLength(4)
+    expect(filtrarCitas(conCancelada, { ...FILTROS_CITAS, texto: 'rosa' })).toEqual([])
+    expect(nombres(filtrarCitas(conCancelada, { ...FILTROS_CITAS, ciudad: SIN_VALOR }))).toEqual(['José Núñez'])
+    expect(nombres(filtrarCitas(conCancelada, { ...FILTROS_CITAS, estado: 'cancelada' }))).toEqual(['Rosa Cancelada'])
+    expect(nombres(filtrarCitas(conCancelada, { ...FILTROS_CITAS, estado: 'cancelada', texto: 'rosa' }))).toEqual([
+      'Rosa Cancelada',
+    ])
+  })
 })
 
 describe('filtrarSinCita', () => {
