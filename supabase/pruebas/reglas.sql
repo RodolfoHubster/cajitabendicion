@@ -995,6 +995,25 @@ begin
     select count(*) into v_numero from listar_personal() l where l.es_yo and l.tiene_codigo;
     perform pg_temp.comprobar('Equipo: la lista indica que ya tiene código', v_numero = 1, v_numero::text);
 
+    -- ---------- Mover una cita desde el panel ----------
+    select id into v_cita from citas where token_qr = 'token-prueba-mover-panel';
+
+    perform pg_temp.esperar_ok('Panel: mueve la cita de alguien a otro horario',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_jueves));
+    perform pg_temp.comprobar('Panel: el movimiento guarda quién lo hizo',
+      (select count(*) from movimientos_cita
+        where cita_id = v_cita and origen = 'panel' and usuario_id = v_admin) = 1);
+    perform pg_temp.comprobar('Panel: moverla desde el panel no le gasta el cambio a la persona',
+      cambios_restantes('token-prueba-mover-panel') = 1,
+      cambios_restantes('token-prueba-mover-panel')::text);
+    perform pg_temp.esperar_ok('Panel: el historial de la cita se puede consultar',
+      format('select * from historial_de_cita(%L::uuid)', v_cita));
+    perform pg_temp.comprobar('Panel: el historial dice de qué horario a cuál',
+      (select count(*) from historial_de_cita(v_cita)
+        where de_fecha = v_ventana and a_fecha = v_jueves and origen = 'panel') = 1);
+    perform pg_temp.esperar_error('Panel: tampoco desde el panel se mete gente en un horario lleno',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_uno), 'BLOQUE_LLENO');
+
     -- ---------- Roles: voluntario ----------
     update personal set rol = 'voluntario' where usuario_id = v_admin;
 
@@ -1020,6 +1039,8 @@ begin
       format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Motivo'), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no cancela citas',
       format('select cancelar_cita_panel(%L, %L::date, %L::time, null)', 'CB-PRB8', v_lunes, '14:00'), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no mueve citas de horario',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_PERMISO');
 
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
     values ('CB-PRB4', 'Prueba Voluntario', 'Prueba', 'Voluntario', '+16195550003') returning id into v_persona;
@@ -1033,25 +1054,6 @@ begin
     select resultado into v_texto from registrar_entrega_autorizada(v_token_otro, 'codigo-equivocado');
     perform pg_temp.comprobar('Roles: un voluntario no autoriza otro día sin el código del admin',
       v_texto = 'CODIGO_INVALIDO', v_texto);
-
-    -- ---------- Mover una cita desde el panel ----------
-    select id into v_cita from citas where token_qr = 'token-prueba-mover-panel';
-
-    perform pg_temp.esperar_ok('Panel: mueve la cita de alguien a otro horario',
-      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_jueves));
-    perform pg_temp.comprobar('Panel: el movimiento guarda quién lo hizo',
-      (select count(*) from movimientos_cita
-        where cita_id = v_cita and origen = 'panel' and usuario_id = v_admin) = 1);
-    perform pg_temp.comprobar('Panel: moverla desde el panel no le gasta el cambio a la persona',
-      cambios_restantes('token-prueba-mover-panel') = 1,
-      cambios_restantes('token-prueba-mover-panel')::text);
-    perform pg_temp.esperar_ok('Panel: el historial de la cita se puede consultar',
-      format('select * from historial_de_cita(%L::uuid)', v_cita));
-    perform pg_temp.comprobar('Panel: el historial dice de qué horario a cuál',
-      (select count(*) from historial_de_cita(v_cita)
-        where de_fecha = v_ventana and a_fecha = v_jueves and origen = 'panel') = 1);
-    perform pg_temp.esperar_error('Panel: tampoco desde el panel se mete gente en un horario lleno',
-      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_uno), 'BLOQUE_LLENO');
 
     -- ---------- Roles: sin sesion ----------
     perform set_config('request.jwt.claim.sub', '', true);
