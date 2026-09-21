@@ -546,12 +546,16 @@ begin
   --  10c. Cambiar el horario (mover la cita)
   -- ==========================================================
   insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
-  values ('CB-PRB8', 'Prueba Mover', 'Prueba', 'Mover', '+16195550008') returning id into v_persona;
+  values ('CB-PRM1', 'Prueba Mover', 'Prueba', 'Mover', '+16195550011') returning id into v_persona;
   insert into citas (persona_id, bloque_id, semana, token_qr)
   values (v_persona, v_b_lunes, date_trunc('week', v_lunes)::date, 'token-prueba-mover')
   returning id into v_cita;
 
-  --  Esta se deja quieta: la mueve el panel en la seccion 11.
+  --  Esta se deja quieta: la mueve el panel en la seccion 11. Va con su
+  --  propia persona a proposito: si fuera la misma de arriba, mandarla al
+  --  jueves le dejaria dos citas en la misma semana.
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+  values ('CB-PRM3', 'Prueba Mover Panel', 'Prueba', 'Mover Panel', '+16195550013') returning id into v_persona;
   insert into citas (persona_id, bloque_id, semana, token_qr)
   values (v_persona, v_b_ventana, date_trunc('week', v_ventana)::date, 'token-prueba-mover-panel');
 
@@ -580,7 +584,9 @@ begin
     format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_jueves));
   perform pg_temp.comprobar('Mover: es la misma cita, con su mismo enlace y su misma persona',
     (select count(*) from citas where token_qr = 'token-prueba-mover') = 1
-    and (select persona_id from citas where id = v_cita) = v_persona);
+    and (select p.codigo_corto from personas p
+          join citas c on c.persona_id = p.id
+         where c.id = v_cita) = 'CB-PRM1');
   perform pg_temp.comprobar('Mover: queda en el horario nuevo y con su semana al día',
     (select bloque_id from citas where id = v_cita) = v_b_jueves
     and (select semana from citas where id = v_cita) = date_trunc('week', v_jueves)::date);
@@ -603,7 +609,7 @@ begin
   --  Quien ya tiene cita el lunes no puede mover la de otra semana al jueves:
   --  serian dos en la misma semana.
   insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
-  values ('CB-PRB9', 'Prueba Semana Mover', 'Prueba', 'Semana Mover', '+16195550009') returning id into v_persona;
+  values ('CB-PRM2', 'Prueba Semana Mover', 'Prueba', 'Semana Mover', '+16195550012') returning id into v_persona;
   insert into citas (persona_id, bloque_id, semana, token_qr)
   values (v_persona, v_b_lunes, date_trunc('week', v_lunes)::date, 'token-prueba-semana-a');
   insert into citas (persona_id, bloque_id, semana, token_qr)

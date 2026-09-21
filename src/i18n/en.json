@@ -149,7 +149,7 @@
     "noEncontrada": "We could not find that appointment. The link may be incomplete.",
     "volverInicio": "Back to home",
     "lista": "Your appointment is set",
-    "horarioCambiado": "Done, your time was changed. Your code is the same.",
+    "horarioCambiado": "Done, your time was changed. Your code is the same, but save the image again: the one you had shows the old time.",
     "qrAlt": "QR code for your appointment",
     "siNoSeLee": "If the code will not scan, give this number:",
     "aNombreDe": "Under the name of",

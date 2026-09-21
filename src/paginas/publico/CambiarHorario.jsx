@@ -138,6 +138,15 @@ export default function CambiarHorario() {
     } catch (e) {
       setErrorCambio(e.message)
       setGuardando(false)
+
+      // Los lugares ya no son los que se dibujaron: si el horario se
+      // acaba de llenar, la lista seguiria diciendo "quedan 3" y la
+      // persona le daria otra vez al mismo. Se vuelven a pedir y se
+      // suelta el que habia elegido.
+      setBloqueId(null)
+      consultarDisponibilidad()
+        .then((libres) => setBloques(libres))
+        .catch(() => {})
     }
   }
 

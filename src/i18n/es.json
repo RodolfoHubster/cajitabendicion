@@ -149,7 +149,7 @@
     "noEncontrada": "No encontramos esa cita. Puede que el enlace esté incompleto.",
     "volverInicio": "Volver al inicio",
     "lista": "Tu cita está lista",
-    "horarioCambiado": "Listo, tu horario cambió. Tu código es el mismo.",
+    "horarioCambiado": "Listo, tu horario cambió. Tu código es el mismo, pero guarda la imagen otra vez: la que tenías dice la hora anterior.",
     "qrAlt": "Código QR de tu cita",
     "siNoSeLee": "Si el código no se lee, da este número:",
     "aNombreDe": "A nombre de",
