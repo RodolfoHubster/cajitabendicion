@@ -8,8 +8,11 @@ import {
   CODIGOS,
   anularEntradaSinCita,
   cancelarCitaPanel,
+  cambiosRestantes,
   cancelarMiCita,
   entradasSinCitaDelDia,
+  moverCitaPanel,
+  moverMiCita,
   registrarEntradaSinCita,
   reservarConExcepcion,
 } from './citas'
@@ -107,6 +110,65 @@ describe('excepcion de segunda cita', () => {
   it('sin respuesta devuelve null', async () => {
     supabase.rpc.mockResolvedValue({ data: [], error: null })
     await expect(reservarConExcepcion({ codigo: 'CB-1', bloqueId: 'b1', motivo: 'Motivo' })).resolves.toBeNull()
+  })
+})
+
+describe('cambiar de horario', () => {
+  it('manda el token del QR y el horario nuevo', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: [{ fecha: '2026-09-24', hora: '15:15:00', codigo_corto: 'CB-4871', cambios_restantes: 0 }],
+      error: null,
+    })
+
+    await expect(moverMiCita('token-123', 'bloque-9')).resolves.toEqual({
+      fecha: '2026-09-24',
+      hora: '15:15:00',
+      codigo_corto: 'CB-4871',
+      cambios_restantes: 0,
+    })
+    expect(supabase.rpc).toHaveBeenCalledWith('mover_mi_cita', {
+      p_token: 'token-123',
+      p_bloque_id: 'bloque-9',
+    })
+  })
+
+  it('acepta la respuesta como objeto suelto; sin respuesta, null', async () => {
+    supabase.rpc.mockResolvedValueOnce({ data: { fecha: '2026-09-24' }, error: null })
+    await expect(moverMiCita('t', 'b')).resolves.toEqual({ fecha: '2026-09-24' })
+
+    supabase.rpc.mockResolvedValueOnce({ data: null, error: null })
+    await expect(moverMiCita('t', 'b')).resolves.toBeNull()
+  })
+
+  it('dice cuantos cambios le quedan; sin respuesta, ninguno', async () => {
+    supabase.rpc.mockResolvedValueOnce({ data: 1, error: null })
+    await expect(cambiosRestantes('token-123')).resolves.toBe(1)
+    expect(supabase.rpc).toHaveBeenCalledWith('cambios_restantes', { p_token: 'token-123' })
+
+    supabase.rpc.mockResolvedValueOnce({ data: null, error: null })
+    await expect(cambiosRestantes('t')).resolves.toBe(0)
+  })
+
+  it('desde el panel se mueve por el id de la cita', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: [{ fecha: '2026-09-24', hora: '14:00:00', codigo_corto: 'CB-4871' }],
+      error: null,
+    })
+
+    await expect(moverCitaPanel('cita-1', 'bloque-9')).resolves.toEqual({
+      fecha: '2026-09-24',
+      hora: '14:00:00',
+      codigo_corto: 'CB-4871',
+    })
+    expect(supabase.rpc).toHaveBeenCalledWith('mover_cita_panel', {
+      p_cita_id: 'cita-1',
+      p_bloque_id: 'bloque-9',
+    })
+  })
+
+  it('el horario lleno deja la cita como estaba: el error llega tal cual', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: BLOQUE_LLENO' } })
+    await expect(moverMiCita('t', 'b')).rejects.toThrow('BLOQUE_LLENO')
   })
 })
 

@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-15-domicilio-y-privacidad.sql.
+--  Requiere todas las migraciones, hasta 2026-09-21-cambiar-horario.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -45,6 +45,7 @@ declare
 
   v_admin        uuid;
   v_persona      uuid;
+  v_cita         uuid;
   v_token        text;
   v_token_otro   text;
   v_codigo       text;
@@ -542,6 +543,79 @@ begin
     'select cancelar_mi_cita(''token-prueba-pasada'')', 'FECHA_PASADA');
 
   -- ==========================================================
+  --  10c. Cambiar el horario (mover la cita)
+  -- ==========================================================
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+  values ('CB-PRB8', 'Prueba Mover', 'Prueba', 'Mover', '+16195550008') returning id into v_persona;
+  insert into citas (persona_id, bloque_id, semana, token_qr)
+  values (v_persona, v_b_lunes, date_trunc('week', v_lunes)::date, 'token-prueba-mover')
+  returning id into v_cita;
+
+  --  Esta se deja quieta: la mueve el panel en la seccion 11.
+  insert into citas (persona_id, bloque_id, semana, token_qr)
+  values (v_persona, v_b_ventana, date_trunc('week', v_ventana)::date, 'token-prueba-mover-panel');
+
+  perform pg_temp.comprobar('Mover: antes de cambiar, le queda 1 cambio',
+    cambios_restantes('token-prueba-mover') = 1, cambios_restantes('token-prueba-mover')::text);
+
+  perform pg_temp.esperar_error('Mover: al mismo horario en el que ya está',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_lunes), 'MISMO_HORARIO');
+
+  --  v_b_uno tiene un solo lugar y ya esta ocupado desde la prueba de cupo.
+  perform pg_temp.esperar_error('Mover: a un horario lleno',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_uno), 'BLOQUE_LLENO');
+  perform pg_temp.comprobar('Mover: si el horario estaba lleno, se queda con la cita que ya tenía',
+    (select bloque_id from citas where id = v_cita) = v_b_lunes);
+
+  perform pg_temp.esperar_error('Mover: a un horario cerrado',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_cerrado), 'BLOQUE_CERRADO');
+  perform pg_temp.esperar_error('Mover: a una fecha que todavía no abre',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_programada), 'AUN_NO_ABRE');
+  perform pg_temp.esperar_error('Mover: a una fecha cerrada',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_cerrada), 'DIA_CERRADO');
+  perform pg_temp.esperar_error('Mover: a una fecha que ya pasó',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_pasada), 'FECHA_PASADA');
+
+  perform pg_temp.esperar_ok('Mover: cambia del lunes al jueves',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_jueves));
+  perform pg_temp.comprobar('Mover: es la misma cita, con su mismo enlace y su misma persona',
+    (select count(*) from citas where token_qr = 'token-prueba-mover') = 1
+    and (select persona_id from citas where id = v_cita) = v_persona);
+  perform pg_temp.comprobar('Mover: queda en el horario nuevo y con su semana al día',
+    (select bloque_id from citas where id = v_cita) = v_b_jueves
+    and (select semana from citas where id = v_cita) = date_trunc('week', v_jueves)::date);
+  perform pg_temp.comprobar('Mover: el cambio queda guardado en el historial',
+    (select count(*) from movimientos_cita where cita_id = v_cita and origen = 'publico') = 1);
+  perform pg_temp.comprobar('Mover: ya no le quedan cambios',
+    cambios_restantes('token-prueba-mover') = 0);
+  perform pg_temp.esperar_error('Mover: una segunda vez, ya no',
+    format('select * from mover_mi_cita(''token-prueba-mover'', %L::uuid)', v_b_lunes), 'YA_CAMBIO_HORARIO');
+
+  perform pg_temp.esperar_error('Mover: una cita que ya se usó',
+    format('select * from mover_mi_cita(''token-prueba-entregada'', %L::uuid)', v_b_lunes), 'CITA_YA_ENTREGADA');
+  perform pg_temp.esperar_error('Mover: una cita cancelada',
+    format('select * from mover_mi_cita(%L, %L::uuid)', v_token, v_b_lunes), 'CITA_YA_CANCELADA');
+  perform pg_temp.esperar_error('Mover: una cita de un día que ya pasó',
+    format('select * from mover_mi_cita(''token-prueba-pasada'', %L::uuid)', v_b_lunes), 'FECHA_PASADA');
+  perform pg_temp.esperar_error('Mover: un enlace que no existe',
+    format('select * from mover_mi_cita(''no-existe'', %L::uuid)', v_b_lunes), 'CITA_NO_EXISTE');
+
+  --  Quien ya tiene cita el lunes no puede mover la de otra semana al jueves:
+  --  serian dos en la misma semana.
+  insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+  values ('CB-PRB9', 'Prueba Semana Mover', 'Prueba', 'Semana Mover', '+16195550009') returning id into v_persona;
+  insert into citas (persona_id, bloque_id, semana, token_qr)
+  values (v_persona, v_b_lunes, date_trunc('week', v_lunes)::date, 'token-prueba-semana-a');
+  insert into citas (persona_id, bloque_id, semana, token_qr)
+  values (v_persona, v_b_ventana, date_trunc('week', v_ventana)::date, 'token-prueba-semana-b');
+
+  perform pg_temp.esperar_error('Mover: no puede quedarse con dos citas en la misma semana',
+    format('select * from mover_mi_cita(''token-prueba-semana-b'', %L::uuid)', v_b_jueves),
+    'YA_TIENE_CITA_ESTA_SEMANA');
+  perform pg_temp.comprobar('Mover: al no poder, su cita se queda donde estaba',
+    (select bloque_id from citas where token_qr = 'token-prueba-semana-b') = v_b_ventana);
+
+  -- ==========================================================
   --  11. Panel, escaneo y roles (como la primera cuenta admin)
   -- ==========================================================
   select usuario_id into v_admin from personal where rol = 'admin' and activo order by creado_en limit 1;
@@ -954,6 +1028,25 @@ begin
     perform pg_temp.comprobar('Roles: un voluntario no autoriza otro día sin el código del admin',
       v_texto = 'CODIGO_INVALIDO', v_texto);
 
+    -- ---------- Mover una cita desde el panel ----------
+    select id into v_cita from citas where token_qr = 'token-prueba-mover-panel';
+
+    perform pg_temp.esperar_ok('Panel: mueve la cita de alguien a otro horario',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_jueves));
+    perform pg_temp.comprobar('Panel: el movimiento guarda quién lo hizo',
+      (select count(*) from movimientos_cita
+        where cita_id = v_cita and origen = 'panel' and usuario_id = v_admin) = 1);
+    perform pg_temp.comprobar('Panel: moverla desde el panel no le gasta el cambio a la persona',
+      cambios_restantes('token-prueba-mover-panel') = 1,
+      cambios_restantes('token-prueba-mover-panel')::text);
+    perform pg_temp.esperar_ok('Panel: el historial de la cita se puede consultar',
+      format('select * from historial_de_cita(%L::uuid)', v_cita));
+    perform pg_temp.comprobar('Panel: el historial dice de qué horario a cuál',
+      (select count(*) from historial_de_cita(v_cita)
+        where de_fecha = v_ventana and a_fecha = v_jueves and origen = 'panel') = 1);
+    perform pg_temp.esperar_error('Panel: tampoco desde el panel se mete gente en un horario lleno',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_uno), 'BLOQUE_LLENO');
+
     -- ---------- Roles: sin sesion ----------
     perform set_config('request.jwt.claim.sub', '', true);
     perform set_config('request.jwt.claims', '', true);
@@ -966,6 +1059,8 @@ begin
       'select * from registrar_entrada_sin_cita(''Nombre Prueba'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve el equipo',
       'select * from listar_personal()', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se mueven citas desde el panel',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ven reportes',
       format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_SESION');
   end if;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleCheck, LuCircleX, LuDownload } from 'react-icons/lu'
+import { LuCalendarClock, LuCircleCheck, LuCircleX, LuDownload } from 'react-icons/lu'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
@@ -190,6 +190,15 @@ export default function Confirmacion() {
         </div>
 
         <div className="p-5">
+          {state?.movida && (
+            <p
+              className="mb-4 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar"
+              role="status"
+            >
+              {t('confirmacion.horarioCambiado')}
+            </p>
+          )}
+
           <img
             alt={t('confirmacion.qrAlt')}
             className="mx-auto w-full max-w-[280px] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
@@ -234,13 +243,19 @@ export default function Confirmacion() {
           {cancelable && (
             <div className="mt-6 border-t border-principal/10 pt-4">
               {!preguntando ? (
-                <button
-                  className="min-h-12 w-full text-base font-semibold text-ya-recibio underline underline-offset-4"
-                  onClick={() => setPreguntando(true)}
-                  type="button"
-                >
-                  {t('confirmacion.cancelar')}
-                </button>
+                <>
+                  <Boton onClick={() => navegar(`/cambiar/${token}`)} variant="secondary">
+                    <LuCalendarClock aria-hidden="true" className="h-5 w-5" />
+                    {t('confirmacion.cambiarHorario')}
+                  </Boton>
+                  <button
+                    className="mt-2 min-h-12 w-full text-base font-semibold text-ya-recibio underline underline-offset-4"
+                    onClick={() => setPreguntando(true)}
+                    type="button"
+                  >
+                    {t('confirmacion.cancelar')}
+                  </button>
+                </>
               ) : (
                 <div
                   aria-labelledby="pregunta-cancelar"

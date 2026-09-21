@@ -28,6 +28,10 @@ export const CODIGOS = [
   'BLOQUE_CERRADO',
   'BLOQUE_NO_EXISTE',
   'DIA_CERRADO',
+  'MISMO_HORARIO',
+  'YA_CAMBIO_HORARIO',
+  'YA_TIENE_CITA_ESTA_SEMANA',
+  'AUN_NO_ABRE',
 ]
 
 async function llamar(funcion, parametros) {
@@ -44,6 +48,29 @@ async function llamar(funcion, parametros) {
 /** La persona cancela su propia cita con el token de su QR. */
 export function cancelarMiCita(token) {
   return llamar('cancelar_mi_cita', { p_token: token })
+}
+
+/** Cuantos cambios de horario le quedan a la persona. 0 = ya no puede. */
+export async function cambiosRestantes(token) {
+  return (await llamar('cambios_restantes', { p_token: token })) ?? 0
+}
+
+/**
+ * La persona cambia su cita de horario con el token de su QR.
+ *
+ * Es la misma cita, movida: conserva su codigo CB y su QR. Si el horario
+ * nuevo se llena justo antes, la base lo deshace todo y se queda con el
+ * que ya tenia; nunca se queda sin cita.
+ */
+export async function moverMiCita(token, bloqueId) {
+  const data = await llamar('mover_mi_cita', { p_token: token, p_bloque_id: bloqueId })
+  return (Array.isArray(data) ? data[0] : data) ?? null
+}
+
+/** El administrador mueve una cita desde el panel, sin el limite de un cambio. */
+export async function moverCitaPanel(citaId, bloqueId) {
+  const data = await llamar('mover_cita_panel', { p_cita_id: citaId, p_bloque_id: bloqueId })
+  return (Array.isArray(data) ? data[0] : data) ?? null
 }
 
 /** El administrador cancela una cita de la lista del dia. */

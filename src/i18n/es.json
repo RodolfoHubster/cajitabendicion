@@ -149,10 +149,12 @@
     "noEncontrada": "No encontramos esa cita. Puede que el enlace esté incompleto.",
     "volverInicio": "Volver al inicio",
     "lista": "Tu cita está lista",
+    "horarioCambiado": "Listo, tu horario cambió. Tu código es el mismo.",
     "qrAlt": "Código QR de tu cita",
     "siNoSeLee": "Si el código no se lee, da este número:",
     "aNombreDe": "A nombre de",
     "unSoloUso": "Este código sirve una sola vez y es para una sola caja. Si otra persona de tu casa necesita una, debe registrarse por su cuenta.",
+    "cambiarHorario": "Cambiar mi horario",
     "guardarImagen": "Guardar imagen",
     "descargada": "Se descargó la imagen. Si no la ves en tus fotos, mantén presionado el código QR de arriba y elige «Guardar imagen» o «Agregar a Fotos».",
     "consejoCaptura": "También puedes tomarle una captura de pantalla.",
@@ -164,6 +166,22 @@
     "canceladaTitulo": "Tu cita fue cancelada",
     "canceladaTexto": "Tu lugar ya quedó libre. Si lo necesitas, puedes volver a registrarte.",
     "registrarOtra": "Hacer cita de nuevo"
+  },
+  "cambiar": {
+    "titulo": "Cambiar mi horario",
+    "cargando": "Buscando tu cita…",
+    "volver": "Volver a mi cita",
+    "tuCitaAhora": "Tu cita ahora",
+    "aviso": "Solo puedes cambiar tu horario una vez. Tu código {{codigo}} y tu código QR siguen siendo los mismos.",
+    "elegirDia": "Elige el día",
+    "elegirHora": "Elige la hora",
+    "actual": "El que tienes ahora",
+    "deAcuerdo": "Entiendo que solo puedo cambiar mi horario una vez.",
+    "confirmar": "Cambiar mi horario",
+    "cambiando": "Cambiando…",
+    "sinDias": "Ahorita no hay otros días con lugar. Vuelve a intentar más tarde.",
+    "noSePuede": "Esta cita ya no se puede cambiar.",
+    "yaCambiaste": "Ya cambiaste tu horario una vez. Si de verdad lo necesitas, llama a la iglesia al {{telefono}}."
   },
   "registro": {
     "cargando": "Preparando tu registro…",
@@ -537,7 +555,11 @@
       "NOMBRE_INVALIDO": "El nombre no lleva números.",
       "ENTRADA_NO_EXISTE": "No encontramos esa entrada.",
       "ENTRADA_YA_ANULADA": "Esa entrada ya estaba anulada.",
-      "SIN_CODIGOS_DISPONIBLES": "No se pudo generar el código. Intenta de nuevo."
+      "SIN_CODIGOS_DISPONIBLES": "No se pudo generar el código. Intenta de nuevo.",
+      "MISMO_HORARIO": "Ese es el horario que ya tienes. Elige otro.",
+      "YA_CAMBIO_HORARIO": "Ya cambiaste tu horario una vez. Si necesitas otro cambio, llama a la iglesia.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Ya tienes una cita esa semana. Solo se puede una por semana.",
+      "AUN_NO_ABRE": "Ese día todavía no abre."
     }
   },
   "sinCita": {

@@ -153,10 +153,12 @@
     "noEncontrada": "Không tìm thấy lịch hẹn này. Có thể đường liên kết chưa đầy đủ.",
     "volverInicio": "Về trang chủ",
     "lista": "Lịch hẹn của bạn đã sẵn sàng",
+    "horarioCambiado": "Xong, giờ hẹn của bạn đã đổi. Mã của bạn vẫn như cũ.",
     "qrAlt": "Mã QR cho lịch hẹn của bạn",
     "siNoSeLee": "Nếu không quét được mã, hãy đọc số này:",
     "aNombreDe": "Đăng ký cho",
     "unSoloUso": "Mã này chỉ dùng được một lần và cho một thùng hàng. Nếu người khác trong gia đình cũng cần, người đó phải tự đăng ký.",
+    "cambiarHorario": "Đổi giờ hẹn của tôi",
     "guardarImagen": "Lưu hình",
     "descargada": "Hình đã được tải xuống. Nếu không thấy trong ảnh, hãy nhấn giữ mã QR ở trên và chọn «Lưu hình ảnh» hoặc «Thêm vào Ảnh».",
     "consejoCaptura": "Bạn cũng có thể chụp màn hình.",
@@ -168,6 +170,22 @@
     "canceladaTitulo": "Lịch hẹn của bạn đã được hủy",
     "canceladaTexto": "Chỗ của bạn đã được trả lại. Nếu cần, bạn có thể đăng ký lại.",
     "registrarOtra": "Đặt lịch hẹn lại"
+  },
+  "cambiar": {
+    "titulo": "Đổi giờ hẹn của tôi",
+    "cargando": "Đang tìm cuộc hẹn của bạn…",
+    "volver": "Quay lại cuộc hẹn của tôi",
+    "tuCitaAhora": "Cuộc hẹn hiện tại của bạn",
+    "aviso": "Bạn chỉ có thể đổi giờ một lần. Mã {{codigo}} và mã QR của bạn vẫn giữ nguyên.",
+    "elegirDia": "Chọn ngày",
+    "elegirHora": "Chọn giờ",
+    "actual": "Giờ bạn đang có",
+    "deAcuerdo": "Tôi hiểu rằng tôi chỉ có thể đổi giờ một lần.",
+    "confirmar": "Đổi giờ hẹn của tôi",
+    "cambiando": "Đang đổi…",
+    "sinDias": "Hiện chưa có ngày nào còn chỗ. Xin thử lại sau.",
+    "noSePuede": "Cuộc hẹn này không thể đổi được nữa.",
+    "yaCambiaste": "Bạn đã đổi giờ một lần rồi. Nếu thật sự cần đổi thêm, xin gọi cho nhà thờ theo số {{telefono}}."
   },
   "registro": {
     "cargando": "Đang chuẩn bị đăng ký…",
@@ -535,7 +553,11 @@
       "NOMBRE_INVALIDO": "Tên không được có số.",
       "ENTRADA_NO_EXISTE": "Không tìm thấy mục này.",
       "ENTRADA_YA_ANULADA": "Mục này đã được hủy trước đó.",
-      "SIN_CODIGOS_DISPONIBLES": "Không thể tạo mã. Vui lòng thử lại."
+      "SIN_CODIGOS_DISPONIBLES": "Không thể tạo mã. Vui lòng thử lại.",
+      "MISMO_HORARIO": "Đó là giờ bạn đang có. Hãy chọn giờ khác.",
+      "YA_CAMBIO_HORARIO": "Bạn đã đổi giờ một lần rồi. Nếu cần đổi thêm, xin gọi cho nhà thờ.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Bạn đã có một cuộc hẹn trong tuần đó. Mỗi tuần chỉ được một lần.",
+      "AUN_NO_ABRE": "Ngày đó chưa mở."
     }
   },
   "sinCita": {

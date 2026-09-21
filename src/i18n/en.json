@@ -149,10 +149,12 @@
     "noEncontrada": "We could not find that appointment. The link may be incomplete.",
     "volverInicio": "Back to home",
     "lista": "Your appointment is set",
+    "horarioCambiado": "Done, your time was changed. Your code is the same.",
     "qrAlt": "QR code for your appointment",
     "siNoSeLee": "If the code will not scan, give this number:",
     "aNombreDe": "Under the name of",
     "unSoloUso": "This code works once and is for one box only. If someone else in your household needs one, they must register on their own.",
+    "cambiarHorario": "Change my time",
     "guardarImagen": "Save image",
     "descargada": "The image was downloaded. If you don’t see it in your photos, press and hold the QR code above and choose “Save Image” or “Add to Photos”.",
     "consejoCaptura": "You can also take a screenshot of it.",
@@ -164,6 +166,22 @@
     "canceladaTitulo": "Your appointment was cancelled",
     "canceladaTexto": "Your spot is now free. If you need to, you can register again.",
     "registrarOtra": "Make an appointment again"
+  },
+  "cambiar": {
+    "titulo": "Change my time",
+    "cargando": "Looking for your appointment…",
+    "volver": "Back to my appointment",
+    "tuCitaAhora": "Your appointment now",
+    "aviso": "You can change your time only once. Your code {{codigo}} and your QR code stay the same.",
+    "elegirDia": "Choose the day",
+    "elegirHora": "Choose the time",
+    "actual": "The one you have now",
+    "deAcuerdo": "I understand I can change my time only once.",
+    "confirmar": "Change my time",
+    "cambiando": "Changing…",
+    "sinDias": "There are no other days with room right now. Please try again later.",
+    "noSePuede": "This appointment can no longer be changed.",
+    "yaCambiaste": "You already changed your time once. If you really need another change, call the church at {{telefono}}."
   },
   "registro": {
     "cargando": "Getting your registration ready…",
@@ -537,7 +555,11 @@
       "NOMBRE_INVALIDO": "Names do not contain numbers.",
       "ENTRADA_NO_EXISTE": "We could not find that entry.",
       "ENTRADA_YA_ANULADA": "That entry was already voided.",
-      "SIN_CODIGOS_DISPONIBLES": "Could not generate the code. Please try again."
+      "SIN_CODIGOS_DISPONIBLES": "Could not generate the code. Please try again.",
+      "MISMO_HORARIO": "That is the time you already have. Choose another one.",
+      "YA_CAMBIO_HORARIO": "You already changed your time once. If you need another change, please call the church.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "You already have an appointment that week. Only one per week is allowed.",
+      "AUN_NO_ABRE": "That day is not open yet."
     }
   },
   "sinCita": {
