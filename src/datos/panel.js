@@ -36,6 +36,31 @@ export function bloquesDelDia(fecha) {
   return llamar('bloques_del_dia', fecha)
 }
 
+async function porCodigo(funcion, codigo) {
+  const { data, error } = await supabase.rpc(funcion, { p_codigo: codigo })
+
+  if (error) {
+    const deNegocio = error.message?.includes('PERSONA_NO_EXISTE') ? 'PERSONA_NO_EXISTE' : null
+    throw new Error(deNegocio ?? clasificarError(error))
+  }
+
+  return data
+}
+
+/**
+ * La ficha completa de una persona: domicilio exacto, contacto y cuando
+ * se registro. Lo que no va en las listas del dia.
+ */
+export async function detalleDePersona(codigo) {
+  const filas = await porCodigo('detalle_de_persona', codigo)
+  return (Array.isArray(filas) ? filas[0] : filas) ?? null
+}
+
+/** Sus citas, de la mas reciente para atras. */
+export async function citasDePersona(codigo) {
+  return (await porCodigo('citas_de_persona', codigo)) ?? []
+}
+
 // Errores de negocio que la base lanza como texto (BLOQUE_LLENO, etc.).
 const CODIGOS_REGISTRO = [
   'BLOQUE_LLENO',

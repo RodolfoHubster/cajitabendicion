@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Campo from './Campo'
+import DetallePersona from './DetallePersona'
 import Paginacion from './Paginacion'
 import PanelFiltros from './PanelFiltros'
 import Selector from './Selector'
@@ -56,6 +57,8 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
 
   // Cancelar desde la lista: la fila que se esta cancelando y su motivo.
   const [cancelando, setCancelando] = useState(null)
+  // El código de quien se está viendo en la ficha, o null.
+  const [ficha, setFicha] = useState(null)
   const [motivo, setMotivo] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [errorCancelar, setErrorCancelar] = useState(null)
@@ -278,20 +281,29 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                               </td>
                               <td className="py-2 pr-3 text-principal/70">{cita.ciudad ?? '—'}</td>
                               <td className="py-2 text-right">
-                                {puedeCancelar && cancelando !== llave && (
+                                <div className="flex items-center justify-end gap-3">
                                   <button
-                                    className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-ya-recibio underline underline-offset-4"
-                                    onClick={() => {
-                                      setCancelando(llave)
-                                      setMotivo('')
-                                      setErrorCancelar(null)
-                                      setCancelada(null)
-                                    }}
+                                    className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
+                                    onClick={() => setFicha(cita.codigo_corto)}
                                     type="button"
                                   >
-                                    {t('cancelarPanel.boton')}
+                                    {t('detalle.ver')}
                                   </button>
-                                )}
+                                  {puedeCancelar && cancelando !== llave && (
+                                    <button
+                                      className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-ya-recibio underline underline-offset-4"
+                                      onClick={() => {
+                                        setCancelando(llave)
+                                        setMotivo('')
+                                        setErrorCancelar(null)
+                                        setCancelada(null)
+                                      }}
+                                      type="button"
+                                    >
+                                      {t('cancelarPanel.boton')}
+                                    </button>
+                                  )}
+                                </div>
                               </td>
                             </tr>
 
@@ -369,6 +381,8 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
           </>
         )}
       </div>
+
+      {ficha && <DetallePersona alCerrar={() => setFicha(null)} codigo={ficha} />}
     </Tarjeta>
   )
 }

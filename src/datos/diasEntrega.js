@@ -119,6 +119,45 @@ export function agregarBloque({ fecha, hora, capacidad }) {
   return llamar('agregar_bloque', { p_fecha: fecha, p_hora: hora, p_capacidad: capacidad })
 }
 
+/**
+ * Cuantos horarios de 15 minutos caben entre dos horas, contando las dos
+ * puntas: de 2:00 a 6:30 PM son 19, no 18. Es la misma cuenta que hace
+ * crear_dia_entrega() en la base.
+ *
+ * Devuelve null si las horas no se entienden o la de fin va antes.
+ */
+export function contarHorarios(horaInicio, horaFin) {
+  const minutos = (hora) => {
+    const partes = /^(\d{1,2}):(\d{2})/.exec(String(hora ?? ''))
+    if (!partes) return null
+
+    const h = Number(partes[1])
+    const m = Number(partes[2])
+    return h > 23 || m > 59 ? null : h * 60 + m
+  }
+
+  const inicio = minutos(horaInicio)
+  const fin = minutos(horaFin)
+
+  if (inicio === null || fin === null || fin < inicio) return null
+
+  return Math.floor((fin - inicio) / 15) + 1
+}
+
+/**
+ * Cuanta gente cabe en total ese dia. Devuelve { horarios, porHorario,
+ * total }, o null si todavia no se puede calcular.
+ */
+export function totalDeLugares(horaInicio, horaFin, capacidad) {
+  const horarios = contarHorarios(horaInicio, horaFin)
+  const porHorario = Number(capacidad)
+
+  if (horarios === null) return null
+  if (String(capacidad).trim() === '' || !Number.isInteger(porHorario) || porHorario < 0) return null
+
+  return { horarios, porHorario, total: horarios * porHorario }
+}
+
 export function eliminarBloque(bloqueId) {
   return llamar('eliminar_bloque', { p_bloque_id: bloqueId })
 }

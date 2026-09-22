@@ -51,3 +51,4 @@ hace lo segundo, el día que alguien recree la base desde cero le va a faltar.
 | `2026-09-15-codigos-postales-datos.sql` | Datos del catálogo: códigos postales de California y Baja California (GeoNames, CC BY 4.0). Después de la anterior; se puede repetir |
 | `2026-09-21-cambiar-horario.sql` | Cambiar el horario de una cita sin perder el código CB ni el QR: la persona una vez desde su enlace, el panel sin límite, y `movimientos_cita` con el historial de cada cambio |
 | `2026-09-21-tope-por-dia.sql` | El tope por teléfono se cuenta por **fecha de entrega** y ya no por semana: con el tope en 1, el mismo celular aparta el lunes y también el jueves, pero no dos veces el mismo día. Solo cambia `registrar_y_reservar()` |
+| `2026-09-21-detalle-de-persona.sql` | El botón "Ver" del panel: `detalle_de_persona()` y `citas_de_persona()` con el domicilio exacto, el contacto y las citas anteriores. Solo admin |

@@ -998,6 +998,37 @@ begin
     select count(*) into v_numero from listar_personal() l where l.es_yo and l.tiene_codigo;
     perform pg_temp.comprobar('Equipo: la lista indica que ya tiene código', v_numero = 1, v_numero::text);
 
+    -- ---------- La ficha completa de una persona ----------
+    --  Se toma a alguien registrado desde el panel, con domicilio de Tijuana.
+    select p.codigo_corto into v_texto
+      from personas p
+     where p.codigo_postal = '22000' and p.calle is not null
+     order by p.creado_en desc
+     limit 1;
+
+    if v_texto is null then
+      perform pg_temp.comprobar('Ficha: OMITIDAS, no hay nadie con domicilio de prueba', true, 'omitidas');
+    else
+      select count(*) into v_numero from detalle_de_persona(v_texto) d
+       where d.calle is not null and d.codigo_postal = '22000' and d.pais = 'MX';
+      perform pg_temp.comprobar('Ficha: trae el domicilio exacto, no solo la ciudad', v_numero = 1, v_numero::text);
+
+      select count(*) into v_numero from detalle_de_persona(lower(v_texto));
+      perform pg_temp.comprobar('Ficha: el código funciona en minúsculas', v_numero = 1, v_numero::text);
+
+      select count(*) into v_numero from citas_de_persona(v_texto);
+      perform pg_temp.comprobar('Ficha: trae sus citas anteriores', v_numero >= 1, v_numero::text);
+    end if;
+
+    perform pg_temp.esperar_error('Ficha: un código que no existe',
+      'select * from detalle_de_persona(''CB-NOEXISTE'')', 'PERSONA_NO_EXISTE');
+    perform pg_temp.esperar_error('Ficha: sin código',
+      'select * from detalle_de_persona('' '')', 'PERSONA_NO_EXISTE');
+
+    select count(*) into v_numero from citas_de_persona('CB-PRB7') c where c.estado = 'no_asistio';
+    perform pg_temp.comprobar('Ficha: una cita de un día que ya pasó y nunca se escaneó sale como no asistió',
+      v_numero = 1, v_numero::text);
+
     -- ---------- Mover una cita desde el panel ----------
     select id into v_cita from citas where token_qr = 'token-prueba-mover-panel';
 
@@ -1024,6 +1055,8 @@ begin
       pg_temp.crear(v_nueva, '14:00', '18:30', 20, now() + interval '1 day'), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve la lista de personas',
       'select * from citas_del_dia(null)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve la ficha de una persona',
+      'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no registra desde el panel',
       pg_temp.panel(v_b_lunes), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no anota "entró sin cita"',
@@ -1072,6 +1105,8 @@ begin
       'select * from listar_personal()', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se mueven citas desde el panel',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve la ficha de una persona',
+      'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ven reportes',
       format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_SESION');
   end if;

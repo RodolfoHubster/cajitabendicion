@@ -12,6 +12,7 @@ import {
   crearDiaEntrega,
   listarDiasEntrega,
   suscriptoresSinEfecto,
+  totalDeLugares,
 } from '../../datos/diasEntrega'
 import { ahoraSanDiego, sumarDias } from '../../datos/disponibilidad'
 
@@ -31,6 +32,9 @@ function NuevoDia({ alCrear, alCancelar }) {
   const [horaInicio, setHoraInicio] = useState('14:00')
   const [horaFin, setHoraFin] = useState('18:30')
   const [capacidad, setCapacidad] = useState('20')
+
+  // Cuanta gente cabe con lo que lleva escrito, al vuelo.
+  const cabe = totalDeLugares(horaInicio, horaFin, capacidad)
   const [cuando, setCuando] = useState('programar')
   const [abreEn, setAbreEn] = useState('')
   const [conSuscriptores, setConSuscriptores] = useState(false)
@@ -124,6 +128,14 @@ function NuevoDia({ alCrear, alCancelar }) {
             />
           </div>
         </div>
+
+        {/* La cuenta completa antes de crear nada: es facil poner 20 en
+            cada horario sin caer en que son 380 cajas ese dia. */}
+        {cabe && (
+          <p className="rounded-xl bg-principal/5 p-3 text-base text-principal" role="status">
+            {t('diasAdmin.cabenEnTotal', cabe)}
+          </p>
+        )}
 
         <label className="flex flex-col gap-2" htmlFor="cuandoAbre">
           <span className="text-base font-semibold text-principal">{t('diasAdmin.cuandoAbre')}</span>

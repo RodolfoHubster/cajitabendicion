@@ -10,9 +10,11 @@ import {
   actualizarDiaEntrega,
   anticipoDe,
   calcularAnticipado,
+  contarHorarios,
   crearDiaEntrega,
   listarDiasEntrega,
   suscriptoresSinEfecto,
+  totalDeLugares,
 } from './diasEntrega'
 
 beforeEach(() => {
@@ -137,5 +139,37 @@ describe('llamadas a la base', () => {
     supabase.rpc.mockResolvedValue({ data: null, error: null })
     await actualizarBloque({ bloqueId: 'b1', cerrado: true })
     expect(supabase.rpc).toHaveBeenCalledWith('actualizar_bloque', { p_bloque_id: 'b1', p_capacidad: null, p_cerrado: true })
+  })
+})
+
+describe('cuanta gente cabe', () => {
+  it.each([
+    ['14:00', '18:30', 19],
+    ['14:00', '14:00', 1],
+    ['14:00', '15:00', 5],
+    ['14:00', '14:10', 1],
+  ])('de %s a %s son %i horarios', (inicio, fin, esperado) => {
+    expect(contarHorarios(inicio, fin)).toBe(esperado)
+  })
+
+  it.each([
+    ['18:30', '14:00'],
+    ['', '18:30'],
+    ['14:00', ''],
+    ['99:99', '18:30'],
+  ])('horas que no sirven: %s a %s', (inicio, fin) => {
+    expect(contarHorarios(inicio, fin)).toBeNull()
+  })
+
+  it('multiplica los horarios por los lugares de cada uno', () => {
+    expect(totalDeLugares('14:00', '15:00', 15)).toEqual({ horarios: 5, porHorario: 15, total: 75 })
+    expect(totalDeLugares('14:00', '18:30', 20)).toEqual({ horarios: 19, porHorario: 20, total: 380 })
+  })
+
+  it('sin lugares válidos no calcula nada', () => {
+    expect(totalDeLugares('14:00', '15:00', '')).toBeNull()
+    expect(totalDeLugares('14:00', '15:00', '-3')).toBeNull()
+    expect(totalDeLugares('14:00', '15:00', '2.5')).toBeNull()
+    expect(totalDeLugares('18:30', '14:00', 20)).toBeNull()
   })
 })
