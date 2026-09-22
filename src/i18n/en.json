@@ -199,7 +199,7 @@
       "BLOQUE_NO_EXISTE": "That time slot no longer exists. Please pick another.",
       "FECHA_PASADA": "That date has already passed.",
       "YA_TIENE_CITA_ESTA_SEMANA": "There is already an appointment for this week. You can book one per week: Monday or Thursday, not both.",
-      "LIMITE_DISPOSITIVO": "An appointment was already booked from this device this week. Each person needs to register from their own phone or computer.",
+      "LIMITE_DISPOSITIVO": "An appointment was already booked from this device for that day. Each person needs to register from their own phone or computer.",
       "NOMBRE_REQUERIDO": "Your name is missing.",
       "TELEFONO_REQUERIDO": "Your phone number is missing.",
       "EMAIL_REQUERIDO": "Your email is missing.",

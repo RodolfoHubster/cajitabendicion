@@ -514,10 +514,11 @@ create table if not exists configuracion (
 
 insert into configuracion (clave, valor, nota) values
   ('limite_citas_por_dispositivo', '1',
-   'Cuantas citas puede crear un mismo telefono por semana. Es un tope, ' ||
-   'no un muro: una ventana privada o borrar datos del navegador cuenta ' ||
-   'como dispositivo nuevo. Se sube cuando llega una familia que comparte ' ||
-   'un solo telefono.')
+   'Cuantas citas puede crear un mismo telefono POR FECHA DE ENTREGA. Con ' ||
+   '1, el mismo telefono aparta el lunes y tambien el jueves, pero no dos ' ||
+   'veces el mismo dia. Es un tope, no un muro: una ventana privada o ' ||
+   'borrar datos del navegador cuenta como dispositivo nuevo. Se sube ' ||
+   'cuando llega una familia que comparte un solo telefono.')
 on conflict (clave) do nothing;
 
 
@@ -589,7 +590,6 @@ declare
   v_abre_ant   timestamptz;
   v_codigo_dia text;
   v_dia_cerrado boolean;
-  v_semana     date;
   v_limite     int;
   v_usadas     int;
   v_persona    personas;
@@ -682,11 +682,15 @@ begin
     v_anticipada := true;
   end if;
 
-  v_semana := date_trunc('week', v_bloque.fecha)::date;
-
   -- ----------------------------------------------------------
   --  Tope por dispositivo
   -- ----------------------------------------------------------
+  --  Se cuenta por FECHA DE ENTREGA, no por semana: el lunes y el jueves
+  --  son dos entregas distintas. Con el tope en 1, un mismo telefono
+  --  aparta su lugar el lunes y tambien el jueves, pero nunca dos veces
+  --  el mismo dia. Se sube a 2 o 3 cuando llega una familia que comparte
+  --  un solo telefono.
+  --
   --  El candado serializa los registros de un mismo telefono. Sin el,
   --  tres pestanas mandando al mismo tiempo pasarian las tres el
   --  "cuantas lleva" antes de que ninguna hubiera insertado: es el
@@ -701,10 +705,11 @@ begin
     v_limite := coalesce(v_limite, 1);
 
     select count(*) into v_usadas
-      from citas
-     where dispositivo_id = p_dispositivo
-       and semana = v_semana
-       and estado <> 'cancelada';
+      from citas c
+      join bloques b on b.id = c.bloque_id
+     where c.dispositivo_id = p_dispositivo
+       and b.fecha = v_bloque.fecha
+       and c.estado <> 'cancelada';
 
     if v_usadas >= v_limite then
       raise exception 'LIMITE_DISPOSITIVO';

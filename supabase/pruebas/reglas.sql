@@ -418,20 +418,23 @@ begin
     pg_temp.registro(v_b_uno));
 
   -- ==========================================================
-  --  6. Limite por dispositivo (se pone en 2 solo durante la prueba)
+  --  6. Limite por dispositivo (cuenta por fecha de entrega)
   -- ==========================================================
+  --  Se pone en 2 solo durante la prueba; en la iglesia suele ser 1.
   insert into configuracion (clave, valor) values ('limite_citas_por_dispositivo', '2')
   on conflict (clave) do update set valor = excluded.valor;
 
-  perform pg_temp.esperar_ok('Dispositivo: 1a cita de la semana',
+  perform pg_temp.esperar_ok('Dispositivo: 1a cita del lunes',
     pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'));
-  perform pg_temp.esperar_ok('Dispositivo: 2a cita de la semana (jueves)',
-    pg_temp.registro(v_b_jueves, p_dispositivo => 'prueba-disp-a'));
-  perform pg_temp.esperar_error('Dispositivo: 3a cita la misma semana, ya no',
+  perform pg_temp.esperar_ok('Dispositivo: 2a cita del mismo lunes (el tope es 2)',
+    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'));
+  perform pg_temp.esperar_error('Dispositivo: 3a cita del mismo lunes, ya no',
     pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'), 'LIMITE_DISPOSITIVO');
+  perform pg_temp.esperar_ok('Dispositivo: el jueves de esa misma semana es otra entrega, sí puede',
+    pg_temp.registro(v_b_jueves, p_dispositivo => 'prueba-disp-a'));
   perform pg_temp.esperar_ok('Dispositivo: otro teléfono sí puede',
     pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-b'));
-  perform pg_temp.esperar_ok('Dispositivo: la semana siguiente vuelve a poder',
+  perform pg_temp.esperar_ok('Dispositivo: otra fecha más adelante también',
     pg_temp.registro(v_b_ventana, p_codigo => 'K7MP2Q', p_dispositivo => 'prueba-disp-a'));
   perform pg_temp.esperar_ok('Dispositivo: sin identificador (navegador bloqueado) no hay tope',
     pg_temp.registro(v_b_lunes, p_dispositivo => null));

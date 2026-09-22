@@ -203,7 +203,7 @@
       "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa. Hãy chọn khung giờ khác.",
       "FECHA_PASADA": "Ngày này đã qua.",
       "YA_TIENE_CITA_ESTA_SEMANA": "Tuần này đã có lịch hẹn. Mỗi tuần chỉ được đặt một lần: thứ Hai hoặc thứ Năm, không được cả hai.",
-      "LIMITE_DISPOSITIVO": "Thiết bị này đã đặt lịch hẹn trong tuần này. Mỗi người cần đăng ký bằng điện thoại hoặc máy tính của riêng mình.",
+      "LIMITE_DISPOSITIVO": "Thiết bị này đã đặt lịch hẹn cho ngày đó. Mỗi người cần đăng ký bằng điện thoại hoặc máy tính của riêng mình.",
       "NOMBRE_REQUERIDO": "Bạn chưa nhập họ tên.",
       "TELEFONO_REQUERIDO": "Bạn chưa nhập số điện thoại.",
       "EMAIL_REQUERIDO": "Bạn chưa nhập email.",

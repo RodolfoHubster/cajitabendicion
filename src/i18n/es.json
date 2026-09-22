@@ -199,7 +199,7 @@
       "BLOQUE_NO_EXISTE": "Ese horario ya no existe. Elige otro.",
       "FECHA_PASADA": "Esa fecha ya pasó.",
       "YA_TIENE_CITA_ESTA_SEMANA": "Ya hay una cita registrada para esta semana. Se puede reservar una por semana: lunes o jueves, no ambos.",
-      "LIMITE_DISPOSITIVO": "Desde este dispositivo ya se registró una cita esta semana. Cada persona necesita registrarse desde su propio celular o computadora.",
+      "LIMITE_DISPOSITIVO": "Desde este dispositivo ya se registró una cita para ese día. Cada persona necesita registrarse desde su propio celular o computadora.",
       "NOMBRE_REQUERIDO": "Falta tu nombre.",
       "TELEFONO_REQUERIDO": "Falta tu teléfono.",
       "EMAIL_REQUERIDO": "Falta tu correo electrónico.",
