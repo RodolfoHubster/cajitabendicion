@@ -1,51 +1,16 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCalendarDays, LuCheck, LuLock } from 'react-icons/lu'
-import { useNavigate } from 'react-router-dom'
-import Boton from '../../componentes/Boton'
+import { LuArrowRight, LuCar, LuFootprints, LuHeart } from 'react-icons/lu'
+import { Link, useNavigate } from 'react-router-dom'
+import ListaAvisos from '../../componentes/ListaAvisos'
 import { LogoCompleto } from '../../componentes/Logo'
 import Tarjeta from '../../componentes/Tarjeta'
 import TarjetaDonar from '../../componentes/TarjetaDonar'
 import Ubicacion from '../../componentes/Ubicacion'
 import { ORGANIZACION } from '../../datos/organizacion'
-import { aFechaLocal, consultarDisponibilidad, formatearFechaHora } from '../../datos/disponibilidad'
 
 export default function Inicio() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const navegar = useNavigate()
-
-  // undefined mientras carga, null si no hay fechas con lugar.
-  const [proxima, setProxima] = useState(undefined)
-
-  useEffect(() => {
-    let vigente = true
-
-    consultarDisponibilidad()
-      .then((bloques) => {
-        const conLugar = bloques.filter((bloque) => bloque.libres > 0)
-        const primero = conLugar[0]
-
-        if (!vigente) return
-        setProxima(
-          primero
-            ? {
-                fecha: primero.fecha,
-                horarios: conLugar.filter((bloque) => bloque.fecha === primero.fecha).length,
-                // Sin la migracion de apertura no llega `abierto`: se trata como abierta.
-                abierta: primero.abierto !== false,
-                abreEn: primero.abre_en,
-              }
-            : null,
-        )
-      })
-      .catch(() => {
-        if (vigente) setProxima(null)
-      })
-
-    return () => {
-      vigente = false
-    }
-  }, [])
 
   return (
     <div className="space-y-4">
@@ -67,62 +32,73 @@ export default function Inicio() {
             {t('marca.ministerio', { iglesia: ORGANIZACION.iglesia })}
           </p>
 
-          <Boton className="mt-3 max-w-sm" onClick={() => navegar('/calendario')}>
-            <LuCalendarDays aria-hidden="true" className="h-5 w-5" />
-            {t('inicio.elegir')}
-          </Boton>
+          <p className="mt-3 text-base font-semibold text-white">{t('inicio.comoVienes')}</p>
+
+          <div className="grid w-full max-w-md gap-3 sm:grid-cols-2">
+            <button
+              className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl bg-accion px-4 py-3 text-base font-bold text-principal shadow-sm transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+              onClick={() => navegar('/calendario')}
+              type="button"
+            >
+              <span className="flex items-center gap-2">
+                <LuCar aria-hidden="true" className="h-5 w-5" />
+                {t('inicio.enCarro')}
+              </span>
+            </button>
+
+            {/* Fase 2. Deshabilitado de verdad, no solo gris: un boton que
+                se ve apagado pero responde confunde mas que uno que no esta. */}
+            <button
+              aria-describedby="proximamente-a-pie"
+              className="flex min-h-14 cursor-not-allowed flex-col items-center justify-center gap-1 rounded-xl border border-white/25 bg-white/5 px-4 py-3 text-base font-bold text-white/60"
+              disabled
+              type="button"
+            >
+              <span className="flex items-center gap-2">
+                <LuFootprints aria-hidden="true" className="h-5 w-5" />
+                {t('inicio.aPie')}
+              </span>
+              <span
+                className="rounded-lg bg-white/15 px-2 py-0.5 text-base font-semibold text-white/80"
+                id="proximamente-a-pie"
+              >
+                {t('inicio.proximamente')}
+              </span>
+            </button>
+          </div>
+
+          <p className="text-base text-white/75">{t('inicio.aPieAviso')}</p>
 
           <p className="text-base font-semibold text-white">{t('inicio.gratuito')}</p>
         </div>
       </section>
 
-      <Tarjeta>
-        <p className="text-base text-principal/70">{t('inicio.proximaFecha')}</p>
-
-        {proxima === undefined && <p className="mt-1 text-base">{t('calendario.cargando')}</p>}
-
-        {proxima === null && <p className="mt-1 text-base">{t('inicio.sinProxima')}</p>}
-
-        {proxima && (
-          <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4">
-            <p className="font-titulo text-2xl font-bold first-letter:uppercase">
-              {new Intl.DateTimeFormat(i18n.language, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              }).format(aFechaLocal(proxima.fecha))}
-            </p>
-            {proxima.abierta ? (
-              <p className="text-base font-semibold text-puede-pasar">
-                {t('inicio.horariosLibres', { count: proxima.horarios })}
-              </p>
-            ) : (
-              <p className="flex items-center gap-1 text-base font-semibold text-principal">
-                <LuLock aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-                {t('calendario.abre', { cuando: formatearFechaHora(proxima.abreEn, i18n.language) })}
-              </p>
-            )}
-          </div>
-        )}
-      </Tarjeta>
-
       {/* Las reglas van antes del registro, no escondidas en el formulario:
           se aceptan mejor cuando se entienden desde el principio. */}
       <Tarjeta>
         <h2 className="text-xl font-bold">{t('inicio.antesDeEmpezar')}</h2>
-        <ul className="mt-3 space-y-3">
-          {[t('inicio.regla1'), t('inicio.regla2')].map((regla) => (
-            <li className="flex gap-3 text-base" key={regla}>
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-puede-pasar/15 text-puede-pasar">
-                <LuCheck aria-hidden="true" className="h-4 w-4" />
-              </span>
-              {regla}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-3">
+          <ListaAvisos respaldo={[t('inicio.reglaRespaldo')]} seccion="inicio" />
+        </div>
         <p className="mt-4 rounded-xl bg-principal/5 p-3 text-base text-principal/80">
           {t('inicio.yaTienesCita')}
         </p>
+      </Tarjeta>
+
+      <Tarjeta>
+        <Link
+          className="flex min-h-14 items-center justify-between gap-3 text-left"
+          to="/quienes-somos"
+        >
+          <span className="flex items-start gap-3">
+            <LuHeart aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-accion" />
+            <span>
+              <span className="block text-lg font-bold text-principal">{t('quienesSomos.titulo')}</span>
+              <span className="block text-base text-principal/70">{t('quienesSomos.invitacion')}</span>
+            </span>
+          </span>
+          <LuArrowRight aria-hidden="true" className="h-5 w-5 shrink-0 text-principal/60" />
+        </Link>
       </Tarjeta>
 
       <Ubicacion />
