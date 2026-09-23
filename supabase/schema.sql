@@ -2022,12 +2022,6 @@ begin
     raise exception 'DIA_CON_CITAS';
   end if;
 
-  --  Los horarios se van con su fecha. Antes se quedaban huerfanos: no
-  --  los veia nadie, porque todo lo publico pasa por dias_entrega, pero
-  --  seguian en la tabla y reaparecian si alguien volvia a crear esa
-  --  misma fecha. Aqui ya se sabe que ninguno tiene citas.
-  delete from bloques where fecha = p_fecha;
-
   delete from dias_entrega where fecha = p_fecha;
 
   if not found then
