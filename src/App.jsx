@@ -2,6 +2,7 @@ import AvisoIdioma from './componentes/AvisoIdioma'
 import Encabezado from './componentes/Encabezado'
 import Pie from './componentes/Pie'
 import AppRouter from './rutas/AppRouter'
+import IrArriba from './rutas/IrArriba'
 import { useAnchoPagina } from './rutas/anchoPagina'
 
 export default function App() {
@@ -10,6 +11,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-fondo text-principal">
+      {/* Antes del encabezado: no dibuja nada, solo sube el scroll al
+          cambiar de pantalla. */}
+      <IrArriba />
+
       <Encabezado />
       {/* Fuera del encabezado fijo: se va con el scroll en vez de robarle
           altura a la pantalla todo el tiempo. */}

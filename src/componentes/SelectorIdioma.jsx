@@ -51,7 +51,7 @@ export default function SelectorIdioma() {
         aria-expanded={abierto}
         aria-haspopup="menu"
         aria-label="Idioma · Language · Ngôn ngữ"
-        className="flex min-h-14 items-center gap-2 rounded-xl border border-white/30 bg-white/5 px-3 text-base font-semibold text-white transition hover:border-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"
+        className="flex min-h-12 items-center gap-2 rounded-xl border border-white/30 bg-white/5 px-2.5 text-base font-semibold text-white transition hover:border-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60 sm:min-h-14 sm:px-3"
         onClick={() => setAbierto((estaba) => !estaba)}
         type="button"
       >
