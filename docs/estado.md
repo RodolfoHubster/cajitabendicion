@@ -45,6 +45,12 @@ encontrar rota el día de la entrega.
   `/admin/pases` para darlos, renovarlos y revocarlos, y sus cajas contadas
   aparte en el resumen del día y en los reportes
 - Capa de datos en `src/datos/` con pruebas de Vitest al lado de cada archivo
+- **Ficha completa de la persona**: el botón "Ver" del panel abre el domicilio
+  exacto, el contacto y las citas anteriores (`detalle_de_persona`,
+  `citas_de_persona`). Solo admin
+- **Menú de idioma** en el encabezado, con cada idioma escrito en el suyo
+- **Total de lugares** calculado al crear una fecha, para saber de antemano
+  cuánta gente cabe ese día
 - Tres idiomas completos (es / en / vi), con el vietnamita marcado como en
   desarrollo
 
@@ -52,6 +58,11 @@ encontrar rota el día de la entrega.
 
 ## Pendiente inmediato
 
+- [ ] **Un pase cuyo QR no se deja leer no se puede buscar por código.**
+      `buscar_para_escaneo` consulta `from citas`, y un pase no tiene cita:
+      quien trae pase y se le raya el papel no aparece en el buscador del
+      escáner. El respaldo que existe para las citas no existe para los
+      pases. Pasa con la fila afuera y no hay cómo resolverlo desde el panel
 - [ ] **Pasar Supabase al plan Pro antes del primer día de entrega.** No es
       por capacidad —el plan gratis sobra por años— sino porque no incluye
       respaldos, y esta base guarda el padrón y el historial de entregas

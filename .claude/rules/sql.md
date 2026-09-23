@@ -32,7 +32,14 @@ sostiene la base, no el orden en que corra el código.
 
 ## Forma de una función nueva
 
-- `security definer` con `set search_path = public, pg_temp`
+- `security definer` con `set search_path = public, extensions, pg_temp`.
+  **`extensions` no es opcional**: ahí vive pgcrypto, y sin él
+  `gen_random_bytes()`, `crypt()` y `gen_salt()` truenan en tiempo de
+  ejecución, no al crear la función. Es lo que usan `reservar_cita`,
+  `registrar_y_reservar`, `crear_pase` y `renovar_pase` para los tokens.
+  Solo tres funciones del esquema usan la forma corta `public, pg_temp`
+  (`exigir_rol`, `mi_rol`, `buscar_codigo_postal`), porque no llaman a nada
+  de extensions. En la duda, la larga
 - Permisos con `exigir_rol(...)` **dentro** de la función, no solo en pantalla
 - Devuelve un código de texto estable (`VALIDO`, `YA_USADO`, `BLOQUE_LLENO`,
   `OTRA_FECHA`, `SIN_PERMISO`) que `src/datos/errores.js` traduce a mensaje
