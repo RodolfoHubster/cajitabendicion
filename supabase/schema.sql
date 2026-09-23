@@ -2022,6 +2022,12 @@ begin
     raise exception 'DIA_CON_CITAS';
   end if;
 
+  --  Los horarios se van con su fecha. Antes se quedaban huerfanos: no
+  --  los veia nadie, porque todo lo publico pasa por dias_entrega, pero
+  --  seguian en la tabla y reaparecian si alguien volvia a crear esa
+  --  misma fecha. Aqui ya se sabe que ninguno tiene citas.
+  delete from bloques where fecha = p_fecha;
+
   delete from dias_entrega where fecha = p_fecha;
 
   if not found then
@@ -3909,6 +3915,431 @@ $$;
 
 revoke execute on function pase_por_token(text) from public;
 grant  execute on function pase_por_token(text) to anon, authenticated;
+
+
+-- ============================================================
+--  30. AVISOS Y REGLAS EDITABLES
+-- ============================================================
+--  Lo que la gente lee en la portada y antes de confirmar su cita. Vive
+--  en la base y no en el codigo, porque cambia: la regla de "una cita por
+--  semana" ya cambio una vez, y el pastor no deberia necesitar a un
+--  programador para corregir un texto.
+--
+--  Estos textos explican las reglas; no las aplican. La regla de verdad
+--  esta en las funciones de esta base.
+
+--  Hasta ahora, cambiar "una cita por semana" en la portada era cambiar
+--  un archivo de traducciones y volver a publicar el sitio. Las reglas de
+--  la entrega cambian solas con el tiempo --la de la semana ya cambio-- y
+--  el pastor no deberia necesitar a un programador para eso.
+--
+--  Estos textos NO son reglas que el sistema aplique: son lo que la gente
+--  lee. La regla de verdad vive en las funciones de esta misma base. Si
+--  alguien borra el aviso de "una caja por codigo", el sistema lo sigue
+--  cumpliendo; nada mas deja de explicarlo.
+create table if not exists avisos (
+  id       uuid primary key default gen_random_uuid(),
+
+  --  'inicio'   -> la lista de "Antes de empezar" en la portada
+  --  'registro' -> lo que hay que leer y aceptar antes de sacar el QR
+  seccion  text not null check (seccion in ('inicio', 'registro', 'preguntas', 'quienes')),
+  orden    int  not null default 0,
+
+  --  En las preguntas frecuentes el titulo es la pregunta y el texto la
+  --  respuesta. En "quienes somos" es el encabezado del parrafo. En las
+  --  otras dos secciones va vacio.
+  titulo_es text,
+  titulo_en text,
+  titulo_vi text,
+
+  --  El espanol es el unico obligatorio: es el idioma en el que el pastor
+  --  escribe. Si falta la traduccion, la pantalla muestra el espanol antes
+  --  que dejar un hueco.
+  texto_es text not null,
+  texto_en text,
+  texto_vi text,
+
+  activo   boolean not null default true,
+
+  actualizado_por uuid,
+  actualizado_en  timestamptz not null default now()
+);
+
+create index if not exists idx_avisos_seccion on avisos (seccion, orden);
+
+alter table avisos enable row level security;
+
+
+--  Lo que ve el publico: solo los activos, en orden.
+create or replace function avisos_publicos(p_seccion text)
+returns table (
+  id        uuid,
+  orden     int,
+  titulo_es text,
+  titulo_en text,
+  titulo_vi text,
+  texto_es  text,
+  texto_en  text,
+  texto_vi  text
+)
+language sql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+  select a.id, a.orden, a.titulo_es, a.titulo_en, a.titulo_vi,
+         a.texto_es, a.texto_en, a.texto_vi
+    from avisos a
+   where a.seccion = p_seccion
+     and a.activo
+   order by a.orden, a.actualizado_en;
+$$;
+
+revoke execute on function avisos_publicos(text) from public;
+grant  execute on function avisos_publicos(text) to anon, authenticated;
+
+
+--  Todos, incluidos los apagados, para la pantalla que los administra.
+create or replace function listar_avisos()
+returns table (
+  id              uuid,
+  seccion         text,
+  orden           int,
+  titulo_es       text,
+  titulo_en       text,
+  titulo_vi       text,
+  texto_es        text,
+  texto_en        text,
+  texto_vi        text,
+  activo          boolean,
+  actualizado_en  timestamptz,
+  actualizado_por text
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  return query
+  select a.id, a.seccion, a.orden, a.titulo_es, a.titulo_en, a.titulo_vi,
+         a.texto_es, a.texto_en, a.texto_vi,
+         a.activo, a.actualizado_en, u.email::text
+    from avisos a
+    left join auth.users u on u.id = a.actualizado_por
+   order by a.seccion, a.orden, a.actualizado_en;
+end;
+$$;
+
+revoke execute on function listar_avisos() from public;
+grant  execute on function listar_avisos() to authenticated;
+
+
+--  Crear o cambiar uno. Sin id crea; con id, modifica.
+create or replace function guardar_aviso(
+  p_seccion   text,
+  p_texto_es  text,
+  p_id        uuid    default null,
+  p_texto_en  text    default null,
+  p_texto_vi  text    default null,
+  p_activo    boolean default true,
+  p_titulo_es text    default null,
+  p_titulo_en text    default null,
+  p_titulo_vi text    default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_id     uuid;
+  v_texto  text := regexp_replace(trim(coalesce(p_texto_es, '')), '\s+', ' ', 'g');
+  v_titulo text := nullif(regexp_replace(trim(coalesce(p_titulo_es, '')), '\s+', ' ', 'g'), '');
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_seccion not in ('inicio', 'registro', 'preguntas', 'quienes') then
+    raise exception 'SECCION_INVALIDA';
+  end if;
+
+  if v_texto = '' then
+    raise exception 'TEXTO_REQUERIDO';
+  end if;
+
+  --  Las respuestas de las preguntas frecuentes son mas largas que un
+  --  aviso de una linea, por eso el tope sube.
+  if length(v_texto) > 1200 then
+    raise exception 'TEXTO_LARGO';
+  end if;
+
+  --  Una pregunta sin pregunta no se entiende.
+  if p_seccion = 'preguntas' and v_titulo is null then
+    raise exception 'TITULO_REQUERIDO';
+  end if;
+
+  if p_id is null then
+    insert into avisos (seccion, orden, titulo_es, titulo_en, titulo_vi,
+                        texto_es, texto_en, texto_vi, activo, actualizado_por)
+    values (p_seccion,
+            coalesce((select max(a.orden) + 1 from avisos a where a.seccion = p_seccion), 1),
+            v_titulo,
+            nullif(trim(coalesce(p_titulo_en, '')), ''),
+            nullif(trim(coalesce(p_titulo_vi, '')), ''),
+            v_texto,
+            nullif(trim(coalesce(p_texto_en, '')), ''),
+            nullif(trim(coalesce(p_texto_vi, '')), ''),
+            coalesce(p_activo, true),
+            auth.uid())
+    returning id into v_id;
+
+    return v_id;
+  end if;
+
+  update avisos
+     set seccion         = p_seccion,
+         titulo_es       = v_titulo,
+         titulo_en       = nullif(trim(coalesce(p_titulo_en, '')), ''),
+         titulo_vi       = nullif(trim(coalesce(p_titulo_vi, '')), ''),
+         texto_es        = v_texto,
+         texto_en        = nullif(trim(coalesce(p_texto_en, '')), ''),
+         texto_vi        = nullif(trim(coalesce(p_texto_vi, '')), ''),
+         activo          = coalesce(p_activo, true),
+         actualizado_por = auth.uid(),
+         actualizado_en  = now()
+   where id = p_id
+  returning id into v_id;
+
+  if v_id is null then
+    raise exception 'AVISO_NO_EXISTE';
+  end if;
+
+  return v_id;
+end;
+$$;
+
+revoke execute on function guardar_aviso(text, text, uuid, text, text, boolean, text, text, text) from public;
+grant  execute on function guardar_aviso(text, text, uuid, text, text, boolean, text, text, text) to authenticated;
+
+
+--  Subirlo o bajarlo en su seccion: se intercambia el orden con el vecino.
+create or replace function mover_aviso(p_id uuid, p_hacia text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_aviso  avisos;
+  v_vecino avisos;
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_hacia not in ('arriba', 'abajo') then
+    raise exception 'DIRECCION_INVALIDA';
+  end if;
+
+  select * into v_aviso from avisos where id = p_id;
+  if not found then
+    raise exception 'AVISO_NO_EXISTE';
+  end if;
+
+  if p_hacia = 'arriba' then
+    select * into v_vecino
+      from avisos a
+     where a.seccion = v_aviso.seccion and a.orden < v_aviso.orden
+     order by a.orden desc
+     limit 1;
+  else
+    select * into v_vecino
+      from avisos a
+     where a.seccion = v_aviso.seccion and a.orden > v_aviso.orden
+     order by a.orden
+     limit 1;
+  end if;
+
+  --  Ya esta en la punta: no es un error, simplemente no se mueve.
+  if not found then
+    return 'SIN_CAMBIO';
+  end if;
+
+  update avisos set orden = v_vecino.orden where id = v_aviso.id;
+  update avisos set orden = v_aviso.orden  where id = v_vecino.id;
+
+  return 'MOVIDO';
+end;
+$$;
+
+revoke execute on function mover_aviso(uuid, text) from public;
+grant  execute on function mover_aviso(uuid, text) to authenticated;
+
+
+create or replace function eliminar_aviso(p_id uuid)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  delete from avisos where id = p_id;
+
+  if not found then
+    raise exception 'AVISO_NO_EXISTE';
+  end if;
+
+  return 'ELIMINADO';
+end;
+$$;
+
+revoke execute on function eliminar_aviso(uuid) from public;
+grant  execute on function eliminar_aviso(uuid) to authenticated;
+
+-- ------------------------------------------------------------
+--  Con lo que arranca
+-- ------------------------------------------------------------
+--  Solo si la tabla esta vacia. Asi la migracion se puede repetir sin
+--  pisarle al pastor lo que haya escrito.
+insert into avisos (seccion, orden, texto_es, texto_en, texto_vi)
+select v.seccion, v.orden, v.texto_es, v.texto_en, v.texto_vi
+  from (values
+    ('registro', 1,
+     'Llega 5 minutos antes de tu hora. Es obligatorio.',
+     'Arrive 5 minutes before your time. This is required.',
+     'Hãy đến sớm 5 phút trước giờ hẹn. Đây là bắt buộc.'),
+    ('registro', 2,
+     'Cada persona de 18 años o más que vaya a recibir una caja necesita su propio registro y su propio código.',
+     'Each person 18 or older who will receive a box needs their own registration and their own code.',
+     'Mỗi người từ 18 tuổi trở lên nhận phần quà cần đăng ký riêng và có mã riêng.'),
+    ('registro', 3,
+     'Solo puedes hacer un registro por cada día de entrega.',
+     'You can only make one registration per delivery day.',
+     'Mỗi ngày phát quà bạn chỉ được đăng ký một lần.'),
+    ('registro', 4,
+     'Puedes cambiar tu horario una sola vez.',
+     'You can change your time only once.',
+     'Bạn chỉ có thể đổi giờ một lần.'),
+    ('registro', 5,
+     'Tu código sirve para una sola caja y se usa una sola vez.',
+     'Your code is good for one box and can be used only once.',
+     'Mã của bạn chỉ dùng cho một phần quà và chỉ dùng được một lần.'),
+    ('registro', 6,
+     'Trae tu código listo, en el teléfono o impreso. Si no se deja leer, da tu número CB.',
+     'Have your code ready, on your phone or printed. If it will not scan, give your CB number.',
+     'Hãy chuẩn bị sẵn mã, trên điện thoại hoặc in ra. Nếu không quét được, hãy đọc số CB của bạn.'),
+    ('registro', 7,
+     'Quédate en tu carro y abre la cajuela cuando te toque.',
+     'Stay in your car and open the trunk when it is your turn.',
+     'Hãy ngồi trong xe và mở cốp khi đến lượt bạn.'),
+    ('registro', 8,
+     'Si ya no vas a poder venir, cancela tu cita para que otra persona ocupe tu lugar.',
+     'If you can no longer come, cancel your appointment so someone else can take your spot.',
+     'Nếu bạn không thể đến, hãy hủy lịch hẹn để người khác nhận chỗ của bạn.'),
+    ('inicio', 1,
+     'Cada persona de 18 años o más que reciba una caja necesita su propio registro y su propio código.',
+     'Each person 18 or older who receives a box needs their own registration and their own code.',
+     'Mỗi người từ 18 tuổi trở lên nhận phần quà cần đăng ký riêng và có mã riêng.'),
+    ('inicio', 2,
+     'Llega 5 minutos antes de la hora de tu cita.',
+     'Arrive 5 minutes before your appointment time.',
+     'Hãy đến sớm 5 phút trước giờ hẹn.'),
+    ('inicio', 3,
+     'Guarda tu código en el teléfono o imprímelo: lo necesitas el día de la entrega.',
+     'Save your code on your phone or print it: you need it on delivery day.',
+     'Hãy lưu mã vào điện thoại hoặc in ra: bạn cần nó vào ngày phát quà.')
+  ) as v(seccion, orden, texto_es, texto_en, texto_vi)
+ where not exists (select 1 from avisos);
+
+-- ------------------------------------------------------------
+--  Con lo que arrancan las dos secciones nuevas
+-- ------------------------------------------------------------
+--  Solo si esa seccion esta vacia, para no pisarle al pastor lo que haya
+--  escrito. Los datos de la iglesia salen de su propio sitio
+--  (casadealabanzasd.com) y de su recaudacion en GoFundMe.
+insert into avisos (seccion, orden, titulo_es, titulo_en, titulo_vi, texto_es, texto_en, texto_vi)
+select v.* from (values
+  ('preguntas', 1,
+   '¿Cuánto cuesta?', 'How much does it cost?', 'Chi phí bao nhiêu?',
+   'Nada. Los alimentos son gratuitos y tu cita no depende de ninguna donación.',
+   'Nothing. The food is free and your appointment does not depend on any donation.',
+   'Không mất gì cả. Thực phẩm là miễn phí và lịch hẹn của bạn không phụ thuộc vào việc quyên góp.'),
+  ('preguntas', 2,
+   '¿Qué días hay entrega?', 'Which days is there a delivery?', 'Những ngày nào có phát quà?',
+   'Lunes y jueves.',
+   'Mondays and Thursdays.',
+   'Thứ Hai và thứ Năm.'),
+  ('preguntas', 3,
+   '¿Tengo que registrarme cada vez?', 'Do I have to register every time?', 'Tôi có phải đăng ký mỗi lần không?',
+   'Sí. Necesitas un registro para cada día de entrega al que vayas a venir.',
+   'Yes. You need a registration for each delivery day you plan to come to.',
+   'Có. Bạn cần đăng ký cho mỗi ngày phát quà mà bạn định đến.'),
+  ('preguntas', 4,
+   '¿Qué llevo el día de la entrega?', 'What do I bring on delivery day?', 'Ngày phát quà tôi cần mang gì?',
+   'Tu código QR, en el teléfono o impreso. Si no se deja leer, da tu número CB y te encontramos igual.',
+   'Your QR code, on your phone or printed. If it will not scan, give your CB number and we will still find you.',
+   'Mã QR của bạn, trên điện thoại hoặc in ra. Nếu không quét được, hãy đọc số CB và chúng tôi vẫn tìm được bạn.'),
+  ('preguntas', 5,
+   '¿Puedo recoger la caja de otra persona?', 'Can I pick up someone else''s box?', 'Tôi có thể nhận phần quà của người khác không?',
+   'Cada persona de 18 años o más que vaya a recibir una caja necesita su propio registro y su propio código.',
+   'Each person 18 or older who will receive a box needs their own registration and their own code.',
+   'Mỗi người từ 18 tuổi trở lên nhận phần quà cần đăng ký riêng và có mã riêng.'),
+  ('preguntas', 6,
+   '¿Puedo cambiar mi horario?', 'Can I change my time?', 'Tôi có thể đổi giờ không?',
+   'Sí, una sola vez. Entra al enlace de tu código y toca «Cambiar mi horario».',
+   'Yes, once. Open your code''s link and tap “Change my time”.',
+   'Có, một lần duy nhất. Hãy mở đường dẫn mã của bạn và bấm «Đổi giờ hẹn của tôi».'),
+  ('preguntas', 7,
+   '¿Y si ya no voy a poder ir?', 'What if I can no longer come?', 'Nếu tôi không thể đến thì sao?',
+   'Cancela tu cita desde el enlace de tu código. Así otra persona puede ocupar tu lugar.',
+   'Cancel your appointment from your code''s link. That way someone else can take your spot.',
+   'Hãy hủy lịch hẹn từ đường dẫn mã của bạn. Như vậy người khác có thể nhận chỗ đó.'),
+  ('preguntas', 8,
+   '¿Qué pasa con mi información?', 'What happens with my information?', 'Thông tin của tôi được dùng thế nào?',
+   'Solo se usa para el registro interno de Cajita de Bendición y para organizar la entrega. No la compartimos con nadie, tampoco con las autoridades.',
+   'It is used only for Cajita de Bendición''s internal records and to organize the delivery. We do not share it with anyone, not with the authorities either.',
+   'Chỉ dùng cho hồ sơ nội bộ của Cajita de Bendición và để tổ chức việc phát quà. Chúng tôi không chia sẻ với bất kỳ ai, kể cả nhà chức trách.'),
+  ('preguntas', 9,
+   '¿Necesito documentos?', 'Do I need documents?', 'Tôi có cần giấy tờ không?',
+   'No. El registro pide tu nombre, tu teléfono y tu domicilio. No se piden documentos migratorios.',
+   'No. Registration asks for your name, your phone and your address. No immigration documents are requested.',
+   'Không. Đăng ký chỉ hỏi tên, số điện thoại và địa chỉ của bạn. Không yêu cầu giấy tờ di trú.'),
+  ('preguntas', 10,
+   'Perdí mi código, ¿qué hago?', 'I lost my code, what do I do?', 'Tôi mất mã rồi, phải làm sao?',
+   'Ven de todos modos el día de tu cita. Con tu nombre te podemos encontrar en la lista.',
+   'Come anyway on the day of your appointment. We can find you on the list with your name.',
+   'Bạn cứ đến vào ngày hẹn. Chúng tôi có thể tìm bạn trong danh sách bằng tên của bạn.'),
+
+  ('quienes', 1,
+   'Cajita de Bendición', 'Cajita de Bendición', 'Cajita de Bendición',
+   'Cajita de Bendición es el banco de alimentos de la Iglesia Casa de Alabanza, en City Heights, San Diego. Cada lunes y jueves se entrega despensa gratuita a quien la necesita, sin costo y sin condiciones.',
+   'Cajita de Bendición is the food bank of Iglesia Casa de Alabanza, in City Heights, San Diego. Every Monday and Thursday we hand out free groceries to whoever needs them, at no cost and with no strings attached.',
+   'Cajita de Bendición là ngân hàng thực phẩm của Iglesia Casa de Alabanza, ở City Heights, San Diego. Mỗi thứ Hai và thứ Năm, chúng tôi phát thực phẩm miễn phí cho những ai cần, không tốn phí và không điều kiện.'),
+  ('quienes', 2,
+   'La iglesia', 'The church', 'Nhà thờ',
+   'Casa de Alabanza — Comunidad en Cristo la fundaron en 2009 los pastores Raúl y Teresa Villalobos, originarios de Tecate, Baja California. Los pastores de jóvenes son David y Jennifer Villalobos. La iglesia está en 4250 El Cajon Blvd.',
+   'Casa de Alabanza — Comunidad en Cristo was founded in 2009 by pastors Raúl and Teresa Villalobos, originally from Tecate, Baja California. The youth pastors are David and Jennifer Villalobos. The church is at 4250 El Cajon Blvd.',
+   'Casa de Alabanza — Comunidad en Cristo được thành lập năm 2009 bởi mục sư Raúl và Teresa Villalobos, quê ở Tecate, Baja California. Mục sư thanh niên là David và Jennifer Villalobos. Nhà thờ ở số 4250 El Cajon Blvd.'),
+  ('quienes', 3,
+   'Más de 4,000 familias al mes', 'More than 4,000 families a month', 'Hơn 4.000 gia đình mỗi tháng',
+   'Hoy la iglesia alimenta a más de 4,000 familias cada mes, y su trabajo no termina en la comida: acompaña a las familias, guía a los jóvenes y sostiene a la comunidad.',
+   'Today the church feeds more than 4,000 families every month, and its work does not end with food: it walks with families, mentors young people and holds the community together.',
+   'Hiện nay nhà thờ nuôi hơn 4.000 gia đình mỗi tháng, và công việc không dừng ở thực phẩm: đồng hành cùng các gia đình, dìu dắt người trẻ và gắn kết cộng đồng.'),
+  ('quienes', 4,
+   'Un espacio más grande', 'A bigger space', 'Một không gian lớn hơn',
+   'El lugar actual ya no alcanza. La iglesia está juntando fondos para comprar un edificio que le permita seguir creciendo; sin él, el banco de alimentos está en riesgo.',
+   'The current space is no longer enough. The church is raising funds to buy a building that will let it keep growing; without it, the food bank is at risk.',
+   'Không gian hiện tại không còn đủ. Nhà thờ đang gây quỹ để mua một tòa nhà cho phép tiếp tục phát triển; nếu không, ngân hàng thực phẩm sẽ gặp rủi ro.'),
+  ('quienes', 5,
+   'Esta página', 'This page', 'Trang này',
+   'Este sitio existe para una sola cosa: que apartar tu lugar sea sencillo y que nadie pierda la tarde formado sin necesidad. Tu información se usa solo para organizar la entrega.',
+   'This site exists for one thing: to make saving your spot simple, so nobody loses an afternoon standing in line for nothing. Your information is used only to organize the delivery.',
+   'Trang này tồn tại vì một điều: giúp bạn giữ chỗ dễ dàng, để không ai phải mất cả buổi chiều xếp hàng vô ích. Thông tin của bạn chỉ dùng để tổ chức việc phát quà.')
+) as v(seccion, orden, titulo_es, titulo_en, titulo_vi, texto_es, texto_en, texto_vi)
+ where not exists (select 1 from avisos a where a.seccion in ('preguntas', 'quienes'));
 
 
 -- ============================================================
