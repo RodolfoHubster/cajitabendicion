@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuChevronDown, LuCircleCheck, LuLock, LuRefreshCw, LuTrash2 } from 'react-icons/lu'
+import { LuChevronDown, LuCircleCheck, LuLock, LuRefreshCw, LuTrash2, LuTriangleAlert } from 'react-icons/lu'
 import CamposApertura from './CamposApertura'
 import CodigoCopiable from './CodigoCopiable'
 import {
@@ -265,6 +265,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
   const [recargaBloques, setRecargaBloques] = useState(0)
   const [todos, setTodos] = useState('20')
   const [nuevaHora, setNuevaHora] = useState('')
+  const [preguntandoEliminar, setPreguntandoEliminar] = useState(false)
   const [nuevaCapacidad, setNuevaCapacidad] = useState('20')
 
   useEffect(() => {
@@ -355,7 +356,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
   }
 
   function eliminarFecha() {
-    if (!window.confirm(t('diasAdmin.confirmarEliminarFecha'))) return
+    setPreguntandoEliminar(false)
     ejecutar(() => eliminarDiaEntrega(dia.fecha), { seccion: 'eliminar' })
   }
 
@@ -488,12 +489,46 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
             )}
           </Seccion>
 
-          {/* Solo sin registros. Con registros se cierra, no se borra. */}
-          {dia.ocupados === 0 && (
+          {/* Solo sin registros. Con registros se cierra, no se borra:
+              borrarla le quitaria la cita a alguien sin que se entere. */}
+          {dia.ocupados > 0 ? (
+            <p className="rounded-xl bg-principal/5 p-3 text-base text-principal/80">
+              {t('diasAdmin.noSeElimina', { count: dia.ocupados })}
+            </p>
+          ) : preguntandoEliminar ? (
+            <div
+              aria-labelledby="pregunta-eliminar-fecha"
+              className="rounded-xl border-2 border-ya-recibio/40 bg-ya-recibio/5 p-4"
+              role="alertdialog"
+            >
+              <p className="flex items-start gap-2 text-base font-semibold text-principal" id="pregunta-eliminar-fecha">
+                <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ya-recibio" />
+                {t('diasAdmin.confirmarEliminarFecha', { fecha: titulo })}
+              </p>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <button
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+                  disabled={ocupado}
+                  onClick={eliminarFecha}
+                  type="button"
+                >
+                  {t('diasAdmin.siEliminar')}
+                </button>
+                <button
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+                  onClick={() => setPreguntandoEliminar(false)}
+                  type="button"
+                >
+                  {t('diasAdmin.noEliminar')}
+                </button>
+              </div>
+            </div>
+          ) : (
             <button
               className="min-h-12 px-1 text-base font-semibold text-ya-recibio underline underline-offset-4 disabled:opacity-50"
               disabled={ocupado}
-              onClick={eliminarFecha}
+              onClick={() => setPreguntandoEliminar(true)}
               type="button"
             >
               {t('diasAdmin.eliminarFecha')}
