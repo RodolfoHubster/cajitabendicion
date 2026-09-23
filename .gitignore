@@ -28,6 +28,15 @@ dist-ssr
 # Plantilla de variables de entorno (la regla .env.* de arriba la excluiria)
 !.env.example
 
-# Configuracion local de Claude Code (launch.json se queda en disco, fuera de git)
-.claude/
+# Claude Code: el andamiaje del proyecto SI se versiona (instrucciones,
+# reglas por ruta, comandos, subagentes y permisos), para que valga igual
+# en cualquier maquina y quede como parte del entregable. Lo que se queda
+# fuera es lo personal de cada quien y lo que puede traer secretos.
+.claude/*
+!.claude/rules/
+!.claude/commands/
+!.claude/agents/
+!.claude/settings.json
+.claude/settings.local.json
+.claude/launch.json
 .sesion-prueba.json
