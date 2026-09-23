@@ -180,10 +180,13 @@ begin
     raise exception 'PASE_YA_REVOCADO';
   end if;
 
-  update pases
+  --  Todo calificado con el alias: 'token' tambien es el nombre de una
+  --  de las columnas que devuelve esta funcion, y sin el alias Postgres
+  --  no sabe a cual se refiere.
+  update pases pa
      set token = encode(gen_random_bytes(24), 'hex')
-   where id = v_pase_id
-  returning token into v_token;
+   where pa.id = v_pase_id
+  returning pa.token into v_token;
 
   return query select v_codigo, v_nombre, v_token;
 end;
