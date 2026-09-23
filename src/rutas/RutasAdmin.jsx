@@ -1,4 +1,5 @@
 import { Route } from 'react-router-dom'
+import Avisos from '../paginas/admin/Avisos'
 import CitasDeHoy from '../paginas/admin/CitasDeHoy'
 import Equipo from '../paginas/admin/Equipo'
 import HorariosAdmin from '../paginas/admin/Horarios'
@@ -29,6 +30,7 @@ export default function RutasAdmin() {
             <Route element={<Pases />} path="/admin/pases" />
             <Route element={<Personas />} path="/admin/personas" />
             <Route element={<Reportes />} path="/admin/reportes" />
+            <Route element={<Avisos />} path="/admin/avisos" />
             <Route element={<Equipo />} path="/admin/equipo" />
           </Route>
 

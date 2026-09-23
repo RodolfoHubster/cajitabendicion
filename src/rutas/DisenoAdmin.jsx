@@ -10,6 +10,7 @@ const SECCIONES = [
   { a: '/admin/pases', clave: 'pases', roles: ['admin'] },
   { a: '/admin/personas', clave: 'personas', roles: ['admin'] },
   { a: '/admin/reportes', clave: 'reportes', roles: ['admin'] },
+  { a: '/admin/avisos', clave: 'avisos', roles: ['admin'] },
   { a: '/admin/equipo', clave: 'equipo', roles: ['admin'] },
   { a: '/escanear', clave: 'escanear', roles: ['admin', 'voluntario'] },
 ]

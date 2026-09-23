@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import AceptarReglas from '../../componentes/AceptarReglas'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
@@ -34,6 +35,7 @@ const CAMPOS = [
   'calle',
   'numero',
   'interior',
+  'acepto-reglas',
   'consentimiento',
 ]
 
@@ -57,6 +59,8 @@ export default function Registro() {
   const [email, setEmail] = useState('')
   const [domicilio, setDomicilio] = useState(DOMICILIO_VACIO)
   const [acepto, setAcepto] = useState(false)
+  //  Las indicaciones de la entrega, aparte del aviso de privacidad.
+  const [aceptoReglas, setAceptoReglas] = useState(false)
 
   // Un campo se marca en rojo al salir de el o al intentar enviar. Desde ahi
   // el mensaje cambia mientras escribe y desaparece en cuanto queda bien.
@@ -141,12 +145,15 @@ export default function Registro() {
     telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
     correo: mensajeCorreo(t, validarCorreo(email)),
     ...mensajesDomicilio(t, erroresDomicilio),
+    'acepto-reglas': aceptoReglas ? undefined : t('reglas.falta'),
     consentimiento: acepto ? undefined : t('privacidad.falta'),
   }
 
   // La casilla y "revisando el codigo postal" solo se avisan al intentar enviar.
   const errorDe = (campo) => {
-    if (!intento && (campo === 'consentimiento' || erroresDomicilio[campo] === 'BUSCANDO')) return undefined
+    if (!intento && (campo === 'consentimiento' || campo === 'acepto-reglas' || erroresDomicilio[campo] === 'BUSCANDO')) {
+      return undefined
+    }
     return intento || tocados.has(campo) ? errores[campo] : undefined
   }
 
@@ -286,6 +293,12 @@ export default function Registro() {
           errorDe={errorDe}
           tocar={tocar}
           valor={domicilio}
+        />
+
+        <AceptarReglas
+          acepto={aceptoReglas}
+          alCambiar={setAceptoReglas}
+          error={errorDe('acepto-reglas')}
         />
 
         <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} />

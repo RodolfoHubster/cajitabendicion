@@ -35,11 +35,14 @@
     "reportes": "Reports",
     "escanear": "Scan",
     "registrar": "Register a person",
-    "equipo": "Team & access"
+    "equipo": "Team & access",
+    "avisos": "Texts and rules"
   },
   "escaneo": {
     "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
     "apunta": "Looking for a code…",
+    "leido": "Code read",
+    "buscando": "Looking up the person…",
     "buscarManual": "Search by name or code",
     "buscarEtiqueta": "Name or code",
     "buscar": "Search",
@@ -355,13 +358,18 @@
     "titulo": "Book your appointment",
     "subtitulo": "Free groceries, Mondays and Thursdays",
     "antesDeEmpezar": "Before you start",
-    "regla1": "You can book one appointment per week: Monday or Thursday, not both.",
-    "regla2": "Every person 18 or older who receives a box needs their own registration and their own code.",
+    "reglaRespaldo": "Each person 18 or older who receives a box needs their own registration and their own code.",
     "proximaFecha": "Next available date",
     "horariosLibres_one": "{{count}} open time slot",
     "horariosLibres_other": "{{count}} open time slots",
     "sinProxima": "No dates are open right now. Please check back later.",
     "elegir": "Make an appointment here",
+    "comoVienes": "How will you get here?",
+    "enCarro": "By car",
+    "enCarroAyuda": "We hand it to you at your window",
+    "aPie": "On foot",
+    "proximamente": "Coming soon",
+    "aPieAviso": "For now the delivery is only in the car line. We are getting the walk-up line ready.",
     "gratuito": "The food is free. No donation is required.",
     "yaTienesCita": "Already have an appointment? Bring the saved image or screenshot of your code on distribution day."
   },
@@ -506,7 +514,11 @@
     "cupo": "Spots",
     "agregar": "Add time slot",
     "eliminarFecha": "Delete this date",
-    "confirmarEliminarFecha": "Delete this date and all its time slots? Only possible if nobody has registered.",
+    "confirmarEliminarFecha": "Delete {{fecha}} and all its time slots? This cannot be undone.",
+    "siEliminar": "Yes, delete the date",
+    "noEliminar": "No, keep it",
+    "noSeElimina_one": "This date cannot be deleted because it already has {{count}} registration. If there will be no delivery, close it instead: it stops showing to the public and nobody loses their appointment.",
+    "noSeElimina_other": "This date cannot be deleted because it already has {{count}} registrations. If there will be no delivery, close it instead: it stops showing to the public and nobody loses their appointment.",
     "errores": {
       "FECHA_PASADA": "That date has already passed.",
       "HORARIO_INVALIDO": "Check the times: the last slot cannot be before the first.",
@@ -913,5 +925,82 @@
     "casillaPanel": "The person confirmed to me that they share their information of their own free will.",
     "falta": "To register, check the confirmation box.",
     "faltaPanel": "Check the box: the person must confirm that they share their information."
+  },
+  "reglas": {
+    "titulo": "Before you confirm, please read this",
+    "casilla": "I read and accept these instructions.",
+    "falta": "You need to read and accept the instructions to continue.",
+    "respaldo1": "Arrive 5 minutes before your time. This is required.",
+    "respaldo2": "Your code is good for one box and can be used only once.",
+    "respaldo3": "You can change your time only once."
+  },
+  "avisos": {
+    "titulo": {
+      "preguntas": "The question (required)",
+      "quienes": "Heading (optional)"
+    },
+    "ayuda": "What people read on the home page and before confirming their appointment. You change it here, without touching the system. Note: this changes what is explained, not what the system does.",
+    "cargando": "Loading texts…",
+    "seccion": {
+      "inicio": "Home page",
+      "registro": "Before confirming the appointment",
+      "preguntas": "Frequently asked questions",
+      "quienes": "About us"
+    },
+    "donde": {
+      "inicio": "Shows on the home page, under “Before you start”.",
+      "registro": "Shows right before the button that creates the QR code, with a required checkbox.",
+      "preguntas": "Shows on the questions page, reached from the question mark on the home page.",
+      "quienes": "Shows on the “About us” page, reached from the home page."
+    },
+    "agregar": "Add a rule",
+    "editar": "Edit",
+    "quitar": "Remove",
+    "apagar": "Stop showing",
+    "prender": "Show again",
+    "apagado": "Not being shown",
+    "soloEspanol": "Spanish only",
+    "subir": "Move up",
+    "bajar": "Move down",
+    "nuevo": "New rule",
+    "editando": "Editing",
+    "enEspanol": "In Spanish (required)",
+    "enIngles": "In English",
+    "enVietnamita": "In Vietnamese",
+    "opcional": "Optional",
+    "sinTraduccion": "If you leave a translation empty, the Spanish one is shown instead.",
+    "guardar": "Save",
+    "guardando": "Saving…",
+    "cancelar": "Cancel",
+    "confirmarQuitar": "Remove this rule? “{{texto}}”",
+    "siQuitar": "Yes, remove it",
+    "no": "No, keep it",
+    "errores": {
+      "TEXTO_REQUERIDO": "Write the text in Spanish.",
+      "TEXTO_LARGO": "That text is too long. Shorten it a little.",
+      "SECCION_INVALIDA": "That section does not exist.",
+      "AVISO_NO_EXISTE": "That rule no longer exists. Reload the page.",
+      "TITULO_REQUERIDO": "Write the question."
+    },
+    "tituloAyuda": "Below, the same heading in English and Vietnamese. If you leave them empty, the Spanish one is shown.",
+    "cuerpo": {
+      "preguntas": "The answer, in Spanish (required)",
+      "quienes": "The paragraph, in Spanish (required)"
+    }
+  },
+  "preguntas": {
+    "titulo": "Frequently asked questions",
+    "ayuda": "What people ask us most. Tap a question to see the answer.",
+    "cargando": "Loading questions…",
+    "sinPreguntas": "There are no questions here yet.",
+    "masDudas": "Another question? Call us at {{telefono}} or ask the team on delivery day."
+  },
+  "quienesSomos": {
+    "titulo": "About us",
+    "invitacion": "The church, the ministry and why this page exists.",
+    "cargando": "Loading…",
+    "sinTexto": "There is no information here yet.",
+    "sitioIglesia": "Church website",
+    "verPreguntas": "Frequently asked questions"
   }
 }

@@ -40,11 +40,14 @@
     "reportes": "Báo cáo",
     "escanear": "Quét mã",
     "registrar": "Đăng ký cho người khác",
-    "equipo": "Nhóm và quyền truy cập"
+    "equipo": "Nhóm và quyền truy cập",
+    "avisos": "Văn bản và quy định"
   },
   "escaneo": {
     "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
     "apunta": "Đang tìm mã…",
+    "leido": "Đã đọc mã",
+    "buscando": "Đang tìm người…",
     "buscarManual": "Tìm theo tên hoặc mã",
     "buscarEtiqueta": "Tên hoặc mã",
     "buscar": "Tìm",
@@ -358,12 +361,17 @@
     "titulo": "Đặt lịch hẹn",
     "subtitulo": "Thực phẩm miễn phí, thứ Hai và thứ Năm",
     "antesDeEmpezar": "Trước khi bắt đầu",
-    "regla1": "Mỗi tuần bạn chỉ được đặt một lịch hẹn: thứ Hai hoặc thứ Năm, không được cả hai.",
-    "regla2": "Mỗi người từ 18 tuổi trở lên nhận một thùng hàng cần có đăng ký và mã riêng.",
+    "reglaRespaldo": "Mỗi người từ 18 tuổi trở lên nhận phần quà cần đăng ký riêng và có mã riêng.",
     "proximaFecha": "Ngày gần nhất còn trống",
     "horariosLibres_other": "{{count}} khung giờ còn trống",
     "sinProxima": "Hiện chưa có ngày nào mở. Vui lòng quay lại sau.",
     "elegir": "Đặt lịch hẹn tại đây",
+    "comoVienes": "Bạn sẽ đến bằng cách nào?",
+    "enCarro": "Bằng xe hơi",
+    "enCarroAyuda": "Chúng tôi trao tận cửa xe",
+    "aPie": "Đi bộ",
+    "proximamente": "Sắp có",
+    "aPieAviso": "Hiện tại chỉ phát ở hàng xe hơi. Chúng tôi đang chuẩn bị hàng dành cho người đi bộ.",
     "gratuito": "Thực phẩm hoàn toàn miễn phí. Không cần quyên góp.",
     "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng."
   },
@@ -506,7 +514,10 @@
     "cupo": "Số chỗ",
     "agregar": "Thêm khung giờ",
     "eliminarFecha": "Xóa ngày này",
-    "confirmarEliminarFecha": "Xóa ngày này và tất cả khung giờ? Chỉ được khi chưa có ai đăng ký.",
+    "confirmarEliminarFecha": "Xóa {{fecha}} và tất cả khung giờ của ngày đó? Không thể hoàn tác.",
+    "siEliminar": "Có, xóa ngày này",
+    "noEliminar": "Không, giữ lại",
+    "noSeElimina_other": "Không thể xóa ngày này vì đã có {{count}} lượt đăng ký. Nếu không phát quà, hãy đóng ngày đó: ngày sẽ không hiển thị với công chúng và không ai mất lịch hẹn.",
     "errores": {
       "FECHA_PASADA": "Ngày này đã qua.",
       "HORARIO_INVALIDO": "Hãy kiểm tra lại giờ: khung giờ cuối không được trước khung giờ đầu.",
@@ -911,5 +922,82 @@
     "casillaPanel": "Người này đã xác nhận với tôi rằng họ tự nguyện chia sẻ thông tin.",
     "falta": "Để đăng ký, hãy đánh dấu ô xác nhận.",
     "faltaPanel": "Hãy đánh dấu ô: người này cần xác nhận rằng họ tự nguyện chia sẻ thông tin."
+  },
+  "reglas": {
+    "titulo": "Trước khi xác nhận, xin đọc phần này",
+    "casilla": "Tôi đã đọc và chấp nhận những hướng dẫn này.",
+    "falta": "Bạn cần đọc và chấp nhận hướng dẫn để tiếp tục.",
+    "respaldo1": "Hãy đến sớm 5 phút trước giờ hẹn. Đây là bắt buộc.",
+    "respaldo2": "Mã của bạn chỉ dùng cho một phần quà và chỉ dùng được một lần.",
+    "respaldo3": "Bạn chỉ có thể đổi giờ một lần."
+  },
+  "avisos": {
+    "titulo": {
+      "preguntas": "Câu hỏi (bắt buộc)",
+      "quienes": "Tiêu đề (không bắt buộc)"
+    },
+    "ayuda": "Những gì mọi người đọc ở trang chủ và trước khi xác nhận lịch hẹn. Bạn thay đổi ở đây, không cần đụng vào hệ thống. Lưu ý: chỗ này đổi phần giải thích, không đổi cách hệ thống hoạt động.",
+    "cargando": "Đang tải văn bản…",
+    "seccion": {
+      "inicio": "Trang chủ",
+      "registro": "Trước khi xác nhận lịch hẹn",
+      "preguntas": "Câu hỏi thường gặp",
+      "quienes": "Về chúng tôi"
+    },
+    "donde": {
+      "inicio": "Hiển thị ở trang chủ, trong mục “Trước khi bắt đầu”.",
+      "registro": "Hiển thị ngay trước nút tạo mã QR, kèm ô đánh dấu bắt buộc.",
+      "preguntas": "Hiển thị ở trang câu hỏi, vào từ dấu chấm hỏi trên trang chủ.",
+      "quienes": "Hiển thị ở trang “Về chúng tôi”, vào từ trang chủ."
+    },
+    "agregar": "Thêm quy định",
+    "editar": "Sửa",
+    "quitar": "Xóa",
+    "apagar": "Ngừng hiển thị",
+    "prender": "Hiển thị lại",
+    "apagado": "Đang không hiển thị",
+    "soloEspanol": "Chỉ có tiếng Tây Ban Nha",
+    "subir": "Lên",
+    "bajar": "Xuống",
+    "nuevo": "Quy định mới",
+    "editando": "Đang sửa",
+    "enEspanol": "Tiếng Tây Ban Nha (bắt buộc)",
+    "enIngles": "Tiếng Anh",
+    "enVietnamita": "Tiếng Việt",
+    "opcional": "Không bắt buộc",
+    "sinTraduccion": "Nếu bỏ trống một bản dịch, bản tiếng Tây Ban Nha sẽ được hiển thị thay thế.",
+    "guardar": "Lưu",
+    "guardando": "Đang lưu…",
+    "cancelar": "Hủy",
+    "confirmarQuitar": "Xóa quy định này? «{{texto}}»",
+    "siQuitar": "Có, xóa đi",
+    "no": "Không, giữ lại",
+    "errores": {
+      "TEXTO_REQUERIDO": "Hãy viết nội dung bằng tiếng Tây Ban Nha.",
+      "TEXTO_LARGO": "Nội dung quá dài. Hãy rút ngắn lại.",
+      "SECCION_INVALIDA": "Mục đó không tồn tại.",
+      "AVISO_NO_EXISTE": "Quy định đó không còn tồn tại. Hãy tải lại trang.",
+      "TITULO_REQUERIDO": "Hãy viết câu hỏi."
+    },
+    "tituloAyuda": "Bên dưới là tiêu đề đó bằng tiếng Anh và tiếng Việt. Nếu bỏ trống, bản tiếng Tây Ban Nha sẽ hiển thị.",
+    "cuerpo": {
+      "preguntas": "Câu trả lời, bằng tiếng Tây Ban Nha (bắt buộc)",
+      "quienes": "Đoạn văn, bằng tiếng Tây Ban Nha (bắt buộc)"
+    }
+  },
+  "preguntas": {
+    "titulo": "Câu hỏi thường gặp",
+    "ayuda": "Những điều mọi người hay hỏi nhất. Bấm vào câu hỏi để xem câu trả lời.",
+    "cargando": "Đang tải câu hỏi…",
+    "sinPreguntas": "Chưa có câu hỏi nào ở đây.",
+    "masDudas": "Bạn còn thắc mắc khác? Hãy gọi {{telefono}} hoặc hỏi nhóm phục vụ vào ngày phát quà."
+  },
+  "quienesSomos": {
+    "titulo": "Về chúng tôi",
+    "invitacion": "Nhà thờ, mục vụ và lý do trang này tồn tại.",
+    "cargando": "Đang tải…",
+    "sinTexto": "Chưa có thông tin ở đây.",
+    "sitioIglesia": "Trang web nhà thờ",
+    "verPreguntas": "Câu hỏi thường gặp"
   }
 }

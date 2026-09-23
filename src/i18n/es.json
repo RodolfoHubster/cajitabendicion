@@ -35,11 +35,14 @@
     "reportes": "Reportes",
     "escanear": "Escanear",
     "registrar": "Registrar persona",
-    "equipo": "Equipo y accesos"
+    "equipo": "Equipo y accesos",
+    "avisos": "Textos y reglas"
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
     "apunta": "Buscando un código…",
+    "leido": "Código leído",
+    "buscando": "Buscando a la persona…",
     "buscarManual": "Buscar por nombre o código",
     "buscarEtiqueta": "Nombre o código",
     "buscar": "Buscar",
@@ -355,13 +358,18 @@
     "titulo": "Reserva tu cita",
     "subtitulo": "Despensa gratuita, lunes y jueves",
     "antesDeEmpezar": "Antes de empezar",
-    "regla1": "Puedes reservar una cita por semana: lunes o jueves, no ambos.",
-    "regla2": "Cada persona mayor de 18 años que reciba una caja necesita su propio registro y su propio código.",
+    "reglaRespaldo": "Cada persona de 18 años o más que reciba una caja necesita su propio registro y su propio código.",
     "proximaFecha": "Próxima fecha disponible",
     "horariosLibres_one": "{{count}} horario libre",
     "horariosLibres_other": "{{count}} horarios libres",
     "sinProxima": "Por ahora no hay fechas abiertas. Vuelve a revisar más adelante.",
     "elegir": "Hacer cita aquí",
+    "comoVienes": "¿Cómo vas a venir?",
+    "enCarro": "En carro",
+    "enCarroAyuda": "Te entregamos en la ventanilla",
+    "aPie": "A pie",
+    "proximamente": "Próximamente",
+    "aPieAviso": "Por ahora la entrega es solo en la fila de carros. Estamos preparando la fila para quien llega caminando.",
     "gratuito": "Los alimentos son gratuitos. No se requiere ninguna donación.",
     "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega."
   },
@@ -506,7 +514,11 @@
     "cupo": "Lugares",
     "agregar": "Agregar horario",
     "eliminarFecha": "Eliminar esta fecha",
-    "confirmarEliminarFecha": "¿Eliminar esta fecha y todos sus horarios? Solo se puede si nadie se ha registrado.",
+    "confirmarEliminarFecha": "¿Eliminar {{fecha}} y todos sus horarios? Esto no se puede deshacer.",
+    "siEliminar": "Sí, eliminar la fecha",
+    "noEliminar": "No, dejarla",
+    "noSeElimina_one": "Esta fecha no se puede eliminar porque ya tiene {{count}} registro. Si no va a haber entrega, ciérrala: deja de salir al público y nadie pierde su cita.",
+    "noSeElimina_other": "Esta fecha no se puede eliminar porque ya tiene {{count}} registros. Si no va a haber entrega, ciérrala: deja de salir al público y nadie pierde su cita.",
     "errores": {
       "FECHA_PASADA": "Esa fecha ya pasó.",
       "HORARIO_INVALIDO": "Revisa los horarios: el último no puede ser antes del primero.",
@@ -913,5 +925,82 @@
     "casillaPanel": "La persona me confirmó que comparte su información por su propia voluntad.",
     "falta": "Para registrarte, marca la casilla de confirmación.",
     "faltaPanel": "Marca la casilla: la persona debe confirmar que comparte su información."
+  },
+  "reglas": {
+    "titulo": "Antes de confirmar tu cita, lee esto",
+    "casilla": "Leí y acepto estas indicaciones.",
+    "falta": "Necesitas leer y aceptar las indicaciones para continuar.",
+    "respaldo1": "Llega 5 minutos antes de tu hora. Es obligatorio.",
+    "respaldo2": "Tu código sirve para una sola caja y se usa una sola vez.",
+    "respaldo3": "Puedes cambiar tu horario una sola vez."
+  },
+  "avisos": {
+    "titulo": {
+      "preguntas": "La pregunta (obligatoria)",
+      "quienes": "Encabezado (opcional)"
+    },
+    "ayuda": "Lo que la gente lee en la portada y antes de confirmar su cita. Se cambia aquí, sin tocar el sistema. Ojo: aquí se cambia lo que se explica, no lo que el sistema hace.",
+    "cargando": "Buscando los textos…",
+    "seccion": {
+      "inicio": "Portada",
+      "registro": "Antes de confirmar la cita",
+      "preguntas": "Preguntas frecuentes",
+      "quienes": "Quiénes somos"
+    },
+    "donde": {
+      "inicio": "Sale en la página de inicio, en “Antes de empezar”.",
+      "registro": "Sale justo antes del botón que genera el código QR, con una casilla obligatoria.",
+      "preguntas": "Sale en la página de preguntas frecuentes, en el signo de interrogación de la portada.",
+      "quienes": "Sale en la página “Quiénes somos”, a la que se entra desde la portada."
+    },
+    "agregar": "Agregar una regla",
+    "editar": "Editar",
+    "quitar": "Quitar",
+    "apagar": "Dejar de mostrar",
+    "prender": "Volver a mostrar",
+    "apagado": "No se está mostrando",
+    "soloEspanol": "Solo en español",
+    "subir": "Subir",
+    "bajar": "Bajar",
+    "nuevo": "Regla nueva",
+    "editando": "Editando",
+    "enEspanol": "En español (obligatorio)",
+    "enIngles": "En inglés",
+    "enVietnamita": "En vietnamita",
+    "opcional": "Opcional",
+    "sinTraduccion": "Si dejas una traducción vacía, se muestra el español en su lugar.",
+    "guardar": "Guardar",
+    "guardando": "Guardando…",
+    "cancelar": "Cancelar",
+    "confirmarQuitar": "¿Quitar esta regla? «{{texto}}»",
+    "siQuitar": "Sí, quitarla",
+    "no": "No, dejarla",
+    "errores": {
+      "TEXTO_REQUERIDO": "Escribe el texto en español.",
+      "TEXTO_LARGO": "Ese texto es muy largo. Córtalo un poco.",
+      "SECCION_INVALIDA": "Esa sección no existe.",
+      "AVISO_NO_EXISTE": "Esa regla ya no existe. Recarga la página.",
+      "TITULO_REQUERIDO": "Escribe la pregunta."
+    },
+    "tituloAyuda": "Abajo, el mismo título en inglés y en vietnamita. Si los dejas vacíos, se muestra el español.",
+    "cuerpo": {
+      "preguntas": "La respuesta, en español (obligatoria)",
+      "quienes": "El párrafo, en español (obligatorio)"
+    }
+  },
+  "preguntas": {
+    "titulo": "Preguntas frecuentes",
+    "ayuda": "Lo que más nos preguntan. Toca una pregunta para ver la respuesta.",
+    "cargando": "Buscando las preguntas…",
+    "sinPreguntas": "Todavía no hay preguntas aquí.",
+    "masDudas": "¿Tienes otra duda? Llámanos al {{telefono}} o pregúntale al equipo el día de la entrega."
+  },
+  "quienesSomos": {
+    "titulo": "Quiénes somos",
+    "invitacion": "La iglesia, el ministerio y por qué existe esta página.",
+    "cargando": "Cargando…",
+    "sinTexto": "Todavía no hay información aquí.",
+    "sitioIglesia": "Sitio de la iglesia",
+    "verPreguntas": "Preguntas frecuentes"
   }
 }
