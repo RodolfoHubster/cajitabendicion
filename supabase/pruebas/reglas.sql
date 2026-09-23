@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-21-cambiar-horario.sql.
+--  Requiere todas las migraciones, hasta 2026-09-23-preguntas-y-quienes-somos.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -46,6 +46,8 @@ declare
   v_admin        uuid;
   v_persona      uuid;
   v_cita         uuid;
+  v_aviso        uuid;
+  v_aviso2       uuid;
   v_token        text;
   v_token_otro   text;
   v_codigo       text;
@@ -998,6 +1000,56 @@ begin
     select count(*) into v_numero from listar_personal() l where l.es_yo and l.tiene_codigo;
     perform pg_temp.comprobar('Equipo: la lista indica que ya tiene código', v_numero = 1, v_numero::text);
 
+    -- ---------- Textos y reglas editables ----------
+    perform pg_temp.esperar_error('Avisos: sin texto no se guarda',
+      'select guardar_aviso(''inicio'', ''   '')', 'TEXTO_REQUERIDO');
+    perform pg_temp.esperar_error('Avisos: una sección que no existe',
+      'select guardar_aviso(''portada'', ''Hola'')', 'SECCION_INVALIDA');
+    perform pg_temp.esperar_error('Avisos: una pregunta frecuente sin pregunta',
+      'select guardar_aviso(''preguntas'', ''Una respuesta suelta'')', 'TITULO_REQUERIDO');
+
+    select guardar_aviso('inicio', 'Aviso de prueba') into v_aviso;
+    perform pg_temp.comprobar('Avisos: se crea y devuelve su id', v_aviso is not null);
+
+    select count(*) into v_numero from avisos_publicos('inicio') a where a.id = v_aviso;
+    perform pg_temp.comprobar('Avisos: sale en lo que ve la gente', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_ok('Avisos: se apaga sin borrarlo',
+      format('select guardar_aviso(''inicio'', ''Aviso de prueba'', %L::uuid, null, null, false)', v_aviso));
+
+    select count(*) into v_numero from avisos_publicos('inicio') a where a.id = v_aviso;
+    perform pg_temp.comprobar('Avisos: apagado ya no sale al público', v_numero = 0, v_numero::text);
+
+    select count(*) into v_numero from listar_avisos() l where l.id = v_aviso;
+    perform pg_temp.comprobar('Avisos: apagado sí sigue en el panel', v_numero = 1, v_numero::text);
+
+    --  El orden: el nuevo se va al final y las flechitas lo mueven.
+    select guardar_aviso('quienes', 'Parrafo de prueba A', null, null, null, true, 'Encabezado A') into v_aviso;
+    select guardar_aviso('quienes', 'Parrafo de prueba B', null, null, null, true, 'Encabezado B') into v_aviso2;
+
+    select string_agg(a.texto_es, ' | ' order by a.orden) into v_texto from avisos_publicos('quienes') a;
+    perform pg_temp.comprobar('Avisos: el nuevo entra al final de su sección',
+      v_texto like '%Parrafo de prueba A | Parrafo de prueba B%', v_texto);
+
+    perform pg_temp.esperar_ok('Avisos: se sube uno de lugar',
+      format('select mover_aviso(%L::uuid, ''arriba'')', v_aviso2));
+
+    select string_agg(a.texto_es, ' | ' order by a.orden) into v_texto from avisos_publicos('quienes') a;
+    perform pg_temp.comprobar('Avisos: al subirlo se intercambia con el de arriba',
+      v_texto like '%Parrafo de prueba B | Parrafo de prueba A%', v_texto);
+
+    select a.id into v_aviso from avisos_publicos('quienes') a order by a.orden limit 1;
+    select mover_aviso(v_aviso, 'arriba') into v_texto;
+    perform pg_temp.comprobar('Avisos: el primero ya no sube más', v_texto = 'SIN_CAMBIO', v_texto);
+
+    perform pg_temp.esperar_error('Avisos: una dirección que no existe',
+      format('select mover_aviso(%L::uuid, ''al lado'')', v_aviso), 'DIRECCION_INVALIDA');
+
+    perform pg_temp.esperar_ok('Avisos: se quita uno',
+      format('select eliminar_aviso(%L::uuid)', v_aviso2));
+    perform pg_temp.esperar_error('Avisos: quitar uno que ya no está',
+      format('select eliminar_aviso(%L::uuid)', v_aviso2), 'AVISO_NO_EXISTE');
+
     -- ---------- Pases permanentes ----------
     --  Un pase solo sirve en un dia de entrega abierto. Hoy ya existe
     --  como fecha (lo hizo la parte del escaneo); aqui se asegura de que
@@ -1138,6 +1190,12 @@ begin
       'select revocar_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve la lista de pases',
       'select * from listar_pases()', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no edita los textos',
+      'select guardar_aviso(''inicio'', ''Texto'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve la lista de textos',
+      'select * from listar_avisos()', 'SIN_PERMISO');
+    perform pg_temp.esperar_ok('Roles: los textos públicos sí los ve cualquiera',
+      'select * from avisos_publicos(''inicio'')');
     perform pg_temp.esperar_error('Roles: un voluntario no registra desde el panel',
       pg_temp.panel(v_b_lunes), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no anota "entró sin cita"',
@@ -1186,6 +1244,8 @@ begin
       'select * from listar_personal()', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se mueven citas desde el panel',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se editan los textos',
+      'select guardar_aviso(''inicio'', ''Texto'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se dan pases permanentes',
       'select * from crear_pase(''CB-PRP1'', null)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve la ficha de una persona',
