@@ -4,6 +4,7 @@ import CambiarHorario from '../paginas/publico/CambiarHorario'
 import Confirmacion from '../paginas/publico/Confirmacion'
 import Horarios from '../paginas/publico/Horarios'
 import Inicio from '../paginas/publico/Inicio'
+import Pase from '../paginas/publico/Pase'
 import Registro from '../paginas/publico/Registro'
 
 export default function RutasPublicas() {
@@ -15,6 +16,7 @@ export default function RutasPublicas() {
       <Route element={<Registro />} path="/registro" />
       <Route element={<Confirmacion />} path="/confirmacion/:id" />
       <Route element={<CambiarHorario />} path="/cambiar/:id" />
+      <Route element={<Pase />} path="/pase/:id" />
     </>
   )
 }

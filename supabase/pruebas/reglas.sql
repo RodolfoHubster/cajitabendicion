@@ -998,6 +998,81 @@ begin
     select count(*) into v_numero from listar_personal() l where l.es_yo and l.tiene_codigo;
     perform pg_temp.comprobar('Equipo: la lista indica que ya tiene código', v_numero = 1, v_numero::text);
 
+    -- ---------- Pases permanentes ----------
+    --  Un pase solo sirve en un dia de entrega abierto. Hoy ya existe
+    --  como fecha (lo hizo la parte del escaneo); aqui se asegura de que
+    --  no este cerrada. Todo esto se deshace al final, como el resto.
+    update dias_entrega set cerrado = false where fecha = v_hoy;
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRP1', 'Prueba Pase', 'Prueba', 'Pase', '+16195550021') returning id into v_persona;
+
+    perform pg_temp.esperar_error('Pase: no se le da a un código que no existe',
+      'select * from crear_pase(''CB-NOEXISTE'', ''Prueba'')', 'PERSONA_NO_EXISTE');
+
+    select p.token into v_token from crear_pase('CB-PRP1', 'Adulto mayor') p;
+    perform pg_temp.comprobar('Pase: se crea y devuelve su código', v_token is not null);
+
+    select count(*) into v_numero from listar_pases() l
+     where l.codigo_corto = 'CB-PRP1' and l.activo;
+    perform pg_temp.comprobar('Pase: aparece en la lista, activo', v_numero = 1, v_numero::text);
+
+    select r.resultado into v_texto from registrar_entrega(v_token) r;
+    perform pg_temp.comprobar('Pase: al escanearlo entrega la caja', v_texto = 'VALIDO_PASE', v_texto);
+
+    select r.resultado into v_texto from registrar_entrega(v_token) r;
+    perform pg_temp.comprobar('Pase: el mismo día no da una segunda caja (una copia tampoco)',
+      v_texto = 'YA_USADO', v_texto);
+
+    select s.con_pase into v_numero from resumen_del_dia(v_hoy) s;
+    perform pg_temp.comprobar('Pase: su caja cuenta en el resumen del día', v_numero = 1, v_numero::text);
+
+    select count(*) into v_numero from entregas_pase_del_dia(v_hoy) e where e.codigo_corto = 'CB-PRP1';
+    perform pg_temp.comprobar('Pase: sale en la lista de pases del día', v_numero = 1, v_numero::text);
+
+    select r.cajas into v_numero from reporte_por_dias(v_hoy, v_hoy) r;
+    perform pg_temp.comprobar('Pase: su caja suma en el total de cajas del reporte', v_numero >= 1, v_numero::text);
+
+    --  Lo que pidio el pastor: el pase NO aparta lugar. No le crea cita.
+    select count(*) into v_numero
+      from citas c
+      join bloques b on b.id = c.bloque_id
+      join personas p on p.id = c.persona_id
+     where b.fecha = v_hoy and p.codigo_corto = 'CB-PRP1';
+    perform pg_temp.comprobar('Pase: no aparta lugar del cupo', v_numero = 0, v_numero::text);
+
+    --  Renovar: al pase le sale otro codigo y el viejo muere, sin
+    --  revocar nada. Es lo que se usa cuando el codigo anda circulando.
+    select p.token into v_token_otro from renovar_pase('CB-PRP1') p;
+    perform pg_temp.comprobar('Pase: renovarlo le da un código distinto',
+      v_token_otro is distinct from v_token, coalesce(v_token_otro, 'sin código'));
+
+    select r.resultado into v_texto from registrar_entrega(v_token) r;
+    perform pg_temp.comprobar('Pase: el código viejo ya no sirve después de renovar',
+      v_texto = 'NO_EXISTE', v_texto);
+
+    select count(*) into v_numero from listar_pases() l where l.codigo_corto = 'CB-PRP1' and l.activo;
+    perform pg_temp.comprobar('Pase: al renovarlo el pase sigue activo', v_numero = 1, v_numero::text);
+
+    --  De aqui en adelante, el codigo bueno es el nuevo.
+    v_token := v_token_otro;
+
+    perform pg_temp.esperar_ok('Pase: se revoca', 'select revocar_pase(''CB-PRP1'', ''Ya no lo necesita'')');
+    perform pg_temp.esperar_error('Pase: renovar uno revocado no lo revive',
+      'select * from renovar_pase(''CB-PRP1'')', 'PASE_YA_REVOCADO');
+    perform pg_temp.esperar_error('Pase: no se revoca dos veces',
+      'select revocar_pase(''CB-PRP1'', null)', 'PASE_YA_REVOCADO');
+
+    select r.resultado into v_texto from registrar_entrega(v_token) r;
+    perform pg_temp.comprobar('Pase: revocado ya no sirve', v_texto = 'PASE_REVOCADO', v_texto);
+
+    select p.token into v_texto from crear_pase('CB-PRP1', 'Se le devuelve') p;
+    perform pg_temp.comprobar('Pase: al devolvérselo se le da un código nuevo y el viejo ya no sirve',
+      v_texto is distinct from v_token, coalesce(v_texto, 'sin código'));
+
+    perform pg_temp.esperar_error('Pase: revocar uno que no existe',
+      'select revocar_pase(''CB-PRB3'', null)', 'PASE_NO_EXISTE');
+
     -- ---------- La ficha completa de una persona ----------
     --  Se toma a alguien registrado desde el panel, con domicilio de Tijuana.
     select p.codigo_corto into v_texto
@@ -1057,6 +1132,12 @@ begin
       'select * from citas_del_dia(null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve la ficha de una persona',
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no da pases permanentes',
+      'select * from crear_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no revoca pases',
+      'select revocar_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve la lista de pases',
+      'select * from listar_pases()', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no registra desde el panel',
       pg_temp.panel(v_b_lunes), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no anota "entró sin cita"',
@@ -1105,6 +1186,8 @@ begin
       'select * from listar_personal()', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se mueven citas desde el panel',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se dan pases permanentes',
+      'select * from crear_pase(''CB-PRP1'', null)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve la ficha de una persona',
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ven reportes',

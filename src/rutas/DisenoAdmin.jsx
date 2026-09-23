@@ -7,6 +7,7 @@ const SECCIONES = [
   { a: '/admin', clave: 'citasHoy', exacta: true, roles: ['admin'] },
   { a: '/admin/registrar', clave: 'registrar', roles: ['admin'] },
   { a: '/admin/horarios', clave: 'horarios', roles: ['admin'] },
+  { a: '/admin/pases', clave: 'pases', roles: ['admin'] },
   { a: '/admin/personas', clave: 'personas', roles: ['admin'] },
   { a: '/admin/reportes', clave: 'reportes', roles: ['admin'] },
   { a: '/admin/equipo', clave: 'equipo', roles: ['admin'] },

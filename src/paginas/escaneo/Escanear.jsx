@@ -15,6 +15,7 @@ import {
   registrarEntregaAutorizadaPorCodigo,
   registrarEntregaPorCodigo,
   verCita,
+  verPase,
 } from '../../datos/escaneo'
 import { hoyLocal } from '../../datos/panel'
 
@@ -22,6 +23,9 @@ import { hoyLocal } from '../../datos/panel'
 const ESTILO_RESULTADO = {
   VALIDO: 'bg-puede-pasar/15 text-puede-pasar border-puede-pasar',
   VALIDO_AUTORIZADO: 'bg-puede-pasar/15 text-puede-pasar border-puede-pasar',
+  VALIDO_PASE: 'bg-puede-pasar/15 text-puede-pasar border-puede-pasar',
+  PASE_REVOCADO: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
+  NO_ES_DIA_DE_ENTREGA: 'bg-accion/15 text-principal border-accion',
   YA_USADO: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
   OTRA_FECHA: 'bg-accion/15 text-principal border-accion',
   CANCELADA: 'bg-accion/15 text-principal border-accion',
@@ -75,7 +79,15 @@ export default function Escanear() {
 
     try {
       const cita = await verCita(token)
-      setPrevia(cita ? { ...cita, token } : { resultado: 'NO_EXISTE', token })
+
+      if (cita) {
+        setPrevia({ ...cita, token })
+        return
+      }
+
+      // No es una cita: puede ser un pase permanente, que no se quema.
+      const pase = await verPase(token)
+      setPrevia(pase ? { ...pase, token, pase: true } : { resultado: 'NO_EXISTE', token })
     } catch {
       setPrevia({ resultado: 'NO_EXISTE', token })
     }
@@ -270,12 +282,20 @@ export default function Escanear() {
 
             {previa.resultado !== 'NO_EXISTE' && !citaDeOtroDia && (
               <div className="rounded-xl border border-principal/20 p-4">
+                {previa.pase && (
+                  <p className="mb-2 inline-block rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
+                    {t('escaneo.pase')}
+                  </p>
+                )}
                 <p className="text-2xl font-bold text-principal">{previa.nombre}</p>
                 <p className="mt-1 text-lg text-principal/80">
-                  {previa.codigo_corto} · {formatearHora(previa.hora)}
+                  {previa.codigo_corto}
+                  {previa.hora ? ` · ${formatearHora(previa.hora)}` : ''}
                 </p>
                 <p className="mt-2 text-base text-principal/70">
-                  {t(`escaneo.estadoPrevio.${previa.estado}`, { defaultValue: previa.estado })}
+                  {previa.pase
+                    ? t(previa.activo ? 'escaneo.estadoPrevio.pase' : 'escaneo.estadoPrevio.paseRevocado')
+                    : t(`escaneo.estadoPrevio.${previa.estado}`, { defaultValue: previa.estado })}
                 </p>
               </div>
             )}
@@ -283,7 +303,7 @@ export default function Escanear() {
             {/* Con el formulario de autorizacion abierto, el error ya se muestra dentro. */}
             {!autorizando && avisoError}
 
-            {previa.resultado !== 'NO_EXISTE' && !citaDeOtroDia && (
+            {previa.resultado !== 'NO_EXISTE' && !citaDeOtroDia && !(previa.pase && !previa.activo) && (
               <Boton className="mt-4" disabled={ocupado} onClick={registrarPrevia}>
                 {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
               </Boton>

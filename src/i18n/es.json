@@ -30,6 +30,7 @@
   "nav": {
     "citasHoy": "Citas de hoy",
     "horarios": "Horarios y cupos",
+    "pases": "Pases",
     "personas": "Personas",
     "reportes": "Reportes",
     "escanear": "Escanear",
@@ -51,7 +52,9 @@
       "reservada": "Tiene cita para hoy y no ha recibido.",
       "llego": "Ya se registró su llegada.",
       "entregada": "Este código ya se usó hoy.",
-      "no_asistio": "Marcada como no asistió."
+      "no_asistio": "Marcada como no asistió.",
+      "pase": "Tiene pase permanente y hoy no ha recibido.",
+      "paseRevocado": "Este pase fue retirado. No procede la entrega."
     },
     "resultado": {
       "VALIDO": "Puede pasar",
@@ -59,7 +62,10 @@
       "OTRA_FECHA": "Otra fecha",
       "CANCELADA": "Cita cancelada",
       "NO_EXISTE": "Código no reconocido",
-      "VALIDO_AUTORIZADO": "Puede pasar (autorizado)"
+      "VALIDO_AUTORIZADO": "Puede pasar (autorizado)",
+      "VALIDO_PASE": "Puede pasar (pase)",
+      "PASE_REVOCADO": "Pase retirado",
+      "NO_ES_DIA_DE_ENTREGA": "Hoy no hay entrega"
     },
     "explicacion": {
       "VALIDO": "Cita válida para hoy. Entrégale su caja.",
@@ -67,7 +73,10 @@
       "OTRA_FECHA": "Su cita es para otro día. No procede.",
       "CANCELADA": "Esta cita fue cancelada. No procede.",
       "NO_EXISTE": "Ese código no corresponde a ninguna cita. Búscala por nombre.",
-      "VALIDO_AUTORIZADO": "Entrega autorizada fuera de la fecha de su cita. Quedó registrado quién la autorizó."
+      "VALIDO_AUTORIZADO": "Entrega autorizada fuera de la fecha de su cita. Quedó registrado quién la autorizó.",
+      "VALIDO_PASE": "Pase permanente válido. Entrégale su caja. Si tienes duda de que sea la persona, pídele una identificación.",
+      "PASE_REVOCADO": "Este pase fue retirado por un administrador. No procede la entrega.",
+      "NO_ES_DIA_DE_ENTREGA": "Hoy no es día de entrega, así que el pase no aplica."
     },
     "camara": {
       "SIN_PERMISO": "No diste permiso para usar la cámara.",
@@ -94,7 +103,55 @@
       "botonAdmin": "Entregar de todos modos",
       "explicacionAdmin": "Como administrador puedes autorizarlo sin código. Quedará registrado a tu nombre."
     },
-    "verCita": "Ver cita"
+    "verCita": "Ver cita",
+    "pase": "Pase permanente"
+  },
+  "pase": {
+    "etiqueta": "Pase permanente",
+    "titulo": "Tu pase",
+    "dias": "Lunes y jueves",
+    "cargando": "Preparando tu pase…",
+    "noEncontrado": "No encontramos ese pase. Puede que el enlace esté incompleto.",
+    "revocado": "Este pase ya no está activo",
+    "revocadoTexto": "Si crees que es un error, llama a la iglesia al {{telefono}}.",
+    "comoFunciona": "Llega el día que puedas, lunes o jueves, a la hora que te quede. Muestra este código y te entregan tu caja.",
+    "soloTuyo": "Este pase es tuyo y sirve para una sola caja por día. Si lo comparten, se cancela."
+  },
+  "pases": {
+    "titulo": "Pases permanentes",
+    "ayuda": "Quién puede llegar sin cita y recibir su caja los dos días. Una caja por día de entrega.",
+    "cargando": "Buscando los pases…",
+    "sinPases": "Todavía no hay pases. Se dan desde “Registrar persona”.",
+    "buscar": "Buscar por nombre, código o teléfono",
+    "activos": "Pases activos: {{count}}",
+    "permanente": "Pase permanente",
+    "verQR": "Ver su QR",
+    "renovar": "Renovar código",
+    "quitar": "Quitar pase",
+    "devolver": "Volver a dar",
+    "motivo": "Motivo (opcional)",
+    "guardando": "Guardando…",
+    "no": "No, cancelar",
+    "quitadoEl": "Retirado el {{cuando}}",
+    "renovado": "Listo: se le generó un código nuevo. El anterior ya no sirve; mándale este.",
+    "quitado": "Listo: el pase quedó retirado y ya no sirve.",
+    "devuelto": "Listo: se le devolvió el pase con un código nuevo.",
+    "col": {
+      "motivo": "Motivo",
+      "cajas": "Cajas",
+      "ultima": "Última",
+      "acciones": "Acciones"
+    },
+    "pregunta": {
+      "renovar": "¿Generar un código nuevo para {{codigo}}? El que la persona trae ahora dejará de servir y tendrás que mandarle el nuevo.",
+      "revocar": "¿Quitarle el pase a {{codigo}}? Dejará de servir al momento.",
+      "devolver": "¿Volver a darle el pase a {{codigo}}? Se le genera un código nuevo."
+    },
+    "si": {
+      "renovar": "Sí, generar otro",
+      "revocar": "Sí, quitar el pase",
+      "devolver": "Sí, dárselo otra vez"
+    }
   },
   "panel": {
     "cargando": "Cargando el día…",
@@ -247,7 +304,8 @@
       "NUMERO_REQUERIDO": "Falta el número de la casa.",
       "NUMERO_INVALIDO": "Revisa el número de la casa.",
       "NUMERO_INTERIOR_INVALIDO": "Revisa el número interior o de apartamento.",
-      "CONSENTIMIENTO_REQUERIDO": "Falta confirmar que compartes tu información por tu propia voluntad."
+      "CONSENTIMIENTO_REQUERIDO": "Falta confirmar que compartes tu información por tu propia voluntad.",
+      "FALTA_HORARIO": "Elige la fecha y el horario."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
@@ -379,7 +437,14 @@
     "verQR": "Ver código QR",
     "otra": "Registrar a otra persona",
     "sinFechas": "No hay fechas con horarios abiertos.",
-    "errorCarga": "No pudimos cargar los horarios."
+    "errorCarga": "No pudimos cargar los horarios.",
+    "tipo": "¿Qué le vas a dar?",
+    "tipos": {
+      "cita": "Cita para una fecha",
+      "pase": "Pase permanente"
+    },
+    "avisoPase": "El pase sirve lunes y jueves, sin horario, hasta que se lo quiten. Una caja por día de entrega. No aparta lugar del cupo.",
+    "motivoPase": "¿Por qué se le da? (opcional)"
   },
   "diasAdmin": {
     "titulo": "Horarios y cupos",
@@ -584,7 +649,9 @@
       "MISMO_HORARIO": "Ese es el horario que ya tienes. Elige otro.",
       "YA_CAMBIO_HORARIO": "Ya cambiaste tu horario una vez. Si necesitas otro cambio, llama a la iglesia.",
       "YA_TIENE_CITA_ESTA_SEMANA": "Ya tienes una cita esa semana. Solo se puede una por semana.",
-      "AUN_NO_ABRE": "Ese día todavía no abre."
+      "AUN_NO_ABRE": "Ese día todavía no abre.",
+      "PASE_NO_EXISTE": "Esta persona no tiene pase.",
+      "PASE_YA_REVOCADO": "Ese pase ya estaba retirado."
     }
   },
   "sinCita": {

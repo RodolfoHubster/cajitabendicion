@@ -35,6 +35,7 @@
   "nav": {
     "citasHoy": "Lịch hẹn hôm nay",
     "horarios": "Khung giờ và số chỗ",
+    "pases": "Thẻ vào",
     "personas": "Người đăng ký",
     "reportes": "Báo cáo",
     "escanear": "Quét mã",
@@ -56,7 +57,9 @@
       "reservada": "Có lịch hẹn hôm nay và chưa nhận hàng.",
       "llego": "Đã ghi nhận người này đã đến.",
       "entregada": "Mã này đã được sử dụng hôm nay.",
-      "no_asistio": "Đã đánh dấu là không đến."
+      "no_asistio": "Đã đánh dấu là không đến.",
+      "pase": "Có thẻ vĩnh viễn và hôm nay chưa nhận.",
+      "paseRevocado": "Thẻ này đã bị thu hồi. Không phát phần quà."
     },
     "resultado": {
       "VALIDO": "Được vào",
@@ -64,7 +67,10 @@
       "OTRA_FECHA": "Khác ngày",
       "CANCELADA": "Lịch hẹn đã hủy",
       "NO_EXISTE": "Không nhận ra mã",
-      "VALIDO_AUTORIZADO": "Được vào (đã cho phép)"
+      "VALIDO_AUTORIZADO": "Được vào (đã cho phép)",
+      "VALIDO_PASE": "Được vào (thẻ)",
+      "PASE_REVOCADO": "Thẻ đã thu hồi",
+      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phát"
     },
     "explicacion": {
       "VALIDO": "Lịch hẹn hợp lệ cho hôm nay. Hãy đưa thùng hàng cho họ.",
@@ -72,7 +78,10 @@
       "OTRA_FECHA": "Lịch hẹn của họ là vào ngày khác. Không hợp lệ.",
       "CANCELADA": "Lịch hẹn này đã bị hủy. Không hợp lệ.",
       "NO_EXISTE": "Mã này không khớp với lịch hẹn nào. Hãy tìm theo tên.",
-      "VALIDO_AUTORIZADO": "Đã cho phép nhận hàng ngoài ngày hẹn. Hệ thống đã ghi lại người cho phép."
+      "VALIDO_AUTORIZADO": "Đã cho phép nhận hàng ngoài ngày hẹn. Hệ thống đã ghi lại người cho phép.",
+      "VALIDO_PASE": "Thẻ vĩnh viễn hợp lệ. Hãy trao phần quà. Nếu chưa chắc là đúng người, xin xem giấy tờ tùy thân.",
+      "PASE_REVOCADO": "Quản trị viên đã thu hồi thẻ này. Không phát phần quà.",
+      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phải ngày phát nên thẻ không dùng được."
     },
     "camara": {
       "SIN_PERMISO": "Bạn chưa cho phép sử dụng camera.",
@@ -99,7 +108,55 @@
       "botonAdmin": "Vẫn phát hàng",
       "explicacionAdmin": "Là quản trị viên, bạn có thể cho phép mà không cần mã. Hệ thống sẽ ghi lại tên bạn."
     },
-    "verCita": "Xem lịch hẹn"
+    "verCita": "Xem lịch hẹn",
+    "pase": "Thẻ vào vĩnh viễn"
+  },
+  "pase": {
+    "etiqueta": "Thẻ vào vĩnh viễn",
+    "titulo": "Thẻ của bạn",
+    "dias": "Thứ Hai và thứ Năm",
+    "cargando": "Đang chuẩn bị thẻ của bạn…",
+    "noEncontrado": "Không tìm thấy thẻ đó. Có thể đường dẫn bị thiếu.",
+    "revocado": "Thẻ này không còn hiệu lực",
+    "revocadoTexto": "Nếu bạn nghĩ đây là nhầm lẫn, xin gọi nhà thờ theo số {{telefono}}.",
+    "comoFunciona": "Hãy đến vào thứ Hai hoặc thứ Năm, giờ nào cũng được. Đưa mã này ra và bạn sẽ nhận phần quà.",
+    "soloTuyo": "Thẻ này là của bạn và chỉ nhận một phần mỗi ngày. Nếu chia sẻ cho người khác, thẻ sẽ bị hủy."
+  },
+  "pases": {
+    "titulo": "Thẻ vào vĩnh viễn",
+    "ayuda": "Ai có thể đến không cần hẹn và nhận phần quà cả hai ngày. Mỗi ngày phát một phần.",
+    "cargando": "Đang tải danh sách thẻ…",
+    "sinPases": "Chưa có thẻ nào. Cấp thẻ từ mục “Đăng ký người nhận”.",
+    "buscar": "Tìm theo tên, mã hoặc điện thoại",
+    "activos": "Thẻ đang hiệu lực: {{count}}",
+    "permanente": "Thẻ vào vĩnh viễn",
+    "verQR": "Xem mã QR",
+    "renovar": "Cấp mã mới",
+    "quitar": "Thu hồi thẻ",
+    "devolver": "Cấp lại",
+    "motivo": "Lý do (không bắt buộc)",
+    "guardando": "Đang lưu…",
+    "no": "Không, hủy bỏ",
+    "quitadoEl": "Thu hồi ngày {{cuando}}",
+    "renovado": "Xong: đã tạo mã mới. Mã cũ không còn dùng được, hãy gửi mã này cho họ.",
+    "quitado": "Xong: thẻ đã bị thu hồi và không còn dùng được.",
+    "devuelto": "Xong: đã cấp lại thẻ với mã mới.",
+    "col": {
+      "motivo": "Lý do",
+      "cajas": "Phần quà",
+      "ultima": "Gần nhất",
+      "acciones": "Thao tác"
+    },
+    "pregunta": {
+      "renovar": "Tạo mã mới cho {{codigo}}? Mã họ đang giữ sẽ ngừng hoạt động và bạn phải gửi mã mới cho họ.",
+      "revocar": "Thu hồi thẻ của {{codigo}}? Thẻ sẽ ngừng hoạt động ngay.",
+      "devolver": "Cấp lại thẻ cho {{codigo}}? Sẽ tạo một mã mới."
+    },
+    "si": {
+      "renovar": "Có, tạo mã khác",
+      "revocar": "Có, thu hồi thẻ",
+      "devolver": "Có, cấp lại"
+    }
   },
   "panel": {
     "cargando": "Đang tải dữ liệu trong ngày…",
@@ -251,7 +308,8 @@
       "NUMERO_REQUERIDO": "Thiếu số nhà.",
       "NUMERO_INVALIDO": "Hãy kiểm tra lại số nhà.",
       "NUMERO_INTERIOR_INVALIDO": "Hãy kiểm tra lại số căn hộ hoặc số phòng.",
-      "CONSENTIMIENTO_REQUERIDO": "Hãy xác nhận rằng bạn tự nguyện chia sẻ thông tin."
+      "CONSENTIMIENTO_REQUERIDO": "Hãy xác nhận rằng bạn tự nguyện chia sẻ thông tin.",
+      "FALTA_HORARIO": "Hãy chọn ngày và giờ."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
@@ -380,7 +438,14 @@
     "verQR": "Xem mã QR",
     "otra": "Đăng ký người khác",
     "sinFechas": "Không có ngày nào còn khung giờ mở.",
-    "errorCarga": "Không thể tải khung giờ."
+    "errorCarga": "Không thể tải khung giờ.",
+    "tipo": "Bạn sẽ cấp gì cho họ?",
+    "tipos": {
+      "cita": "Lịch hẹn cho một ngày",
+      "pase": "Thẻ vào vĩnh viễn"
+    },
+    "avisoPase": "Thẻ dùng được thứ Hai và thứ Năm, không cần giờ cố định, cho đến khi bị thu hồi. Mỗi ngày phát một phần. Không chiếm chỗ của lịch hẹn.",
+    "motivoPase": "Vì sao được cấp? (không bắt buộc)"
   },
   "diasAdmin": {
     "titulo": "Khung giờ và số chỗ",
@@ -582,7 +647,9 @@
       "MISMO_HORARIO": "Đó là giờ bạn đang có. Hãy chọn giờ khác.",
       "YA_CAMBIO_HORARIO": "Bạn đã đổi giờ một lần rồi. Nếu cần đổi thêm, xin gọi cho nhà thờ.",
       "YA_TIENE_CITA_ESTA_SEMANA": "Bạn đã có một cuộc hẹn trong tuần đó. Mỗi tuần chỉ được một lần.",
-      "AUN_NO_ABRE": "Ngày đó chưa mở."
+      "AUN_NO_ABRE": "Ngày đó chưa mở.",
+      "PASE_NO_EXISTE": "Người này không có thẻ.",
+      "PASE_YA_REVOCADO": "Thẻ đó đã bị thu hồi rồi."
     }
   },
   "sinCita": {

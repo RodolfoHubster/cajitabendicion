@@ -3,6 +3,7 @@ import CitasDeHoy from '../paginas/admin/CitasDeHoy'
 import Equipo from '../paginas/admin/Equipo'
 import HorariosAdmin from '../paginas/admin/Horarios'
 import Login from '../paginas/admin/Login'
+import Pases from '../paginas/admin/Pases'
 import Personas from '../paginas/admin/Personas'
 import RegistrarPersona from '../paginas/admin/RegistrarPersona'
 import Reportes from '../paginas/admin/Reportes'
@@ -25,6 +26,7 @@ export default function RutasAdmin() {
             <Route element={<CitasDeHoy />} path="/admin/citas-hoy" />
             <Route element={<RegistrarPersona />} path="/admin/registrar" />
             <Route element={<HorariosAdmin />} path="/admin/horarios" />
+            <Route element={<Pases />} path="/admin/pases" />
             <Route element={<Personas />} path="/admin/personas" />
             <Route element={<Reportes />} path="/admin/reportes" />
             <Route element={<Equipo />} path="/admin/equipo" />

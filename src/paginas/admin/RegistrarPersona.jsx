@@ -23,6 +23,7 @@ import {
 } from '../../datos/disponibilidad'
 import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
 import { registrarDesdePanel } from '../../datos/panel'
+import { crearPase } from '../../datos/pases'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
 
@@ -62,6 +63,10 @@ export default function RegistrarPersona() {
   const [bloques, setBloques] = useState(null)
   const [errorCarga, setErrorCarga] = useState(null)
   const [recarga, setRecarga] = useState(0)
+
+  // 'cita' = se le aparta un horario. 'pase' = permanente, sin horario.
+  const [tipo, setTipo] = useState('cita')
+  const [motivoPase, setMotivoPase] = useState('')
 
   const [fecha, setFecha] = useState('')
   const [bloqueId, setBloqueId] = useState('')
@@ -139,6 +144,13 @@ export default function RegistrarPersona() {
     evento.preventDefault()
     setError(null)
 
+    if (tipo === 'cita' && !bloqueId) {
+      setIntento(true)
+      setError('FALTA_HORARIO')
+      document.getElementById('fecha')?.focus()
+      return
+    }
+
     const conError = CAMPOS.find((campo) => errores[campo])
     if (conError) {
       setIntento(true)
@@ -152,17 +164,23 @@ export default function RegistrarPersona() {
     const apellidos = formatearNombre(datos.apellidos)
 
     try {
-      const cita = await registrarDesdePanel({
+      const esPase = tipo === 'pase'
+
+      const alta = await registrarDesdePanel({
         nombres,
         apellidos,
         telefono: telefonoRevisado.e164,
         email: datos.email.trim(),
         domicilio,
         aceptoPrivacidad: acepto,
-        bloqueId,
+        // El pase no aparta lugar: se da de alta a la persona y ya.
+        bloqueId: esPase ? null : bloqueId,
       })
 
-      setRegistrada({ ...cita, nombre: `${nombres} ${apellidos}` })
+      const pase = esPase ? await crearPase(alta.codigo_corto, motivoPase) : null
+
+      setRegistrada({ ...alta, pase, nombre: `${nombres} ${apellidos}` })
+      setMotivoPase('')
       setDatos(VACIO)
       setDomicilio(DOMICILIO_VACIO)
       setAcepto(false)
@@ -186,7 +204,9 @@ export default function RegistrarPersona() {
           {t('registrarPanel.listo')}
         </p>
         <p className="mt-2 text-2xl font-bold first-letter:uppercase">
-          {fechaLarga(registrada.fecha)}, {formatearHora(registrada.hora)}
+          {registrada.pase
+            ? t('pases.permanente')
+            : `${fechaLarga(registrada.fecha)}, ${formatearHora(registrada.hora)}`}
         </p>
         <p className="mt-3 text-base text-principal/70">
           {t('confirmacion.aNombreDe')} <span className="font-semibold">{registrada.nombre}</span>
@@ -199,7 +219,7 @@ export default function RegistrarPersona() {
           {/* En otra pestana: para ensenar o imprimir el QR sin perder el panel. */}
           <a
             className="inline-flex min-h-14 items-center justify-center rounded-xl bg-principal px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
-            href={`/confirmacion/${registrada.token_qr}`}
+            href={registrada.pase ? `/pase/${registrada.pase.token}` : `/confirmacion/${registrada.token_qr}`}
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -231,7 +251,53 @@ export default function RegistrarPersona() {
         )}
 
         <form className="space-y-4" noValidate onSubmit={enviar}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* Cita para una fecha, o pase permanente. El pase no aparta
+              lugar y no tiene horario: por eso se esconden las dos
+              casillas de arriba. */}
+          <fieldset>
+            <legend className="mb-2 text-base font-semibold text-principal">
+              {t('registrarPanel.tipo')}
+            </legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {['cita', 'pase'].map((valor) => (
+                <label
+                  className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 ${
+                    tipo === valor ? 'border-2 border-principal bg-principal/5' : 'border-principal/25'
+                  }`}
+                  key={valor}
+                >
+                  <input
+                    checked={tipo === valor}
+                    className="h-5 w-5 shrink-0 accent-principal"
+                    name="tipo-registro"
+                    onChange={() => setTipo(valor)}
+                    type="radio"
+                    value={valor}
+                  />
+                  <span className="text-base font-semibold text-principal">
+                    {t(`registrarPanel.tipos.${valor}`)}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          {tipo === 'pase' && (
+            <>
+              <p className="rounded-xl bg-accion/15 p-3 text-base text-principal">
+                {t('registrarPanel.avisoPase')}
+              </p>
+              <Campo
+                etiqueta={t('registrarPanel.motivoPase')}
+                id="motivo-pase"
+                onChange={(e) => setMotivoPase(e.target.value)}
+                type="text"
+                value={motivoPase}
+              />
+            </>
+          )}
+
+          <div className={`grid gap-4 sm:grid-cols-2 ${tipo === 'pase' ? 'hidden' : ''}`}>
             <label className="flex flex-col gap-2" htmlFor="fecha">
               <span className="text-base font-semibold text-principal">{t('registrarPanel.fecha')}</span>
               <select

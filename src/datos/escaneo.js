@@ -53,6 +53,14 @@ export async function verCita(token) {
   return primeraFila(await llamar('consultar_cita', { p_token: token }))
 }
 
+/**
+ * Mira un pase permanente SIN consumirlo, igual que verCita con una cita.
+ * Devuelve null si ese codigo no es de un pase.
+ */
+export async function verPase(token) {
+  return primeraFila(await llamar('pase_por_token', { p_token: token }))
+}
+
 /** Consuma el codigo. Devuelve VALIDO, YA_USADO, OTRA_FECHA, CANCELADA o NO_EXISTE. */
 export async function registrarEntrega(token) {
   return primeraFila(await llamar('registrar_entrega', { p_token: token }))

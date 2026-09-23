@@ -30,6 +30,7 @@
   "nav": {
     "citasHoy": "Today",
     "horarios": "Slots & capacity",
+    "pases": "Passes",
     "personas": "People",
     "reportes": "Reports",
     "escanear": "Scan",
@@ -51,7 +52,9 @@
       "reservada": "Has an appointment today and has not received yet.",
       "llego": "Their arrival is already recorded.",
       "entregada": "This code was already used today.",
-      "no_asistio": "Marked as no show."
+      "no_asistio": "Marked as no show.",
+      "pase": "They have a permanent pass and have not received today.",
+      "paseRevocado": "This pass was removed. Do not hand out a box."
     },
     "resultado": {
       "VALIDO": "Let them through",
@@ -59,7 +62,10 @@
       "OTRA_FECHA": "Different date",
       "CANCELADA": "Appointment cancelled",
       "NO_EXISTE": "Code not recognized",
-      "VALIDO_AUTORIZADO": "Let them through (authorized)"
+      "VALIDO_AUTORIZADO": "Let them through (authorized)",
+      "VALIDO_PASE": "May pass (pass)",
+      "PASE_REVOCADO": "Pass removed",
+      "NO_ES_DIA_DE_ENTREGA": "No delivery today"
     },
     "explicacion": {
       "VALIDO": "Valid appointment for today. Hand them their box.",
@@ -67,7 +73,10 @@
       "OTRA_FECHA": "Their appointment is for another day. Not valid.",
       "CANCELADA": "This appointment was cancelled. Not valid.",
       "NO_EXISTE": "That code does not match any appointment. Look them up by name.",
-      "VALIDO_AUTORIZADO": "Delivery authorized outside the appointment date. Who authorized it was recorded."
+      "VALIDO_AUTORIZADO": "Delivery authorized outside the appointment date. Who authorized it was recorded.",
+      "VALIDO_PASE": "Valid permanent pass. Hand them their box. If you are unsure it is them, ask for an ID.",
+      "PASE_REVOCADO": "An administrator removed this pass. Do not hand out a box.",
+      "NO_ES_DIA_DE_ENTREGA": "Today is not a delivery day, so the pass does not apply."
     },
     "camara": {
       "SIN_PERMISO": "You did not allow camera access.",
@@ -94,7 +103,55 @@
       "botonAdmin": "Deliver anyway",
       "explicacionAdmin": "As an administrator you can authorize it without a code. It will be recorded under your name."
     },
-    "verCita": "View appointment"
+    "verCita": "View appointment",
+    "pase": "Permanent pass"
+  },
+  "pase": {
+    "etiqueta": "Permanent pass",
+    "titulo": "Your pass",
+    "dias": "Mondays and Thursdays",
+    "cargando": "Getting your pass ready…",
+    "noEncontrado": "We could not find that pass. The link may be incomplete.",
+    "revocado": "This pass is no longer active",
+    "revocadoTexto": "If you think this is a mistake, call the church at {{telefono}}.",
+    "comoFunciona": "Come any Monday or Thursday, at whatever time works for you. Show this code and they will hand you your box.",
+    "soloTuyo": "This pass is yours and is good for one box per day. If it is shared, it gets cancelled."
+  },
+  "pases": {
+    "titulo": "Permanent passes",
+    "ayuda": "Who can come without an appointment and get their box on both days. One box per delivery day.",
+    "cargando": "Loading passes…",
+    "sinPases": "No passes yet. They are given from “Register person”.",
+    "buscar": "Search by name, code or phone",
+    "activos": "Active passes: {{count}}",
+    "permanente": "Permanent pass",
+    "verQR": "View their QR",
+    "renovar": "New code",
+    "quitar": "Remove pass",
+    "devolver": "Give it back",
+    "motivo": "Reason (optional)",
+    "guardando": "Saving…",
+    "no": "No, cancel",
+    "quitadoEl": "Removed on {{cuando}}",
+    "renovado": "Done: a new code was generated. The old one no longer works, send them this one.",
+    "quitado": "Done: the pass was removed and no longer works.",
+    "devuelto": "Done: the pass was given back with a new code.",
+    "col": {
+      "motivo": "Reason",
+      "cajas": "Boxes",
+      "ultima": "Last",
+      "acciones": "Actions"
+    },
+    "pregunta": {
+      "renovar": "Generate a new code for {{codigo}}? The one they carry now will stop working and you will have to send them the new one.",
+      "revocar": "Remove the pass from {{codigo}}? It stops working immediately.",
+      "devolver": "Give the pass back to {{codigo}}? A new code will be generated."
+    },
+    "si": {
+      "renovar": "Yes, generate another",
+      "revocar": "Yes, remove the pass",
+      "devolver": "Yes, give it back"
+    }
   },
   "panel": {
     "cargando": "Loading today…",
@@ -247,7 +304,8 @@
       "NUMERO_REQUERIDO": "The house number is missing.",
       "NUMERO_INVALIDO": "Please check the house number.",
       "NUMERO_INTERIOR_INVALIDO": "Please check the apartment or interior number.",
-      "CONSENTIMIENTO_REQUERIDO": "Please confirm that you share your information of your own free will."
+      "CONSENTIMIENTO_REQUERIDO": "Please confirm that you share your information of your own free will.",
+      "FALTA_HORARIO": "Choose the date and the time."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
@@ -379,7 +437,14 @@
     "verQR": "View QR code",
     "otra": "Register another person",
     "sinFechas": "There are no dates with open time slots.",
-    "errorCarga": "We could not load the time slots."
+    "errorCarga": "We could not load the time slots.",
+    "tipo": "What are you giving them?",
+    "tipos": {
+      "cita": "Appointment for a date",
+      "pase": "Permanent pass"
+    },
+    "avisoPase": "The pass works Mondays and Thursdays, with no set time, until it is removed. One box per delivery day. It does not take a spot from the quota.",
+    "motivoPase": "Why are they getting it? (optional)"
   },
   "diasAdmin": {
     "titulo": "Slots & capacity",
@@ -584,7 +649,9 @@
       "MISMO_HORARIO": "That is the time you already have. Choose another one.",
       "YA_CAMBIO_HORARIO": "You already changed your time once. If you need another change, please call the church.",
       "YA_TIENE_CITA_ESTA_SEMANA": "You already have an appointment that week. Only one per week is allowed.",
-      "AUN_NO_ABRE": "That day is not open yet."
+      "AUN_NO_ABRE": "That day is not open yet.",
+      "PASE_NO_EXISTE": "This person does not have a pass.",
+      "PASE_YA_REVOCADO": "That pass was already removed."
     }
   },
   "sinCita": {
