@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuKeyRound, LuShieldCheck } from 'react-icons/lu'
 import { useOutletContext } from 'react-router-dom'
@@ -18,6 +18,7 @@ import {
   verPase,
 } from '../../datos/escaneo'
 import { hoyLocal } from '../../datos/panel'
+import { avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
 
 // Colores del logo, segun CLAUDE.md: verde puede pasar, rojo ya recibio.
 const ESTILO_RESULTADO = {
@@ -72,9 +73,23 @@ export default function Escanear() {
   // entonces se sepa que no procedia.
   const citaDeOtroDia = Boolean(previa?.fecha) && previa.fecha !== hoy
 
+  //  Ni el iPhone ni Chrome dejan que una pagina suene antes de que
+  //  alguien la haya tocado. Se prepara con el primer toque, sea cual sea:
+  //  para cuando se lea un codigo, el bip ya puede sonar.
+  useEffect(() => {
+    const preparar = () => prepararSonido()
+    document.addEventListener('pointerdown', preparar, { once: true })
+    return () => document.removeEventListener('pointerdown', preparar)
+  }, [])
+
   // Se memoriza para que el lector no reinicie la camara en cada render.
   const alLeer = useCallback(async (token) => {
     setError(null)
+    //  Primero el aviso y luego la consulta: el voluntario sabe que el
+    //  codigo entro sin tener que despegar la vista del coche.
+    avisoLeido()
+    //  Se borra la anterior para que no parezca que ya respondio.
+    setPrevia(null)
     setVista('previa')
 
     try {
@@ -152,6 +167,9 @@ export default function Escanear() {
       } else {
         setResultado(respuesta)
         setVista('resultado')
+        //  Tono distinto para "puede pasar" y para "detente": en la fila se
+        //  distingue sin mirar la pantalla.
+        avisoDelResultado(respuesta?.resultado)
       }
     } catch (e) {
       setError(e.message)
@@ -190,6 +208,21 @@ export default function Escanear() {
               {t('escaneo.buscarManual')}
             </Boton>
           </>
+        )}
+
+        {/* Entre leer el codigo y saber de quien es hay una consulta.
+            Sin esto, la pantalla se quedaba en blanco justo ahi. */}
+        {vista === 'previa' && !previa && (
+          <div className="rounded-xl border-2 border-principal/30 bg-principal/5 p-4" role="status">
+            <p className="flex items-center gap-3 text-2xl font-bold text-principal">
+              <span
+                aria-hidden="true"
+                className="h-6 w-6 shrink-0 animate-spin rounded-full border-4 border-principal/25 border-t-principal"
+              />
+              {t('escaneo.leido')}
+            </p>
+            <p className="mt-2 text-base text-principal/80">{t('escaneo.buscando')}</p>
+          </div>
         )}
 
         {vista === 'previa' && previa && (
@@ -401,8 +434,11 @@ export default function Escanear() {
         )}
       </Tarjeta>
 
-      {/* Solo el pastor: en la fila tambien pasa gente sin cita. En computadora va a un lado. */}
-      {esAdmin && vista === 'camara' && (
+      {/* Solo el pastor: en la fila tambien pasa gente sin cita. En computadora va a un lado.
+          Se queda a la vista tanto con la camara como buscando por codigo: quien
+          no trae QR es justo quien acaba anotandose sin cita, y tener que volver
+          a la camara para anotarlo cuesta tiempo con la fila afuera. */}
+      {esAdmin && (vista === 'camara' || vista === 'manual') && (
         <Tarjeta>
           <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
           <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
