@@ -166,6 +166,32 @@ Atajo: `/regla`.
 
 ---
 
+## Nada se da por terminado sin sus pruebas
+
+Esto **no depende** de si el cambio es "una regla" o "nada más una pantalla".
+Cada cambio lleva sus pruebas en la misma tanda:
+
+| Lo que se tocó | Dónde va su prueba |
+|---|---|
+| Una función de Postgres | `supabase/pruebas/reglas.sql`, incluidas las de permisos (`SIN_PERMISO`, `SIN_SESION`) |
+| Algo de `src/datos/` | su `.test.js` al lado |
+| Textos o traducciones | `src/i18n/i18n.test.js` |
+| Una pantalla | se comprueba en el navegador y se dice qué se vio |
+
+Y al terminar **se reporta**: cuántas pruebas corren, cuáles se agregaron y qué
+se comprobó en el navegador. Un cambio sin eso está a medias, aunque funcione.
+
+**Una prueba que no falla cuando se rompe lo que vigila no sirve.** Si el
+arreglo nace de un error real, primero se comprueba que la prueba nueva falla
+con el error puesto, y luego que pasa con el arreglo.
+
+Por qué está escrito esto: las pruebas de traducción comparaban los tres
+idiomas entre sí, así que una clave rota **en los tres** pasaba limpia. Se
+coló una y tumbó el título de una pantalla del panel. Hoy hay una prueba que
+revisa el código contra los textos.
+
+---
+
 ## Más contexto, solo cuando haga falta
 
 Estos archivos **no** se cargan solos. Ábrelos cuando el trabajo los toque:
