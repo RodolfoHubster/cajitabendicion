@@ -932,10 +932,7 @@
     "respaldo3": "Bạn chỉ có thể đổi giờ một lần."
   },
   "avisos": {
-    "titulo": {
-      "preguntas": "Câu hỏi (bắt buộc)",
-      "quienes": "Tiêu đề (không bắt buộc)"
-    },
+    "titulo": "Văn bản và quy định",
     "ayuda": "Những gì mọi người đọc ở trang chủ và trước khi xác nhận lịch hẹn. Bạn thay đổi ở đây, không cần đụng vào hệ thống. Lưu ý: chỗ này đổi phần giải thích, không đổi cách hệ thống hoạt động.",
     "cargando": "Đang tải văn bản…",
     "seccion": {
@@ -983,6 +980,10 @@
     "cuerpo": {
       "preguntas": "Câu trả lời, bằng tiếng Tây Ban Nha (bắt buộc)",
       "quienes": "Đoạn văn, bằng tiếng Tây Ban Nha (bắt buộc)"
+    },
+    "tituloCampo": {
+      "preguntas": "Câu hỏi (bắt buộc)",
+      "quienes": "Tiêu đề (không bắt buộc)"
     }
   },
   "preguntas": {

@@ -935,10 +935,7 @@
     "respaldo3": "You can change your time only once."
   },
   "avisos": {
-    "titulo": {
-      "preguntas": "The question (required)",
-      "quienes": "Heading (optional)"
-    },
+    "titulo": "Texts and rules",
     "ayuda": "What people read on the home page and before confirming their appointment. You change it here, without touching the system. Note: this changes what is explained, not what the system does.",
     "cargando": "Loading texts…",
     "seccion": {
@@ -986,6 +983,10 @@
     "cuerpo": {
       "preguntas": "The answer, in Spanish (required)",
       "quienes": "The paragraph, in Spanish (required)"
+    },
+    "tituloCampo": {
+      "preguntas": "The question (required)",
+      "quienes": "Heading (optional)"
     }
   },
   "preguntas": {

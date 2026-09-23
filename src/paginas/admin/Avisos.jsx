@@ -257,7 +257,7 @@ export default function Avisos() {
           {CON_TITULO.includes(edicion.seccion) && (
             <>
               <label className="block text-base font-semibold text-principal" htmlFor="titulo-es">
-                {t(`avisos.titulo.${edicion.seccion}`)}
+                {t(`avisos.tituloCampo.${edicion.seccion}`)}
               </label>
               <input
                 className="min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"

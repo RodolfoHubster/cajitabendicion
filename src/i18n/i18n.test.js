@@ -1,3 +1,5 @@
+import { readFileSync, readdirSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import en from './en.json'
 import es from './es.json'
@@ -46,6 +48,50 @@ describe('traducciones', () => {
         expect(variables(enVietnamita), `vi ${llave}`).toEqual(variables(texto))
       }
     }
+  })
+
+  //  Las de arriba comparan los tres idiomas entre si. Esta compara el
+  //  codigo contra los textos: caza la clave que se escribio mal y la que
+  //  dejo de ser texto porque alguien le colgo otras claves adentro.
+  it('cada t(\'clave\') del código existe como texto, no como grupo', () => {
+    const archivosDeCodigo = (dir, encontrados = []) => {
+      for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+        const ruta = join(dir, entrada.name)
+
+        if (entrada.isDirectory()) archivosDeCodigo(ruta, encontrados)
+        else if (/\.(jsx|js)$/.test(entrada.name) && !entrada.name.endsWith('.test.js')) encontrados.push(ruta)
+      }
+
+      return encontrados
+    }
+
+    //  Basta con que exista en uno: la prueba de arriba ya exige que los
+    //  tres esten parejos. Asi pasa 'avisoIdioma.*', que solo esta en
+    //  vietnamita a proposito.
+    const esTexto = (clave) =>
+      [ES, EN, VI].some(
+        (mapa) =>
+          typeof mapa.get(clave) === 'string' ||
+          typeof mapa.get(`${clave}_one`) === 'string' ||
+          typeof mapa.get(`${clave}_other`) === 'string',
+      )
+
+    const rotas = []
+
+    for (const archivo of archivosDeCodigo('src')) {
+      const codigo = readFileSync(archivo, 'utf8')
+
+      //  Solo las claves escritas tal cual. Las armadas con variables
+      //  --t(\`panel.estado.\${x}\`)-- no se pueden revisar asi, y esas ya
+      //  llevan su defaultValue.
+      for (const encontrado of codigo.matchAll(/\bt\(\s*'([^'${}]+)'/g)) {
+        if (!esTexto(encontrado[1])) {
+          rotas.push(`${encontrado[1]} (en ${relative('src', archivo).split(sep).join('/')})`)
+        }
+      }
+    }
+
+    expect(rotas).toEqual([])
   })
 
   it('cada aviso de los campos del formulario tiene su mensaje en los tres idiomas', () => {

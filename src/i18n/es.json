@@ -935,10 +935,7 @@
     "respaldo3": "Puedes cambiar tu horario una sola vez."
   },
   "avisos": {
-    "titulo": {
-      "preguntas": "La pregunta (obligatoria)",
-      "quienes": "Encabezado (opcional)"
-    },
+    "titulo": "Textos y reglas",
     "ayuda": "Lo que la gente lee en la portada y antes de confirmar su cita. Se cambia aquí, sin tocar el sistema. Ojo: aquí se cambia lo que se explica, no lo que el sistema hace.",
     "cargando": "Buscando los textos…",
     "seccion": {
@@ -986,6 +983,10 @@
     "cuerpo": {
       "preguntas": "La respuesta, en español (obligatoria)",
       "quienes": "El párrafo, en español (obligatorio)"
+    },
+    "tituloCampo": {
+      "preguntas": "La pregunta (obligatoria)",
+      "quienes": "Encabezado (opcional)"
     }
   },
   "preguntas": {
