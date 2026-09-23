@@ -10,8 +10,8 @@ Este archivo es el índice. Ubica aquí lo que buscas y lee **solo ese rango**:
 sed -n '186,254p' supabase/schema.sql
 ```
 
-Números al día de `15261be` (pases permanentes). Se mueven al editar el
-esquema; si algo no cuadra, regenera:
+Números al día de `cb3051f`. Se mueven al editar el esquema; si algo no
+cuadra, regenera:
 
 ```bash
 grep -n "^create or replace function" supabase/schema.sql
@@ -94,11 +94,11 @@ necesita el código de autorización de un admin; un admin no.
 | Función | Líneas |
 |---|---|
 | `crear_pase` | 3649–3709 |
-| `renovar_pase` | 3710–3758 |
-| `revocar_pase` | 3759–3800 |
-| `listar_pases` | 3801–3850 |
-| `entregas_pase_del_dia` | 3851–3888 |
-| `pase_por_token` | 3889–3928 |
+| `renovar_pase` | 3710–3761 |
+| `revocar_pase` | 3762–3803 |
+| `listar_pases` | 3804–3853 |
+| `entregas_pase_del_dia` | 3854–3891 |
+| `pase_por_token` | 3892–3931 |
 
 Una caja por pase por fecha, garantizada por `unique (pase_id, fecha)` en
 `entregas_pase`. El pase no aparta lugar del cupo y su caja se cuenta aparte,
