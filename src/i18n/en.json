@@ -115,7 +115,8 @@
     "revocado": "This pass is no longer active",
     "revocadoTexto": "If you think this is a mistake, call the church at {{telefono}}.",
     "comoFunciona": "Come any Monday or Thursday, at whatever time works for you. Show this code and they will hand you your box.",
-    "soloTuyo": "This pass is yours and is good for one box per day. If it is shared, it gets cancelled."
+    "soloTuyo": "This pass is yours and is good for one box per day. If it is shared, it gets cancelled.",
+    "sello": "The Cajita de Bendición logo in the middle of the code is your pass’s mark: that is how the volunteer recognizes it."
   },
   "pases": {
     "titulo": "Permanent passes",

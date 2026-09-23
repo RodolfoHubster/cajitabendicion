@@ -4,9 +4,9 @@ import { LuCircleX, LuDownload, LuStar } from 'react-icons/lu'
 import { Link, useParams } from 'react-router-dom'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
-import { dibujarQR } from '../../datos/cita'
 import { dibujarTarjetaCita, guardarImagen, nombreArchivoCita } from '../../datos/imagenCita'
 import { ORGANIZACION } from '../../datos/organizacion'
+import { dibujarQRPase } from '../../datos/qrPase'
 import { paseDeCodigo } from '../../datos/pases'
 
 /**
@@ -33,7 +33,9 @@ export default function Pase() {
   useEffect(() => {
     let vigente = true
 
-    Promise.all([paseDeCodigo(token), dibujarQR(token)])
+    // El codigo del pase lleva el techo en el centro: se distingue de
+    // uno de cita nada mas de verlo.
+    Promise.all([paseDeCodigo(token), dibujarQRPase(token)])
       .then(([datos, imagen]) => {
         if (!vigente) return
         if (!datos) {
@@ -162,6 +164,7 @@ export default function Pase() {
 
         <p className="mt-4 text-base text-principal/80">{t('pase.comoFunciona')}</p>
         <p className="mt-2 text-base text-principal/80">{t('pase.soloTuyo')}</p>
+        <p className="mt-2 text-base text-principal/60">{t('pase.sello')}</p>
 
         <button
           className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-principal shadow-sm transition hover:brightness-95"

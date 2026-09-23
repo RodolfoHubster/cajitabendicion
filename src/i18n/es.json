@@ -115,7 +115,8 @@
     "revocado": "Este pase ya no está activo",
     "revocadoTexto": "Si crees que es un error, llama a la iglesia al {{telefono}}.",
     "comoFunciona": "Llega el día que puedas, lunes o jueves, a la hora que te quede. Muestra este código y te entregan tu caja.",
-    "soloTuyo": "Este pase es tuyo y sirve para una sola caja por día. Si lo comparten, se cancela."
+    "soloTuyo": "Este pase es tuyo y sirve para una sola caja por día. Si lo comparten, se cancela.",
+    "sello": "El logo de Cajita de Bendición en medio del código es la marca de tu pase: así el voluntario lo reconoce."
   },
   "pases": {
     "titulo": "Pases permanentes",

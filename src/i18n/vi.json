@@ -120,7 +120,8 @@
     "revocado": "Thẻ này không còn hiệu lực",
     "revocadoTexto": "Nếu bạn nghĩ đây là nhầm lẫn, xin gọi nhà thờ theo số {{telefono}}.",
     "comoFunciona": "Hãy đến vào thứ Hai hoặc thứ Năm, giờ nào cũng được. Đưa mã này ra và bạn sẽ nhận phần quà.",
-    "soloTuyo": "Thẻ này là của bạn và chỉ nhận một phần mỗi ngày. Nếu chia sẻ cho người khác, thẻ sẽ bị hủy."
+    "soloTuyo": "Thẻ này là của bạn và chỉ nhận một phần mỗi ngày. Nếu chia sẻ cho người khác, thẻ sẽ bị hủy.",
+    "sello": "Logo Cajita de Bendición ở giữa mã là dấu của thẻ: nhờ đó tình nguyện viên nhận ra nó."
   },
   "pases": {
     "titulo": "Thẻ vào vĩnh viễn",
