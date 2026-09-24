@@ -174,6 +174,43 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 
 ---
 
+## Dos filas (sección 32)
+
+| Objeto | Qué hace |
+|---|---|
+| `bloques.fila`, `personal.fila` | De qué fila es cada horario y en cuál escanea cada quien (`carro`, `a_pie`, `ambas`). |
+| `puede_escanear_fila(fila)` | Si quien tiene la sesión entrega en esa fila. La usan las dos de escaneo para responder `OTRA_FILA`. |
+| `fila_de_entrega()` | En qué fila se cuenta un pase o un "sin cita": la de quien lo registra. |
+| `a_pie_abierto()` | Lee `configuracion.a_pie_abierto`. Cerrado: `A_PIE_CERRADO`. |
+| `mi_fila()`, `guardar_fila_personal()` | La fila de la sesión; asignarla (solo admin). |
+
+`resumen_del_dia` y `reporte_por_dias` aceptan `p_fila` (null = juntas).
+`citas_del_dia`, `bloques_del_dia`, `entradas_sin_cita_del_dia`,
+`listar_personal` y `consultar_cita` devuelven la fila.
+
+## Errores de dedo y errores de gente (sección 33)
+
+| Objeto | Qué hace |
+|---|---|
+| `normalizar_texto(t)` | Para COMPARAR nombres: sin acentos, minúsculas, sin puntos ni apóstrofos. |
+| `normalizar_codigo_corto(t)` | "cb 4871", "4871", "CB487l" → `CB-4871`. La misma regla que `src/datos/codigoCorto.js`. |
+| `codigos_parecidos(a, b)` | Un dígito distinto o dos vecinos al revés. |
+| `cita_de_la_misma_persona(fecha, tel, nombre)` | Con candado. La usan los dos registros para no dar una segunda cita el mismo día. |
+| `anular_entrega(codigo, motivo)` | Deshace una entrega de HOY (cita o pase). Palomita `anular_entregas`. Queda en `anulaciones_entrega`. |
+
+`buscar_para_escaneo` ignora acentos y el orden de las palabras, y si el
+código exacto no existe devuelve los de hoy que se le parecen
+(`parecido = true`).
+
+## Ver el QR desde el panel (sección 34)
+
+| Objeto | Qué hace |
+|---|---|
+| `qr_de_cita(codigo, fecha, hora)` | El token de una cita no cancelada. **Solo admin**, ninguna palomita lo abre. Anota en `qr_vistos`. |
+| `qr_vistos` | Quién vio qué QR y cuándo. RLS sin políticas. |
+
+`citas_del_dia` sigue sin traer tokens: se piden de uno en uno, al tocar.
+
 ## Códigos que devuelven
 
 Los que la app traduce a mensaje en `src/datos/errores.js` y en las

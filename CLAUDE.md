@@ -41,6 +41,26 @@ Es un tope, no un muro: una ventana privada cuenta como dispositivo nuevo.
 No "arregles" esto poniendo de vuelta la regla semanal. Volver a una cita por
 semana se decide reconociendo a la persona, no apretando el teléfono.
 
+### La misma persona, el mismo día (desde el 24 de septiembre de 2026)
+
+Con mala señal la gente toca "confirmar" dos veces, o regresa y vuelve a
+llenar el registro. Eso creaba una segunda persona y una segunda cita (una
+segunda caja) o un error que la hacía creer que no tenía lugar.
+
+Ahora `registrar_y_reservar()` reconoce a la misma persona **el mismo día**
+(mismo teléfono y mismo nombre, sin fijarse en acentos ni mayúsculas) con
+`cita_de_la_misma_persona()`, que va con candado:
+
+- Si fue hace menos de media hora o desde el mismo teléfono: se le devuelve
+  **su** cita (`ya_existia = true`).
+- Si no: `YA_REGISTRADO_ESE_DIA`, sin revelar su código. Saber el nombre y el
+  teléfono de alguien no debe bastar para sacar su QR.
+- Otra persona de la familia con el mismo teléfono **sí** saca la suya. Quien
+  canceló **sí** puede volver a sacar cita ese día. Lunes y jueves siguen
+  siendo dos entregas distintas.
+
+Desde el panel, `registrar_desde_panel()` siempre devuelve la que ya tenía.
+
 ### Pase permanente — la excepción a "1 QR = 1 caja"
 
 Decisión del Pastor David, 21 de septiembre de 2026. Reemplaza las tarjetas de
@@ -55,10 +75,39 @@ papel: el pastor le da a ciertas personas un pase que no vence.
 - Solo un admin da y quita pases. Revocar **no borra**: queda quién lo quitó,
   cuándo y por qué. Deja de servir al momento.
 
+### Permisos del voluntario
+
+Decisión del Pastor David, 23 de septiembre de 2026. El rol decidía todo y el
+voluntario solo escaneaba; abrirle una pantalla era programar. Ahora es una
+palomita que el admin prende en **Permisos**: ver las citas del día, anotar sin
+cita, registrar, mover, cancelar, ver personas, ver reportes, dar pases, editar
+textos. **Arrancan todas apagadas.**
+
+- El candado es `exigir_permiso(clave)` en la base, no el menú. Esconder un
+  botón no le impide a nadie escribir la dirección a mano.
+- **Tres cosas no se pueden dar nunca, ni con todas las palomitas prendidas**:
+  Equipo y accesos (ahí se reparten los roles: un voluntario que entre se hace
+  admin solo y la lista deja de valer), Horarios y cupos (mueve el cupo de toda
+  la comunidad) y autorizar una segunda caja (la excepción la da el pastor).
+  Esas se quedan con `exigir_rol(array['admin'])` a secas.
+- Una palomita nueva se agrega en `permisos`, en `CLAVES_PERMISOS` y con sus
+  textos en los tres idiomas; una prueba lo vigila.
+
+### Dos filas: carro y a pie
+
+La fila vive en el **horario** (`bloques.fila`), no en la cita: así el candado
+de `reservar_cita()` sigue decidiendo el cupo igual en las dos. Cada quien del
+equipo escanea en su fila (`personal.fila`); un código de la otra fila
+responde `OTRA_FILA` y **no se quema**. En las cuentas, **juntas = carro + a
+pie**, siempre: es el número que se reporta al banco. Mientras
+`a_pie_abierto` diga `no`, nadie aparta lugar a pie (`A_PIE_CERRADO`).
+
 ### Alcance
 
-**Fase 1 (lo que se construye ahora): fila de carros.** Fase 2: fila peatonal
-con lista de espera. Fase 3: check-in/out de voluntarios.
+**Fase 1: fila de carros** (en uso). **Fase 2: fila a pie, empezada**: la base
+y el panel ya saben de filas, el público sigue viendo "Próximamente". Plan,
+lo hecho y lo que decide el pastor en `docs/fila-a-pie.md`. Fase 3:
+check-in/out de voluntarios.
 
 **Fuera de la V1**: login de Google para el público (V2; el personal ya entra
 con Google), modo sin conexión (el personal usa datos móviles).
@@ -100,6 +149,8 @@ react-i18next (es/en/vi) · Supabase (PostgreSQL, `us-west-1`,
 ```bash
 npm run dev     # Vite
 npm test        # Vitest, sin tocar la base real
+npm run test:base   # reglas.sql en un Postgres local (PGlite), sin ninguna base
+npm run dev:pruebas # la app contra la BASE DE PRUEBAS (franja amarilla)
 npm run lint    # oxlint
 npm run build   # producción
 ```
@@ -147,6 +198,13 @@ personas, reportes, equipo). Requieren sesión.
   aprueba a mano.
 - Validar una regla de negocio solo en pantalla: se revisa dentro de la función
   de la base.
+- Abrirle a un voluntario Equipo y accesos, Horarios y cupos o las excepciones,
+  por palomita o por lo que sea. Ver "Permisos del voluntario".
+- Probar a mano, o correr los scripts de concurrencia, en la base REAL. Lo
+  que se registra o se escanea ahí cuenta en los reportes al banco de
+  alimentos. Se usa la base de pruebas: `docs/base-de-pruebas.md`.
+- Decir "código no reconocido" cuando lo que pasó es que no hubo señal. El
+  código puede estar bien, y así se rechaza a alguien con cita.
 - Recopilar datos de más. Parte de la comunidad tiene estatus migratorio
   delicado; el aviso de privacidad dice que la información no se comparte con
   autoridades.
@@ -199,6 +257,8 @@ Estos archivos **no** se cargan solos. Ábrelos cuando el trabajo los toque:
 - `docs/mapa-base-de-datos.md` — qué hace cada función y en qué línea está,
   para no leer `schema.sql` entero
 - `docs/estado.md` — qué está hecho y qué falta
+- `docs/fila-a-pie.md` — la Fase 2: qué quedó hecho y qué falta decidir
+- `docs/base-de-pruebas.md` — la base de pruebas: cómo se arma y qué se prueba dónde
 - `docs/infraestructura.md` — dominio, DNS, hosting, correo
 - `docs/logos.md` — archivos de marca
 - `docs/claude-code.md` — cómo está armado este andamiaje
