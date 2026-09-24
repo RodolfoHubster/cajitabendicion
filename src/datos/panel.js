@@ -170,3 +170,15 @@ export function citaParaQr(citas, hoy) {
   const pasadas = vigentes.filter((cita) => cita.fecha < hoy).sort(orden)
   return pasadas.at(-1) ?? null
 }
+
+/**
+ * Lo que falta para registrar desde el panel, o null si se puede enviar.
+ * El pase permanente no lleva horario; la cita si.
+ *
+ * El boton "Registrar" no se apaga por esto: se apagaba y, en modo pase,
+ * nunca se volvia a prender (no hay horario que elegir). Mejor que al
+ * tocarlo diga que falta.
+ */
+export function faltaParaRegistrar({ tipo, bloqueId }) {
+  return tipo === 'cita' && !bloqueId ? 'FALTA_HORARIO' : null
+}

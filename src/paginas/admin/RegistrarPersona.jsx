@@ -22,7 +22,7 @@ import {
   formatearHora,
 } from '../../datos/disponibilidad'
 import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
-import { registrarDesdePanel } from '../../datos/panel'
+import { faltaParaRegistrar, registrarDesdePanel } from '../../datos/panel'
 import { crearPase } from '../../datos/pases'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
@@ -144,9 +144,10 @@ export default function RegistrarPersona() {
     evento.preventDefault()
     setError(null)
 
-    if (tipo === 'cita' && !bloqueId) {
+    const falta = faltaParaRegistrar({ tipo, bloqueId })
+    if (falta) {
       setIntento(true)
-      setError('FALTA_HORARIO')
+      setError(falta)
       document.getElementById('fecha')?.focus()
       return
     }
@@ -439,7 +440,8 @@ export default function RegistrarPersona() {
             </p>
           )}
 
-          <Boton disabled={enviando || !bloqueId} type="submit">
+          {/* Solo se apaga mientras envia. Si falta el horario, al tocarlo lo dice. */}
+          <Boton disabled={enviando} type="submit">
             {enviando ? t('registrarPanel.registrando') : t('registrarPanel.registrar')}
           </Boton>
         </form>

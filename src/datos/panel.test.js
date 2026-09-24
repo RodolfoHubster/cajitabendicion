@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }))
@@ -8,6 +9,7 @@ import {
   citasDePersona,
   citasDelDia,
   detalleDePersona,
+  faltaParaRegistrar,
   hoyLocal,
   qrDeCita,
   registrarDesdePanel,
@@ -247,5 +249,23 @@ describe('citaParaQr (qué QR va en el cuadro de la ficha)', () => {
   it('sin citas, nada', () => {
     expect(citaParaQr([], HOY)).toBeNull()
     expect(citaParaQr(undefined, HOY)).toBeNull()
+  })
+})
+
+describe('faltaParaRegistrar (Registrar a una persona, en el panel)', () => {
+  it('el pase permanente se registra sin horario', () => {
+    expect(faltaParaRegistrar({ tipo: 'pase', bloqueId: '' })).toBeNull()
+    expect(faltaParaRegistrar({ tipo: 'pase', bloqueId: null })).toBeNull()
+  })
+
+  it('la cita necesita su horario', () => {
+    expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: '' })).toBe('FALTA_HORARIO')
+    expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: 'bloque-1' })).toBeNull()
+  })
+
+  it('el botón no se apaga por falta de horario (en modo pase se quedaba apagado para siempre)', () => {
+    const pantalla = readFileSync(new URL('../paginas/admin/RegistrarPersona.jsx', import.meta.url), 'utf8')
+    const boton = pantalla.match(/<Boton disabled=\{([^}]*)\} type="submit">/)
+    expect(boton?.[1]).toBe('enviando')
   })
 })
