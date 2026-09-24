@@ -1,5 +1,6 @@
 import { sumarDias } from './disponibilidad'
 import { clasificarError } from './errores'
+import { conFila, filaParaConsulta } from './filas'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -8,7 +9,7 @@ import { supabase } from '../lib/supabase'
  */
 
 // Errores de negocio que la base lanza como texto.
-export const CODIGOS = ['RANGO_INVALIDO', 'RANGO_MUY_LARGO']
+export const CODIGOS = ['RANGO_INVALIDO', 'RANGO_MUY_LARGO', 'FILA_INVALIDA']
 
 /** Mas de un año por consulta no se pide (la base tampoco lo deja). */
 export const MAXIMO_DIAS = 366
@@ -90,8 +91,9 @@ export function periodoActivo(desde, hasta, hoy) {
   )
 }
 
-export async function reportePorDias(desde, hasta) {
-  const { data, error } = await supabase.rpc('reporte_por_dias', { p_desde: desde, p_hasta: hasta })
+/** Las cuentas por dia, de una fila o juntas (la suma de las dos). */
+export async function reportePorDias(desde, hasta, vistaFila = 'juntas') {
+  const { data, error } = await supabase.rpc('reporte_por_dias', conFila({ p_desde: desde, p_hasta: hasta }, vistaFila))
 
   if (error) {
     const deNegocio = CODIGOS.find((codigo) => error.message?.includes(codigo))
@@ -135,6 +137,8 @@ export function aCsv(filas, columnas) {
   return renglones.map((renglon) => renglon.join(',')).join('\r\n') + '\r\n'
 }
 
-export function nombreArchivoReporte(desde, hasta) {
-  return `cajita-reporte-${desde}_a_${hasta}.csv`
+/** Con la fila en el nombre, para no confundir un archivo de a pie con el total. */
+export function nombreArchivoReporte(desde, hasta, vistaFila = 'juntas') {
+  const fila = filaParaConsulta(vistaFila)
+  return `cajita-reporte-${desde}_a_${hasta}${fila ? `_${fila}` : ''}.csv`
 }

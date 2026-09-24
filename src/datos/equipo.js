@@ -16,6 +16,7 @@ export const CODIGOS = [
   'PERSONAL_NO_EXISTE',
   'CODIGO_MUY_CORTO',
   'NO_ES_ADMIN',
+  'FILA_INVALIDA',
 ]
 
 async function llamar(funcion, parametros) {

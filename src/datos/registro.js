@@ -1,5 +1,6 @@
 import { leerCodigoAnticipado } from './anticipado'
 import { CODIGOS_DOMICILIO, parametrosDomicilio } from './domicilio'
+import { conLimiteDeTiempo, esErrorDeConexion } from './errores'
 import { supabase } from '../lib/supabase'
 
 const LLAVE_DISPOSITIVO = 'cb_dispositivo'
@@ -50,7 +51,10 @@ export async function registrarYReservar({
   bloqueId,
   fecha,
 }) {
-  const { data, error } = await supabase.rpc('registrar_y_reservar', {
+  //  Con mala senal no se espera para siempre: a los 25 segundos se dice
+  //  "no hay conexion" y la persona puede volver a tocar Confirmar. Si la
+  //  primera si llego, la base le devuelve la misma cita (seccion 33).
+  const { data, error } = await conLimiteDeTiempo(supabase.rpc('registrar_y_reservar', {
     p_nombre: nombres,
     p_apellidos: apellidos,
     p_telefono: telefono,
@@ -60,7 +64,7 @@ export async function registrarYReservar({
     p_acepto_privacidad: Boolean(aceptoPrivacidad),
     p_dispositivo: obtenerDispositivo(),
     p_codigo_anticipado: (fecha && leerCodigoAnticipado(fecha)) || null,
-  })
+  }))
 
   if (error) {
     throw new Error(traducirError(error.message))
@@ -98,9 +102,16 @@ export const CODIGOS = [
   'CODIGO_ANTICIPADO_INVALIDO',
   'AUN_NO_ABRE',
   'DIA_CERRADO',
+  'YA_REGISTRADO_ESE_DIA',
+  'A_PIE_CERRADO',
   ...CODIGOS_DOMICILIO,
 ]
 
 export function traducirError(mensaje) {
-  return CODIGOS.find((codigo) => mensaje?.includes(codigo)) ?? 'ERROR_DESCONOCIDO'
+  const deNegocio = CODIGOS.find((codigo) => mensaje?.includes(codigo))
+  if (deNegocio) return deNegocio
+
+  //  Sin senal: se dice que es eso, no "error desconocido". Con "no hay
+  //  conexion" la persona sabe que puede volver a intentar.
+  return esErrorDeConexion(mensaje) ? 'SIN_CONEXION' : 'ERROR_DESCONOCIDO'
 }

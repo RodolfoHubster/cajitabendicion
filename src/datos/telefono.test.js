@@ -224,3 +224,16 @@ describe('todo telefono aceptado lo acepta tambien la base de datos', () => {
     }
   })
 })
+
+//  Al copiar un número de las notas del teléfono o de WhatsApp, a veces
+//  llega con guion largo. Es un separador más, no un error.
+describe('números copiados con guion largo', () => {
+  it.each([['619–555–1234'], ['619—555—1234'], ['+52 664–123–4567']])('%s se acepta', (texto) => {
+    const resultado = normalizarTelefono(texto.startsWith('+52') ? 'MX' : 'US', texto)
+    expect(resultado.valido).toBe(true)
+  })
+
+  it('una letra sigue sin aceptarse: el número no se adivina', () => {
+    expect(normalizarTelefono('US', '619 555 O123').valido).toBe(false)
+  })
+})

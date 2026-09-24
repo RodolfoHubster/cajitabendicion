@@ -86,9 +86,31 @@ export function cancelarCitaPanel({ codigo, fecha, hora, motivo }) {
 /**
  * Anota a una persona que entro sin cita. Devuelve su codigo de
  * comprobante (SC-1234) y cuantas van hoy.
+ *
+ * Si esa persona ya se anoto hoy (dos voluntarios en la puerta, o un doble
+ * toque), la base no la anota otra vez: el error NOMBRE_YA_ANOTADO_HOY
+ * trae `codigoPrevio` con el comprobante que ya tiene. Si de verdad es
+ * otra persona con el mismo nombre, se vuelve a llamar con
+ * `confirmarRepetido`.
  */
-export async function registrarEntradaSinCita(nombre) {
-  const data = await llamar('registrar_entrada_sin_cita', { p_nombre: nombre })
+export async function registrarEntradaSinCita(nombre, { confirmarRepetido = false } = {}) {
+  //  Sin confirmar, los parametros de siempre: asi funciona aunque la base
+  //  todavia no tenga la migracion.
+  const parametros = confirmarRepetido ? { p_nombre: nombre, p_confirmar_repetido: true } : { p_nombre: nombre }
+  const { data: respuesta, error } = await supabase.rpc('registrar_entrada_sin_cita', parametros)
+
+  if (error) {
+    const repetido = /NOMBRE_YA_ANOTADO_HOY:(SC-[A-Z0-9]+)/.exec(error.message ?? '')
+    if (repetido) {
+      const aviso = new Error('NOMBRE_YA_ANOTADO_HOY')
+      aviso.codigoPrevio = repetido[1]
+      throw aviso
+    }
+    const deNegocio = CODIGOS.find((codigo) => error.message?.includes(codigo))
+    throw new Error(deNegocio ?? clasificarError(error))
+  }
+
+  const data = respuesta
   const fila = Array.isArray(data) ? data[0] : data
   return { codigo: fila?.codigo ?? null, total: fila?.total ?? 0 }
 }

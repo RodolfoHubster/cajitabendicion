@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { conRetraso, retrasoDePrueba } from '../datos/retraso'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -21,7 +22,12 @@ if (faltantes.length > 0) {
   )
 }
 
+//  Solo con la base de pruebas y VITE_RETRASO_MS: para ver los esqueletos
+//  de carga (src/datos/retraso.js). En la app real vale 0.
+export const RETRASO_MS = retrasoDePrueba(import.meta.env)
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  ...(RETRASO_MS > 0 && { global: { fetch: conRetraso(RETRASO_MS) } }),
   auth: {
     // PKCE: al volver de Google, la sesion llega como un codigo de un solo
     // uso en vez de viajar los tokens en la direccion de la pagina.

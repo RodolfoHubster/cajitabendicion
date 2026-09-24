@@ -1,5 +1,6 @@
 import { CODIGOS_DOMICILIO, parametrosDomicilio } from './domicilio'
 import { clasificarError } from './errores'
+import { conFila } from './filas'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -10,8 +11,8 @@ import { supabase } from '../lib/supabase'
  * lista vacia.
  */
 
-async function llamar(funcion, fecha) {
-  const { data, error } = await supabase.rpc(funcion, { p_fecha: fecha ?? null })
+async function llamar(funcion, fecha, vistaFila) {
+  const { data, error } = await supabase.rpc(funcion, conFila({ p_fecha: fecha ?? null }, vistaFila))
 
   if (error) {
     throw new Error(clasificarError(error))
@@ -20,9 +21,9 @@ async function llamar(funcion, fecha) {
   return data
 }
 
-/** Los numeros del encabezado del panel. */
-export async function resumenDelDia(fecha) {
-  const filas = await llamar('resumen_del_dia', fecha)
+/** Los numeros del encabezado del panel: de una fila, o juntas. */
+export async function resumenDelDia(fecha, vistaFila = 'juntas') {
+  const filas = await llamar('resumen_del_dia', fecha, vistaFila)
   return filas?.[0] ?? null
 }
 
@@ -120,4 +121,52 @@ export function hoyLocal() {
     month: '2-digit',
     day: '2-digit',
   }).format(new Date())
+}
+
+/**
+ * El QR de una cita, para ensenarlo desde la ficha (Ver). Solo admin: la
+ * base lo revisa y anota quien lo vio. La cita se ubica como al cancelarla:
+ * codigo, fecha y hora.
+ */
+export async function qrDeCita({ codigo, fecha, hora }) {
+  const { data, error } = await supabase.rpc('qr_de_cita', { p_codigo: codigo, p_fecha: fecha, p_hora: hora })
+
+  if (error) {
+    throw new Error(error.message?.includes('CITA_NO_EXISTE') ? 'CITA_NO_EXISTE' : clasificarError(error))
+  }
+
+  const fila = Array.isArray(data) ? data[0] : data
+  if (!fila?.token) throw new Error('CITA_NO_EXISTE')
+
+  return fila
+}
+
+/**
+ * Si en la fila va el QR borroso. Solo el admin (ninguna palomita lo abre:
+ * con el QR de otro en la pantalla, cualquiera se lleva su caja) y nunca
+ * en una cancelada, cuyo QR ya no sirve.
+ */
+export function sePuedeVerQr(rol, cita) {
+  return rol === 'admin' && Boolean(cita) && cita.estado !== 'cancelada'
+}
+
+/**
+ * Cuál cita va en el cuadro del QR de la ficha: la de hoy; si no hay, la
+ * próxima; si no, la más reciente que ya pasó. Nunca una cancelada. null si
+ * no queda ninguna.
+ *
+ * citas: como las da citasDePersona() (fecha 'AAAA-MM-DD', hora 'HH:MM:SS').
+ */
+export function citaParaQr(citas, hoy) {
+  const vigentes = (citas ?? []).filter((cita) => cita.estado !== 'cancelada')
+  const orden = (a, b) => `${a.fecha} ${a.hora}`.localeCompare(`${b.fecha} ${b.hora}`)
+
+  const deHoy = vigentes.filter((cita) => cita.fecha === hoy).sort(orden)
+  if (deHoy.length) return deHoy[0]
+
+  const proximas = vigentes.filter((cita) => cita.fecha > hoy).sort(orden)
+  if (proximas.length) return proximas[0]
+
+  const pasadas = vigentes.filter((cita) => cita.fecha < hoy).sort(orden)
+  return pasadas.at(-1) ?? null
 }

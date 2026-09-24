@@ -94,7 +94,7 @@ export function avisoDetente() {
 }
 
 //  Que resultado del escaneo suena a que.
-const PUEDE_PASAR = ['VALIDO', 'VALIDO_AUTORIZADO', 'VALIDO_PASE']
+export const PUEDE_PASAR = ['VALIDO', 'VALIDO_AUTORIZADO', 'VALIDO_PASE']
 
 /** El aviso que le toca a un resultado del escaneo. */
 export function avisoDelResultado(resultado) {

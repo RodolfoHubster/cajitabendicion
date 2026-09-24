@@ -55,7 +55,9 @@ export function normalizarTelefono(codigoPais, texto) {
   if (!crudo) return fallo('VACIO')
 
   // Solo numeros y separadores comunes; el "+" solo al principio y una vez.
-  if (/[^\d\s()+.-]/.test(crudo) || crudo.lastIndexOf('+') > 0) return fallo('CARACTERES')
+  // El guion largo (– —) llega al copiar un numero de las notas o de
+  // WhatsApp: es un separador mas, no un error.
+  if (/[^\d\s()+.\-–—]/.test(crudo) || crudo.lastIndexOf('+') > 0) return fallo('CARACTERES')
 
   let digitos = crudo.replace(/\D/g, '')
   let conLada = crudo.startsWith('+')

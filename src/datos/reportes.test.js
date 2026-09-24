@@ -190,3 +190,26 @@ describe('textos en pantalla', () => {
     for (const periodo of PERIODOS) expect(es.reportes.periodos[periodo]).toBeTruthy()
   })
 })
+
+describe('reportes por fila', () => {
+  it('juntas no manda fila: la llamada queda como siempre', async () => {
+    supabase.rpc.mockResolvedValue({ data: [], error: null })
+    await reportePorDias('2026-09-01', '2026-09-30', 'juntas')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('reporte_por_dias', { p_desde: '2026-09-01', p_hasta: '2026-09-30' })
+  })
+
+  it('una fila se manda tal cual', async () => {
+    supabase.rpc.mockResolvedValue({ data: [], error: null })
+    await reportePorDias('2026-09-01', '2026-09-30', 'a_pie')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('reporte_por_dias', {
+      p_desde: '2026-09-01',
+      p_hasta: '2026-09-30',
+      p_fila: 'a_pie',
+    })
+  })
+
+  it('el archivo dice de qué fila es; el de juntas, no', () => {
+    expect(nombreArchivoReporte('2026-09-01', '2026-09-30', 'a_pie')).toBe('cajita-reporte-2026-09-01_a_2026-09-30_a_pie.csv')
+    expect(nombreArchivoReporte('2026-09-01', '2026-09-30', 'juntas')).toBe('cajita-reporte-2026-09-01_a_2026-09-30.csv')
+  })
+})

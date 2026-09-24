@@ -234,3 +234,27 @@ describe('personas al mismo tiempo (del lado de la pagina)', () => {
     ])
   })
 })
+
+describe('con mala señal', () => {
+  it('sin red, en cualquier navegador, se dice que no hay conexión', () => {
+    expect(traducirError('TypeError: Failed to fetch')).toBe('SIN_CONEXION')
+    expect(traducirError('TypeError: Load failed')).toBe('SIN_CONEXION')
+    expect(traducirError('TIEMPO_AGOTADO')).toBe('SIN_CONEXION')
+    expect(es.registro.errores.SIN_CONEXION).toBeTruthy()
+  })
+
+  it('la misma persona el mismo día tiene su propio mensaje', () => {
+    expect(traducirError('P0001: YA_REGISTRADO_ESE_DIA')).toBe('YA_REGISTRADO_ESE_DIA')
+  })
+
+  it('si la base no contesta a tiempo, no se queda "Enviando..." para siempre', async () => {
+    vi.useFakeTimers()
+    supabase.rpc.mockReturnValue(new Promise(() => {}))
+
+    const intento = registrarYReservar({ ...PERSONA, bloqueId: 'b1', fecha: '2026-09-24' })
+    const revisado = expect(intento).rejects.toThrow('SIN_CONEXION')
+    await vi.advanceTimersByTimeAsync(26000)
+    await revisado
+    vi.useRealTimers()
+  })
+})

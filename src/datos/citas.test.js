@@ -194,3 +194,29 @@ describe('errores', () => {
     },
   )
 })
+
+describe('la misma persona anotada dos veces hoy', () => {
+  it('la base avisa con el comprobante que ya tiene; no se anota otra', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: NOMBRE_YA_ANOTADO_HOY:SC-0427' } })
+
+    const error = await registrarEntradaSinCita('José Ramírez').catch((e) => e)
+    expect(error.message).toBe('NOMBRE_YA_ANOTADO_HOY')
+    expect(error.codigoPrevio).toBe('SC-0427')
+  })
+
+  it('si es otra persona con el mismo nombre, se confirma', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0500', total: 4 }], error: null })
+
+    await registrarEntradaSinCita('José Ramírez', { confirmarRepetido: true })
+    expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', {
+      p_nombre: 'José Ramírez',
+      p_confirmar_repetido: true,
+    })
+  })
+
+  it('sin confirmar, la llamada es la de siempre (sirve aunque la base no tenga la migración)', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0501', total: 5 }], error: null })
+    await registrarEntradaSinCita('Ana')
+    expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', { p_nombre: 'Ana' })
+  })
+})

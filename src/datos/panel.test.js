@@ -4,12 +4,15 @@ vi.mock('../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }))
 
 import { supabase } from '../lib/supabase'
 import {
+  citaParaQr,
   citasDePersona,
   citasDelDia,
   detalleDePersona,
   hoyLocal,
+  qrDeCita,
   registrarDesdePanel,
   resumenDelDia,
+  sePuedeVerQr,
 } from './panel'
 
 const PERSONA = {
@@ -138,5 +141,111 @@ describe('la ficha de una persona', () => {
 
     supabase.rpc.mockResolvedValueOnce({ data: null, error: null })
     await expect(citasDePersona('CB-4871')).resolves.toEqual([])
+  })
+})
+
+describe('el resumen por fila', () => {
+  it('juntas pide el resumen como siempre; una fila la manda', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ con_cita: 1 }], error: null })
+
+    await resumenDelDia('2026-09-24', 'juntas')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('resumen_del_dia', { p_fecha: '2026-09-24' })
+
+    await resumenDelDia('2026-09-24', 'carro')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('resumen_del_dia', { p_fecha: '2026-09-24', p_fila: 'carro' })
+  })
+})
+
+describe('qrDeCita (ver el QR desde Citas de hoy)', () => {
+  const CITA = { codigo: 'CB-4871', fecha: '2026-09-24', hora: '14:45:00' }
+
+  it('pide la cita por código, fecha y hora, y devuelve su token', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: [{ token: 'tok-1', codigo_corto: 'CB-4871', nombre: 'María', estado: 'reservada' }],
+      error: null,
+    })
+
+    await expect(qrDeCita(CITA)).resolves.toEqual({
+      token: 'tok-1',
+      codigo_corto: 'CB-4871',
+      nombre: 'María',
+      estado: 'reservada',
+    })
+    expect(supabase.rpc).toHaveBeenCalledWith('qr_de_cita', {
+      p_codigo: 'CB-4871',
+      p_fecha: '2026-09-24',
+      p_hora: '14:45:00',
+    })
+  })
+
+  it('una cita cancelada o que no existe: CITA_NO_EXISTE', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: CITA_NO_EXISTE' } })
+    await expect(qrDeCita(CITA)).rejects.toThrow(/^CITA_NO_EXISTE$/)
+  })
+
+  it('si la base no devuelve token, no se dibuja un QR vacío', async () => {
+    supabase.rpc.mockResolvedValue({ data: [], error: null })
+    await expect(qrDeCita(CITA)).rejects.toThrow(/^CITA_NO_EXISTE$/)
+  })
+
+  it('un voluntario que lo intente recibe SIN_PERMISO', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { code: '42501', message: 'SIN_PERMISO' } })
+    await expect(qrDeCita(CITA)).rejects.toThrow(/^SIN_PERMISO$/)
+  })
+})
+
+describe('sePuedeVerQr', () => {
+  it('el admin ve el QR de las citas vigentes y de las ya entregadas', () => {
+    for (const estado of ['reservada', 'llego', 'entregada', 'no_asistio']) {
+      expect(sePuedeVerQr('admin', { estado })).toBe(true)
+    }
+  })
+
+  it('nunca el de una cancelada: ya no sirve', () => {
+    expect(sePuedeVerQr('admin', { estado: 'cancelada' })).toBe(false)
+  })
+
+  it('un voluntario no, aunque tenga todas las palomitas', () => {
+    expect(sePuedeVerQr('voluntario', { estado: 'reservada' })).toBe(false)
+    expect(sePuedeVerQr(undefined, { estado: 'reservada' })).toBe(false)
+  })
+
+  it('sin cita, nada', () => {
+    expect(sePuedeVerQr('admin', null)).toBe(false)
+  })
+})
+
+describe('citaParaQr (qué QR va en el cuadro de la ficha)', () => {
+  const HOY = '2026-09-24'
+  const cita = (fecha, hora, estado = 'reservada') => ({ fecha, hora, estado })
+
+  it('la de hoy, aunque tenga otras más adelante', () => {
+    const citas = [cita('2026-09-28', '15:00:00'), cita(HOY, '14:45:00'), cita('2026-09-21', '15:00:00', 'entregada')]
+    expect(citaParaQr(citas, HOY)).toEqual(cita(HOY, '14:45:00'))
+  })
+
+  it('la de hoy aunque ya se haya entregado: es la que el voluntario acaba de escanear', () => {
+    expect(citaParaQr([cita(HOY, '14:45:00', 'entregada'), cita('2026-09-28', '15:00:00')], HOY).fecha).toBe(HOY)
+  })
+
+  it('sin cita hoy, la próxima (la más cercana, no la última)', () => {
+    const citas = [cita('2026-10-05', '15:00:00'), cita('2026-09-28', '16:00:00'), cita('2026-09-21', '15:00:00', 'entregada')]
+    expect(citaParaQr(citas, HOY)).toEqual(cita('2026-09-28', '16:00:00'))
+  })
+
+  it('sin hoy ni próximas, la más reciente de las que ya pasaron', () => {
+    const citas = [cita('2026-09-21', '15:00:00', 'entregada'), cita('2026-09-14', '15:00:00', 'no_asistio')]
+    expect(citaParaQr(citas, HOY)).toEqual(cita('2026-09-21', '15:00:00', 'entregada'))
+  })
+
+  it('nunca una cancelada: su QR ya no sirve', () => {
+    const citas = [cita(HOY, '14:45:00', 'cancelada'), cita('2026-09-28', '15:00:00')]
+    expect(citaParaQr(citas, HOY)).toEqual(cita('2026-09-28', '15:00:00'))
+    expect(citaParaQr([cita(HOY, '14:45:00', 'cancelada')], HOY)).toBeNull()
+  })
+
+  it('sin citas, nada', () => {
+    expect(citaParaQr([], HOY)).toBeNull()
+    expect(citaParaQr(undefined, HOY)).toBeNull()
   })
 })
