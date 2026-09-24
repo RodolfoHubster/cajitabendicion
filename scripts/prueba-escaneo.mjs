@@ -8,35 +8,38 @@
 // de cuadrar con las cajas reportadas al banco de alimentos.
 //
 // Uso:
-//   node --env-file=.env scripts/prueba-escaneo.mjs <token_qr>
+//   node scripts/prueba-escaneo.mjs --pruebas <token_qr>     en la base de pruebas
+//   node scripts/prueba-escaneo.mjs --base-real <token_qr>   en la real, a proposito
 //
-// Requiere en .env, ademas de la URL y la anon key:
-//   PRUEBA_EMAIL=...
-//   PRUEBA_PASSWORD=...
-// porque registrar_entrega() saca al voluntario de auth.uid() y ya no
-// se puede llamar sin sesion iniciada.
+//  OJO: ese QR queda marcado como ENTREGADO. En la base real, usa una cita
+//  de prueba de hoy (nunca la de una persona de verdad) y al terminar, en
+//  Citas de hoy, "Deshacer entrega" y luego "Cancelar".
+//
+// Necesita en el .env que toque la URL, la anon key, PRUEBA_EMAIL y
+// PRUEBA_PASSWORD: registrar_entrega() saca al voluntario de auth.uid() y
+// no se puede llamar sin sesion.
 
 import { createClient } from '@supabase/supabase-js'
+import { cargarEntorno } from './entorno.mjs'
 
-const url = process.env.VITE_SUPABASE_URL
-const key = process.env.VITE_SUPABASE_ANON_KEY
-const email = process.env.PRUEBA_EMAIL
-const password = process.env.PRUEBA_PASSWORD
-const token = process.argv[2]
+const { url, key, email, password, argumentos, pruebas } = cargarEntorno({
+  escribe: true,
+  uso: 'node scripts/prueba-escaneo.mjs <base> <token_qr>',
+})
+const token = argumentos[0]
 
-const faltan = []
-if (!url) faltan.push('VITE_SUPABASE_URL')
-if (!key) faltan.push('VITE_SUPABASE_ANON_KEY')
-if (!email) faltan.push('PRUEBA_EMAIL')
-if (!password) faltan.push('PRUEBA_PASSWORD')
-
-if (faltan.length > 0) {
-  console.error(`Faltan variables en .env: ${faltan.join(', ')}`)
-  process.exit(1)
-}
 if (!token) {
-  console.error('Falta el token del QR.')
-  console.error('Uso: node --env-file=.env scripts/prueba-escaneo.mjs <token_qr>')
+  console.error('Falta el token del QR de una cita de HOY.')
+  console.error('')
+  if (pruebas) {
+    console.error('En la base de pruebas: corre supabase/pruebas/datos-de-prueba.sql y copia un token de la tabla que muestra.')
+  } else {
+    console.error('Como sacarlo:')
+    console.error('  1. En el panel, "Registrar persona": a nombre de "Prueba Escaneo", con un horario de hoy.')
+    console.error('  2. Toca "Ver QR". En la direccion de esa pagina, lo que va despues de /confirmacion/ es el token.')
+    console.error('')
+    console.error('Ese QR queda ENTREGADO. Al terminar, en Citas de hoy: "Deshacer entrega" y luego "Cancelar".')
+  }
   process.exit(1)
 }
 

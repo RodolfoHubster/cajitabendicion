@@ -27,6 +27,7 @@ dist-ssr
 
 # Plantilla de variables de entorno (la regla .env.* de arriba la excluiria)
 !.env.example
+!.env.pruebas.example
 
 # Claude Code: el andamiaje del proyecto SI se versiona (instrucciones,
 # reglas por ruta, comandos, subagentes y permisos), para que valga igual

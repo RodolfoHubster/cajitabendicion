@@ -13,33 +13,26 @@
 // PRUEBA_PASSWORD. Cada llamada crea una persona distinta; las que chocan
 // con BLOQUE_LLENO se deshacen completas y no dejan personas sueltas.
 //
-// El bloque de datos-prueba.json debe tener capacidad 2, estar vacio y ser
-// de una fecha futura que no este cerrada.
+// El bloque tiene que tener capacidad 2, estar vacio y ser de una fecha
+// futura que no este cerrada. En la base de pruebas lo crea
+// supabase/pruebas/datos-de-prueba.sql y lo muestra al final; si no se
+// pasa, se usa el de scripts/datos-prueba.json.
 //
-// Uso:  node --env-file=.env scripts/prueba-concurrencia.mjs
+// Uso:
+//   node scripts/prueba-concurrencia.mjs --pruebas [bloque_id]
+//   node scripts/prueba-concurrencia.mjs --base-real [bloque_id]
 
 import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
+import { cargarEntorno } from './entorno.mjs'
 
-const url = process.env.VITE_SUPABASE_URL
-const key = process.env.VITE_SUPABASE_ANON_KEY
-const email = process.env.PRUEBA_EMAIL
-const password = process.env.PRUEBA_PASSWORD
+const { url, key, email, password, argumentos } = cargarEntorno({
+  escribe: true,
+  uso: 'node scripts/prueba-concurrencia.mjs <base> [bloque_id]',
+})
 
-const faltan = []
-if (!url) faltan.push('VITE_SUPABASE_URL')
-if (!key) faltan.push('VITE_SUPABASE_ANON_KEY')
-if (!email) faltan.push('PRUEBA_EMAIL')
-if (!password) faltan.push('PRUEBA_PASSWORD')
-
-if (faltan.length > 0) {
-  console.error(`Faltan en .env: ${faltan.join(', ')}`)
-  console.error('Copia .env.example a .env y llena los valores, luego:')
-  console.error('  node --env-file=.env scripts/prueba-concurrencia.mjs')
-  process.exit(1)
-}
-
-const { bloque_id } = JSON.parse(readFileSync(new URL('./datos-prueba.json', import.meta.url), 'utf8'))
+const bloque_id =
+  argumentos[0] ?? JSON.parse(readFileSync(new URL('./datos-prueba.json', import.meta.url), 'utf8')).bloque_id
 
 const LLAMADAS = 50
 const CAPACIDAD_ESPERADA = 2
