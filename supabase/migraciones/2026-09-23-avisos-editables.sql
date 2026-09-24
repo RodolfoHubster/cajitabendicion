@@ -12,6 +12,12 @@
 --
 --  No cambia ninguna tabla existente. Se puede repetir.
 -- ============================================================
+--
+--  OJO: si ya corriste 2026-09-23-preguntas-y-quienes-somos.sql, esta ya
+--  NO hace falta. Esa otra cambia avisos_publicos() (le agrega los
+--  titulos), y correr esta encima da:
+--    ERROR 42P13: cannot change return type of existing function
+--  El error no cambia nada: Supabase deshace todo el script.
 
 -- ------------------------------------------------------------
 --  Avisos y reglas que el pastor edita desde el panel

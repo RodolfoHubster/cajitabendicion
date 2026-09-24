@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-23-preguntas-y-quienes-somos.sql.
+--  Requiere todas las migraciones, hasta 2026-09-24-ver-qr-desde-el-panel.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -42,6 +42,7 @@ declare
   v_b_pasada     uuid;
   v_b_hoy        uuid;
   v_b_nuevo      uuid;
+  v_b_pie        uuid;
 
   v_admin        uuid;
   v_persona      uuid;
@@ -50,7 +51,10 @@ declare
   v_aviso2       uuid;
   v_token        text;
   v_token_otro   text;
+  v_token_pie    text;
   v_codigo       text;
+  v_codigo2      text;
+  v_codigo3      text;
   v_texto        text;
   v_nombre       text;
   v_nombres      text;
@@ -60,6 +64,7 @@ declare
   v_numero       int;
   v_si           boolean;
   v_numero2      int;
+  i              int;
   v_fila         record;
 
   v_total        int;
@@ -96,6 +101,23 @@ begin
       end;
       insert into resultados (prueba, paso, detalle)
       values (p_prueba, false, 'no marco error; se esperaba ' || p_codigo);
+    end
+    $b$
+  $f$;
+
+  --  Corre p_sql y devuelve su primer valor como texto, o 'ERROR: ...'.
+  --  Para comparar lo que devuelve una funcion sin que un error tumbe
+  --  todas las pruebas que siguen. Lo que haga se queda (hasta el final).
+  execute $f$
+    create function pg_temp.valor(p_sql text)
+    returns text language plpgsql as $b$
+    declare
+      v_valor text;
+    begin
+      execute p_sql into v_valor;
+      return v_valor;
+    exception when others then
+      return 'ERROR: ' || sqlerrm;
     end
     $b$
   $f$;
@@ -414,7 +436,7 @@ begin
   perform pg_temp.esperar_ok('Cupo: horario de 1 lugar, la primera persona entra',
     pg_temp.registro(v_b_uno));
   perform pg_temp.esperar_error('Cupo: horario de 1 lugar, la segunda ya no',
-    pg_temp.registro(v_b_uno), 'BLOQUE_LLENO');
+    pg_temp.registro(v_b_uno, p_nombre => 'Rosa'), 'BLOQUE_LLENO');
   update citas set estado = 'cancelada' where bloque_id = v_b_uno;
   perform pg_temp.esperar_ok('Cupo: si se cancela, el lugar se libera',
     pg_temp.registro(v_b_uno));
@@ -427,19 +449,92 @@ begin
   on conflict (clave) do update set valor = excluded.valor;
 
   perform pg_temp.esperar_ok('Dispositivo: 1a cita del lunes',
-    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'));
+    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a', p_nombre => 'Lucía'));
   perform pg_temp.esperar_ok('Dispositivo: 2a cita del mismo lunes (el tope es 2)',
-    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'));
+    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a', p_nombre => 'Carmen'));
   perform pg_temp.esperar_error('Dispositivo: 3a cita del mismo lunes, ya no',
-    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a'), 'LIMITE_DISPOSITIVO');
+    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-a', p_nombre => 'Elena'), 'LIMITE_DISPOSITIVO');
   perform pg_temp.esperar_ok('Dispositivo: el jueves de esa misma semana es otra entrega, sí puede',
-    pg_temp.registro(v_b_jueves, p_dispositivo => 'prueba-disp-a'));
+    pg_temp.registro(v_b_jueves, p_dispositivo => 'prueba-disp-a', p_nombre => 'Lucía'));
   perform pg_temp.esperar_ok('Dispositivo: otro teléfono sí puede',
-    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-b'));
+    pg_temp.registro(v_b_lunes, p_dispositivo => 'prueba-disp-b', p_nombre => 'Julia'));
   perform pg_temp.esperar_ok('Dispositivo: otra fecha más adelante también',
-    pg_temp.registro(v_b_ventana, p_codigo => 'K7MP2Q', p_dispositivo => 'prueba-disp-a'));
+    pg_temp.registro(v_b_ventana, p_codigo => 'K7MP2Q', p_dispositivo => 'prueba-disp-a', p_nombre => 'Lucía'));
   perform pg_temp.esperar_ok('Dispositivo: sin identificador (navegador bloqueado) no hay tope',
-    pg_temp.registro(v_b_lunes, p_dispositivo => null));
+    pg_temp.registro(v_b_lunes, p_dispositivo => null, p_nombre => 'Sofía'));
+
+  -- ==========================================================
+  --  6b. La misma persona, el mismo día (sección 33)
+  -- ==========================================================
+  --  Con mala señal la gente toca "confirmar" dos veces, o regresa y lo
+  --  vuelve a llenar. No debe salir una segunda cita, ni un error que la
+  --  haga creer que se quedó sin lugar.
+  v_codigo := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-a')));
+  perform pg_temp.comprobar('Misma persona: la primera vez se registra', v_codigo is not null);
+
+  v_texto := pg_temp.valor(format('select r.codigo_corto || ''|'' || r.ya_existia from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-a')));
+  perform pg_temp.comprobar('Misma persona: tocar confirmar otra vez devuelve SU cita, no una segunda',
+    v_texto = v_codigo || '|true', v_texto);
+
+  v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => '  OFELIA ', p_apellidos => 'perez', p_telefono => '+16195557001',
+                     p_dispositivo => 'prueba-misma-b')));
+  perform pg_temp.comprobar('Misma persona: con mayúsculas, sin acento y desde otro teléfono al rato, es la misma',
+    v_texto = v_codigo, v_texto);
+
+  select count(*) into v_numero from personas p where p.telefono = '+16195557001';
+  perform pg_temp.comprobar('Misma persona: queda UNA persona, no tres', v_numero = 1, v_numero::text);
+
+  --  Pasa el tiempo.
+  update citas c set creada_en = now() - interval '2 hours'
+    from personas p where p.id = c.persona_id and p.codigo_corto = v_codigo;
+
+  perform pg_temp.esperar_error('Misma persona: horas después y desde otro teléfono, no se revela su código',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-c'),
+    'YA_REGISTRADO_ESE_DIA');
+
+  v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-a')));
+  perform pg_temp.comprobar('Misma persona: desde su mismo teléfono sí se le devuelve, aunque haya pasado el tiempo',
+    v_texto = v_codigo, v_texto);
+
+  v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ramiro', p_telefono => '+16195557001', p_dispositivo => null)));
+  perform pg_temp.comprobar('Misma persona: alguien de la familia con el mismo teléfono sí saca la suya',
+    v_texto is not null and v_texto <> v_codigo, v_texto);
+
+  update citas c set estado = 'cancelada'
+    from personas p where p.id = c.persona_id and p.codigo_corto = v_codigo;
+
+  v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-c')));
+  perform pg_temp.comprobar('Misma persona: si canceló, puede volver a sacar cita ese día',
+    v_texto is not null and v_texto <> v_codigo, v_texto);
+
+  --  Cómo se lee lo que teclea la gente.
+  perform pg_temp.comprobar('Código: "cb 4871" se lee CB-4871',
+    normalizar_codigo_corto('cb 4871') = 'CB-4871', normalizar_codigo_corto('cb 4871'));
+  perform pg_temp.comprobar('Código: con los cuatro números basta',
+    normalizar_codigo_corto('4871') = 'CB-4871', normalizar_codigo_corto('4871'));
+  perform pg_temp.comprobar('Código: la O es cero y la l es uno',
+    normalizar_codigo_corto('CBO87l') = 'CB-0871', normalizar_codigo_corto('CBO87l'));
+  perform pg_temp.comprobar('Código: un nombre de cuatro letras no se vuelve código',
+    normalizar_codigo_corto('Lili') = 'LILI', normalizar_codigo_corto('Lili'));
+  perform pg_temp.comprobar('Código: los de prueba y los de "sin cita" se quedan como están',
+    normalizar_codigo_corto(' cb-prb2 ') = 'CB-PRB2' and normalizar_codigo_corto('SC-1234') = 'SC-1234');
+  perform pg_temp.comprobar('Nombres: sin acentos, mayúsculas, guiones ni espacios de más',
+    normalizar_texto('  MARÍA  de-la Luz ') = 'maria de la luz', normalizar_texto('  MARÍA  de-la Luz '));
+  perform pg_temp.comprobar('Nombres: el apóstrofo no cuenta', normalizar_texto('O''Brien') = 'obrien');
+  perform pg_temp.comprobar('Códigos parecidos: dos números al revés',
+    codigos_parecidos('CB-4871', 'CB-4817'));
+  perform pg_temp.comprobar('Códigos parecidos: un número distinto',
+    codigos_parecidos('CB-4871', 'CB-4881'));
+  perform pg_temp.comprobar('Códigos parecidos: revuelto del todo, no',
+    not codigos_parecidos('CB-4871', 'CB-1478'));
+  perform pg_temp.comprobar('Códigos parecidos: el mismo código no es "parecido"',
+    not codigos_parecidos('CB-4871', 'CB-4871'));
 
   -- ==========================================================
   --  7. Una cita por semana (misma persona)
@@ -508,11 +603,11 @@ begin
   perform pg_temp.esperar_error('Caso jueves: en hora de suscriptores, sin código no entra',
     pg_temp.registro(v_b_jueves), 'AUN_NO_ABRE');
   perform pg_temp.esperar_ok('Caso jueves: en hora de suscriptores, con código sí entra',
-    pg_temp.registro(v_b_jueves, p_codigo => 'ABCDEG'));
+    pg_temp.registro(v_b_jueves, p_codigo => 'ABCDEG', p_nombre => 'Beatriz'));
 
   update dias_entrega set abre_en = now() - interval '1 minute' where fecha = v_jueves;
   perform pg_temp.esperar_ok('Caso jueves: ya abierta al público, entra sin código',
-    pg_temp.registro(v_b_jueves));
+    pg_temp.registro(v_b_jueves, p_nombre => 'Guadalupe'));
 
   -- ==========================================================
   --  10b. Cancelar la propia cita (desde el enlace de confirmacion)
@@ -693,7 +788,7 @@ begin
     perform pg_temp.esperar_ok('Horarios: cerrar un horario',
       format('select actualizar_bloque(%L::uuid, null, true)', v_b_lunes));
     perform pg_temp.esperar_error('Horarios: en un horario cerrado ya nadie se registra',
-      pg_temp.registro(v_b_lunes), 'BLOQUE_CERRADO');
+      pg_temp.registro(v_b_lunes, p_nombre => 'Teresa'), 'BLOQUE_CERRADO');
     perform pg_temp.esperar_ok('Horarios: reabrir el horario',
       format('select actualizar_bloque(%L::uuid, null, false)', v_b_lunes));
     perform pg_temp.esperar_error('Horarios: no se elimina un horario con registros',
@@ -725,12 +820,19 @@ begin
     perform pg_temp.esperar_error('Panel: también revisa el código postal contra el catálogo',
       pg_temp.panel(v_b_lunes, p_cp => '00000'), 'CODIGO_POSTAL_NO_EXISTE');
 
+    v_codigo := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+      pg_temp.panel(v_b_lunes, p_nombre => 'Ignacio', p_telefono => '+526641110000')));
+    v_texto := pg_temp.valor(format('select r.codigo_corto || ''|'' || r.ya_existia from (%s) r',
+      pg_temp.panel(v_b_lunes, p_nombre => 'IGNACIO', p_telefono => '+526641110000')));
+    perform pg_temp.comprobar('Panel: registrar a la misma persona otra vez ese día devuelve la cita que ya tenía',
+      v_texto = v_codigo || '|true', v_texto);
+
     -- ---------- Escaneo ----------
     if not exists (select 1 from dias_entrega where fecha = v_hoy) then
       insert into dias_entrega (fecha, abre_en, codigo_anticipado) values (v_hoy, now() - interval '1 day', 'HOYHOY');
     end if;
-    insert into bloques (fecha, hora, capacidad) values (v_hoy, '23:58', 5)
-    on conflict (fecha, hora) do update set capacidad = excluded.capacidad
+    insert into bloques (fecha, hora, capacidad) values (v_hoy, '23:58', 10)
+    on conflict (fecha, hora, fila) do update set capacidad = excluded.capacidad
     returning id into v_b_hoy;
 
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
@@ -756,6 +858,94 @@ begin
     select resultado into v_texto from registrar_entrega_autorizada(v_token_otro, null);
     perform pg_temp.comprobar('Escaneo: autorizado tampoco entrega dos veces', v_texto = 'YA_USADO', v_texto);
 
+    -- ---------- Búsqueda y códigos mal tecleados (sección 33) ----------
+    --  Un código libre cuyo "al revés" y cuyo "un número distinto" tampoco
+    --  existan: si existieran, la búsqueda los encontraría de verdad y no
+    --  como parecidos.
+    for i in 1000 .. 9999 loop
+      v_codigo  := 'CB-' || i::text;
+      v_codigo2 := 'CB-' || ((substr(i::text, 1, 1)::int % 9) + 1)::text || substr(i::text, 2);
+      v_codigo3 := 'CB-' || substr(i::text, 1, 2) || substr(i::text, 4, 1) || substr(i::text, 3, 1);
+      exit when substr(i::text, 3, 1) <> substr(i::text, 4, 1)
+            and not exists (select 1 from personas p where p.codigo_corto in (v_codigo, v_codigo2, v_codigo3));
+    end loop;
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values (v_codigo, 'María Ñúñez Prueba', 'María', 'Ñúñez Prueba', '+16195550401') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_hoy)).token_qr into v_token;
+
+    select count(*) into v_numero from buscar_para_escaneo('maria nunez') b where b.codigo_corto = v_codigo;
+    perform pg_temp.comprobar('Búsqueda: sin acentos encuentra a "María Ñúñez"', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from buscar_para_escaneo('Ñúñez   María') b where b.codigo_corto = v_codigo;
+    perform pg_temp.comprobar('Búsqueda: con las palabras en otro orden también', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from buscar_para_escaneo(lower(replace(v_codigo, '-', ' '))) b
+     where b.codigo_corto = v_codigo and not b.parecido;
+    perform pg_temp.comprobar('Búsqueda: "cb 1234" encuentra CB-1234', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from buscar_para_escaneo(right(v_codigo, 4)) b where b.codigo_corto = v_codigo;
+    perform pg_temp.comprobar('Búsqueda: con los cuatro números basta', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from buscar_para_escaneo(v_codigo3) b where b.codigo_corto = v_codigo and b.parecido;
+    perform pg_temp.comprobar('Búsqueda: dos números al revés sugiere el código parecido', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from buscar_para_escaneo(v_codigo2) b where b.codigo_corto = v_codigo and b.parecido;
+    perform pg_temp.comprobar('Búsqueda: un número equivocado también', v_numero = 1, v_numero::text);
+
+    select resultado into v_texto from registrar_entrega_por_codigo(lower(replace(v_codigo, '-', '')));
+    perform pg_temp.comprobar('Escaneo: el código tecleado sin guion y en minúsculas también entrega',
+      v_texto = 'VALIDO', v_texto);
+
+    -- ---------- Deshacer una entrega marcada por error (sección 33) ----------
+    perform pg_temp.esperar_error('Deshacer: sin motivo no se deshace',
+      format('select anular_entrega(%L, ''   '')', v_codigo), 'MOTIVO_REQUERIDO');
+
+    v_texto := pg_temp.valor(format('select anular_entrega(%L, %L)', lower(v_codigo), 'Se le entregó a otra persona'));
+    perform pg_temp.comprobar('Deshacer: la entrega de hoy se deshace', v_texto = 'ANULADA', v_texto);
+
+    select c.estado into v_texto from citas c where c.token_qr = v_token;
+    perform pg_temp.comprobar('Deshacer: la cita vuelve a estar pendiente', v_texto = 'reservada', v_texto);
+
+    select count(*) into v_numero
+      from anulaciones_entrega a join citas c on c.id = a.cita_id
+     where c.token_qr = v_token and a.motivo = 'Se le entregó a otra persona' and a.anulada_por = v_admin;
+    perform pg_temp.comprobar('Deshacer: queda quién, cuándo y por qué', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Deshacer: lo que ya se deshizo no se deshace dos veces',
+      format('select anular_entrega(%L, ''Otra vez'')', v_codigo), 'ENTREGA_NO_EXISTE');
+    perform pg_temp.esperar_error('Deshacer: un código que no existe',
+      'select anular_entrega(''CB-NOEXISTE'', ''Prueba'')', 'ENTREGA_NO_EXISTE');
+
+    select resultado into v_texto from registrar_entrega(v_token);
+    perform pg_temp.comprobar('Deshacer: el código vuelve a servir para la persona correcta', v_texto = 'VALIDO', v_texto);
+    select resultado into v_texto from registrar_entrega(v_token);
+    perform pg_temp.comprobar('Deshacer: y otra vez da una sola caja', v_texto = 'YA_USADO', v_texto);
+
+    -- ---------- Ver el QR desde el panel (sección 34) ----------
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRQ1', 'Prueba Ver QR', 'Prueba', 'Ver QR', '+16195550501') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_hoy)).token_qr into v_token;
+
+    v_texto := pg_temp.valor(format('select token from qr_de_cita(%L, %L::date, %L::time)', 'cb-prq1', v_hoy, '23:58'));
+    perform pg_temp.comprobar('Ver QR: el admin ve el QR de una cita de hoy', v_texto = v_token, v_texto);
+    select count(*) into v_numero
+      from qr_vistos q join citas c on c.id = q.cita_id
+     where c.token_qr = v_token and q.visto_por = v_admin;
+    perform pg_temp.comprobar('Ver QR: queda quién lo vio y cuándo', v_numero = 1, v_numero::text);
+
+    select resultado into v_texto from registrar_entrega(v_token);
+    perform pg_temp.comprobar('Ver QR: el QR que se ve es el que sirve', v_texto = 'VALIDO', v_texto);
+    v_texto := pg_temp.valor(format('select estado from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ1', v_hoy, '23:58'));
+    perform pg_temp.comprobar('Ver QR: el de una cita ya entregada se ve, y dice que ya se entregó',
+      v_texto = 'entregada', v_texto);
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRQ2', 'Prueba QR Cancelada', 'Prueba', 'QR Cancelada', '+16195550502') returning id into v_persona;
+    perform reservar_cita(v_persona, v_b_hoy);
+    perform cancelar_cita_panel('CB-PRQ2', v_hoy, '23:58', 'Prueba');
+    perform pg_temp.esperar_error('Ver QR: el de una cita cancelada no se da', format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ2', v_hoy, '23:58'), 'CITA_NO_EXISTE');
+    perform pg_temp.esperar_error('Ver QR: un código que no existe', format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-NOEXISTE', v_hoy, '23:58'), 'CITA_NO_EXISTE');
+
+    perform pg_temp.comprobar('Ver QR: la lista del día sigue sin traer los QR',
+      pg_get_function_result('citas_del_dia(date)'::regprocedure) not like '%token%',
+      pg_get_function_result('citas_del_dia(date)'::regprocedure));
+
     --  Alguien que se registro antes de pedir domicilio llega hoy a recoger.
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, ciudad)
     values ('CB-PRA2', 'Prueba Antes Escaneo', 'Prueba', 'Antes Escaneo', '+16195550112', 'San Ysidro')
@@ -777,7 +967,7 @@ begin
       'select * from registrar_entrada_sin_cita(''Juan 2'')', 'NOMBRE_INVALIDO');
 
     begin
-      select r.codigo into v_codigo from registrar_entrada_sin_cita('  josé   ramírez ') r;
+      select r.codigo into v_codigo from registrar_entrada_sin_cita('  prueba   sincita ') r;
       perform pg_temp.comprobar('Sin cita: se anota con nombre y da un código de comprobante',
         v_codigo ~ '^SC-[0-9]{4}$', v_codigo);
     exception when others then
@@ -785,7 +975,7 @@ begin
     end;
 
     perform pg_temp.esperar_ok('Sin cita: se anota otra persona',
-      'select * from registrar_entrada_sin_cita(''Ana López'')');
+      'select * from registrar_entrada_sin_cita(''Prueba Sincitados'')');
 
     select sin_cita into v_numero2 from resumen_del_dia(null);
     perform pg_temp.comprobar('Sin cita: el resumen del día las cuenta', v_numero2 = v_numero + 2,
@@ -794,7 +984,7 @@ begin
     select count(*) into v_numero2
       from entradas_sin_cita_del_dia(null) e
      where e.codigo = v_codigo
-       and e.nombre = 'josé ramírez'
+       and e.nombre = 'prueba sincita'
        and e.anotado_por is not null
        and e.registrado_en is not null
        and not e.anulada;
@@ -817,6 +1007,26 @@ begin
       format('select anular_entrada_sin_cita(%L)', v_codigo), 'ENTRADA_YA_ANULADA');
     perform pg_temp.esperar_error('Sin cita: un código que no existe',
       'select anular_entrada_sin_cita(''SC-XXXX'')', 'ENTRADA_NO_EXISTE');
+
+    --  La misma persona anotada dos veces hoy (sección 33): dos voluntarios
+    --  en la puerta, o un doble toque. Sería una caja de más en la cuenta.
+    v_texto := pg_temp.valor('select r.codigo from registrar_entrada_sin_cita(''Prueba Repetida'') r');
+    perform pg_temp.comprobar('Sin cita repetida: la primera vez se anota', v_texto ~ '^SC-[0-9]{4}$', v_texto);
+
+    perform pg_temp.esperar_error('Sin cita repetida: la misma persona otra vez hoy se avisa, con su comprobante',
+      'select * from registrar_entrada_sin_cita(''  PRUEBA  repetida '')', 'NOMBRE_YA_ANOTADO_HOY:' || v_texto);
+
+    select count(*) into v_numero2 from entradas_sin_cita s
+     where s.fecha = v_hoy and normalizar_texto(s.nombre) = 'prueba repetida';
+    perform pg_temp.comprobar('Sin cita repetida: el aviso no anota una segunda', v_numero2 = 1, v_numero2::text);
+
+    perform pg_temp.esperar_ok('Sin cita repetida: si de verdad es otra persona con el mismo nombre, se confirma y pasa',
+      'select * from registrar_entrada_sin_cita(''Prueba Repetida'', null, true)');
+
+    v_codigo2 := pg_temp.valor('select r.codigo from registrar_entrada_sin_cita(''Prueba Anulada'') r');
+    perform anular_entrada_sin_cita(v_codigo2);
+    perform pg_temp.esperar_ok('Sin cita repetida: si la primera se anuló por error, se vuelve a anotar sin aviso',
+      'select * from registrar_entrada_sin_cita(''Prueba Anulada'')');
 
     -- ---------- Excepción: segunda cita en la semana ----------
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
@@ -1076,6 +1286,11 @@ begin
     perform pg_temp.comprobar('Pase: el mismo día no da una segunda caja (una copia tampoco)',
       v_texto = 'YA_USADO', v_texto);
 
+    perform pg_temp.esperar_ok('Deshacer: la caja de hoy de un pase también se deshace',
+      'select anular_entrega(''cb-prp1'', ''Se escaneó el pase de otra persona'')');
+    select r.resultado into v_texto from registrar_entrega(v_token) r;
+    perform pg_temp.comprobar('Deshacer: el pase vuelve a servir hoy, una vez', v_texto = 'VALIDO_PASE', v_texto);
+
     select s.con_pase into v_numero from resumen_del_dia(v_hoy) s;
     perform pg_temp.comprobar('Pase: su caja cuenta en el resumen del día', v_numero = 1, v_numero::text);
 
@@ -1216,6 +1431,8 @@ begin
       format('select cancelar_cita_panel(%L, %L::date, %L::time, null)', 'CB-PRB8', v_lunes, '14:00'), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no mueve citas de horario',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no deshace entregas sin su palomita',
+      'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_PERMISO');
 
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
     values ('CB-PRB4', 'Prueba Voluntario', 'Prueba', 'Voluntario', '+16195550003') returning id into v_persona;
@@ -1229,6 +1446,209 @@ begin
     select resultado into v_texto from registrar_entrega_autorizada(v_token_otro, 'codigo-equivocado');
     perform pg_temp.comprobar('Roles: un voluntario no autoriza otro día sin el código del admin',
       v_texto = 'CODIGO_INVALIDO', v_texto);
+
+    -- ---------- Permisos del voluntario ----------
+    --  Todo lo de arriba le falló porque las palomitas arrancan apagadas.
+    --  Aquí se prenden y se apagan, para ver que de verdad mandan ellas.
+    perform pg_temp.esperar_error('Permisos: un voluntario no ve la lista de permisos',
+      'select * from listar_permisos()', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: un voluntario no se prende una palomita',
+      'select guardar_permiso(''ver_citas_del_dia'', true)', 'SIN_PERMISO');
+
+    select count(*) into v_numero from mis_permisos() p where p.activo;
+    perform pg_temp.comprobar('Permisos: un voluntario empieza sin ninguna', v_numero = 0, v_numero::text);
+
+    --  El administrador le abre dos.
+    update personal set rol = 'admin' where usuario_id = v_admin;
+
+    perform pg_temp.esperar_ok('Permisos: el administrador prende una palomita',
+      'select guardar_permiso(''ver_citas_del_dia'', true)');
+    perform guardar_permiso('dar_pases', true);
+
+    select count(*) into v_numero from mis_permisos() p where p.activo;
+    select count(*) into v_numero2 from permisos;
+    perform pg_temp.comprobar('Permisos: el administrador siempre las tiene todas',
+      v_numero = v_numero2, format('%s de %s', v_numero, v_numero2));
+
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+
+    perform pg_temp.esperar_ok('Permisos: con la palomita, el voluntario ya ve las citas del día',
+      'select * from citas_del_dia(null)');
+    perform pg_temp.esperar_ok('Permisos: con la palomita, el voluntario ya ve los pases',
+      'select * from listar_pases()');
+    perform pg_temp.esperar_error('Permisos: lo que no se le dio sigue cerrado',
+      format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_PERMISO');
+
+    select count(*) into v_numero from mis_permisos() p where p.activo;
+    perform pg_temp.comprobar('Permisos: el voluntario ve exactamente las suyas', v_numero = 2, v_numero::text);
+
+    --  Y ahora lo que de verdad importa: con TODAS prendidas, lo que nunca
+    --  se da sigue sin darse. Si un voluntario pudiera entrar a Equipo y
+    --  accesos se haría administrador solo, y la lista no serviría de nada.
+    update personal set rol = 'admin' where usuario_id = v_admin;
+    update permisos set activo = true;
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario ve el equipo',
+      'select * from listar_personal()', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario se hace administrador',
+      'select guardar_personal(''alguien.cb@gmail.com'', ''admin'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario le quita el acceso a alguien',
+      'select quitar_acceso_personal(''alguien.cb@gmail.com'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario crea fechas',
+      pg_temp.crear(v_nueva, '14:00', '18:30', 20, now() + interval '1 day'), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario autoriza una segunda caja',
+      format('select * from reservar_con_excepcion(%L, %L::uuid, %L)', 'CB-PRB8', v_b_jueves, 'Motivo'), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario reparte permisos',
+      'select guardar_permiso(''ver_reportes'', false)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario pone código de autorización',
+      'select definir_mi_codigo_autorizacion(''codigo-voluntario'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Permisos: ni con todas, un voluntario ve el QR de alguien',
+      format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ1', v_hoy, '23:58'), 'SIN_PERMISO');
+
+    --  Lo que se abre también se cierra.
+    update personal set rol = 'admin' where usuario_id = v_admin;
+
+    perform pg_temp.esperar_error('Permisos: no se inventa una palomita que no existe',
+      'select guardar_permiso(''ser_pastor'', true)', 'PERMISO_NO_EXISTE');
+
+    select count(*) into v_numero from listar_permisos();
+    perform pg_temp.comprobar('Permisos: la lista del panel trae todas las palomitas',
+      v_numero = v_numero2, format('%s de %s', v_numero, v_numero2));
+
+    update permisos set activo = false;
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+
+    perform pg_temp.esperar_error('Permisos: al apagarla, la pantalla se vuelve a cerrar',
+      'select * from citas_del_dia(null)', 'SIN_PERMISO');
+
+    -- ---------- Dos filas: carro y a pie ----------
+    update personal set rol = 'admin' where usuario_id = v_admin;
+    select u.email into v_email from auth.users u where u.id = v_admin;
+
+    insert into bloques (fecha, hora, capacidad, fila) values (v_hoy, '23:58', 3, 'a_pie')
+    returning id into v_b_pie;
+    perform pg_temp.comprobar('Filas: a la misma hora caben un horario de carro y uno a pie', v_b_pie is not null);
+
+    perform pg_temp.esperar_error('Filas: dos horarios a pie a la misma hora, no',
+      format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:58'', 3, ''a_pie'')', v_hoy),
+      'bloques_fecha_hora_fila_key');
+    perform pg_temp.esperar_error('Filas: una fila que no existe, no',
+      format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:57'', 3, ''bici'')', v_hoy),
+      'bloques_fila_valida');
+
+    --  Mientras a pie esta cerrado, nadie lo ve ni aparta lugar.
+    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_pie;
+    perform pg_temp.comprobar('Filas: con a pie cerrado, sus horarios no salen al público', v_numero = 0, v_numero::text);
+    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie;
+    perform pg_temp.comprobar('Filas: ni pidiéndolos a propósito', v_numero = 0, v_numero::text);
+    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_hoy;
+    perform pg_temp.comprobar('Filas: los de carro siguen saliendo igual', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Filas: nadie aparta lugar a pie mientras esté cerrado',
+      pg_temp.registro(v_b_pie), 'A_PIE_CERRADO');
+    perform pg_temp.esperar_error('Filas: tampoco desde el panel',
+      pg_temp.panel(v_b_pie), 'A_PIE_CERRADO');
+
+    --  Se abre.
+    update configuracion set valor = 'si' where clave = 'a_pie_abierto';
+
+    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie;
+    perform pg_temp.comprobar('Filas: con a pie abierto, sus horarios salen cuando se piden', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_pie;
+    perform pg_temp.comprobar('Filas: y no se revuelven con los de carro', v_numero = 0, v_numero::text);
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRF1', 'Prueba A Pie', 'Prueba', 'A Pie', '+16195550301') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_pie)).token_qr into v_token_pie;
+
+    select c.fila into v_texto from consultar_cita(v_token_pie) c;
+    perform pg_temp.comprobar('Filas: la vista previa del QR dice de qué fila es', v_texto = 'a_pie', v_texto);
+
+    --  Una cita no se pasa de fila.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRF2', 'Prueba Carro Mover', 'Prueba', 'Carro Mover', '+16195550302') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_hoy)).id into v_cita;
+    perform pg_temp.esperar_error('Filas: una cita de carro no se mueve a un horario a pie',
+      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_pie), 'OTRA_FILA');
+
+    --  En qué fila escanea cada quien.
+    perform pg_temp.esperar_error('Filas: una fila que no existe no se le asigna a nadie',
+      format('select guardar_fila_personal(%L, ''bici'')', v_email), 'FILA_INVALIDA');
+    perform pg_temp.esperar_error('Filas: a alguien que no es del equipo, no',
+      'select guardar_fila_personal(''nadie.cb@gmail.com'', ''carro'')', 'PERSONAL_NO_EXISTE');
+    perform pg_temp.esperar_ok('Filas: el administrador asigna la fila',
+      format('select guardar_fila_personal(%L, ''carro'')', v_email));
+    perform pg_temp.comprobar('Filas: el administrador escanea en las dos, diga lo que diga', mi_fila() = 'ambas', mi_fila());
+
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+
+    perform pg_temp.comprobar('Filas: el voluntario ve su fila', mi_fila() = 'carro', mi_fila());
+    perform pg_temp.esperar_error('Filas: un voluntario no se cambia de fila solo',
+      format('select guardar_fila_personal(%L, ''ambas'')', v_email), 'SIN_PERMISO');
+
+    select resultado into v_texto from registrar_entrega(v_token_pie);
+    perform pg_temp.comprobar('Filas: el de la fila de carros no entrega un código a pie', v_texto = 'OTRA_FILA', v_texto);
+    select c.estado into v_texto from citas c where c.token_qr = v_token_pie;
+    perform pg_temp.comprobar('Filas: y el código no se quema', v_texto = 'reservada', v_texto);
+    select resultado into v_texto from registrar_entrega_por_codigo('CB-PRF1');
+    perform pg_temp.comprobar('Filas: tampoco por código corto', v_texto = 'OTRA_FILA', v_texto);
+
+    update personal set fila = 'a_pie' where usuario_id = v_admin;
+
+    select resultado into v_texto from registrar_entrega(v_token_pie);
+    perform pg_temp.comprobar('Filas: en su fila, sí pasa', v_texto = 'VALIDO', v_texto);
+    select resultado into v_texto from registrar_entrega(v_token_pie);
+    perform pg_temp.comprobar('Filas: y una sola vez, como siempre', v_texto = 'YA_USADO', v_texto);
+
+    --  "Entró sin cita" se anota en la fila de quien lo anota.
+    update permisos set activo = true where clave = 'anotar_sin_cita';
+
+    select s.codigo into v_codigo from registrar_entrada_sin_cita('Prueba Fila Pie') s;
+    select s.fila into v_texto from entradas_sin_cita s where s.codigo = v_codigo and s.fecha = v_hoy;
+    perform pg_temp.comprobar('Filas: el de a pie anota "sin cita" en su fila', v_texto = 'a_pie', v_texto);
+    perform pg_temp.esperar_error('Filas: y no en la fila de otros',
+      'select * from registrar_entrada_sin_cita(''Otra Persona'', ''carro'')', 'OTRA_FILA');
+
+    update permisos set activo = false where clave = 'anotar_sin_cita';
+
+    --  Las cuentas: cada fila por su lado, y juntas es la suma.
+    update personal set rol = 'admin', fila = 'ambas' where usuario_id = v_admin;
+
+    select r.ya_recibieron into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
+    perform pg_temp.comprobar('Filas: el resumen a pie cuenta solo las cajas a pie', v_numero = 1, v_numero::text);
+    select r.sin_cita into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
+    perform pg_temp.comprobar('Filas: y solo los "sin cita" a pie', v_numero = 1, v_numero::text);
+
+    select (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy) r)
+         = (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'carro') r)
+         + (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'a_pie') r)
+      into v_si;
+    perform pg_temp.comprobar('Filas: en el resumen del día, juntas = carro + a pie', v_si);
+
+    select coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy) r), 0)
+         = coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'carro') r), 0)
+         + coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r), 0)
+      into v_si;
+    perform pg_temp.comprobar('Filas: en los reportes, juntas = carro + a pie', v_si);
+
+    select coalesce(sum(r.cajas), 0) into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
+    perform pg_temp.comprobar('Filas: las cajas a pie del día (1 con cita + 1 sin cita)', v_numero = 2, v_numero::text);
+
+    perform pg_temp.esperar_error('Filas: el resumen no acepta una fila inventada',
+      format('select * from resumen_del_dia(%L::date, ''bici'')', v_hoy), 'FILA_INVALIDA');
+    perform pg_temp.esperar_error('Filas: los reportes tampoco',
+      format('select * from reporte_por_dias(%L::date, %L::date, ''bici'')', v_hoy, v_hoy), 'FILA_INVALIDA');
+
+    select count(*) into v_numero from citas_del_dia(v_hoy) c where c.codigo_corto = 'CB-PRF1' and c.fila = 'a_pie';
+    perform pg_temp.comprobar('Filas: la lista del día dice la fila de cada cita', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from bloques_del_dia(v_hoy) b where b.bloque_id = v_b_pie and b.fila = 'a_pie';
+    perform pg_temp.comprobar('Filas: el cupo del día dice la fila de cada horario', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from listar_personal() l where l.es_yo and l.fila = 'ambas';
+    perform pg_temp.comprobar('Filas: la lista del equipo dice la fila de cada quien', v_numero = 1, v_numero::text);
+
+    update configuracion set valor = 'no' where clave = 'a_pie_abierto';
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
 
     -- ---------- Roles: sin sesion ----------
     perform set_config('request.jwt.claim.sub', '', true);
@@ -1250,6 +1670,19 @@ begin
       'select * from crear_pase(''CB-PRP1'', null)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve la ficha de una persona',
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ven los permisos',
+      'select * from listar_permisos()', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se cambian los permisos',
+      'select guardar_permiso(''dar_pases'', true)', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se pregunta qué se puede hacer',
+      'select * from mis_permisos()', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se asignan filas',
+      'select guardar_fila_personal(''alguien.cb@gmail.com'', ''carro'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se deshacen entregas',
+      'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve el QR de nadie',
+      format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ1', v_hoy, '23:58'), 'SIN_SESION');
+    perform pg_temp.comprobar('Roles: sin sesión no hay fila', mi_fila() is null, mi_fila());
     perform pg_temp.esperar_error('Roles: sin sesión no se ven reportes',
       format('select * from reporte_por_dias(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_SESION');
   end if;

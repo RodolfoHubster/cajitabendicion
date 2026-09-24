@@ -72,9 +72,14 @@ create table bloques (
   hora       time not null,
   capacidad  int  not null check (capacidad >= 0),
   cerrado    boolean not null default false,
+  --  Carro o a pie (seccion 32). A la misma hora caben un horario de
+  --  cada fila, cada uno con su cupo. Va aqui y no solo en la seccion 32
+  --  porque consultar_cita() es SQL y lee esta columna al crearse.
+  fila       text not null default 'carro'
+             constraint bloques_fila_valida check (fila in ('carro', 'a_pie')),
   creado_en  timestamptz not null default now(),
 
-  unique (fecha, hora)
+  constraint bloques_fecha_hora_fila_key unique (fecha, hora, fila)
 );
 
 create index idx_bloques_fecha on bloques (fecha);
@@ -330,8 +335,8 @@ begin
       return;
     end if;
 
-    insert into entregas_pase (pase_id, fecha, usuario_id)
-    values (v_pase_id, current_date, v_usuario);
+    insert into entregas_pase (pase_id, fecha, usuario_id, fila)
+    values (v_pase_id, current_date, v_usuario, fila_de_entrega());
 
     return query select 'VALIDO_PASE'::text, v_persona.nombre,
                         v_persona.codigo_corto, null::time;
@@ -356,6 +361,18 @@ begin
     values (v_cita.id, v_usuario, 'OTRA_FECHA');
 
     return query select 'OTRA_FECHA'::text, v_persona.nombre,
+                        v_persona.codigo_corto, v_bloque.hora;
+    return;
+  end if;
+
+  --  Cada fila tiene su gente (seccion 32). Quien escanea en la fila de
+  --  carros no entrega un codigo de la fila a pie: se le dice a donde
+  --  mandarlo y el codigo NO se quema, para que en su fila si pase.
+  if not puede_escanear_fila(v_bloque.fila) then
+    insert into escaneos (cita_id, usuario_id, resultado)
+    values (v_cita.id, v_usuario, 'OTRA_FILA');
+
+    return query select 'OTRA_FILA'::text, v_persona.nombre,
                         v_persona.codigo_corto, v_bloque.hora;
     return;
   end if;
@@ -387,6 +404,7 @@ begin
                       v_persona.codigo_corto, v_bloque.hora;
 end;
 $$;
+
 
 
 -- ============================================================
@@ -499,9 +517,12 @@ grant execute on function registrar_entrega(text)   to authenticated;
 --  que TIENEN bloques, y el administrador decide cuales crear. Asi una
 --  entrega especial en miercoles funciona sin tocar el codigo.
 
+drop function if exists consultar_disponibilidad(date, date);
+
 create or replace function consultar_disponibilidad(
   p_desde date default null,
-  p_hasta date default null
+  p_hasta date default null,
+  p_fila  text default 'carro'
 )
 returns table (
   bloque_id          uuid,
@@ -543,6 +564,10 @@ begin
     join dias_entrega d on d.fecha = b.fecha and not d.cerrado
     left join citas c on c.bloque_id = b.id
    where b.cerrado = false
+     --  Una fila a la vez, y la de a pie no se ofrece mientras este
+     --  cerrada (seccion 32).
+     and b.fila = coalesce(p_fila, 'carro')
+     and (b.fila = 'carro' or a_pie_abierto())
      -- Nunca se ofrecen fechas pasadas: reservar_cita() las rechazaria
      -- con FECHA_PASADA y el usuario no entenderia por que.
      and b.fecha >= greatest(coalesce(p_desde, current_date), current_date)
@@ -552,8 +577,9 @@ begin
 end;
 $$;
 
-revoke execute on function consultar_disponibilidad(date, date) from public;
-grant  execute on function consultar_disponibilidad(date, date) to anon, authenticated;
+
+revoke execute on function consultar_disponibilidad(date, date, text) from public;
+grant  execute on function consultar_disponibilidad(date, date, text) to anon, authenticated;
 
 
 -- ============================================================
@@ -603,6 +629,8 @@ create index if not exists idx_citas_dispositivo
 drop function if exists registrar_y_reservar(text, text, uuid, text, text, text);
 drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text);
 
+drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text);
+
 create or replace function registrar_y_reservar(
   p_nombre            text,
   p_apellidos         text,
@@ -624,7 +652,9 @@ returns table (
   codigo_corto text,
   token_qr     text,
   fecha        date,
-  hora         time
+  hora         time,
+  --  true: ya tenia su cita ese dia y se le devuelve esa (seccion 33).
+  ya_existia   boolean
 )
 language plpgsql
 security definer
@@ -652,6 +682,7 @@ declare
   v_codigo     text;
   v_intentos   int := 0;
   v_anticipada boolean := false;
+  v_previa     citas;
 begin
   if v_nombres = '' then
     raise exception 'NOMBRE_REQUERIDO';
@@ -707,6 +738,12 @@ begin
     raise exception 'BLOQUE_NO_EXISTE';
   end if;
 
+  --  La fila a pie no recibe citas hasta que se abra (seccion 32). La
+  --  pantalla ya no la ofrece; esto cierra la puerta de atras.
+  if v_bloque.fila = 'a_pie' and not a_pie_abierto() then
+    raise exception 'A_PIE_CERRADO';
+  end if;
+
   -- ----------------------------------------------------------
   --  Apertura del dia
   -- ----------------------------------------------------------
@@ -735,6 +772,34 @@ begin
     end if;
 
     v_anticipada := true;
+  end if;
+
+  -- ----------------------------------------------------------
+  --  La misma persona, el mismo dia (seccion 33)
+  -- ----------------------------------------------------------
+  --  Con mala senal la gente toca "confirmar" otra vez, o regresa y lo
+  --  vuelve a llenar. Si ya quedo registrada ese dia, se le devuelve SU
+  --  cita en vez de un error que la hace creer que no tiene lugar, o en
+  --  vez de una segunda cita y una segunda caja.
+  --
+  --  Solo se le devuelve si es el mismo telefono del registro o si fue
+  --  hace menos de media hora (el reintento). Si no, se dice que ya existe
+  --  y nada mas: saber el nombre y el telefono de alguien no debe bastar
+  --  para sacar su codigo.
+  v_previa := cita_de_la_misma_persona(v_bloque.fecha, v_telefono, v_nombres || ' ' || v_apellidos);
+
+  if v_previa.id is not null then
+    if (p_dispositivo is not null and v_previa.dispositivo_id = p_dispositivo)
+       or v_previa.creada_en > now() - interval '30 minutes' then
+      return query
+        select p.codigo_corto, v_previa.token_qr, b.fecha, b.hora, true
+          from personas p, bloques b
+         where p.id = v_previa.persona_id
+           and b.id = v_previa.bloque_id;
+      return;
+    end if;
+
+    raise exception 'YA_REGISTRADO_ESE_DIA';
   end if;
 
   -- ----------------------------------------------------------
@@ -825,9 +890,10 @@ begin
    where id = v_cita.id;
 
   return query
-    select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora;
+    select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora, false;
 end;
 $$;
+
 
 revoke execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text) from public;
 grant  execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text) to anon, authenticated;
@@ -845,13 +911,16 @@ grant  execute on function registrar_y_reservar(text, text, text, uuid, text, te
 --
 --  El token son 24 bytes aleatorios, no se adivina.
 
+drop function if exists consultar_cita(text);
+
 create or replace function consultar_cita(p_token text)
 returns table (
   codigo_corto text,
   nombre       text,
   fecha        date,
   hora         time,
-  estado       text
+  estado       text,
+  fila         text
 )
 language sql
 stable
@@ -859,12 +928,13 @@ security definer
 set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
-  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado
+  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado, b.fila
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
    where c.token_qr = p_token;
 $$;
+
 
 revoke execute on function consultar_cita(text) from public;
 grant  execute on function consultar_cita(text) to anon, authenticated;
@@ -890,7 +960,7 @@ grant  execute on function consultar_cita(text) to anon, authenticated;
 --  Postgres no deja cambiarlas con "create or replace".
 drop function if exists resumen_del_dia(date);
 
-create or replace function resumen_del_dia(p_fecha date default null)
+create or replace function resumen_del_dia(p_fecha date default null, p_fila text default null)
 returns table (
   fecha              date,
   con_cita           int,
@@ -912,8 +982,13 @@ declare
   v_fecha  date    := coalesce(p_fecha, current_date);
   v_pasado boolean := coalesce(p_fecha, current_date) < current_date;
 begin
-  -- Las estadisticas son solo del administrador.
-  perform exigir_rol(array['admin']);
+  -- Los numeros del dia: el administrador siempre, y el voluntario si
+  -- tiene puesta su palomita (seccion 31).
+  perform exigir_permiso('ver_citas_del_dia');
+
+  if p_fila is not null and p_fila not in ('carro', 'a_pie') then
+    raise exception 'FILA_INVALIDA';
+  end if;
 
   return query
   select
@@ -924,17 +999,18 @@ begin
     x.n_no_asistio + case when v_pasado then x.n_sin_escanear else 0 end,
     x.n_canceladas,
     --  Las anotadas por error se anulan y ya no cuentan (seccion 22).
-    (select count(*)::int from entradas_sin_cita s where s.fecha = v_fecha and s.anulada_en is null),
+    (select count(*)::int from entradas_sin_cita s
+      where s.fecha = v_fecha and s.anulada_en is null and (p_fila is null or s.fila = p_fila)),
     --  Las cajas de los pases permanentes (seccion 29). No tienen
     --  cita: no apartan lugar, pero si cuentan como caja entregada.
-    (select count(*)::int from entregas_pase e where e.fecha = v_fecha),
+    (select count(*)::int from entregas_pase e where e.fecha = v_fecha and (p_fila is null or e.fila = p_fila)),
     --  Intentos repetidos: alguien trato de usar dos veces el mismo
     --  codigo. Es la senal de que el corte esta funcionando y de que
     --  hay quien lo esta intentando.
     (select count(*)::int from escaneos e
        join citas   c on c.id = e.cita_id
        join bloques b on b.id = c.bloque_id
-      where b.fecha = v_fecha and e.resultado = 'YA_USADO')
+      where b.fecha = v_fecha and e.resultado = 'YA_USADO' and (p_fila is null or b.fila = p_fila))
   from (
     select count(*) filter (where c.estado <> 'cancelada')::int             as n_con_cita,
            count(*) filter (where c.estado = 'entregada')::int             as n_recibieron,
@@ -944,12 +1020,14 @@ begin
       from citas c
       join bloques b on b.id = c.bloque_id
      where b.fecha = v_fecha
+       and (p_fila is null or b.fila = p_fila)
   ) x;
 end;
 $$;
 
-revoke execute on function resumen_del_dia(date) from public;
-grant  execute on function resumen_del_dia(date) to authenticated;
+
+revoke execute on function resumen_del_dia(date, text) from public;
+grant  execute on function resumen_del_dia(date, text) to authenticated;
 
 
 --  La lista de llegadas del mockup 8.
@@ -975,7 +1053,8 @@ returns table (
   usado_en           timestamptz,
   cancelada_en       timestamptz,
   cancelada_por      text,
-  motivo_cancelacion text
+  motivo_cancelacion text,
+  fila               text
 )
 language plpgsql
 stable
@@ -986,7 +1065,7 @@ as $$
 begin
   -- La lista de personas es solo del administrador: un voluntario no ve
   -- el padron, solo lo necesario para escanear.
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('ver_citas_del_dia');
 
   return query
   select p.nombre,
@@ -1000,7 +1079,8 @@ begin
          c.usado_en,
          c.cancelada_en,
          u.email::text,
-         c.motivo_cancelacion
+         c.motivo_cancelacion,
+         b.fila
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -1009,6 +1089,7 @@ begin
    order by b.hora, p.nombre;
 end;
 $$;
+
 
 revoke execute on function citas_del_dia(date) from public;
 grant  execute on function citas_del_dia(date) to authenticated;
@@ -1019,6 +1100,8 @@ grant  execute on function citas_del_dia(date) to authenticated;
 --  Distinta de consultar_disponibilidad(): esa es para el publico y
 --  esconde los horarios cerrados. El administrador necesita verlos,
 --  justamente para poder reabrirlos.
+drop function if exists bloques_del_dia(date);
+
 create or replace function bloques_del_dia(p_fecha date default null)
 returns table (
   bloque_id uuid,
@@ -1026,7 +1109,8 @@ returns table (
   capacidad int,
   ocupados  int,
   libres    int,
-  cerrado   boolean
+  cerrado   boolean,
+  fila      text
 )
 language plpgsql
 stable
@@ -1035,7 +1119,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('ver_citas_del_dia');
 
   return query
   select b.id,
@@ -1043,14 +1127,16 @@ begin
          b.capacidad,
          count(c.id) filter (where c.estado <> 'cancelada')::int,
          greatest(b.capacidad - count(c.id) filter (where c.estado <> 'cancelada'), 0)::int,
-         b.cerrado
+         b.cerrado,
+         b.fila
     from bloques b
     left join citas c on c.bloque_id = b.id
    where b.fecha = coalesce(p_fecha, current_date)
-   group by b.id, b.hora, b.capacidad, b.cerrado
-   order by b.hora;
+   group by b.id, b.hora, b.capacidad, b.cerrado, b.fila
+   order by b.fila = 'a_pie', b.hora;
 end;
 $$;
+
 
 revoke execute on function bloques_del_dia(date) from public;
 grant  execute on function bloques_del_dia(date) to authenticated;
@@ -1089,7 +1175,10 @@ returns table (
   codigo_corto text,
   fecha        date,
   hora         time,
-  estado       text
+  estado       text,
+  --  true: no hubo coincidencia exacta y este codigo se parece al
+  --  tecleado (un digito distinto o dos al reves). Solo citas de hoy.
+  parecido     boolean
 )
 language plpgsql
 stable
@@ -1098,7 +1187,12 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 declare
-  v_texto text := trim(coalesce(p_texto, ''));
+  v_texto    text   := trim(coalesce(p_texto, ''));
+  --  "cb 4871", "4871" o "CB487l" se buscan como CB-4871 (seccion 33).
+  v_codigo   text   := normalizar_codigo_corto(p_texto);
+  --  Sin acentos y en cualquier orden: "garcia maria" encuentra a
+  --  "María García". En el telefono casi nadie escribe acentos.
+  v_palabras text[] := array_remove(string_to_array(normalizar_texto(p_texto), ' '), '');
 begin
   perform exigir_rol(array['admin', 'voluntario']);
 
@@ -1107,7 +1201,7 @@ begin
   end if;
 
   return query
-  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado
+  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, false
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -1115,17 +1209,39 @@ begin
      and (
        (b.fecha = current_date
         and (p.codigo_corto ilike '%' || v_texto || '%'
-             or p.nombre ilike '%' || v_texto || '%'))
+             or (cardinality(v_palabras) > 0
+                 and not exists (select 1 from unnest(v_palabras) w
+                                  where normalizar_texto(p.nombre) not like '%' || w || '%'))))
        or
-       (upper(p.codigo_corto) = upper(v_texto)
+       (upper(p.codigo_corto) = v_codigo
         and b.fecha between current_date - 7 and current_date + 14)
      )
    order by (b.fecha = current_date) desc,
             abs(b.fecha - current_date),
             p.nombre
    limit 20;
+
+  --  Nada con ese codigo: casi siempre es un digito mal tecleado. Se
+  --  ofrecen los de HOY que se le parecen, y el voluntario confirma con
+  --  el nombre. No abre el padron: son las mismas citas que ya salen al
+  --  buscar por nombre.
+  if found or v_codigo !~ '^CB-[0-9]{4}$' then
+    return;
+  end if;
+
+  return query
+  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, true
+    from citas c
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id
+   where c.estado <> 'cancelada'
+     and b.fecha = current_date
+     and codigos_parecidos(upper(p.codigo_corto), v_codigo)
+   order by p.nombre
+   limit 5;
 end;
 $$;
+
 
 revoke execute on function buscar_para_escaneo(text) from public;
 grant  execute on function buscar_para_escaneo(text) to authenticated;
@@ -1158,7 +1274,7 @@ begin
     join bloques  b on b.id = c.bloque_id
    where b.fecha = current_date
      and c.estado <> 'cancelada'
-     and upper(trim(p.codigo_corto)) = upper(trim(p_codigo))
+     and upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
    limit 1;
 
   if v_token is null then
@@ -1169,6 +1285,7 @@ begin
   return query select * from registrar_entrega(v_token);
 end;
 $$;
+
 
 revoke execute on function registrar_entrega_por_codigo(text) from public;
 grant  execute on function registrar_entrega_por_codigo(text) to authenticated;
@@ -1348,6 +1465,19 @@ begin
   select * into v_persona from personas where id = v_cita.persona_id;
   select * into v_bloque  from bloques  where id = v_cita.bloque_id;
 
+  --  Cada fila tiene su gente (seccion 32). Autorizar salta la
+  --  FECHA, no la fila. Quien escanea en la fila de
+  --  carros no entrega un codigo de la fila a pie: se le dice a donde
+  --  mandarlo y el codigo NO se quema, para que en su fila si pase.
+  if not puede_escanear_fila(v_bloque.fila) then
+    insert into escaneos (cita_id, usuario_id, resultado)
+    values (v_cita.id, v_usuario, 'OTRA_FILA');
+
+    return query select 'OTRA_FILA'::text, v_persona.nombre,
+                        v_persona.codigo_corto, v_bloque.hora;
+    return;
+  end if;
+
   if v_cita.estado = 'entregada' then
     insert into escaneos (cita_id, usuario_id, resultado)
     values (v_cita.id, v_usuario, 'YA_USADO');
@@ -1375,6 +1505,7 @@ begin
                       v_persona.codigo_corto, v_bloque.hora;
 end;
 $$;
+
 
 revoke execute on function registrar_entrega_autorizada(text, text) from public;
 grant  execute on function registrar_entrega_autorizada(text, text) to authenticated;
@@ -1408,7 +1539,7 @@ begin
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
-   where upper(trim(p.codigo_corto)) = upper(trim(p_codigo))
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
      and b.fecha = p_fecha
      and c.estado <> 'cancelada'
    limit 1;
@@ -1421,6 +1552,7 @@ begin
   return query select * from registrar_entrega_autorizada(v_token, p_codigo_autorizacion);
 end;
 $$;
+
 
 revoke execute on function registrar_entrega_autorizada_por_codigo(text, date, text) from public;
 grant  execute on function registrar_entrega_autorizada_por_codigo(text, date, text) to authenticated;
@@ -1585,6 +1717,8 @@ alter table citas add column if not exists registrado_por uuid;
 --  Se borra la version anterior: su p_ciudad dejo su lugar al domicilio.
 drop function if exists registrar_desde_panel(text, text, text, uuid, text, text);
 
+drop function if exists registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean);
+
 create or replace function registrar_desde_panel(
   p_nombre            text,
   p_apellidos         text,
@@ -1604,7 +1738,9 @@ returns table (
   codigo_corto text,
   token_qr     text,
   fecha        date,
-  hora         time
+  hora         time,
+  --  true: ya tenia su cita ese dia y se le devuelve esa (seccion 33).
+  ya_existia   boolean
 )
 language plpgsql
 security definer
@@ -1622,8 +1758,9 @@ declare
   v_cita      citas;
   v_codigo    text;
   v_intentos  int := 0;
+  v_previa    citas;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('registrar_personas');
 
   if v_nombres = '' then
     raise exception 'NOMBRE_REQUERIDO';
@@ -1666,12 +1803,31 @@ begin
       raise exception 'BLOQUE_NO_EXISTE';
     end if;
 
+    --  La fila a pie no recibe citas hasta que se abra (seccion 32). La
+    --  pantalla ya no la ofrece; esto cierra la puerta de atras.
+    if v_bloque.fila = 'a_pie' and not a_pie_abierto() then
+      raise exception 'A_PIE_CERRADO';
+    end if;
+
     --  El admin puede registrar aunque el dia no se haya abierto al publico,
     --  pero no en un dia cerrado (dia festivo, entrega cancelada).
     --  "d.fecha" calificado: sin prefijo chocaria con la columna "fecha" que
     --  devuelve esta funcion.
     if not exists (select 1 from dias_entrega d where d.fecha = v_bloque.fecha and not d.cerrado) then
       raise exception 'DIA_CERRADO';
+    end if;
+
+    --  La misma persona ya tiene cita ese dia (seccion 33): se devuelve la
+    --  suya, que el personal puede ver, en vez de darle una segunda.
+    v_previa := cita_de_la_misma_persona(v_bloque.fecha, v_telefono, v_nombres || ' ' || v_apellidos);
+
+    if v_previa.id is not null then
+      return query
+        select p.codigo_corto, v_previa.token_qr, b.fecha, b.hora, true
+          from personas p, bloques b
+         where p.id = v_previa.persona_id
+           and b.id = v_previa.bloque_id;
+      return;
     end if;
   end if;
 
@@ -1712,7 +1868,7 @@ begin
   end loop;
 
   if p_bloque_id is null then
-    return query select v_persona.codigo_corto, null::text, null::date, null::time;
+    return query select v_persona.codigo_corto, null::text, null::date, null::time, false;
     return;
   end if;
 
@@ -1721,9 +1877,10 @@ begin
   update citas set registrado_por = v_usuario where id = v_cita.id;
 
   return query
-    select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora;
+    select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora, false;
 end;
 $$;
+
 
 revoke execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean) from public;
 grant  execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean) to authenticated;
@@ -1927,11 +2084,12 @@ begin
   insert into bloques (fecha, hora, capacidad)
   select p_fecha, t::time, p_capacidad
     from generate_series(p_fecha + p_hora_inicio, p_fecha + p_hora_fin, interval '15 minutes') t
-  on conflict (fecha, hora) do nothing;
+  on conflict (fecha, hora, fila) do nothing;
 
   return v_codigo;
 end;
 $$;
+
 
 revoke execute on function crear_dia_entrega(date, time, time, int, timestamp, timestamp) from public;
 grant  execute on function crear_dia_entrega(date, time, time, int, timestamp, timestamp) to authenticated;
@@ -2088,7 +2246,7 @@ begin
 
   insert into bloques (fecha, hora, capacidad)
   values (p_fecha, p_hora, p_capacidad)
-  on conflict (fecha, hora) do nothing
+  on conflict (fecha, hora, fila) do nothing
   returning id into v_id;
 
   if v_id is null then
@@ -2098,6 +2256,7 @@ begin
   return v_id;
 end;
 $$;
+
 
 revoke execute on function agregar_bloque(date, time, int) from public;
 grant  execute on function agregar_bloque(date, time, int) to authenticated;
@@ -2229,13 +2388,13 @@ declare
   v_usuario uuid := auth.uid();
   v_cita    citas;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('cancelar_citas');
 
   select c.* into v_cita
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')))
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
      and b.fecha = p_fecha
      and b.hora  = p_hora
      and c.estado <> 'cancelada'
@@ -2265,6 +2424,7 @@ begin
 end;
 $$;
 
+
 revoke execute on function cancelar_cita_panel(text, date, time, text) from public;
 grant  execute on function cancelar_cita_panel(text, date, time, text) to authenticated;
 
@@ -2288,7 +2448,15 @@ create unique index if not exists entradas_sin_cita_codigo_por_dia
 --
 --  Solo admin: CLAUDE.md pide que nunca este al alcance del publico ni de los
 --  voluntarios. Solo el nombre, sin telefono.
-create or replace function registrar_entrada_sin_cita(p_nombre text)
+drop function if exists registrar_entrada_sin_cita(text);
+
+drop function if exists registrar_entrada_sin_cita(text, text);
+
+create or replace function registrar_entrada_sin_cita(
+  p_nombre             text,
+  p_fila               text    default null,
+  p_confirmar_repetido boolean default false
+)
 returns table (
   codigo text,
   total  int
@@ -2303,8 +2471,19 @@ declare
   v_nombre   text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
   v_codigo   text;
   v_intentos int := 0;
+  --  Sin fila, la de quien la anota (seccion 32).
+  v_fila     text := coalesce(p_fila, fila_de_entrega());
+  v_repetido text;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('anotar_sin_cita');
+
+  if v_fila not in ('carro', 'a_pie') then
+    raise exception 'FILA_INVALIDA';
+  end if;
+
+  if not puede_escanear_fila(v_fila) then
+    raise exception 'OTRA_FILA';
+  end if;
 
   if v_nombre = '' then
     raise exception 'NOMBRE_REQUERIDO';
@@ -2314,13 +2493,37 @@ begin
     raise exception 'NOMBRE_INVALIDO';
   end if;
 
+  --  La misma persona anotada dos veces hoy (seccion 33): dos voluntarios
+  --  en la puerta, o el mismo que toco dos veces. Cada anotacion es una caja
+  --  que se reporta al banco de alimentos; una de mas descuadra la cuenta.
+  --  Se avisa con el comprobante que ya tiene, y si de verdad es otra
+  --  persona con el mismo nombre, se confirma y pasa.
+  --
+  --  El candado hace que dos anotaciones iguales al mismo tiempo esperen
+  --  su turno: la segunda ya ve la primera.
+  if not coalesce(p_confirmar_repetido, false) then
+    perform pg_advisory_xact_lock(hashtext('sin-cita:' || current_date::text || ':' || normalizar_texto(v_nombre)));
+
+    select s.codigo into v_repetido
+      from entradas_sin_cita s
+     where s.fecha = current_date
+       and s.anulada_en is null
+       and normalizar_texto(s.nombre) = normalizar_texto(v_nombre)
+     order by s.registrado_en desc
+     limit 1;
+
+    if v_repetido is not null then
+      raise exception 'NOMBRE_YA_ANOTADO_HOY:%', v_repetido;
+    end if;
+  end if;
+
   --  Se reintenta si dos anotaciones del mismo dia sacan el mismo numero.
   loop
     v_codigo := 'SC-' || lpad((floor(random() * 10000))::int::text, 4, '0');
 
     begin
-      insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por)
-      values (current_date, v_nombre, v_codigo, v_usuario);
+      insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por, fila)
+      values (current_date, v_nombre, v_codigo, v_usuario, v_fila);
       exit;
     exception when unique_violation then
       v_intentos := v_intentos + 1;
@@ -2333,12 +2536,13 @@ begin
   return query
     select v_codigo,
            (select count(*)::int from entradas_sin_cita s
-             where s.fecha = current_date and s.anulada_en is null);
+             where s.fecha = current_date and s.anulada_en is null and s.fila = v_fila);
 end;
 $$;
 
-revoke execute on function registrar_entrada_sin_cita(text) from public;
-grant  execute on function registrar_entrada_sin_cita(text) to authenticated;
+
+revoke execute on function registrar_entrada_sin_cita(text, text, boolean) from public;
+grant  execute on function registrar_entrada_sin_cita(text, text, boolean) to authenticated;
 
 
 --  Anula una entrada sin cita anotada por error. No la borra: deja de contar
@@ -2356,7 +2560,7 @@ declare
   v_id      uuid;
   v_anulada timestamptz;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('anotar_sin_cita');
 
   select s.id, s.anulada_en into v_id, v_anulada
     from entradas_sin_cita s
@@ -2389,6 +2593,8 @@ grant  execute on function anular_entrada_sin_cita(text, date) to authenticated;
 --  La lista del dia: quien paso sin cita, quien lo anoto y a que hora.
 --  De quien anoto se muestra su correo, que es como el pastor reconoce
 --  a su equipo. Solo admin.
+drop function if exists entradas_sin_cita_del_dia(date);
+
 create or replace function entradas_sin_cita_del_dia(p_fecha date default null)
 returns table (
   codigo        text,
@@ -2397,7 +2603,8 @@ returns table (
   anotado_por   text,
   anulada       boolean,
   anulada_en    timestamptz,
-  anulada_por   text
+  anulada_por   text,
+  fila          text
 )
 language plpgsql
 stable
@@ -2406,7 +2613,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('anotar_sin_cita');
 
   return query
   select s.codigo,
@@ -2415,7 +2622,8 @@ begin
          u.email::text,
          s.anulada_en is not null,
          s.anulada_en,
-         ua.email::text
+         ua.email::text,
+         s.fila
     from entradas_sin_cita s
     left join auth.users u  on u.id  = s.registrado_por
     left join auth.users ua on ua.id = s.anulada_por
@@ -2423,6 +2631,7 @@ begin
    order by s.registrado_en desc;
 end;
 $$;
+
 
 revoke execute on function entradas_sin_cita_del_dia(date) from public;
 grant  execute on function entradas_sin_cita_del_dia(date) to authenticated;
@@ -2470,7 +2679,7 @@ begin
 
   select * into v_persona
     from personas p
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')));
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo);
   if not found then
     raise exception 'PERSONA_NO_EXISTE';
   end if;
@@ -2539,6 +2748,7 @@ exception
     raise exception 'YA_TIENE_EXCEPCION_ESTA_SEMANA';
 end;
 $$;
+
 
 revoke execute on function reservar_con_excepcion(text, uuid, text) from public;
 grant  execute on function reservar_con_excepcion(text, uuid, text) to authenticated;
@@ -2633,6 +2843,8 @@ create trigger al_crear_cuenta_aplicar_personal
 
 --  El equipo: quienes tienen cuenta con rol y los correos autorizados que
 --  todavia no han entrado. Solo admin.
+drop function if exists listar_personal();
+
 create or replace function listar_personal()
 returns table (
   correo        text,
@@ -2640,7 +2852,8 @@ returns table (
   estado        text,
   ultimo_acceso timestamptz,
   es_yo         boolean,
-  tiene_codigo  boolean
+  tiene_codigo  boolean,
+  fila          text
 )
 language plpgsql
 stable
@@ -2657,7 +2870,8 @@ begin
          case when pe.activo then 'activo' else 'sin_acceso' end,
          u.last_sign_in_at,
          pe.usuario_id = auth.uid(),
-         exists (select 1 from autorizadores a where a.usuario_id = pe.usuario_id and a.activo)
+         exists (select 1 from autorizadores a where a.usuario_id = pe.usuario_id and a.activo),
+         pe.fila
     from personal pe
     join auth.users u on u.id = pe.usuario_id
   union all
@@ -2666,11 +2880,13 @@ begin
          'pendiente',
          null::timestamptz,
          false,
-         false
+         false,
+         'ambas'::text
     from personal_pendiente pp
    order by 3, 2, 1;
 end;
 $$;
+
 
 revoke execute on function listar_personal() from public;
 grant  execute on function listar_personal() to authenticated;
@@ -2792,7 +3008,9 @@ grant  execute on function definir_mi_codigo_autorizacion(text) to authenticated
 --  "por venir".
 --
 --  Maximo 366 dias por consulta. Solo admin.
-create or replace function reporte_por_dias(p_desde date, p_hasta date)
+drop function if exists reporte_por_dias(date, date);
+
+create or replace function reporte_por_dias(p_desde date, p_hasta date, p_fila text default null)
 returns table (
   fecha              date,
   capacidad          int,
@@ -2814,7 +3032,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('ver_reportes');
 
   if p_desde is null or p_hasta is null or p_desde > p_hasta then
     raise exception 'RANGO_INVALIDO';
@@ -2824,22 +3042,29 @@ begin
     raise exception 'RANGO_MUY_LARGO';
   end if;
 
+  if p_fila is not null and p_fila not in ('carro', 'a_pie') then
+    raise exception 'FILA_INVALIDA';
+  end if;
+
   --  Con la zona de San Diego puesta, usado_en::date es la fecha de San Diego.
   return query
   with dias as (
-    select b.fecha as dia from bloques b where b.fecha between p_desde and p_hasta
+    select b.fecha as dia from bloques b where b.fecha between p_desde and p_hasta and (p_fila is null or b.fila = p_fila)
     union
-    select s.fecha from entradas_sin_cita s where s.fecha between p_desde and p_hasta
+    select s.fecha from entradas_sin_cita s where s.fecha between p_desde and p_hasta and (p_fila is null or s.fila = p_fila)
     union
     select c.usado_en::date from citas c
+      join bloques b on b.id = c.bloque_id
      where c.estado = 'entregada' and c.usado_en::date between p_desde and p_hasta
+       and (p_fila is null or b.fila = p_fila)
     union
-    select e.fecha from entregas_pase e where e.fecha between p_desde and p_hasta
+    select e.fecha from entregas_pase e where e.fecha between p_desde and p_hasta and (p_fila is null or e.fila = p_fila)
   ),
   cupos as (
     select b.fecha as dia, sum(b.capacidad)::int as n
       from bloques b
      where b.fecha between p_desde and p_hasta
+       and (p_fila is null or b.fila = p_fila)
      group by b.fecha
   ),
   agenda as (
@@ -2853,30 +3078,36 @@ begin
       from citas c
       join bloques b on b.id = c.bloque_id
      where b.fecha between p_desde and p_hasta
+       and (p_fila is null or b.fila = p_fila)
      group by b.fecha
   ),
   entregas as (
     select c.usado_en::date as dia, count(*)::int as n
       from citas c
+      join bloques b on b.id = c.bloque_id
      where c.estado = 'entregada' and c.usado_en::date between p_desde and p_hasta
+       and (p_fila is null or b.fila = p_fila)
      group by c.usado_en::date
   ),
   sin_cita_dia as (
     select s.fecha as dia, count(*)::int as n
       from entradas_sin_cita s
-     where s.fecha between p_desde and p_hasta and s.anulada_en is null
+     where s.fecha between p_desde and p_hasta and s.anulada_en is null and (p_fila is null or s.fila = p_fila)
      group by s.fecha
   ),
   pases_dia as (
     select e.fecha as dia, count(*)::int as n
       from entregas_pase e
-     where e.fecha between p_desde and p_hasta
+     where e.fecha between p_desde and p_hasta and (p_fila is null or e.fila = p_fila)
      group by e.fecha
   ),
   repetidos as (
     select e.escaneado_en::date as dia, count(*)::int as n
       from escaneos e
+      join citas   c on c.id = e.cita_id
+      join bloques b on b.id = c.bloque_id
      where e.resultado = 'YA_USADO' and e.escaneado_en::date between p_desde and p_hasta
+       and (p_fila is null or b.fila = p_fila)
      group by e.escaneado_en::date
   )
   select d.dia,
@@ -2905,8 +3136,9 @@ begin
 end;
 $$;
 
-revoke execute on function reporte_por_dias(date, date) from public;
-grant  execute on function reporte_por_dias(date, date) to authenticated;
+
+revoke execute on function reporte_por_dias(date, date, text) from public;
+grant  execute on function reporte_por_dias(date, date, text) to authenticated;
 
 
 -- ============================================================
@@ -3220,6 +3452,12 @@ begin
     raise exception 'BLOQUE_NO_EXISTE';
   end if;
 
+  --  Una cita no se cambia de fila: carro y a pie tienen su propio cupo y
+  --  su propia gente (seccion 32).
+  if v_nuevo.fila <> v_actual.fila then
+    raise exception 'OTRA_FILA';
+  end if;
+
   if v_nuevo.cerrado then
     raise exception 'BLOQUE_CERRADO';
   end if;
@@ -3272,6 +3510,8 @@ exception
     raise exception 'YA_TIENE_CITA_ESTA_SEMANA';
 end;
 $$;
+
+
 
 --  Solo se llama desde las dos funciones de abajo, que son las que
 --  revisan de quien es la cita y cuantos cambios lleva.
@@ -3391,7 +3631,7 @@ as $$
 declare
   v_cita citas;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('mover_citas');
 
   v_cita := mover_cita(p_cita_id, p_bloque_id, 'panel');
 
@@ -3492,9 +3732,9 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 declare
-  v_codigo text := upper(trim(coalesce(p_codigo, '')));
+  v_codigo text := normalizar_codigo_corto(p_codigo);
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('ver_personas');
 
   if v_codigo = '' then
     raise exception 'PERSONA_NO_EXISTE';
@@ -3533,6 +3773,7 @@ begin
 end;
 $$;
 
+
 revoke execute on function detalle_de_persona(text) from public;
 grant  execute on function detalle_de_persona(text) to authenticated;
 
@@ -3553,7 +3794,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('ver_personas');
 
   return query
   select b.fecha,
@@ -3566,11 +3807,12 @@ begin
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')))
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
    order by b.fecha desc, b.hora desc
    limit 30;
 end;
 $$;
+
 
 revoke execute on function citas_de_persona(text) from public;
 grant  execute on function citas_de_persona(text) to authenticated;
@@ -3664,11 +3906,11 @@ declare
   v_persona personas;
   v_pase    pases;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('dar_pases');
 
   select * into v_persona
     from personas p
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')));
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo);
 
   if not found then
     raise exception 'PERSONA_NO_EXISTE';
@@ -3698,6 +3940,7 @@ begin
 end;
 $$;
 
+
 revoke execute on function crear_pase(text, text) from public;
 grant  execute on function crear_pase(text, text) to authenticated;
 
@@ -3726,13 +3969,13 @@ declare
   v_codigo  text;
   v_nombre  text;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('dar_pases');
 
   select pa.id, pa.activo, p.codigo_corto, p.nombre
     into v_pase_id, v_activo, v_codigo, v_nombre
     from pases pa
     join personas p on p.id = pa.persona_id
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')))
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
      for update of pa;
 
   if not found then
@@ -3755,6 +3998,7 @@ begin
 end;
 $$;
 
+
 revoke execute on function renovar_pase(text) from public;
 grant  execute on function renovar_pase(text) to authenticated;
 
@@ -3768,12 +4012,12 @@ as $$
 declare
   v_pase_id uuid;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('dar_pases');
 
   select pa.id into v_pase_id
     from pases pa
     join personas p on p.id = pa.persona_id
-   where upper(p.codigo_corto) = upper(trim(coalesce(p_codigo, '')))
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
      for update;
 
   if not found then
@@ -3795,6 +4039,7 @@ begin
   return 'PASE_REVOCADO';
 end;
 $$;
+
 
 revoke execute on function revocar_pase(text, text) from public;
 grant  execute on function revocar_pase(text, text) to authenticated;
@@ -3823,7 +4068,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('dar_pases');
 
   return query
   select p.codigo_corto,
@@ -3865,7 +4110,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('dar_pases');
 
   return query
   select p.nombre,
@@ -4016,7 +4261,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('editar_textos');
 
   return query
   select a.id, a.seccion, a.orden, a.titulo_es, a.titulo_en, a.titulo_vi,
@@ -4054,7 +4299,7 @@ declare
   v_texto  text := regexp_replace(trim(coalesce(p_texto_es, '')), '\s+', ' ', 'g');
   v_titulo text := nullif(regexp_replace(trim(coalesce(p_titulo_es, '')), '\s+', ' ', 'g'), '');
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('editar_textos');
 
   if p_seccion not in ('inicio', 'registro', 'preguntas', 'quienes') then
     raise exception 'SECCION_INVALIDA';
@@ -4130,7 +4375,7 @@ declare
   v_aviso  avisos;
   v_vecino avisos;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('editar_textos');
 
   if p_hacia not in ('arriba', 'abajo') then
     raise exception 'DIRECCION_INVALIDA';
@@ -4178,7 +4423,7 @@ security definer
 set search_path = public, extensions, pg_temp
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_permiso('editar_textos');
 
   delete from avisos where id = p_id;
 
@@ -4334,6 +4579,674 @@ select v.* from (values
    'Trang này tồn tại vì một điều: giúp bạn giữ chỗ dễ dàng, để không ai phải mất cả buổi chiều xếp hàng vô ích. Thông tin của bạn chỉ dùng để tổ chức việc phát quà.')
 ) as v(seccion, orden, titulo_es, titulo_en, titulo_vi, texto_es, texto_en, texto_vi)
  where not exists (select 1 from avisos a where a.seccion in ('preguntas', 'quienes'));
+
+
+-- ============================================================
+--  31. PERMISOS DEL VOLUNTARIO
+-- ============================================================
+--  Una lista de palomitas que el administrador prende y apaga. Sin ellas
+--  el rol decidia todo y abrirle una pantalla a los voluntarios era
+--  programar; ahora es una casilla.
+--
+--  Las funciones de arriba ya no preguntan "eres admin" sino "tienes esta
+--  palomita", salvo las tres que nunca se abren: Equipo y accesos,
+--  Horarios y cupos, y autorizar una segunda caja en la semana.
+
+--  Hasta ahora el rol decidia todo: el voluntario escaneaba y nada mas,
+--  y cualquier cosa que se le quisiera abrir habia que programarla. Esto
+--  lo vuelve una lista de palomitas que el administrador prende y apaga.
+--
+--  Lo que NO se puede prender nunca, ni con una palomita:
+--
+--   * Equipo y accesos. Un voluntario que pueda dar roles se hace
+--     administrador solo, y entonces la lista de permisos no sirve de nada.
+--   * Horarios y cupos. Crear o borrar una fecha mueve el cupo de toda la
+--     comunidad.
+--   * Autorizar una segunda caja en la semana. Es la excepcion que por
+--     definicion autoriza el pastor.
+--
+--  Esas tres siguen con exigir_rol(array['admin']) a secas, y asi deben
+--  quedarse.
+create table if not exists permisos (
+  clave           text primary key,
+  activo          boolean not null default false,
+  actualizado_por uuid,
+  actualizado_en  timestamptz not null default now()
+);
+
+alter table permisos enable row level security;
+
+--  Arrancan todos apagados: el dia que esto se aplica, el voluntario
+--  sigue pudiendo exactamente lo mismo que antes. Se prende a mano lo
+--  que se quiera abrir.
+insert into permisos (clave) values
+  ('ver_citas_del_dia'),
+  ('anotar_sin_cita'),
+  ('registrar_personas'),
+  ('mover_citas'),
+  ('cancelar_citas'),
+  ('ver_personas'),
+  ('ver_reportes'),
+  ('dar_pases'),
+  ('editar_textos')
+on conflict (clave) do nothing;
+
+
+-- ------------------------------------------------------------
+--  El candado
+-- ------------------------------------------------------------
+--  Igual que exigir_rol, pero preguntando por una palomita. El
+--  administrador pasa siempre: la lista es para el voluntario.
+--
+--  Que esto viva en la base y no en la pantalla es lo que lo hace un
+--  permiso de verdad. Esconder un boton no le impide a nadie escribir la
+--  direccion a mano.
+create or replace function exigir_permiso(p_clave text)
+returns text
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_rol text;
+begin
+  if auth.uid() is null then
+    raise exception 'SIN_SESION' using errcode = '42501';
+  end if;
+
+  select rol into v_rol
+    from personal
+   where usuario_id = auth.uid()
+     and activo;
+
+  if v_rol = 'admin' then
+    return v_rol;
+  end if;
+
+  if v_rol = 'voluntario'
+     and exists (select 1 from permisos p where p.clave = p_clave and p.activo) then
+    return v_rol;
+  end if;
+
+  raise exception 'SIN_PERMISO' using errcode = '42501';
+end;
+$$;
+
+revoke execute on function exigir_permiso(text) from public, anon, authenticated;
+
+
+--  Lo que puede hacer quien tiene la sesion abierta. La usa el panel para
+--  decidir que secciones ensenar; el permiso de verdad lo revisa cada
+--  funcion por su cuenta.
+create or replace function mis_permisos()
+returns table (
+  clave  text,
+  activo boolean
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_rol text;
+begin
+  v_rol := exigir_rol(array['admin', 'voluntario']);
+
+  return query
+  select p.clave, case when v_rol = 'admin' then true else p.activo end
+    from permisos p
+   order by p.clave;
+end;
+$$;
+
+revoke execute on function mis_permisos() from public;
+grant  execute on function mis_permisos() to authenticated;
+
+
+--  La lista para la pantalla que los administra.
+create or replace function listar_permisos()
+returns table (
+  clave           text,
+  activo          boolean,
+  actualizado_en  timestamptz,
+  actualizado_por text
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  return query
+  select p.clave, p.activo, p.actualizado_en, u.email::text
+    from permisos p
+    left join auth.users u on u.id = p.actualizado_por
+   order by p.clave;
+end;
+$$;
+
+revoke execute on function listar_permisos() from public;
+grant  execute on function listar_permisos() to authenticated;
+
+
+--  Prender o apagar una palomita. Solo el administrador, y a proposito no
+--  se puede crear una clave nueva desde aqui: las claves las define el
+--  codigo, no el panel.
+create or replace function guardar_permiso(p_clave text, p_activo boolean)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_clave text;
+begin
+  perform exigir_rol(array['admin']);
+
+  update permisos
+     set activo          = coalesce(p_activo, false),
+         actualizado_por = auth.uid(),
+         actualizado_en  = now()
+   where clave = p_clave
+  returning clave into v_clave;
+
+  if v_clave is null then
+    raise exception 'PERMISO_NO_EXISTE';
+  end if;
+
+  return v_clave;
+end;
+$$;
+
+revoke execute on function guardar_permiso(text, boolean) from public;
+grant  execute on function guardar_permiso(text, boolean) to authenticated;
+
+
+-- ============================================================
+--  32. DOS FILAS: CARRO Y A PIE
+-- ============================================================
+--  Fase 2 (CLAUDE.md > Alcance). La entrega tiene dos filas con su propio
+--  cupo, sus propios horarios y su propia gente escaneando. Esto pone la
+--  base; la reserva publica a pie sigue cerrada ("Proximamente") hasta que
+--  el pastor la abra con la configuracion a_pie_abierto.
+--
+--  La fila vive en el HORARIO, no en la cita: una cita es de la fila de su
+--  bloque. Asi el candado de reservar_cita() sobre la fila del bloque sigue
+--  siendo el unico que decide el cupo, igual en las dos filas.
+
+alter table bloques add column if not exists fila text not null default 'carro';
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'bloques_fila_valida') then
+    alter table bloques add constraint bloques_fila_valida check (fila in ('carro', 'a_pie'));
+  end if;
+
+  --  A la misma hora caben un horario de carro y uno a pie. El unico viejo
+  --  era por fecha y hora; ahora es por fecha, hora y fila.
+  if exists (select 1 from pg_constraint where conname = 'bloques_fecha_hora_key') then
+    alter table bloques drop constraint bloques_fecha_hora_key;
+  end if;
+
+  if not exists (select 1 from pg_constraint where conname = 'bloques_fecha_hora_fila_key') then
+    alter table bloques add constraint bloques_fecha_hora_fila_key unique (fecha, hora, fila);
+  end if;
+end;
+$$;
+
+--  En que fila escanea cada quien. 'ambas' deja todo como estaba: hoy
+--  solo existe la fila de carros. El administrador escanea en las dos,
+--  diga lo que diga aqui.
+alter table personal add column if not exists fila text not null default 'ambas';
+
+--  "Entro sin cita" y los pases no tienen horario: se anotan en la fila de
+--  quien los registra.
+alter table entradas_sin_cita add column if not exists fila text not null default 'carro';
+alter table entregas_pase     add column if not exists fila text not null default 'carro';
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'personal_fila_valida') then
+    alter table personal add constraint personal_fila_valida check (fila in ('carro', 'a_pie', 'ambas'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'entradas_sin_cita_fila_valida') then
+    alter table entradas_sin_cita add constraint entradas_sin_cita_fila_valida check (fila in ('carro', 'a_pie'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'entregas_pase_fila_valida') then
+    alter table entregas_pase add constraint entregas_pase_fila_valida check (fila in ('carro', 'a_pie'));
+  end if;
+end;
+$$;
+
+create index if not exists idx_bloques_fecha_fila on bloques (fecha, fila);
+
+insert into configuracion (clave, valor, nota) values
+  ('a_pie_abierto', 'no',
+   'Si la gente ya puede hacer cita en la fila a pie: si o no. Mientras diga ' ||
+   'no, el inicio muestra "Proximamente", los horarios a pie no salen al ' ||
+   'publico y nadie puede apartar lugar en ellos.')
+on conflict (clave) do nothing;
+
+
+--  Si la fila a pie ya recibe citas.
+create or replace function a_pie_abierto()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce(
+    (select lower(trim(valor)) in ('si', 'sí', 'true', '1') from configuracion where clave = 'a_pie_abierto'),
+    false);
+$$;
+
+revoke execute on function a_pie_abierto() from public, anon, authenticated;
+
+
+--  Si quien tiene la sesion puede entregar en esa fila. El administrador,
+--  en las dos; el voluntario, en la suya o en las dos si asi lo dejaron.
+create or replace function puede_escanear_fila(p_fila text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce(
+    (select pe.rol = 'admin' or pe.fila = 'ambas' or pe.fila = p_fila
+       from personal pe
+      where pe.usuario_id = auth.uid() and pe.activo),
+    false);
+$$;
+
+revoke execute on function puede_escanear_fila(text) from public, anon, authenticated;
+
+
+--  En que fila se cuenta un pase o una entrada sin cita: la de quien la
+--  registra. Quien escanea en las dos se cuenta en la de carros, que hoy
+--  es la unica abierta; cuando abra la fila a pie, la pantalla de escaneo
+--  le preguntara en cual esta.
+create or replace function fila_de_entrega()
+returns text
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select coalesce(
+    (select case when pe.fila = 'a_pie' then 'a_pie' else 'carro' end
+       from personal pe
+      where pe.usuario_id = auth.uid() and pe.activo and pe.rol <> 'admin'),
+    'carro');
+$$;
+
+revoke execute on function fila_de_entrega() from public, anon, authenticated;
+
+
+--  La fila de quien tiene la sesion, para la pantalla de escaneo. El
+--  administrador siempre 'ambas'. Null si la cuenta no es del personal.
+create or replace function mi_fila()
+returns text
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select case when pe.rol = 'admin' then 'ambas' else pe.fila end
+    from personal pe
+   where pe.usuario_id = auth.uid() and pe.activo;
+$$;
+
+revoke execute on function mi_fila() from public;
+grant  execute on function mi_fila() to authenticated;
+
+
+--  En que fila escanea alguien del equipo. Solo el administrador, igual
+--  que dar roles: es parte de Equipo y accesos.
+create or replace function guardar_fila_personal(p_correo text, p_fila text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_correo  text := lower(trim(coalesce(p_correo, '')));
+  v_usuario uuid;
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_fila is null or p_fila not in ('carro', 'a_pie', 'ambas') then
+    raise exception 'FILA_INVALIDA';
+  end if;
+
+  update personal pe
+     set fila           = p_fila,
+         actualizado_en = now()
+    from auth.users u
+   where u.id = pe.usuario_id
+     and lower(u.email) = v_correo
+  returning pe.usuario_id into v_usuario;
+
+  if v_usuario is null then
+    raise exception 'PERSONAL_NO_EXISTE';
+  end if;
+
+  return p_fila;
+end;
+$$;
+
+revoke execute on function guardar_fila_personal(text, text) from public;
+grant  execute on function guardar_fila_personal(text, text) to authenticated;
+
+
+-- ============================================================
+--  33. ERRORES DE DEDO Y ERRORES DE GENTE
+-- ============================================================
+--  Nadie se equivoca a proposito. La senal se cae y se toca "confirmar"
+--  otra vez; en el telefono nadie escribe acentos; el voluntario teclea
+--  "cb 4817" en vez de "CB-4871"; en la prisa se le entrega la caja a la
+--  Maria equivocada. Esta seccion hace que esos errores no cuesten una
+--  caja de mas ni una persona sin su caja.
+
+--  Texto para COMPARAR, no para guardar: sin acentos, en minusculas, sin
+--  puntos ni apostrofos y con un solo espacio. "MARÍA  de la Luz" y
+--  "maria de la luz" quedan iguales. Las mayusculas con acento se
+--  traducen antes de bajar a minusculas: asi no depende del idioma del
+--  servidor.
+create or replace function normalizar_texto(p_texto text)
+returns text
+language sql
+immutable
+parallel safe
+set search_path = public, pg_temp
+as $$
+  select trim(regexp_replace(
+           regexp_replace(
+             lower(translate(coalesce(p_texto, ''),
+                             'ÁÀÄÂÃÉÈËÊÍÌÏÎÓÒÖÔÕÚÙÜÛÑÇÝáàäâãéèëêíìïîóòöôõúùüûñçý',
+                             'AAAAAEEEEIIIIOOOOOUUUUNCYaaaaaeeeeiiiiooooouuuuncy')),
+             '[''’.]', '', 'g'),
+           '[\s-]+', ' ', 'g'));
+$$;
+
+revoke execute on function normalizar_texto(text) from public, anon, authenticated;
+
+
+--  El codigo corto como lo teclea la gente -> como esta guardado.
+--    "cb 4871", "CB4871", "4871", "cb-487l", "CBO871"  ->  "CB-4871"/"CB-0871"
+--  La O se lee como cero y la I y la L como uno, solo en los cuatro
+--  digitos. Tiene que haber al menos un digito: "Lili" es un nombre, no un
+--  codigo. Lo que no parece codigo se devuelve en mayusculas y sin
+--  espacios a los lados, igual que antes.
+create or replace function normalizar_codigo_corto(p_texto text)
+returns text
+language sql
+immutable
+parallel safe
+set search_path = public, pg_temp
+as $$
+  select case
+           when x ~ '^(CB|C8)?[0-9OIL]{4}$' and x ~ '[0-9]'
+             then 'CB-' || translate(right(x, 4), 'OIL', '011')
+           else upper(trim(coalesce(p_texto, '')))
+         end
+    from (select regexp_replace(upper(coalesce(p_texto, '')), '[^A-Z0-9]', '', 'g') as x) s;
+$$;
+
+revoke execute on function normalizar_codigo_corto(text) from public, anon, authenticated;
+
+
+--  Si dos codigos se parecen tanto que uno es el otro mal tecleado: un
+--  solo caracter distinto (4871 / 4881) o dos vecinos al reves
+--  (4871 / 4817).
+create or replace function codigos_parecidos(p_a text, p_b text)
+returns boolean
+language plpgsql
+immutable
+set search_path = public, pg_temp
+as $$
+declare
+  v_distintos int[] := '{}';
+  i           int;
+begin
+  if p_a is null or p_b is null or length(p_a) <> length(p_b) or p_a = p_b then
+    return false;
+  end if;
+
+  for i in 1 .. length(p_a) loop
+    if substr(p_a, i, 1) <> substr(p_b, i, 1) then
+      v_distintos := v_distintos || i;
+    end if;
+  end loop;
+
+  if cardinality(v_distintos) = 1 then
+    return true;
+  end if;
+
+  return cardinality(v_distintos) = 2
+     and v_distintos[2] = v_distintos[1] + 1
+     and substr(p_a, v_distintos[1], 1) = substr(p_b, v_distintos[2], 1)
+     and substr(p_a, v_distintos[2], 1) = substr(p_b, v_distintos[1], 1);
+end;
+$$;
+
+revoke execute on function codigos_parecidos(text, text) from public, anon, authenticated;
+
+
+--  La cita que la misma persona (mismo telefono, mismo nombre sin fijarse
+--  en acentos ni mayusculas) ya tiene ese dia, o una fila vacia.
+--
+--  El candado va primero: dos envios iguales al mismo tiempo -- el doble
+--  toque con mala senal -- esperan aqui su turno, y el segundo ya encuentra
+--  la cita del primero. Sin el candado, los dos preguntarian "ya tiene?"
+--  antes de que ninguno guardara: el mismo patron ingenuo del Google Form.
+create or replace function cita_de_la_misma_persona(p_fecha date, p_telefono text, p_nombre text)
+returns citas
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_cita citas;
+begin
+  perform pg_advisory_xact_lock(hashtext('misma-persona:' || coalesce(p_telefono, '') || ':' || p_fecha::text));
+
+  select c.* into v_cita
+    from citas c
+    join bloques  b on b.id = c.bloque_id
+    join personas p on p.id = c.persona_id
+   where b.fecha = p_fecha
+     and c.estado <> 'cancelada'
+     and p.telefono = p_telefono
+     and normalizar_texto(p.nombre) = normalizar_texto(p_nombre)
+   order by c.creada_en
+   limit 1;
+
+  return v_cita;
+end;
+$$;
+
+revoke execute on function cita_de_la_misma_persona(date, text, text) from public, anon, authenticated;
+
+
+-- ------------------------------------------------------------
+--  Deshacer una entrega marcada por error
+-- ------------------------------------------------------------
+--  En la prisa se escanea a la Maria equivocada, o se toca "entregar" en
+--  la persona de arriba en la lista. Sin esto, la Maria de verdad llega y
+--  su codigo dice YA_USADO. Se deshace solo lo de HOY: lo de dias pasados
+--  ya se reporto al banco de alimentos. No se borra nada: queda quien lo
+--  deshizo, cuando y por que.
+create table if not exists anulaciones_entrega (
+  id            uuid primary key default gen_random_uuid(),
+  cita_id       uuid references citas(id),
+  pase_id       uuid references pases(id),
+  fecha         date not null,
+  entregada_en  timestamptz,
+  anulada_por   uuid not null,
+  anulada_en    timestamptz not null default now(),
+  motivo        text not null
+);
+
+alter table anulaciones_entrega enable row level security;
+
+create index if not exists idx_anulaciones_entrega_fecha on anulaciones_entrega (fecha);
+
+--  Una palomita mas, apagada: deshacer una entrega es poder volver a
+--  entregar ese codigo. El administrador siempre puede.
+insert into permisos (clave) values ('anular_entregas')
+on conflict (clave) do nothing;
+
+create or replace function anular_entrega(p_codigo text, p_motivo text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario uuid := auth.uid();
+  v_codigo  text := normalizar_codigo_corto(p_codigo);
+  v_motivo  text := regexp_replace(trim(coalesce(p_motivo, '')), '\s+', ' ', 'g');
+  v_cita    citas;
+  v_pase    entregas_pase;
+begin
+  perform exigir_permiso('anular_entregas');
+
+  if v_motivo = '' then
+    raise exception 'MOTIVO_REQUERIDO';
+  end if;
+
+  --  El mismo candado que registrar_entrega(): mientras se deshace, nadie
+  --  la puede entregar a medias.
+  select c.* into v_cita
+    from citas c
+    join personas p on p.id = c.persona_id
+   where upper(p.codigo_corto) = v_codigo
+     and c.estado = 'entregada'
+     and c.usado_en::date = current_date
+   order by c.usado_en desc
+   limit 1
+     for update of c;
+
+  if found then
+    update citas
+       set estado   = 'reservada',
+           usado_en = null
+     where id = v_cita.id;
+
+    insert into escaneos (cita_id, usuario_id, resultado)
+    values (v_cita.id, v_usuario, 'ANULADA');
+
+    insert into anulaciones_entrega (cita_id, fecha, entregada_en, anulada_por, motivo)
+    values (v_cita.id, current_date, v_cita.usado_en, v_usuario, v_motivo);
+
+    return 'ANULADA';
+  end if;
+
+  --  Un pase permanente: se quita la caja de hoy, y el pase vuelve a
+  --  servir hoy.
+  select e.* into v_pase
+    from entregas_pase e
+    join pases    pa on pa.id = e.pase_id
+    join personas p  on p.id  = pa.persona_id
+   where upper(p.codigo_corto) = v_codigo
+     and e.fecha = current_date
+     for update of e;
+
+  if found then
+    insert into anulaciones_entrega (pase_id, fecha, entregada_en, anulada_por, motivo)
+    values (v_pase.pase_id, v_pase.fecha, v_pase.entregada_en, v_usuario, v_motivo);
+
+    delete from entregas_pase where id = v_pase.id;
+
+    return 'ANULADA';
+  end if;
+
+  raise exception 'ENTREGA_NO_EXISTE';
+end;
+$$;
+
+revoke execute on function anular_entrega(text, text) from public;
+grant  execute on function anular_entrega(text, text) to authenticated;
+
+
+-- ============================================================
+--  34. VER EL QR DESDE EL PANEL
+-- ============================================================
+--  Para las pruebas, y para quien perdio el suyo y esta en la fila: el
+--  administrador ve el QR de una cita en la ficha de la persona (Ver). Sale borroso y
+--  se ve al tocarlo.
+--
+--  El QR vale una caja. Por eso:
+--    * Solo el administrador. Ninguna palomita se lo abre a un voluntario:
+--      con el QR de otro en la pantalla, cualquiera se lleva su caja.
+--    * La lista del dia (citas_del_dia) sigue sin traer tokens: el token
+--      se pide de uno en uno, al tocar, y no antes.
+--    * Queda quien lo vio y cuando (qr_vistos).
+
+create table if not exists qr_vistos (
+  id         uuid primary key default gen_random_uuid(),
+  cita_id    uuid not null references citas(id) on delete cascade,
+  visto_por  uuid not null,
+  visto_en   timestamptz not null default now()
+);
+
+alter table qr_vistos enable row level security;
+
+create index if not exists idx_qr_vistos_cita on qr_vistos (cita_id);
+
+--  La misma cita que cancelar_cita_panel(): codigo, fecha y hora. Las
+--  canceladas no: su QR ya no sirve.
+create or replace function qr_de_cita(p_codigo text, p_fecha date, p_hora time)
+returns table (
+  token        text,
+  codigo_corto text,
+  nombre       text,
+  estado       text
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_cita    citas;
+  v_persona personas;
+begin
+  perform exigir_rol(array['admin']);
+
+  select c.* into v_cita
+    from citas c
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
+     and b.fecha = p_fecha
+     and b.hora  = p_hora
+     and c.estado <> 'cancelada'
+   order by c.creada_en desc
+   limit 1;
+
+  if not found then
+    raise exception 'CITA_NO_EXISTE';
+  end if;
+
+  select * into v_persona from personas where id = v_cita.persona_id;
+
+  insert into qr_vistos (cita_id, visto_por) values (v_cita.id, auth.uid());
+
+  return query select v_cita.token_qr, v_persona.codigo_corto, v_persona.nombre, v_cita.estado;
+end;
+$$;
+
+revoke execute on function qr_de_cita(text, date, time) from public, anon;
+grant  execute on function qr_de_cita(text, date, time) to authenticated;
 
 
 -- ============================================================
