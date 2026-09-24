@@ -21,7 +21,7 @@ export default function AvisoIdioma() {
       <div className={`mx-auto w-full ${ancho} px-4 py-3`}>
         <p className="text-base font-semibold text-principal">{t('avisoIdioma.titulo')}</p>
         <p className="text-base text-principal/80">{t('avisoIdioma.detalle')}</p>
-        <p className="mt-1 text-base text-principal/60" lang="en">
+        <p className="mt-1 text-base text-principal/70" lang="en">
           {t('avisoIdioma.ingles')}
         </p>
       </div>

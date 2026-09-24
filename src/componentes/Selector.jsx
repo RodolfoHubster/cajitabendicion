@@ -18,7 +18,7 @@ export default function Selector({ etiqueta, id, activo = false, error, classNam
       <select
         aria-describedby={idError}
         aria-invalid={error ? true : undefined}
-        className={`min-h-14 w-full rounded-xl border bg-white px-3 text-base text-principal shadow-sm outline-none transition focus:ring-4 ${borde} ${className}`}
+        className={`min-h-14 w-full rounded-xl border bg-superficie px-3 text-base text-principal shadow-sm outline-none transition focus:ring-4 ${borde} ${className}`}
         id={id}
         {...props}
       >

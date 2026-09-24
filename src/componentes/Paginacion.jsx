@@ -4,8 +4,8 @@ import { TAMANOS_PAGINA, paginasVisibles } from '../datos/filtros'
 
 const BASE =
   'inline-flex min-h-12 min-w-12 items-center justify-center rounded-xl border px-3 text-base font-semibold transition disabled:cursor-not-allowed disabled:opacity-40'
-const NORMAL = `${BASE} border-principal/25 bg-white text-principal hover:border-principal`
-const ACTUAL = `${BASE} border-principal bg-principal text-white`
+const NORMAL = `${BASE} border-principal/25 bg-superficie text-principal hover:border-principal`
+const ACTUAL = `${BASE} border-marca bg-marca text-white`
 
 /**
  * Pie de una lista larga: cuantas se ven, cambiar de pagina y cuantas por
@@ -62,7 +62,7 @@ export default function Paginacion({
             <ul className="hidden items-center gap-1 sm:flex">
               {paginasVisibles(pagina, totalPaginas).map((numero, i) =>
                 numero === '…' ? (
-                  <li aria-hidden="true" className="px-1 text-base text-principal/60" key={`hueco-${i}`}>
+                  <li aria-hidden="true" className="px-1 text-base text-principal/70" key={`hueco-${i}`}>
                     …
                   </li>
                 ) : (
@@ -97,7 +97,7 @@ export default function Paginacion({
           <label className="flex items-center gap-2" htmlFor={`${id}-por-pagina`}>
             <span className="text-base text-principal/70">{t('filtros.porPagina')}</span>
             <select
-              className="min-h-12 rounded-xl border border-principal/25 bg-white px-3 text-base text-principal outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
+              className="min-h-12 rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
               id={`${id}-por-pagina`}
               onChange={(e) => alCambiarPorPagina(Number(e.target.value))}
               value={porPagina}

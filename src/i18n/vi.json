@@ -41,11 +41,14 @@
     "escanear": "Quét mã",
     "registrar": "Đăng ký cho người khác",
     "equipo": "Nhóm và quyền truy cập",
-    "avisos": "Văn bản và quy định"
+    "avisos": "Văn bản và quy định",
+    "permisos": "Quyền hạn",
+    "menu": "Trình đơn"
   },
   "escaneo": {
     "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
     "apunta": "Đang tìm mã…",
+    "cuadro": "Đặt mã QR vào trong khung",
     "leido": "Đã đọc mã",
     "buscando": "Đang tìm người…",
     "buscarManual": "Tìm theo tên hoặc mã",
@@ -73,7 +76,10 @@
       "VALIDO_AUTORIZADO": "Được vào (đã cho phép)",
       "VALIDO_PASE": "Được vào (thẻ)",
       "PASE_REVOCADO": "Thẻ đã thu hồi",
-      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phát"
+      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phát",
+      "OTRA_FILA": "Hàng khác",
+      "SIN_CONEXION": "Mất sóng",
+      "RECIEN_ENTREGADO": "Vừa phát xong"
     },
     "explicacion": {
       "VALIDO": "Lịch hẹn hợp lệ cho hôm nay. Hãy đưa thùng hàng cho họ.",
@@ -84,14 +90,23 @@
       "VALIDO_AUTORIZADO": "Đã cho phép nhận hàng ngoài ngày hẹn. Hệ thống đã ghi lại người cho phép.",
       "VALIDO_PASE": "Thẻ vĩnh viễn hợp lệ. Hãy trao phần quà. Nếu chưa chắc là đúng người, xin xem giấy tờ tùy thân.",
       "PASE_REVOCADO": "Quản trị viên đã thu hồi thẻ này. Không phát phần quà.",
-      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phải ngày phát nên thẻ không dùng được."
+      "NO_ES_DIA_DE_ENTREGA": "Hôm nay không phải ngày phát nên thẻ không dùng được.",
+      "OTRA_FILA": "Mã này thuộc hàng kia. Mã chưa được dùng: hãy mời họ sang đúng hàng để nhận thùng.",
+      "SIN_CONEXION": "Không kiểm tra được mã vì mất kết nối. Mã có thể vẫn đúng: đừng từ chối người đó. Hãy kiểm tra dữ liệu và kiểm tra lại.",
+      "RECIEN_ENTREGADO": "Đây là mã bạn vừa phát ({{nombre}}). Máy ảnh đọc lại lần nữa: không cần làm gì, họ có thể đi tiếp."
     },
     "camara": {
       "SIN_PERMISO": "Bạn chưa cho phép sử dụng camera.",
       "SIN_CAMARA": "Thiết bị này không có camera.",
       "SIN_HTTPS": "Camera chỉ hoạt động trên trang web bảo mật (https).",
       "ERROR_CAMARA": "Không thể bật camera.",
-      "usaManual": "Bạn vẫn có thể tiếp tục: hãy tìm người đó theo tên hoặc mã."
+      "usaManual": "Bạn vẫn có thể tiếp tục: hãy tìm người đó theo tên hoặc mã.",
+      "CAMARA_OCUPADA": "Một ứng dụng khác đang dùng máy ảnh.",
+      "reintentar": "Thử lại",
+      "comoArreglar": {
+        "SIN_PERMISO": "Để bật: bấm vào ổ khóa (hoặc ba dấu chấm) cạnh địa chỉ trang, vào «Quyền» và cho phép máy ảnh. Sau đó bấm «Thử lại».",
+        "CAMARA_OCUPADA": "Hãy đóng cuộc gọi video hoặc ứng dụng khác đang dùng máy ảnh, rồi bấm «Thử lại»."
+      }
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones.",
@@ -112,7 +127,11 @@
       "explicacionAdmin": "Là quản trị viên, bạn có thể cho phép mà không cần mã. Hệ thống sẽ ghi lại tên bạn."
     },
     "verCita": "Xem lịch hẹn",
-    "pase": "Thẻ vào vĩnh viễn"
+    "pase": "Thẻ vào vĩnh viễn",
+    "estasEn": "Bạn quét ở: {{fila}}",
+    "deOtraFila": "Mã này thuộc hàng kia ({{fila}}). Hãy mời họ sang đó để nhận thùng.",
+    "parecido": "Có phải người này? Mã gần giống",
+    "volverARevisar": "Kiểm tra lại"
   },
   "pase": {
     "etiqueta": "Thẻ vào vĩnh viễn",
@@ -254,7 +273,9 @@
     "cancelando": "Đang hủy…",
     "canceladaTitulo": "Lịch hẹn của bạn đã được hủy",
     "canceladaTexto": "Chỗ của bạn đã được trả lại. Nếu cần, bạn có thể đăng ký lại.",
-    "registrarOtra": "Đặt lịch hẹn lại"
+    "registrarOtra": "Đặt lịch hẹn lại",
+    "yaExistia": "Bạn đã có lịch hẹn này. Không tạo lịch mới: vẫn là lịch cũ, cùng một mã.",
+    "consejoBrillo": "Vào ngày phát, hãy tăng độ sáng màn hình: mã sẽ được quét ngay lần đầu."
   },
   "cambiar": {
     "titulo": "Đổi giờ hẹn của tôi",
@@ -313,12 +334,29 @@
       "NUMERO_INVALIDO": "Hãy kiểm tra lại số nhà.",
       "NUMERO_INTERIOR_INVALIDO": "Hãy kiểm tra lại số căn hộ hoặc số phòng.",
       "CONSENTIMIENTO_REQUERIDO": "Hãy xác nhận rằng bạn tự nguyện chia sẻ thông tin.",
-      "FALTA_HORARIO": "Hãy chọn ngày và giờ."
+      "FALTA_HORARIO": "Hãy chọn ngày và giờ.",
+      "YA_REGISTRADO_ESE_DIA": "Đã có lịch hẹn mang tên bạn cho ngày đó. Nếu bạn mất mã, vào ngày phát hãy nhờ nhóm giúp: họ sẽ tìm theo tên bạn.",
+      "A_PIE_CERRADO": "Hàng đi bộ chưa nhận lịch hẹn.",
+      "SIN_CONEXION": "Mất kết nối. Hãy kiểm tra sóng và bấm «Xác nhận» lại."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
     "paisesPrincipales": "Phổ biến nhất",
-    "paisesTodos": "Tất cả quốc gia"
+    "paisesTodos": "Tất cả quốc gia",
+    "otrosHorarios": {
+      "buscando": "Đang tìm giờ khác trong ngày đó…",
+      "titulo": "Chọn giờ khác trong cùng ngày:",
+      "seQueda": "Những gì bạn đã nhập vẫn giữ nguyên. Chỉ đổi giờ.",
+      "ninguno": "Ngày đó không còn giờ trống.",
+      "otroDia": "Xem ngày khác"
+    },
+    "tuCitaGuardada": "Điện thoại này đã lưu lịch hẹn này:",
+    "verTuCita": "Xem lịch hẹn lúc {{hora}} ({{nombre}})",
+    "horaCambiada": "Xong, giờ của bạn bây giờ là {{hora}}. Bấm «Xác nhận» để hoàn tất.",
+    "borrador": {
+      "recuperado": "Chúng tôi đã khôi phục những gì bạn đã nhập.",
+      "empezarDeNuevo": "Xóa và bắt đầu lại"
+    }
   },
   "pasos": {
     "etiqueta": "Tiến trình đăng ký",
@@ -336,7 +374,9 @@
     "lleno": "Hết chỗ",
     "quedan_other": "Còn {{count}} chỗ",
     "conCodigo": "Bạn đã vào bằng mã người theo dõi. Hãy chọn giờ.",
-    "revisandoCodigo": "Đang kiểm tra mã của bạn…"
+    "revisandoCodigo": "Đang kiểm tra mã của bạn…",
+    "continuarCon": "Tiếp tục với giờ {{hora}}",
+    "eligeUno": "Bấm chọn một giờ trong danh sách"
   },
   "calendario": {
     "cargando": "Đang tìm ngày còn trống…",
@@ -373,7 +413,8 @@
     "proximamente": "Sắp có",
     "aPieAviso": "Hiện tại chỉ phát ở hàng xe hơi. Chúng tôi đang chuẩn bị hàng dành cho người đi bộ.",
     "gratuito": "Thực phẩm hoàn toàn miễn phí. Không cần quyên góp.",
-    "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng."
+    "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng.",
+    "hacerCita": "Đặt hẹn"
   },
   "navegacion": {
     "inicio": "Về trang chủ",
@@ -454,7 +495,9 @@
       "pase": "Thẻ vào vĩnh viễn"
     },
     "avisoPase": "Thẻ dùng được thứ Hai và thứ Năm, không cần giờ cố định, cho đến khi bị thu hồi. Mỗi ngày phát một phần. Không chiếm chỗ của lịch hẹn.",
-    "motivoPase": "Vì sao được cấp? (không bắt buộc)"
+    "motivoPase": "Vì sao được cấp? (không bắt buộc)",
+    "yaTenia": "Người này đã có lịch hẹn trong ngày đó",
+    "yaTeniaAyuda": "Không tạo lịch mới. Đây là lịch họ đã có, với mã của họ."
   },
   "diasAdmin": {
     "titulo": "Khung giờ và số chỗ",
@@ -692,7 +735,13 @@
     "anuladaEstado": "Đã hủy",
     "anuladaPor": "bởi {{quien}} lúc {{hora}}",
     "sinNombre": "(không có tên)",
-    "titulo": "Có người đến mà không có lịch hẹn?"
+    "titulo": "Có người đến mà không có lịch hẹn?",
+    "repetido": {
+      "titulo": "{{nombre}} đã được ghi hôm nay (biên nhận {{codigo}}).",
+      "ayuda": "Nếu là cùng một người, đừng ghi lại: sẽ tính dư một thùng.",
+      "esLaMisma": "Cùng một người, không ghi",
+      "esOtra": "Người khác, ghi lại"
+    }
   },
   "cancelarPanel": {
     "columna": "Thao tác",
@@ -772,8 +821,11 @@
       "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
-      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại."
-    }
+      "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
+      "FILA_INVALIDA": "Hàng đó không tồn tại."
+    },
+    "fila": "Quét ở:",
+    "filaAdmin": "Quản trị viên quét ở cả hai hàng."
   },
   "filtros": {
     "buscar": "Tìm theo tên hoặc mã",
@@ -854,7 +906,8 @@
       "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền xem mục này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
-      "ERROR_DESCONOCIDO": "Không thể tải báo cáo. Vui lòng thử lại."
+      "ERROR_DESCONOCIDO": "Không thể tải báo cáo. Vui lòng thử lại.",
+      "FILA_INVALIDA": "Hàng đó không tồn tại. Hãy chọn Tất cả, Xe hơi hoặc Đi bộ."
     }
   },
   "domicilio": {
@@ -1000,5 +1053,181 @@
     "sinTexto": "Chưa có thông tin ở đây.",
     "sitioIglesia": "Trang web nhà thờ",
     "verPreguntas": "Câu hỏi thường gặp"
+  },
+  "permisos": {
+    "titulo": "Quyền của tình nguyện viên",
+    "ayuda": "Đánh dấu những việc bạn muốn tình nguyện viên được làm. Khi bỏ dấu, màn hình đó biến mất khỏi bảng điều khiển của họ và cơ sở dữ liệu cũng từ chối, dù họ tự gõ địa chỉ.",
+    "lista": "Những việc họ được làm",
+    "prendidos": "Đang bật {{prendidos}} trên {{total}}",
+    "cargando": "Đang tải…",
+    "guardando": "Đang lưu…",
+    "avisoSesion": "Nếu tình nguyện viên đang đăng nhập, họ sẽ thấy thay đổi khi tải lại trang.",
+    "cambiadoPor": "{{correo}} đã thay đổi ngày {{cuando}}",
+    "claves": {
+      "ver_citas_del_dia": {
+        "nombre": "Xem lịch hẹn trong ngày",
+        "ayuda": "Danh sách người có hẹn, chỗ còn lại của mỗi khung giờ và các con số trong ngày."
+      },
+      "anotar_sin_cita": {
+        "nombre": "Ghi nhận người không có hẹn",
+        "ayuda": "Cộng thêm một thùng cho người đến không có hẹn, và hoàn tác nếu ghi nhầm."
+      },
+      "registrar_personas": {
+        "nombre": "Đăng ký cho người khác",
+        "ayuda": "Đặt hẹn giúp một người từ bảng điều khiển, khi họ không tự làm được."
+      },
+      "mover_citas": {
+        "nombre": "Đổi giờ hẹn cho một người",
+        "ayuda": "Chuyển lịch hẹn sang khung giờ khác trong cùng ngày, nếu còn chỗ."
+      },
+      "cancelar_citas": {
+        "nombre": "Hủy lịch hẹn",
+        "ayuda": "Hủy lịch hẹn của một người từ bảng điều khiển, có ghi lại lý do."
+      },
+      "ver_personas": {
+        "nombre": "Xem hồ sơ của một người",
+        "ayuda": "Tên, mã số và lịch sử nhận thùng. Đây là thông tin của cộng đồng: chỉ cho người thật sự cần."
+      },
+      "ver_reportes": {
+        "nombre": "Xem báo cáo",
+        "ayuda": "Mỗi ngày phát ra bao nhiêu thùng, để báo cáo cho ngân hàng thực phẩm."
+      },
+      "dar_pases": {
+        "nombre": "Cấp thẻ thường trực",
+        "ayuda": "Tạo, gia hạn và thu hồi thẻ của những người đến mà không đặt hẹn."
+      },
+      "editar_textos": {
+        "nombre": "Sửa nội dung và quy định",
+        "ayuda": "Thay đổi những gì mọi người đọc ở trang chủ, ở phần đăng ký và ở phần câu hỏi."
+      },
+      "anular_entregas": {
+        "nombre": "Hoàn tác lần phát",
+        "ayuda": "Hoàn tác một lần phát hôm nay bị ghi nhầm (nhầm người). Sẽ ghi lại ai làm và lý do."
+      }
+    },
+    "nunca": {
+      "titulo": "Những quyền không thể cấp",
+      "ayuda": "Kể cả bằng một dấu tích. Đây là của quản trị viên và sẽ luôn như vậy.",
+      "equipo": {
+        "nombre": "Nhân sự và quyền truy cập",
+        "porque": "Đó là nơi phân vai trò. Một tình nguyện viên vào được sẽ tự đặt mình làm quản trị viên, và khi đó danh sách này vô nghĩa."
+      },
+      "horarios": {
+        "nombre": "Giờ giấc và số chỗ",
+        "porque": "Mở hay xóa một ngày làm thay đổi số chỗ của cả cộng đồng, không phải của một người."
+      },
+      "excepciones": {
+        "nombre": "Cho phép nhận thùng thứ hai",
+        "porque": "Đây là ngoại lệ của quy định một thùng mỗi tuần, và theo lẽ thường do mục sư cho phép."
+      }
+    },
+    "errores": {
+      "PERMISO_NO_EXISTE": "Quyền đó không còn nữa. Hãy tải lại trang.",
+      "SIN_PERMISO": "Chỉ quản trị viên mới đổi được quyền.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
+      "FUNCION_NO_INSTALADA": "Thiếu một bản cập nhật cơ sở dữ liệu. Hãy chạy migration còn lại trong supabase/migraciones rồi tải lại.",
+      "ERROR_DESCONOCIDO": "Chúng tôi không lưu được thay đổi. Vui lòng thử lại sau giây lát."
+    }
+  },
+  "tema": {
+    "aOscuro": "Chế độ tối",
+    "aClaro": "Chế độ sáng",
+    "cambiarAOscuro": "Chuyển sang chế độ tối",
+    "cambiarAClaro": "Chuyển sang chế độ sáng"
+  },
+  "filas": {
+    "titulo": "Hàng",
+    "nombre": {
+      "carro": "Hàng xe hơi",
+      "a_pie": "Hàng đi bộ",
+      "ambas": "Cả hai hàng"
+    },
+    "vista": {
+      "juntas": "Tất cả",
+      "carro": "Xe hơi",
+      "a_pie": "Đi bộ"
+    }
+  },
+  "misCitas": {
+    "titulo": "Lịch hẹn của bạn",
+    "tituloUna": "Lịch hẹn của bạn",
+    "ayuda": "Đặt từ điện thoại này. Bấm nút để xem mã của bạn.",
+    "hoy": "Hôm nay!",
+    "ver": "Xem mã của tôi",
+    "quitar": "Xóa khỏi điện thoại này",
+    "quitarPregunta": "Xóa khỏi điện thoại này? Lịch hẹn KHÔNG bị hủy: vẫn là của bạn.",
+    "quitarSi": "Có, xóa khỏi đây",
+    "quitarNo": "Không, giữ lại",
+    "ayudaUna": "Đặt từ điện thoại này. Bấm nút để xem mã của bạn."
+  },
+  "deshacer": {
+    "abrir": "Nhầm người? Hoàn tác lần phát này",
+    "pregunta": "Hoàn tác lần phát cho {{nombre}} ({{codigo}})?",
+    "explicacion": "Mã của họ dùng lại được trong hôm nay. Sẽ ghi lại ai hoàn tác và lý do.",
+    "motivo": "Chuyện gì đã xảy ra?",
+    "motivos": {
+      "otraPersona": "Là người khác",
+      "sinQuerer": "Tôi bấm nhầm",
+      "otro": "Lý do khác"
+    },
+    "cualMotivo": "Viết chuyện gì đã xảy ra",
+    "confirmar": "Có, hoàn tác",
+    "deshaciendo": "Đang hoàn tác…",
+    "cancelar": "Không, để nguyên",
+    "listo": "Xong: lần phát cho {{codigo}} đã được hoàn tác và mã dùng lại được hôm nay.",
+    "errores": {
+      "MOTIVO_REQUERIDO": "Hãy viết chuyện gì đã xảy ra.",
+      "ENTREGA_NO_EXISTE": "Không thể hoàn tác lần phát đó nữa: không phải của hôm nay hoặc đã được hoàn tác.",
+      "SIN_PERMISO": "Tài khoản của bạn không được hoàn tác lần phát. Hãy hỏi quản trị viên.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
+      "FUNCION_NO_INSTALADA": "Thiếu một bản cập nhật cơ sở dữ liệu.",
+      "ERROR_DESCONOCIDO": "Chúng tôi không hoàn tác được. Vui lòng thử lại sau giây lát."
+    },
+    "botonLista": "Hoàn tác lần phát",
+    "listoLista": "Đã hoàn tác lần phát cho {{nombre}}. Mã của họ dùng lại được hôm nay."
+  },
+  "verQr": {
+    "titulo": "Mã QR của họ",
+    "deLaCita": "Cho lịch hẹn ngày {{cuando}}",
+    "tocar": "Chạm để xem",
+    "ver": "Xem mã QR của lịch hẹn ngày {{cuando}}",
+    "verEste": "QR",
+    "imagen": "Mã QR của {{nombre}} ({{codigo}}), lịch hẹn ngày {{cuando}}",
+    "aviso": "Đổi được một hộp. Ai xem sẽ được ghi lại.",
+    "sinCita": "Không có lịch hẹn hiện hành nên không có mã QR.",
+    "pasada": "Ngày này đã qua: khi quét sẽ báo là của ngày khác.",
+    "otroDia": "Mã này cho ngày khác: nếu quét hôm nay sẽ báo là của ngày khác.",
+    "cargando": "Đang tải mã QR…",
+    "entregada": "Lịch hẹn này đã được phát: nếu quét sẽ báo là đã nhận.",
+    "abrir": "Mở trang của họ",
+    "ocultar": "Ẩn mã QR",
+    "otraVez": "Thử lại"
+  },
+  "letra": {
+    "titulo": "Cỡ chữ",
+    "normal": "Chữ bình thường",
+    "grande": "Chữ lớn",
+    "muy_grande": "Chữ rất lớn"
+  },
+  "recordatorio": {
+    "agregar": "Thêm vào lịch của tôi",
+    "titulo": "Cajita de Bendición: lịch hẹn của bạn",
+    "descripcion": "Mã của bạn: {{codigo}}. Hãy đến sớm vài phút và mang theo mã QR.\nXem mã của bạn: {{enlace}}",
+    "aviso": "Hôm nay là lịch hẹn Cajita de Bendición của bạn. Hãy mang theo mã."
+  },
+  "redDeSeguridad": {
+    "titulo": "Màn hình này gặp sự cố",
+    "texto": "Không phải lỗi của bạn. Nếu bạn đã đặt hẹn, lịch hẹn vẫn được lưu.",
+    "recargar": "Tải lại",
+    "inicio": "Về trang chủ",
+    "ayuda": "Nếu vẫn tiếp tục, hãy gọi cho nhà thờ số {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Nghe lịch hẹn của tôi",
+    "frase": "Lịch hẹn của bạn là {{fecha}}, lúc {{hora}}. Mã của bạn là: {{codigo}} Hãy đến sớm vài phút."
+  },
+  "entornoPruebas": {
+    "aviso": "Cơ sở dữ liệu thử · không có gì ở đây là thật",
+    "lento": "chế độ chậm: {{segundos}} giây"
   }
 }

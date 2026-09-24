@@ -70,7 +70,7 @@ export default function SelectorIdioma() {
       {abierto && (
         <ul
           aria-label="Idioma · Language · Ngôn ngữ"
-          className="absolute right-0 z-30 mt-2 w-52 rounded-xl border border-principal/15 bg-white p-1 shadow-lg"
+          className="absolute right-0 z-30 mt-2 w-52 rounded-xl border border-principal/15 bg-superficie p-1 shadow-lg"
           role="menu"
         >
           {IDIOMAS.map(({ codigo, nombre }) => {

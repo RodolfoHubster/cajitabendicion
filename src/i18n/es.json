@@ -36,11 +36,14 @@
     "escanear": "Escanear",
     "registrar": "Registrar persona",
     "equipo": "Equipo y accesos",
-    "avisos": "Textos y reglas"
+    "avisos": "Textos y reglas",
+    "permisos": "Permisos",
+    "menu": "Menú"
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
     "apunta": "Buscando un código…",
+    "cuadro": "Pon el QR dentro del cuadro",
     "leido": "Código leído",
     "buscando": "Buscando a la persona…",
     "buscarManual": "Buscar por nombre o código",
@@ -68,7 +71,10 @@
       "VALIDO_AUTORIZADO": "Puede pasar (autorizado)",
       "VALIDO_PASE": "Puede pasar (pase)",
       "PASE_REVOCADO": "Pase retirado",
-      "NO_ES_DIA_DE_ENTREGA": "Hoy no hay entrega"
+      "NO_ES_DIA_DE_ENTREGA": "Hoy no hay entrega",
+      "OTRA_FILA": "Otra fila",
+      "SIN_CONEXION": "Sin señal",
+      "RECIEN_ENTREGADO": "Ya se le entregó hace un momento"
     },
     "explicacion": {
       "VALIDO": "Cita válida para hoy. Entrégale su caja.",
@@ -79,14 +85,23 @@
       "VALIDO_AUTORIZADO": "Entrega autorizada fuera de la fecha de su cita. Quedó registrado quién la autorizó.",
       "VALIDO_PASE": "Pase permanente válido. Entrégale su caja. Si tienes duda de que sea la persona, pídele una identificación.",
       "PASE_REVOCADO": "Este pase fue retirado por un administrador. No procede la entrega.",
-      "NO_ES_DIA_DE_ENTREGA": "Hoy no es día de entrega, así que el pase no aplica."
+      "NO_ES_DIA_DE_ENTREGA": "Hoy no es día de entrega, así que el pase no aplica.",
+      "OTRA_FILA": "Este código es de la otra fila. No se usó: mándalo a su fila y ahí le entregan su caja.",
+      "SIN_CONEXION": "No se pudo revisar el código porque se cortó la conexión. El código puede estar bien: no rechaces a la persona. Revisa tus datos y vuelve a revisarlo.",
+      "RECIEN_ENTREGADO": "Es el mismo código que acabas de entregar ({{nombre}}). La cámara lo volvió a leer: no hay que hacer nada, ya puede avanzar."
     },
     "camara": {
       "SIN_PERMISO": "No diste permiso para usar la cámara.",
       "SIN_CAMARA": "Este dispositivo no tiene cámara disponible.",
       "SIN_HTTPS": "La cámara solo funciona en sitios seguros (https).",
       "ERROR_CAMARA": "No pudimos encender la cámara.",
-      "usaManual": "Puedes seguir trabajando: busca a la persona por nombre o código."
+      "usaManual": "Puedes seguir trabajando: busca a la persona por nombre o código.",
+      "CAMARA_OCUPADA": "Otra aplicación está usando la cámara.",
+      "reintentar": "Intentar de nuevo",
+      "comoArreglar": {
+        "SIN_PERMISO": "Para activarla: toca el candado (o los tres puntos) junto a la dirección de la página, entra a «Permisos» y permite la cámara. Luego toca «Intentar de nuevo».",
+        "CAMARA_OCUPADA": "Cierra la videollamada o la otra aplicación que la esté usando y toca «Intentar de nuevo»."
+      }
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones.",
@@ -107,7 +122,11 @@
       "explicacionAdmin": "Como administrador puedes autorizarlo sin código. Quedará registrado a tu nombre."
     },
     "verCita": "Ver cita",
-    "pase": "Pase permanente"
+    "pase": "Pase permanente",
+    "estasEn": "Escaneas en: {{fila}}",
+    "deOtraFila": "Este código es de la otra fila ({{fila}}). Mándalo allá: ahí le entregan su caja.",
+    "parecido": "¿Es este? El código se parece",
+    "volverARevisar": "Volver a revisar"
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -250,7 +269,9 @@
     "cancelando": "Cancelando…",
     "canceladaTitulo": "Tu cita fue cancelada",
     "canceladaTexto": "Tu lugar ya quedó libre. Si lo necesitas, puedes volver a registrarte.",
-    "registrarOtra": "Hacer cita de nuevo"
+    "registrarOtra": "Hacer cita de nuevo",
+    "yaExistia": "Ya tenías esta cita. No se hizo otra: es la misma, con el mismo código.",
+    "consejoBrillo": "El día de la entrega, sube el brillo de tu pantalla: así el código se lee a la primera."
   },
   "cambiar": {
     "titulo": "Cambiar mi horario",
@@ -309,12 +330,29 @@
       "NUMERO_INVALIDO": "Revisa el número de la casa.",
       "NUMERO_INTERIOR_INVALIDO": "Revisa el número interior o de apartamento.",
       "CONSENTIMIENTO_REQUERIDO": "Falta confirmar que compartes tu información por tu propia voluntad.",
-      "FALTA_HORARIO": "Elige la fecha y el horario."
+      "FALTA_HORARIO": "Elige la fecha y el horario.",
+      "YA_REGISTRADO_ESE_DIA": "Ya hay una cita a tu nombre para ese día. Si perdiste tu código, el día de la entrega pide ayuda al equipo: te buscan por tu nombre.",
+      "A_PIE_CERRADO": "La fila a pie todavía no recibe citas.",
+      "SIN_CONEXION": "Se cortó la conexión. Revisa tu señal y vuelve a tocar «Confirmar»."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
     "paisesPrincipales": "Más comunes",
-    "paisesTodos": "Todos los países"
+    "paisesTodos": "Todos los países",
+    "otrosHorarios": {
+      "buscando": "Buscando otros horarios de ese día…",
+      "titulo": "Escoge otra hora de ese mismo día:",
+      "seQueda": "Lo que escribiste se queda. Solo cambia la hora.",
+      "ninguno": "Ya no quedan horarios libres ese día.",
+      "otroDia": "Ver otros días"
+    },
+    "tuCitaGuardada": "Este teléfono ya tiene esta cita guardada:",
+    "verTuCita": "Ver la cita de las {{hora}} ({{nombre}})",
+    "horaCambiada": "Listo, ahora tu hora es a las {{hora}}. Toca «Confirmar» para terminar.",
+    "borrador": {
+      "recuperado": "Recuperamos lo que habías escrito.",
+      "empezarDeNuevo": "Borrar y empezar de nuevo"
+    }
   },
   "pasos": {
     "etiqueta": "Avance del registro",
@@ -333,7 +371,9 @@
     "quedan_one": "Queda {{count}} lugar",
     "quedan_other": "Quedan {{count}} lugares",
     "conCodigo": "Entraste con tu código de suscriptor. Elige tu horario.",
-    "revisandoCodigo": "Revisando tu código…"
+    "revisandoCodigo": "Revisando tu código…",
+    "continuarCon": "Continuar con las {{hora}}",
+    "eligeUno": "Toca un horario de la lista"
   },
   "calendario": {
     "cargando": "Buscando días disponibles…",
@@ -371,7 +411,8 @@
     "proximamente": "Próximamente",
     "aPieAviso": "Por ahora la entrega es solo en la fila de carros. Estamos preparando la fila para quien llega caminando.",
     "gratuito": "Los alimentos son gratuitos. No se requiere ninguna donación.",
-    "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega."
+    "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega.",
+    "hacerCita": "Hacer cita"
   },
   "navegacion": {
     "inicio": "Volver al inicio",
@@ -453,7 +494,9 @@
       "pase": "Pase permanente"
     },
     "avisoPase": "El pase sirve lunes y jueves, sin horario, hasta que se lo quiten. Una caja por día de entrega. No aparta lugar del cupo.",
-    "motivoPase": "¿Por qué se le da? (opcional)"
+    "motivoPase": "¿Por qué se le da? (opcional)",
+    "yaTenia": "Esta persona ya tenía cita ese día",
+    "yaTeniaAyuda": "No se le hizo otra. Esta es la que ya tenía, con su código."
   },
   "diasAdmin": {
     "titulo": "Horarios y cupos",
@@ -695,7 +738,13 @@
     "anuladaEstado": "Anulada",
     "anuladaPor": "por {{quien}} a las {{hora}}",
     "sinNombre": "(sin nombre)",
-    "titulo": "¿Pasó alguien sin cita?"
+    "titulo": "¿Pasó alguien sin cita?",
+    "repetido": {
+      "titulo": "{{nombre}} ya se anotó hoy (comprobante {{codigo}}).",
+      "ayuda": "Si es la misma persona, no la anotes otra vez: contaría una caja de más.",
+      "esLaMisma": "Es la misma, no anotar",
+      "esOtra": "Es otra persona, anotarla"
+    }
   },
   "cancelarPanel": {
     "columna": "Acción",
@@ -775,8 +824,11 @@
       "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
-      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar."
-    }
+      "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
+      "FILA_INVALIDA": "Esa fila no existe."
+    },
+    "fila": "Escanea en:",
+    "filaAdmin": "El administrador escanea en las dos filas."
   },
   "filtros": {
     "buscar": "Buscar por nombre o código",
@@ -857,7 +909,8 @@
       "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para ver esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
-      "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar."
+      "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar.",
+      "FILA_INVALIDA": "Esa fila no existe. Escoge Juntas, En carro o A pie."
     }
   },
   "domicilio": {
@@ -1003,5 +1056,181 @@
     "sinTexto": "Todavía no hay información aquí.",
     "sitioIglesia": "Sitio de la iglesia",
     "verPreguntas": "Preguntas frecuentes"
+  },
+  "permisos": {
+    "titulo": "Permisos del voluntario",
+    "ayuda": "Marca lo que quieres que los voluntarios puedan hacer. Al quitar una palomita, la pantalla desaparece de su panel y la base de datos también se lo niega, aunque escriba la dirección a mano.",
+    "lista": "Lo que pueden hacer",
+    "prendidos": "{{prendidos}} de {{total}} activados",
+    "cargando": "Cargando…",
+    "guardando": "Guardando…",
+    "avisoSesion": "Si un voluntario ya tiene la sesión abierta, verá el cambio cuando recargue la página.",
+    "cambiadoPor": "Lo cambió {{correo}} el {{cuando}}",
+    "claves": {
+      "ver_citas_del_dia": {
+        "nombre": "Ver las citas del día",
+        "ayuda": "La lista de quién tiene cita, el cupo de cada horario y los números del día."
+      },
+      "anotar_sin_cita": {
+        "nombre": "Anotar a alguien sin cita",
+        "ayuda": "Sumar una caja para quien llegó sin cita, y deshacerlo si fue un error."
+      },
+      "registrar_personas": {
+        "nombre": "Registrar personas",
+        "ayuda": "Hacer la cita de alguien desde el panel, cuando la persona no pudo sola."
+      },
+      "mover_citas": {
+        "nombre": "Cambiar a alguien de horario",
+        "ayuda": "Pasar una cita a otro horario del mismo día, si hay lugar."
+      },
+      "cancelar_citas": {
+        "nombre": "Cancelar citas",
+        "ayuda": "Cancelar la cita de alguien desde el panel, dejando anotado el motivo."
+      },
+      "ver_personas": {
+        "nombre": "Ver la ficha de una persona",
+        "ayuda": "Nombre, código y su historial de entregas. Es información de la comunidad: dala solo a quien la necesita."
+      },
+      "ver_reportes": {
+        "nombre": "Ver los reportes",
+        "ayuda": "Cuántas cajas se entregaron por día, para el reporte del banco de alimentos."
+      },
+      "dar_pases": {
+        "nombre": "Dar pases permanentes",
+        "ayuda": "Crear, renovar y quitar los pases de quien pasa sin hacer cita."
+      },
+      "editar_textos": {
+        "nombre": "Editar textos y reglas",
+        "ayuda": "Cambiar lo que la gente lee en la página de inicio, en el registro y en las preguntas frecuentes."
+      },
+      "anular_entregas": {
+        "nombre": "Deshacer entregas",
+        "ayuda": "Deshacer una entrega de hoy marcada por error (la persona equivocada). Queda anotado quién y por qué."
+      }
+    },
+    "nunca": {
+      "titulo": "Esto no se puede dar",
+      "ayuda": "Ni con una palomita. Son del administrador y así se quedan.",
+      "equipo": {
+        "nombre": "Equipo y accesos",
+        "porque": "Ahí se reparten los roles. Un voluntario que pudiera entrar se haría administrador solo, y entonces esta lista no serviría de nada."
+      },
+      "horarios": {
+        "nombre": "Horarios y cupos",
+        "porque": "Abrir o borrar una fecha mueve el cupo de toda la comunidad, no el de una persona."
+      },
+      "excepciones": {
+        "nombre": "Autorizar una segunda caja",
+        "porque": "Es la excepción a la regla de una caja por semana, y por definición la autoriza el pastor."
+      }
+    },
+    "errores": {
+      "PERMISO_NO_EXISTE": "Ese permiso ya no existe. Recarga la página.",
+      "SIN_PERMISO": "Solo el administrador puede cambiar los permisos.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "ERROR_DESCONOCIDO": "No pudimos guardar el cambio. Vuelve a intentar en un momento."
+    }
+  },
+  "tema": {
+    "aOscuro": "Modo oscuro",
+    "aClaro": "Modo claro",
+    "cambiarAOscuro": "Cambiar a modo oscuro",
+    "cambiarAClaro": "Cambiar a modo claro"
+  },
+  "filas": {
+    "titulo": "Fila",
+    "nombre": {
+      "carro": "Fila de carros",
+      "a_pie": "Fila a pie",
+      "ambas": "Las dos filas"
+    },
+    "vista": {
+      "juntas": "Juntas",
+      "carro": "En carro",
+      "a_pie": "A pie"
+    }
+  },
+  "misCitas": {
+    "titulo": "Tus citas",
+    "tituloUna": "Tu cita",
+    "ayuda": "Hechas desde este teléfono. Toca el botón para ver tu código.",
+    "hoy": "¡Hoy!",
+    "ver": "Ver mi código",
+    "quitar": "Quitar de este teléfono",
+    "quitarPregunta": "¿La quitamos de este teléfono? La cita NO se cancela: sigue siendo tuya.",
+    "quitarSi": "Sí, quitarla de aquí",
+    "quitarNo": "No, dejarla",
+    "ayudaUna": "Hecha desde este teléfono. Toca el botón para ver tu código."
+  },
+  "deshacer": {
+    "abrir": "¿Te equivocaste de persona? Deshacer esta entrega",
+    "pregunta": "¿Deshacer la entrega de {{nombre}} ({{codigo}})?",
+    "explicacion": "Su código vuelve a servir hoy. Queda anotado quién lo deshizo y por qué.",
+    "motivo": "¿Qué pasó?",
+    "motivos": {
+      "otraPersona": "Era otra persona",
+      "sinQuerer": "La marqué sin querer",
+      "otro": "Otro motivo"
+    },
+    "cualMotivo": "Escribe qué pasó",
+    "confirmar": "Sí, deshacer",
+    "deshaciendo": "Deshaciendo…",
+    "cancelar": "No, dejarla así",
+    "listo": "Listo: la entrega de {{codigo}} se deshizo y su código vuelve a servir hoy.",
+    "errores": {
+      "MOTIVO_REQUERIDO": "Escribe qué pasó.",
+      "ENTREGA_NO_EXISTE": "Esa entrega ya no se puede deshacer: no es de hoy o ya se había deshecho.",
+      "SIN_PERMISO": "Tu cuenta no tiene permiso para deshacer entregas. Pídeselo al administrador.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos.",
+      "ERROR_DESCONOCIDO": "No pudimos deshacerla. Vuelve a intentar en un momento."
+    },
+    "botonLista": "Deshacer entrega",
+    "listoLista": "Se deshizo la entrega de {{nombre}}. Su código vuelve a servir hoy."
+  },
+  "verQr": {
+    "titulo": "Su QR",
+    "deLaCita": "De su cita del {{cuando}}",
+    "tocar": "Toca para verlo",
+    "ver": "Ver el QR de la cita del {{cuando}}",
+    "verEste": "QR",
+    "imagen": "QR de {{nombre}} ({{codigo}}), cita del {{cuando}}",
+    "aviso": "Vale una caja. Queda anotado quién lo ve.",
+    "sinCita": "No tiene una cita vigente, así que no hay QR que mostrar.",
+    "pasada": "Esta fecha ya pasó: al escanearlo sale que es de otra fecha.",
+    "otroDia": "Es para otro día: si lo escaneas hoy, sale que es de otra fecha.",
+    "cargando": "Cargando el QR…",
+    "entregada": "Esta cita ya se entregó: si lo escaneas, sale que ya recibió.",
+    "abrir": "Abrir su página",
+    "ocultar": "Ocultar el QR",
+    "otraVez": "Intentar otra vez"
+  },
+  "letra": {
+    "titulo": "Tamaño de letra",
+    "normal": "Letra normal",
+    "grande": "Letra grande",
+    "muy_grande": "Letra muy grande"
+  },
+  "recordatorio": {
+    "agregar": "Agregar a mi calendario",
+    "titulo": "Cajita de Bendición: tu cita",
+    "descripcion": "Tu código: {{codigo}}. Llega unos minutos antes y lleva tu código QR.\nVer tu código: {{enlace}}",
+    "aviso": "Hoy es tu cita de Cajita de Bendición. Lleva tu código."
+  },
+  "redDeSeguridad": {
+    "titulo": "Algo salió mal en esta pantalla",
+    "texto": "No es tu culpa. Si ya habías hecho tu cita, sigue guardada.",
+    "recargar": "Volver a cargar",
+    "inicio": "Ir al inicio",
+    "ayuda": "Si sigue pasando, llama a la iglesia al {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Escuchar mi cita",
+    "frase": "Tu cita es el {{fecha}}, a las {{hora}}. Tu código es: {{codigo}} Llega unos minutos antes."
+  },
+  "entornoPruebas": {
+    "aviso": "Base de pruebas · nada de esto es real",
+    "lento": "modo lento: {{segundos}} s"
   }
 }

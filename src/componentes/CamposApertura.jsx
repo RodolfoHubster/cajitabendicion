@@ -4,7 +4,7 @@ import { OPCIONES_ANTICIPO, suscriptoresSinEfecto } from '../datos/diasEntrega'
 import { restarHoras } from '../datos/disponibilidad'
 
 const ESTILO_SELECT =
-  'min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
+  'min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
 
 /**
  * Cuando se abren los registros al publico y, si se activa, desde cuando

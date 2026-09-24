@@ -9,12 +9,69 @@
       content="Reserva tu cita para recibir despensa gratuita los lunes y jueves en Iglesia Casa de Alabanza, San Diego."
     />
     <meta name="theme-color" content="#1B3A6B" />
+    <!--
+      El modo claro u oscuro se pone aqui, antes de que cargue React: si
+      esperara, la pagina se veria blanca un instante y luego se oscureceria.
+      Es el mismo calculo que temaEfectivo() en src/datos/tema.js.
+    -->
+    <script>
+      (function () {
+        var guardado = null
+        try {
+          guardado = localStorage.getItem('cajita-tema')
+        } catch (e) {}
+        var oscuro =
+          guardado === 'oscuro' ||
+          (guardado !== 'claro' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.tema = oscuro ? 'oscuro' : 'claro'
+        if (oscuro) document.querySelector('meta[name="theme-color"]').content = '#1F4380'
+
+        //  La letra grande, igual: antes de pintar (src/datos/letra.js).
+        var letra = null
+        try {
+          letra = localStorage.getItem('cajita-letra')
+        } catch (e) {}
+        var pixeles = { grande: '18px', muy_grande: '20px' }[letra]
+        if (pixeles) {
+          document.documentElement.style.fontSize = pixeles
+          document.documentElement.dataset.letra = letra
+        }
+      })()
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      Lo que se ve mientras llega la app (con datos moviles, unos segundos):
+      la forma del encabezado y de una tarjeta, pulsando. React lo reemplaza
+      al arrancar. Estilos aqui mismo porque el CSS de la app todavia no
+      llega; los colores son los de src/index.css, claro y oscuro.
+    -->
+    <style>
+      .pre-pagina { min-height: 100vh; background: #fff; }
+      .pre-encabezado { background: #1b3a6b; border-top: 4px solid #f5a03c; height: 4.5rem; }
+      .pre-contenido { max-width: 42rem; margin: 0 auto; padding: 1rem; }
+      .pre-tarjeta { border-radius: 1.5rem; background: #1b3a6b; height: 26rem; }
+      .pre-hueso { border-radius: 0.75rem; background: rgb(27 58 107 / 0.1); margin-top: 1.25rem; height: 9rem; }
+      .pre-pulso { animation: pre-pulso 1.6s ease-in-out infinite; }
+      @keyframes pre-pulso { 50% { opacity: 0.55; } }
+      @media (prefers-reduced-motion: reduce) { .pre-pulso { animation: none; } }
+      [data-tema='oscuro'] .pre-pagina { background: #0b1628; }
+      [data-tema='oscuro'] .pre-encabezado,
+      [data-tema='oscuro'] .pre-tarjeta { background: #1f4380; }
+      [data-tema='oscuro'] .pre-hueso { background: rgb(226 234 246 / 0.1); }
+    </style>
+    <div id="root">
+      <div aria-busy="true" aria-label="Cargando · Loading" class="pre-pagina" role="status">
+        <div class="pre-encabezado"></div>
+        <div class="pre-contenido">
+          <div class="pre-tarjeta pre-pulso"></div>
+          <div class="pre-hueso pre-pulso"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

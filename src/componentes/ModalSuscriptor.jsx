@@ -76,12 +76,12 @@ export default function ModalSuscriptor({ dia, abierta, alCerrar }) {
       <div
         aria-labelledby="modal-suscriptor-titulo"
         aria-modal="true"
-        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-5 text-principal shadow-xl sm:rounded-2xl"
+        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-superficie p-5 text-principal shadow-xl sm:rounded-2xl"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-3">
           <h2 className="flex items-center gap-2 font-titulo text-xl font-bold" id="modal-suscriptor-titulo">
-            <FaFacebook aria-hidden="true" className="h-6 w-6 shrink-0 text-[#1560D4]" />
+            <FaFacebook aria-hidden="true" className="h-6 w-6 shrink-0 text-[#1560D4] dark:text-[#8AB4FF]" />
             {t('modalSuscriptor.titulo')}
           </h2>
           <button
@@ -136,7 +136,7 @@ export default function ModalSuscriptor({ dia, abierta, alCerrar }) {
           <p className="text-base font-bold">{t('modalSuscriptor.noSuscriptor')}</p>
           <p className="mt-1 text-base text-principal/80">{t('modalSuscriptor.invitacion')}</p>
           <a
-            className="mt-3 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#1560D4] bg-white px-4 text-base font-bold text-[#1560D4] transition hover:bg-[#1560D4]/5"
+            className="mt-3 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#1560D4] bg-superficie px-4 text-base font-bold text-[#1560D4] transition hover:bg-[#1560D4]/5 dark:border-[#8AB4FF] dark:text-[#8AB4FF] dark:hover:bg-[#8AB4FF]/10"
             href={ORGANIZACION.apoyo.suscripcionFacebook}
             rel="noopener noreferrer"
             target="_blank"

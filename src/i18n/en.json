@@ -36,11 +36,14 @@
     "escanear": "Scan",
     "registrar": "Register a person",
     "equipo": "Team & access",
-    "avisos": "Texts and rules"
+    "avisos": "Texts and rules",
+    "permisos": "Permissions",
+    "menu": "Menu"
   },
   "escaneo": {
     "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
     "apunta": "Looking for a code…",
+    "cuadro": "Place the QR inside the frame",
     "leido": "Code read",
     "buscando": "Looking up the person…",
     "buscarManual": "Search by name or code",
@@ -68,7 +71,10 @@
       "VALIDO_AUTORIZADO": "Let them through (authorized)",
       "VALIDO_PASE": "May pass (pass)",
       "PASE_REVOCADO": "Pass removed",
-      "NO_ES_DIA_DE_ENTREGA": "No delivery today"
+      "NO_ES_DIA_DE_ENTREGA": "No delivery today",
+      "OTRA_FILA": "Other line",
+      "SIN_CONEXION": "No signal",
+      "RECIEN_ENTREGADO": "Delivered a moment ago"
     },
     "explicacion": {
       "VALIDO": "Valid appointment for today. Hand them their box.",
@@ -79,14 +85,23 @@
       "VALIDO_AUTORIZADO": "Delivery authorized outside the appointment date. Who authorized it was recorded.",
       "VALIDO_PASE": "Valid permanent pass. Hand them their box. If you are unsure it is them, ask for an ID.",
       "PASE_REVOCADO": "An administrator removed this pass. Do not hand out a box.",
-      "NO_ES_DIA_DE_ENTREGA": "Today is not a delivery day, so the pass does not apply."
+      "NO_ES_DIA_DE_ENTREGA": "Today is not a delivery day, so the pass does not apply.",
+      "OTRA_FILA": "This code belongs to the other line. It was not used: send them to their line to get their box.",
+      "SIN_CONEXION": "The code could not be checked because the connection dropped. The code may be fine: do not turn the person away. Check your data and check it again.",
+      "RECIEN_ENTREGADO": "This is the same code you just delivered ({{nombre}}). The camera read it again: nothing to do, they can move on."
     },
     "camara": {
       "SIN_PERMISO": "You did not allow camera access.",
       "SIN_CAMARA": "This device has no camera available.",
       "SIN_HTTPS": "The camera only works on secure sites (https).",
       "ERROR_CAMARA": "We could not turn on the camera.",
-      "usaManual": "You can keep working: look the person up by name or code."
+      "usaManual": "You can keep working: look the person up by name or code.",
+      "CAMARA_OCUPADA": "Another app is using the camera.",
+      "reintentar": "Try again",
+      "comoArreglar": {
+        "SIN_PERMISO": "To turn it on: tap the lock (or the three dots) next to the page address, open “Permissions” and allow the camera. Then tap “Try again”.",
+        "CAMARA_OCUPADA": "Close the video call or the other app using it, then tap “Try again”."
+      }
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones.",
@@ -107,7 +122,11 @@
       "explicacionAdmin": "As an administrator you can authorize it without a code. It will be recorded under your name."
     },
     "verCita": "View appointment",
-    "pase": "Permanent pass"
+    "pase": "Permanent pass",
+    "estasEn": "You scan in: {{fila}}",
+    "deOtraFila": "This code belongs to the other line ({{fila}}). Send them there: they get their box in that line.",
+    "parecido": "Is it this one? The code is similar",
+    "volverARevisar": "Check again"
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -250,7 +269,9 @@
     "cancelando": "Cancelling…",
     "canceladaTitulo": "Your appointment was cancelled",
     "canceladaTexto": "Your spot is now free. If you need to, you can register again.",
-    "registrarOtra": "Make an appointment again"
+    "registrarOtra": "Make an appointment again",
+    "yaExistia": "You already had this appointment. No new one was made: it is the same one, with the same code.",
+    "consejoBrillo": "On delivery day, turn up your screen brightness: the code scans on the first try."
   },
   "cambiar": {
     "titulo": "Change my time",
@@ -309,12 +330,29 @@
       "NUMERO_INVALIDO": "Please check the house number.",
       "NUMERO_INTERIOR_INVALIDO": "Please check the apartment or interior number.",
       "CONSENTIMIENTO_REQUERIDO": "Please confirm that you share your information of your own free will.",
-      "FALTA_HORARIO": "Choose the date and the time."
+      "FALTA_HORARIO": "Choose the date and the time.",
+      "YA_REGISTRADO_ESE_DIA": "There is already an appointment in your name for that day. If you lost your code, ask the team for help on delivery day: they will look you up by name.",
+      "A_PIE_CERRADO": "The walk-up line is not taking appointments yet.",
+      "SIN_CONEXION": "The connection dropped. Check your signal and tap “Confirm” again."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
     "paisesPrincipales": "Most common",
-    "paisesTodos": "All countries"
+    "paisesTodos": "All countries",
+    "otrosHorarios": {
+      "buscando": "Looking for other times that day…",
+      "titulo": "Pick another time on the same day:",
+      "seQueda": "What you typed stays. Only the time changes.",
+      "ninguno": "There are no open times left that day.",
+      "otroDia": "See other days"
+    },
+    "tuCitaGuardada": "This phone already has this appointment saved:",
+    "verTuCita": "See the {{hora}} appointment ({{nombre}})",
+    "horaCambiada": "Done, your time is now {{hora}}. Tap “Confirm” to finish.",
+    "borrador": {
+      "recuperado": "We recovered what you had typed.",
+      "empezarDeNuevo": "Clear and start over"
+    }
   },
   "pasos": {
     "etiqueta": "Booking progress",
@@ -333,7 +371,9 @@
     "quedan_one": "{{count}} spot left",
     "quedan_other": "{{count}} spots left",
     "conCodigo": "You entered with your subscriber code. Pick your time.",
-    "revisandoCodigo": "Checking your code…"
+    "revisandoCodigo": "Checking your code…",
+    "continuarCon": "Continue with {{hora}}",
+    "eligeUno": "Tap a time on the list"
   },
   "calendario": {
     "cargando": "Looking for available days…",
@@ -371,7 +411,8 @@
     "proximamente": "Coming soon",
     "aPieAviso": "For now the delivery is only in the car line. We are getting the walk-up line ready.",
     "gratuito": "The food is free. No donation is required.",
-    "yaTienesCita": "Already have an appointment? Bring the saved image or screenshot of your code on distribution day."
+    "yaTienesCita": "Already have an appointment? Bring the saved image or screenshot of your code on distribution day.",
+    "hacerCita": "Book now"
   },
   "navegacion": {
     "inicio": "Back to home",
@@ -453,7 +494,9 @@
       "pase": "Permanent pass"
     },
     "avisoPase": "The pass works Mondays and Thursdays, with no set time, until it is removed. One box per delivery day. It does not take a spot from the quota.",
-    "motivoPase": "Why are they getting it? (optional)"
+    "motivoPase": "Why are they getting it? (optional)",
+    "yaTenia": "This person already had an appointment that day",
+    "yaTeniaAyuda": "No new one was made. This is the one they already had, with their code."
   },
   "diasAdmin": {
     "titulo": "Slots & capacity",
@@ -695,7 +738,13 @@
     "anuladaEstado": "Voided",
     "anuladaPor": "by {{quien}} at {{hora}}",
     "sinNombre": "(no name)",
-    "titulo": "Someone came without an appointment?"
+    "titulo": "Someone came without an appointment?",
+    "repetido": {
+      "titulo": "{{nombre}} was already recorded today (receipt {{codigo}}).",
+      "ayuda": "If it is the same person, do not record them again: it would count one extra box.",
+      "esLaMisma": "Same person, do not record",
+      "esOtra": "Different person, record them"
+    }
   },
   "cancelarPanel": {
     "columna": "Action",
@@ -775,8 +824,11 @@
       "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
       "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
-      "ERROR_DESCONOCIDO": "Could not complete. Please try again."
-    }
+      "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
+      "FILA_INVALIDA": "That line does not exist."
+    },
+    "fila": "Scans in:",
+    "filaAdmin": "The administrator scans in both lines."
   },
   "filtros": {
     "buscar": "Search by name or code",
@@ -857,7 +909,8 @@
       "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
       "SIN_PERMISO": "Your account does not have permission to see this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
-      "ERROR_DESCONOCIDO": "Could not load the report. Please try again."
+      "ERROR_DESCONOCIDO": "Could not load the report. Please try again.",
+      "FILA_INVALIDA": "That line does not exist. Choose Together, By car or On foot."
     }
   },
   "domicilio": {
@@ -1003,5 +1056,181 @@
     "sinTexto": "There is no information here yet.",
     "sitioIglesia": "Church website",
     "verPreguntas": "Frequently asked questions"
+  },
+  "permisos": {
+    "titulo": "Volunteer permissions",
+    "ayuda": "Check what you want volunteers to be able to do. When you uncheck one, the screen disappears from their panel and the database turns them away too, even if they type the address by hand.",
+    "lista": "What they can do",
+    "prendidos": "{{prendidos}} of {{total}} turned on",
+    "cargando": "Loading…",
+    "guardando": "Saving…",
+    "avisoSesion": "If a volunteer is already signed in, they will see the change when they reload the page.",
+    "cambiadoPor": "Changed by {{correo}} on {{cuando}}",
+    "claves": {
+      "ver_citas_del_dia": {
+        "nombre": "See the day's appointments",
+        "ayuda": "The list of who has an appointment, how full each time slot is, and the numbers for the day."
+      },
+      "anotar_sin_cita": {
+        "nombre": "Add someone without an appointment",
+        "ayuda": "Add one box for someone who came without an appointment, and undo it if it was a mistake."
+      },
+      "registrar_personas": {
+        "nombre": "Register people",
+        "ayuda": "Book someone's appointment from the panel, when they could not do it on their own."
+      },
+      "mover_citas": {
+        "nombre": "Move someone to another time",
+        "ayuda": "Move an appointment to another time on the same day, if there is room."
+      },
+      "cancelar_citas": {
+        "nombre": "Cancel appointments",
+        "ayuda": "Cancel someone's appointment from the panel, writing down the reason."
+      },
+      "ver_personas": {
+        "nombre": "See a person's record",
+        "ayuda": "Name, code and their delivery history. This is community information: give it only to those who need it."
+      },
+      "ver_reportes": {
+        "nombre": "See the reports",
+        "ayuda": "How many boxes went out each day, for the food bank report."
+      },
+      "dar_pases": {
+        "nombre": "Give permanent passes",
+        "ayuda": "Create, renew and revoke the passes for people who come without booking."
+      },
+      "editar_textos": {
+        "nombre": "Edit texts and rules",
+        "ayuda": "Change what people read on the home page, on the registration form and in the questions."
+      },
+      "anular_entregas": {
+        "nombre": "Undo deliveries",
+        "ayuda": "Undo a delivery from today marked by mistake (the wrong person). Who did it and why is recorded."
+      }
+    },
+    "nunca": {
+      "titulo": "This cannot be given",
+      "ayuda": "Not even with a checkbox. These belong to the administrator and stay that way.",
+      "equipo": {
+        "nombre": "Team and access",
+        "porque": "That is where roles are handed out. A volunteer who could get in would make themselves an administrator, and then this list would mean nothing."
+      },
+      "horarios": {
+        "nombre": "Times and capacity",
+        "porque": "Opening or deleting a date moves the whole community's capacity, not one person's."
+      },
+      "excepciones": {
+        "nombre": "Authorize a second box",
+        "porque": "It is the exception to the one box per week rule, and by definition the pastor authorizes it."
+      }
+    },
+    "errores": {
+      "PERMISO_NO_EXISTE": "That permission no longer exists. Reload the page.",
+      "SIN_PERMISO": "Only the administrator can change permissions.",
+      "SIN_CONEXION": "No connection. Check your mobile data and try again.",
+      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "ERROR_DESCONOCIDO": "We could not save the change. Please try again in a moment."
+    }
+  },
+  "tema": {
+    "aOscuro": "Dark mode",
+    "aClaro": "Light mode",
+    "cambiarAOscuro": "Switch to dark mode",
+    "cambiarAClaro": "Switch to light mode"
+  },
+  "filas": {
+    "titulo": "Line",
+    "nombre": {
+      "carro": "Car line",
+      "a_pie": "Walk-up line",
+      "ambas": "Both lines"
+    },
+    "vista": {
+      "juntas": "Together",
+      "carro": "By car",
+      "a_pie": "On foot"
+    }
+  },
+  "misCitas": {
+    "titulo": "Your appointments",
+    "tituloUna": "Your appointment",
+    "ayuda": "Made from this phone. Tap the button to see your code.",
+    "hoy": "Today!",
+    "ver": "See my code",
+    "quitar": "Remove from this phone",
+    "quitarPregunta": "Remove it from this phone? The appointment is NOT cancelled: it is still yours.",
+    "quitarSi": "Yes, remove it from here",
+    "quitarNo": "No, keep it",
+    "ayudaUna": "Made from this phone. Tap the button to see your code."
+  },
+  "deshacer": {
+    "abrir": "Wrong person? Undo this delivery",
+    "pregunta": "Undo the delivery for {{nombre}} ({{codigo}})?",
+    "explicacion": "Their code works again today. Who undid it and why is recorded.",
+    "motivo": "What happened?",
+    "motivos": {
+      "otraPersona": "It was someone else",
+      "sinQuerer": "I marked it by accident",
+      "otro": "Another reason"
+    },
+    "cualMotivo": "Write what happened",
+    "confirmar": "Yes, undo it",
+    "deshaciendo": "Undoing…",
+    "cancelar": "No, leave it",
+    "listo": "Done: the delivery for {{codigo}} was undone and the code works again today.",
+    "errores": {
+      "MOTIVO_REQUERIDO": "Write what happened.",
+      "ENTREGA_NO_EXISTE": "That delivery can no longer be undone: it is not from today or it was already undone.",
+      "SIN_PERMISO": "Your account is not allowed to undo deliveries. Ask the administrator.",
+      "SIN_CONEXION": "No connection. Check your mobile data and try again.",
+      "FUNCION_NO_INSTALADA": "A database update is missing.",
+      "ERROR_DESCONOCIDO": "We could not undo it. Please try again in a moment."
+    },
+    "botonLista": "Undo delivery",
+    "listoLista": "The delivery for {{nombre}} was undone. Their code works again today."
+  },
+  "verQr": {
+    "titulo": "Their QR",
+    "deLaCita": "For their appointment on {{cuando}}",
+    "tocar": "Tap to show it",
+    "ver": "Show the QR for the appointment on {{cuando}}",
+    "verEste": "QR",
+    "imagen": "QR for {{nombre}} ({{codigo}}), appointment on {{cuando}}",
+    "aviso": "Worth one box. Who views it is recorded.",
+    "sinCita": "No current appointment, so there is no QR to show.",
+    "pasada": "This date has passed: scanning it says it is for another date.",
+    "otroDia": "It is for another day: scanning it today says it is for another date.",
+    "cargando": "Loading the QR…",
+    "entregada": "This appointment was already delivered: scanning it shows they already received.",
+    "abrir": "Open their page",
+    "ocultar": "Hide the QR",
+    "otraVez": "Try again"
+  },
+  "letra": {
+    "titulo": "Text size",
+    "normal": "Normal text",
+    "grande": "Large text",
+    "muy_grande": "Extra large text"
+  },
+  "recordatorio": {
+    "agregar": "Add to my calendar",
+    "titulo": "Cajita de Bendición: your appointment",
+    "descripcion": "Your code: {{codigo}}. Arrive a few minutes early and bring your QR code.\nSee your code: {{enlace}}",
+    "aviso": "Your Cajita de Bendición appointment is today. Bring your code."
+  },
+  "redDeSeguridad": {
+    "titulo": "Something went wrong on this screen",
+    "texto": "It is not your fault. If you had already made your appointment, it is still saved.",
+    "recargar": "Reload",
+    "inicio": "Go to the home page",
+    "ayuda": "If it keeps happening, call the church at {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Listen to my appointment",
+    "frase": "Your appointment is on {{fecha}}, at {{hora}}. Your code is: {{codigo}} Please arrive a few minutes early."
+  },
+  "entornoPruebas": {
+    "aviso": "Test database · none of this is real",
+    "lento": "slow mode: {{segundos}} s"
   }
 }

@@ -11,9 +11,9 @@ export default function Boton({ children, className = '', variant = 'primary', .
 
   const variants = {
     primary:
-      'bg-accion text-principal shadow-sm hover:brightness-95 active:brightness-90 focus-visible:ring-principal/30',
+      'bg-accion text-sobre-accion shadow-sm hover:brightness-95 active:brightness-90 focus-visible:ring-principal/30',
     secondary:
-      'bg-principal text-white shadow-sm hover:brightness-110 active:brightness-95 focus-visible:ring-accion/50',
+      'bg-marca text-white shadow-sm hover:brightness-110 active:brightness-95 focus-visible:ring-accion/50',
   }
 
   return (

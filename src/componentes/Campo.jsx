@@ -19,7 +19,7 @@ export default function Campo({ etiqueta, id, error, className = '', ...props })
       <input
         aria-describedby={idError}
         aria-invalid={error ? true : undefined}
-        className={`min-h-14 rounded-xl border bg-white px-4 text-base text-principal shadow-sm outline-none transition placeholder:text-principal/40 focus:ring-4 ${borde} ${className}`}
+        className={`min-h-14 rounded-xl border bg-superficie px-4 text-base text-principal shadow-sm outline-none transition placeholder:text-principal/40 focus:ring-4 ${borde} ${className}`}
         id={id}
         {...props}
       />

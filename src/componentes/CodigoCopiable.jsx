@@ -48,7 +48,7 @@ export default function CodigoCopiable({ codigo, autoCopiar = false, children })
       <div className="mt-1 flex flex-wrap items-center gap-3">
         <span className="font-titulo text-3xl font-bold tracking-[0.2em] text-principal">{codigo}</span>
         <button
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-principal px-4 text-base font-semibold text-white transition hover:brightness-110"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-marca px-4 text-base font-semibold text-white transition hover:brightness-110"
           onClick={copiar}
           type="button"
         >

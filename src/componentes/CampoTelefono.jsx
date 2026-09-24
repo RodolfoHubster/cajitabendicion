@@ -51,7 +51,7 @@ export default function CampoTelefono({ id, etiqueta, pais, alCambiarPais, valor
       <div className="grid grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)] gap-2 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
         <select
           aria-label={t('registro.pais')}
-          className={`min-h-14 w-full rounded-xl border bg-white px-2 text-base text-principal shadow-sm outline-none focus:ring-4 ${borde}`}
+          className={`min-h-14 w-full rounded-xl border bg-superficie px-2 text-base text-principal shadow-sm outline-none focus:ring-4 ${borde}`}
           id={`${id}-pais`}
           onChange={(e) => alCambiarPais(e.target.value)}
           value={pais}
@@ -76,7 +76,7 @@ export default function CampoTelefono({ id, etiqueta, pais, alCambiarPais, valor
           aria-describedby={idError}
           aria-invalid={error ? true : undefined}
           autoComplete="tel"
-          className={`min-h-14 w-full rounded-xl border bg-white px-4 text-base text-principal shadow-sm outline-none transition focus:ring-4 ${borde}`}
+          className={`min-h-14 w-full rounded-xl border bg-superficie px-4 text-base text-principal shadow-sm outline-none transition focus:ring-4 ${borde}`}
           id={id}
           inputMode="tel"
           onBlur={onBlur}

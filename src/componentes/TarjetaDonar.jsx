@@ -26,7 +26,7 @@ export default function TarjetaDonar({ titulo }) {
   return (
     <section className="rounded-2xl border border-accion/40 bg-accion/10 p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-accion shadow-sm">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-superficie text-accion shadow-sm">
           <LuHeart aria-hidden="true" className="h-6 w-6" />
         </span>
         <div>
@@ -41,8 +41,8 @@ export default function TarjetaDonar({ titulo }) {
           <a
             className={`inline-flex min-h-14 items-center justify-center gap-2 rounded-xl px-3 text-center text-base font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-principal/30 ${
               principal
-                ? 'bg-principal text-white shadow-sm hover:brightness-110'
-                : 'border border-principal/30 bg-white text-principal hover:border-principal'
+                ? 'bg-marca text-white shadow-sm hover:brightness-110'
+                : 'border border-principal/30 bg-superficie text-principal hover:border-principal'
             }`}
             href={href}
             key={href}

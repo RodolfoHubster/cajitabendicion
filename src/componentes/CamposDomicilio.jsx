@@ -41,8 +41,8 @@ export default function CamposDomicilio({ valor, alCambiar, busqueda, errorDe, t
             aria-checked={pais === codigo}
             className={`min-h-14 rounded-xl border px-3 text-base font-semibold transition ${
               pais === codigo
-                ? 'border-principal bg-principal text-white'
-                : 'border-principal/25 bg-white text-principal hover:border-principal'
+                ? 'border-marca bg-marca text-white'
+                : 'border-principal/25 bg-superficie text-principal hover:border-principal'
             }`}
             key={codigo}
             onClick={() => elegirPais(codigo)}
@@ -68,7 +68,7 @@ export default function CamposDomicilio({ valor, alCambiar, busqueda, errorDe, t
           value={codigoPostal}
         />
         {!errorCodigo && busqueda.estado === 'buscando' && (
-          <p className="mt-1 text-base text-principal/60" role="status">
+          <p className="mt-1 text-base text-principal/70" role="status">
             {t('domicilio.buscando')}
           </p>
         )}

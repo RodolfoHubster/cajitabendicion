@@ -25,14 +25,14 @@ export default function Ubicacion() {
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         <a
-          className="inline-flex min-h-14 items-center justify-center rounded-xl bg-principal px-4 text-base font-semibold text-white shadow-sm transition hover:brightness-110"
+          className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-semibold text-white shadow-sm transition hover:brightness-110"
           href={ORGANIZACION.mapas.google}
           {...EXTERNO}
         >
           {t('ubicacion.googleMaps')}
         </a>
         <a
-          className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/30 bg-white px-4 text-base font-semibold text-principal transition hover:border-principal"
+          className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal transition hover:border-principal"
           href={ORGANIZACION.mapas.apple}
           {...EXTERNO}
         >

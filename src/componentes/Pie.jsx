@@ -5,6 +5,8 @@ import { SiGofundme } from 'react-icons/si'
 import { Link, useLocation } from 'react-router-dom'
 import { ORGANIZACION } from '../datos/organizacion'
 import { anchoPagina } from '../rutas/anchoPagina'
+import BotonTema from './BotonTema'
+import SelectorLetra from './SelectorLetra'
 import { LogoIglesia } from './Logo'
 
 const EXTERNO = { rel: 'noopener noreferrer', target: '_blank' }
@@ -19,13 +21,18 @@ export default function Pie() {
 
   if (enPanel) {
     return (
-      <footer className={`mx-auto w-full ${anchoPagina(pathname)} px-4 pb-8 pt-2 text-center`}>
+      <footer
+        className={`mx-auto flex w-full ${anchoPagina(pathname)} flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 pb-8 pt-2`}
+      >
         <Link
           className="inline-flex min-h-14 items-center text-base text-principal/70 underline underline-offset-4 hover:text-principal"
           to="/"
         >
           {t('navegacion.verSitio')}
         </Link>
+        {/* Tambien en el panel: el que escanea al anochecer lo agradece. */}
+        <SelectorLetra variante="borde" />
+        <BotonTema variante="borde" />
       </footer>
     )
   }
@@ -62,7 +69,7 @@ export default function Pie() {
     'inline-flex min-h-14 items-center gap-2 rounded-xl bg-white/10 px-4 text-base font-semibold text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60'
 
   return (
-    <footer className="mt-10 bg-principal text-white">
+    <footer className="mt-10 bg-marca text-white">
       <div className="mx-auto grid w-full max-w-3xl gap-10 px-4 py-10 sm:grid-cols-2">
         <section>
           <div className="flex items-center gap-3">
@@ -136,7 +143,7 @@ export default function Pie() {
                         <li key={href}>
                           <a
                             aria-label={etiqueta}
-                            className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 transition hover:bg-accion hover:text-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"
+                            className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 transition hover:bg-accion hover:text-sobre-accion focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60"
                             href={href}
                             title={etiqueta}
                             {...EXTERNO}
@@ -167,8 +174,16 @@ export default function Pie() {
         </section>
       </div>
 
+      {/* Para leer mejor: el tamano de la letra y el modo oscuro, juntos. */}
       <div className="border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-1 px-4 py-3 text-base text-white/70 sm:flex-row">
+        <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-4">
+          <SelectorLetra />
+          <BotonTema />
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-2 px-4 py-3 text-base text-white/70 sm:flex-row">
           <p>
             © {new Date().getFullYear()} {ORGANIZACION.iglesia}
           </p>

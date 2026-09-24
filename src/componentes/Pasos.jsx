@@ -25,7 +25,7 @@ export default function Pasos({ actual }) {
                 'flex-1 border-b-2 pb-1 text-base',
                 activo && 'border-accion font-semibold text-principal',
                 hecho && 'border-principal/40 text-principal/70',
-                !activo && !hecho && 'border-principal/15 text-principal/40',
+                !activo && !hecho && 'border-principal/15 text-principal/70',
               ]
                 .filter(Boolean)
                 .join(' ')}

@@ -18,14 +18,14 @@ export default function PanelFiltros({ id, busqueda, columnas = '', ocultos = 0,
       <button
         aria-controls={id}
         aria-expanded={abierto}
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-principal/25 bg-white px-4 text-base font-semibold text-principal sm:hidden"
+        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-principal/25 bg-superficie px-4 text-base font-semibold text-principal sm:hidden"
         onClick={() => setAbierto((antes) => !antes)}
         type="button"
       >
         <LuSlidersHorizontal aria-hidden="true" className="h-5 w-5" />
         {abierto ? t('filtros.ocultarFiltros') : t('filtros.masFiltros')}
         {ocultos > 0 && (
-          <span className="rounded-full bg-principal px-2 text-base font-bold text-white">{ocultos}</span>
+          <span className="rounded-full bg-marca px-2 text-base font-bold text-white">{ocultos}</span>
         )}
       </button>
 
