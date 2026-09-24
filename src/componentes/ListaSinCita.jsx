@@ -7,6 +7,8 @@ import Selector from './Selector'
 import Tarjeta from './Tarjeta'
 import { anularEntradaSinCita, entradasSinCitaDelDia } from '../datos/citas'
 import { horaSanDiego } from '../datos/disponibilidad'
+import { filtrarPorFila } from '../datos/filas'
+import { EsqueletoLista } from './Esqueleto'
 import {
   FILTROS_SIN_CITA,
   SIN_VALOR,
@@ -25,7 +27,7 @@ import {
  * y a que hora. Las anuladas siguen en la lista, marcadas, con quien las anulo.
  * Con buscador, filtros (hora, quien anoto, si cuenta) y paginas.
  */
-export default function ListaSinCita({ fecha, recarga, alCambiar }) {
+export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'juntas' }) {
   const { t } = useTranslation()
 
   // Los datos guardan de que fecha son, para no mostrar los de otro dia.
@@ -58,7 +60,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
   }, [fecha, recarga])
 
   const filas = datos?.fecha === fecha ? datos.filas : null
-  const todas = filas ?? []
+  const todas = filtrarPorFila(filas, vistaFila)
   const cuentan = todas.filter((fila) => !fila.anulada).length
   const filtradas = filtrarSinCita(todas, filtros)
   const resultado = paginar(filtradas, pagina, porPagina)
@@ -104,7 +106,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
           </p>
         )}
 
-        {!error && filas === null && <p className="text-base">{t('sinCita.cargando')}</p>}
+        {!error && filas === null && <EsqueletoLista filas={2} texto={t('sinCita.cargando')} />}
         {filas && filas.length === 0 && <p className="text-base">{t('sinCita.sinEntradas')}</p>}
 
         {filas && filas.length > 0 && (
@@ -205,7 +207,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
                           <Fragment key={llave}>
                             <tr
                               className={`border-b border-principal/10 last:border-0 ${
-                                fila.anulada ? 'text-principal/50' : ''
+                                fila.anulada ? 'text-principal/70' : ''
                               }`}
                             >
                               <td className="whitespace-nowrap py-2 pr-3">{horaSanDiego(fila.registrado_en)}</td>
@@ -218,7 +220,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
                                 {fila.anulada ? (
                                   <span className="text-ya-recibio">
                                     {t('sinCita.anuladaEstado')}
-                                    <span className="block text-principal/60">
+                                    <span className="block text-principal/70">
                                       {t('sinCita.anuladaPor', {
                                         quien: fila.anulada_por ?? '—',
                                         hora: horaSanDiego(fila.anulada_en),
@@ -267,7 +269,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
                                     )}
                                     <div className="flex flex-wrap gap-2">
                                       <button
-                                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white disabled:opacity-60"
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-60"
                                         disabled={ocupado}
                                         onClick={() => anular(fila)}
                                         type="button"
@@ -275,7 +277,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar }) {
                                         {t('sinCita.confirmarAnular')}
                                       </button>
                                       <button
-                                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal"
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal"
                                         onClick={() => setAnulando(null)}
                                         type="button"
                                       >

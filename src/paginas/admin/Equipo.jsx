@@ -8,8 +8,10 @@ import Tarjeta from '../../componentes/Tarjeta'
 import { mensajeCorreo } from '../../componentes/mensajesValidacion'
 import { horaSanDiego } from '../../datos/disponibilidad'
 import { guardarAcceso, guardarMiCodigo, listarEquipo, quitarAcceso } from '../../datos/equipo'
+import { FILAS_PERSONAL, guardarFila } from '../../datos/filas'
 import { TAMANOS_PAGINA, coincideTexto, paginar } from '../../datos/filtros'
 import { validarCorreo } from '../../datos/validaciones'
+import { EsqueletoLista } from '../../componentes/Esqueleto'
 
 const ROLES = ['admin', 'voluntario']
 const ESTADOS = ['activo', 'pendiente', 'sin_acceso']
@@ -21,16 +23,16 @@ const ESTILO_ESTADO = {
 }
 
 const ESTILO_SELECT =
-  'min-h-12 rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15 disabled:bg-principal/5 disabled:text-principal/60'
+  'min-h-12 rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15 disabled:bg-principal/5 disabled:text-principal/60'
 
 const BOTON =
-  'inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-semibold text-principal transition hover:border-principal disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-semibold text-principal transition hover:border-principal disabled:cursor-not-allowed disabled:opacity-50'
 
 const BOTON_FUERTE =
-  'inline-flex min-h-12 items-center justify-center rounded-xl bg-principal px-4 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-12 items-center justify-center rounded-xl bg-marca px-4 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50'
 
 const BOTON_PELIGRO =
-  'inline-flex min-h-12 items-center justify-center rounded-xl border border-ya-recibio/40 bg-white px-4 text-base font-semibold text-ya-recibio transition hover:border-ya-recibio disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-12 items-center justify-center rounded-xl border border-ya-recibio/40 bg-superficie px-4 text-base font-semibold text-ya-recibio transition hover:border-ya-recibio disabled:cursor-not-allowed disabled:opacity-50'
 
 const mensajeError = (t, codigo) =>
   t(`equipo.errores.${codigo}`, { defaultValue: t('equipo.errores.ERROR_DESCONOCIDO') })
@@ -167,6 +169,61 @@ function DarAcceso({ alGuardar }) {
   )
 }
 
+/**
+ * En que fila escanea un voluntario. Se guarda al escoger: es un ajuste
+ * de un toque, no un formulario. El administrador escanea en las dos.
+ */
+function FilaDelMiembro({ persona, alCambiar }) {
+  const { t } = useTranslation()
+  const [ocupado, setOcupado] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function cambiar(fila) {
+    setOcupado(true)
+    setError(null)
+
+    try {
+      await guardarFila(persona.correo, fila)
+      alCambiar()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  if (persona.rol === 'admin') {
+    return <p className="mt-2 text-base text-principal/70">{t('equipo.filaAdmin')}</p>
+  }
+
+  return (
+    <div className="mt-2">
+      <label className="flex flex-wrap items-center gap-2" htmlFor={`fila-${persona.correo}`}>
+        <span className="text-base font-semibold text-principal">{t('equipo.fila')}</span>
+        <select
+          className={ESTILO_SELECT}
+          disabled={ocupado}
+          id={`fila-${persona.correo}`}
+          onChange={(e) => cambiar(e.target.value)}
+          value={persona.fila}
+        >
+          {FILAS_PERSONAL.map((fila) => (
+            <option key={fila} value={fila}>
+              {t(`filas.nombre.${fila}`)}
+            </option>
+          ))}
+        </select>
+        {ocupado && <span className="text-base text-principal/70">{t('equipo.guardando')}</span>}
+      </label>
+      {error && (
+        <div className="mt-2">
+          <Aviso>{mensajeError(t, error)}</Aviso>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** Una persona del equipo: su rol, su estado y sus acciones. */
 function Miembro({ persona, alCambiar }) {
   const { t, i18n } = useTranslation()
@@ -199,7 +256,7 @@ function Miembro({ persona, alCambiar }) {
         <div className="min-w-0">
           <p className="break-all text-base font-semibold text-principal">
             {persona.correo}{' '}
-            {persona.es_yo && <span className="font-normal text-principal/60">({t('equipo.tu')})</span>}
+            {persona.es_yo && <span className="font-normal text-principal/70">({t('equipo.tu')})</span>}
           </p>
           <p className="text-base text-principal/70">
             {persona.ultimo_acceso
@@ -260,6 +317,11 @@ function Miembro({ persona, alCambiar }) {
         )}
       </div>
 
+      {/* Sin la migracion de filas la base no manda "fila": no se ofrece. */}
+      {persona.estado === 'activo' && persona.fila !== undefined && (
+        <FilaDelMiembro alCambiar={alCambiar} persona={persona} />
+      )}
+
       {preguntando && (
         <div className="mt-2 space-y-2 rounded-xl border border-ya-recibio/30 bg-ya-recibio/5 p-3">
           <p className="text-base font-semibold text-principal">
@@ -267,7 +329,7 @@ function Miembro({ persona, alCambiar }) {
           </p>
           <div className="flex flex-wrap gap-2">
             <button
-              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white disabled:opacity-60"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-60"
               disabled={ocupado}
               onClick={() => ejecutar(() => quitarAcceso(persona.correo))}
               type="button"
@@ -468,7 +530,7 @@ export default function Equipo() {
 
             <div className="mt-3">
               {errorCarga && <Aviso>{mensajeError(t, errorCarga)}</Aviso>}
-              {!errorCarga && equipo === null && <p className="text-base">{t('equipo.cargando')}</p>}
+              {!errorCarga && equipo === null && <EsqueletoLista texto={t('equipo.cargando')} />}
               {equipo && visibles.length === 0 && <p className="text-base">{t('equipo.sinResultados')}</p>}
 
               {visibles.length > 0 && (
@@ -477,7 +539,7 @@ export default function Equipo() {
                     <Miembro
                       alCambiar={recargar}
                       // Rol y estado en la llave: tras un cambio, el renglon se reinicia con lo guardado.
-                      key={`${persona.correo}-${persona.rol}-${persona.estado}`}
+                      key={`${persona.correo}-${persona.rol}-${persona.estado}-${persona.fila}`}
                       persona={persona}
                     />
                   ))}

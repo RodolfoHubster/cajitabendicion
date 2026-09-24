@@ -16,12 +16,13 @@ import {
   suscriptoresSinEfecto,
 } from '../datos/diasEntrega'
 import { aFechaLocal, ahoraSanDiego, formatearFechaHora, formatearHora } from '../datos/disponibilidad'
+import { EsqueletoLista } from './Esqueleto'
 
 const BOTON =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-principal/25 bg-white px-4 text-base font-semibold text-principal transition hover:border-principal disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-principal/25 bg-superficie px-4 text-base font-semibold text-principal transition hover:border-principal disabled:cursor-not-allowed disabled:opacity-50'
 
 const BOTON_FUERTE =
-  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-principal px-4 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50'
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-marca px-4 text-base font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50'
 
 const ESTILO_ESTADO = {
   abierta: 'bg-puede-pasar/15 text-puede-pasar',
@@ -30,14 +31,14 @@ const ESTILO_ESTADO = {
 }
 
 const ESTILO_INPUT =
-  'min-h-12 w-20 rounded-xl border border-principal/25 bg-white px-3 text-base text-principal outline-none focus:border-principal'
+  'min-h-12 w-20 rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal outline-none focus:border-principal'
 
 // '2026-09-11T12:00:00' -> '2026-09-11T12:00', el formato de datetime-local.
 const aCampo = (marca) => (marca ? marca.slice(0, 16) : '')
 
 function Seccion({ titulo, children }) {
   return (
-    <section className="rounded-xl border border-principal/15 bg-white p-4">
+    <section className="rounded-xl border border-principal/15 bg-superficie p-4">
       <h4 className="mb-3 text-lg font-bold text-principal">{titulo}</h4>
       {children}
     </section>
@@ -398,7 +399,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
 
           <Seccion titulo={t('diasAdmin.seccionLugares')}>
             {bloques === null ? (
-              <p className="text-base">{t('diasAdmin.cargandoHorarios')}</p>
+              <EsqueletoLista filas={3} texto={t('diasAdmin.cargandoHorarios')} />
             ) : (
               <>
                 <form
@@ -508,7 +509,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
 
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <button
-                  className="inline-flex min-h-14 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-50"
                   disabled={ocupado}
                   onClick={eliminarFecha}
                   type="button"
@@ -516,7 +517,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
                   {t('diasAdmin.siEliminar')}
                 </button>
                 <button
-                  className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+                  className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
                   onClick={() => setPreguntandoEliminar(false)}
                   type="button"
                 >

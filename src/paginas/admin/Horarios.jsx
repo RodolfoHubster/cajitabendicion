@@ -15,12 +15,13 @@ import {
   totalDeLugares,
 } from '../../datos/diasEntrega'
 import { ahoraSanDiego, sumarDias } from '../../datos/disponibilidad'
+import { EsqueletoLista } from '../../componentes/Esqueleto'
 
 const ESTILO_SELECT =
-  'min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
+  'min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
 
 const BOTON_CANCELAR =
-  'inline-flex min-h-14 w-full items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal'
+  'inline-flex min-h-14 w-full items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal'
 
 const mensajeError = (t, codigo) =>
   t(`diasAdmin.errores.${codigo}`, { defaultValue: t('diasAdmin.errores.ERROR_DESCONOCIDO') })
@@ -164,7 +165,7 @@ function NuevoDia({ alCrear, alCancelar }) {
               id="nueva"
             />
           ) : (
-            <p className="text-base text-principal/60">{t('diasAdmin.eligeFecha')}</p>
+            <p className="text-base text-principal/70">{t('diasAdmin.eligeFecha')}</p>
           ))}
 
         {error && (
@@ -275,7 +276,7 @@ export default function HorariosAdmin() {
             {mensajeError(t, error)}
           </p>
         )}
-        {!error && dias === null && <p className="text-base">{t('diasAdmin.cargando')}</p>}
+        {!error && dias === null && <EsqueletoLista texto={t('diasAdmin.cargando')} />}
         {dias && dias.length === 0 && <p className="text-base">{t('diasAdmin.sinDias')}</p>}
 
         {dias && dias.length > 0 && (

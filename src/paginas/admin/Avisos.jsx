@@ -4,6 +4,7 @@ import { LuChevronDown, LuChevronUp, LuPlus, LuTrash2 } from 'react-icons/lu'
 import Boton from '../../componentes/Boton'
 import Tarjeta from '../../componentes/Tarjeta'
 import { eliminarAviso, guardarAviso, listarAvisos, moverAviso } from '../../datos/avisos'
+import { EsqueletoTexto } from '../../componentes/Esqueleto'
 
 const SECCIONES = ['inicio', 'registro', 'preguntas', 'quienes']
 
@@ -11,7 +12,7 @@ const SECCIONES = ['inicio', 'registro', 'preguntas', 'quienes']
 const CON_TITULO = ['preguntas', 'quienes']
 
 const ESTILO_TEXTO =
-  'min-h-24 w-full rounded-xl border border-principal/25 bg-white p-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
+  'min-h-24 w-full rounded-xl border border-principal/25 bg-superficie p-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
 
 const BOTON_ICONO =
   'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-principal transition hover:bg-principal/10 disabled:opacity-30'
@@ -107,7 +108,7 @@ export default function Avisos() {
         </p>
       )}
 
-      {avisos === null && <p className="text-base">{t('avisos.cargando')}</p>}
+      {avisos === null && <EsqueletoTexto texto={t('avisos.cargando')} />}
 
       {avisos !== null &&
         SECCIONES.map((seccion) => (
@@ -146,14 +147,14 @@ export default function Avisos() {
 
                   <div className="min-w-0 flex-1">
                     {aviso.titulo_es && (
-                      <p className={`text-base font-bold ${aviso.activo ? 'text-principal' : 'text-principal/50'}`}>
+                      <p className={`text-base font-bold ${aviso.activo ? 'text-principal' : 'text-principal/70'}`}>
                         {aviso.titulo_es}
                       </p>
                     )}
-                    <p className={`text-base ${aviso.activo ? 'text-principal' : 'text-principal/50'}`}>
+                    <p className={`text-base ${aviso.activo ? 'text-principal' : 'text-principal/70'}`}>
                       {aviso.texto_es}
                     </p>
-                    <p className="mt-1 text-base text-principal/50">
+                    <p className="mt-1 text-base text-principal/70">
                       {!aviso.activo && `${t('avisos.apagado')} · `}
                       {[aviso.texto_en ? 'EN' : null, aviso.texto_vi ? 'VI' : null].filter(Boolean).join(' · ') ||
                         t('avisos.soloEspanol')}
@@ -260,7 +261,7 @@ export default function Avisos() {
                 {t(`avisos.tituloCampo.${edicion.seccion}`)}
               </label>
               <input
-                className="min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
+                className="min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
                 id="titulo-es"
                 onChange={(e) => setEdicion({ ...edicion, tituloEs: e.target.value })}
                 type="text"
@@ -270,7 +271,7 @@ export default function Avisos() {
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <input
                   aria-label={t('avisos.enIngles')}
-                  className="min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
+                  className="min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
                   onChange={(e) => setEdicion({ ...edicion, tituloEn: e.target.value })}
                   placeholder={t('avisos.enIngles')}
                   type="text"
@@ -278,7 +279,7 @@ export default function Avisos() {
                 />
                 <input
                   aria-label={t('avisos.enVietnamita')}
-                  className="min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
+                  className="min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15"
                   onChange={(e) => setEdicion({ ...edicion, tituloVi: e.target.value })}
                   placeholder={t('avisos.enVietnamita')}
                   type="text"
@@ -286,7 +287,7 @@ export default function Avisos() {
                 />
               </div>
 
-              <p className="mb-3 mt-1 text-base text-principal/60">{t('avisos.tituloAyuda')}</p>
+              <p className="mb-3 mt-1 text-base text-principal/70">{t('avisos.tituloAyuda')}</p>
             </>
           )}
 
@@ -323,7 +324,7 @@ export default function Avisos() {
             value={edicion.textoVi}
           />
 
-          <p className="mt-2 text-base text-principal/60">{t('avisos.sinTraduccion')}</p>
+          <p className="mt-2 text-base text-principal/70">{t('avisos.sinTraduccion')}</p>
 
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <Boton disabled={guardando || !edicion.textoEs.trim()} onClick={guardar}>

@@ -14,6 +14,9 @@ export default function AppRouter() {
       */}
       {RutasPublicas()}
       {RutasAdmin()}
+      {/* Una direccion del panel que no existe deja en el panel. Caer en
+          "Reserva tu cita" parecia que se habia cerrado la sesion. */}
+      <Route element={<Navigate replace to="/admin" />} path="/admin/*" />
       <Route element={<Navigate replace to="/" />} path="*" />
     </Routes>
   )

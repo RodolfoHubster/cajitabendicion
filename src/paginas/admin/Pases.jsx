@@ -6,6 +6,7 @@ import Campo from '../../componentes/Campo'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal } from '../../datos/disponibilidad'
 import { crearPase, listarPases, renovarPase, revocarPase } from '../../datos/pases'
+import { EsqueletoLista } from '../../componentes/Esqueleto'
 
 const BOTON_TEXTO =
   'min-h-10 whitespace-nowrap px-2 text-base font-semibold underline underline-offset-4'
@@ -134,7 +135,7 @@ export default function Pases() {
       )}
 
       {pases === null ? (
-        <p className="text-base">{t('pases.cargando')}</p>
+        <EsqueletoLista texto={t('pases.cargando')} />
       ) : pases.length === 0 ? (
         <p className="text-base">{t('pases.sinPases')}</p>
       ) : (
@@ -171,9 +172,9 @@ export default function Pases() {
                 {filtrados.map((pase) => (
                   <tr className="border-b border-principal/10 last:border-0" key={pase.codigo_corto}>
                     <td className="py-2 pr-3">
-                      <span className={pase.activo ? '' : 'text-principal/60 line-through'}>{pase.nombre}</span>
+                      <span className={pase.activo ? '' : 'text-principal/70 line-through'}>{pase.nombre}</span>
                       {!pase.activo && (
-                        <span className="block text-base text-principal/60">
+                        <span className="block text-base text-principal/70">
                           {t('pases.quitadoEl', { cuando: fecha(pase.revocado_en?.slice(0, 10)) })}
                           {pase.motivo_revocacion && ` · ${pase.motivo_revocacion}`}
                         </span>

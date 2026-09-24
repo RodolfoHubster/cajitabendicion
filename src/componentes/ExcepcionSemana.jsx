@@ -8,7 +8,7 @@ import { reservarConExcepcion } from '../datos/citas'
 import { aFechaLocal, agruparPorFecha, formatearHora } from '../datos/disponibilidad'
 
 const ESTILO_SELECT =
-  'min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
+  'min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
 
 /**
  * Segunda cita en la misma semana, con autorizacion del administrador.
@@ -161,7 +161,7 @@ export default function ExcepcionSemana({ bloques, alAutorizar }) {
           <label className="flex flex-col gap-2" htmlFor="excepcionMotivo">
             <span className="text-base font-semibold text-principal">{t('excepcion.motivo')}</span>
             <textarea
-              className="min-h-24 rounded-xl border border-principal/25 bg-white p-3 text-base text-principal shadow-sm outline-none placeholder:text-principal/40 focus:border-principal focus:ring-4 focus:ring-principal/15"
+              className="min-h-24 rounded-xl border border-principal/25 bg-superficie p-3 text-base text-principal shadow-sm outline-none placeholder:text-principal/40 focus:border-principal focus:ring-4 focus:ring-principal/15"
               id="excepcionMotivo"
               onChange={(e) => setMotivo(e.target.value)}
               placeholder={t('excepcion.motivoEjemplo')}
@@ -181,7 +181,7 @@ export default function ExcepcionSemana({ bloques, alAutorizar }) {
               {enviando ? t('excepcion.autorizando') : t('excepcion.autorizar')}
             </Boton>
             <button
-              className="inline-flex min-h-14 w-full items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+              className="inline-flex min-h-14 w-full items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
               onClick={() => {
                 setAbierta(false)
                 setError(null)

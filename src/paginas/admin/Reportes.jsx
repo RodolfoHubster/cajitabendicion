@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import Paginacion from '../../componentes/Paginacion'
+import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal } from '../../datos/disponibilidad'
 import { TAMANOS_PAGINA, paginar } from '../../datos/filtros'
 import { hoyLocal } from '../../datos/panel'
+import { EsqueletoLista } from '../../componentes/Esqueleto'
 import {
   COLUMNAS,
   PERIODOS,
@@ -47,6 +49,8 @@ export default function Reportes() {
   const hoy = hoyLocal()
 
   const [rango, setRango] = useState(() => rangoDePeriodo('esteMes', hoy))
+  // Juntas es la suma de las dos filas: lo que se reporta al banco.
+  const [vistaFila, setVistaFila] = useState('juntas')
   const [pagina, setPagina] = useState(1)
   const [porPagina, setPorPagina] = useState(TAMANOS_PAGINA[0])
 
@@ -55,16 +59,16 @@ export default function Reportes() {
   const [fallo, setFallo] = useState(null)
 
   const { desde, hasta } = rango
-  const clave = `${desde}|${hasta}`
+  const clave = `${desde}|${hasta}|${vistaFila}`
   const errorRango = validarRango(desde, hasta)
 
   useEffect(() => {
     if (validarRango(desde, hasta)) return
 
     let vigente = true
-    const pedida = `${desde}|${hasta}`
+    const pedida = `${desde}|${hasta}|${vistaFila}`
 
-    reportePorDias(desde, hasta)
+    reportePorDias(desde, hasta, vistaFila)
       .then((filas) => {
         if (vigente) setDatos({ clave: pedida, filas })
       })
@@ -75,7 +79,7 @@ export default function Reportes() {
     return () => {
       vigente = false
     }
-  }, [desde, hasta])
+  }, [desde, hasta, vistaFila])
 
   const filas = !errorRango && datos?.clave === clave ? datos.filas : null
   const error = errorRango ?? (fallo?.clave === clave ? fallo.codigo : null)
@@ -104,7 +108,7 @@ export default function Reportes() {
   function descargar() {
     const encabezados = COLUMNAS.map((columna) => ({ clave: columna, titulo: t(`reportes.col.${columna}`) }))
     const conTotal = [...filas, { ...totales, fecha: t('reportes.total') }]
-    descargarCsv(nombreArchivoReporte(desde, hasta), aCsv(conTotal, encabezados))
+    descargarCsv(nombreArchivoReporte(desde, hasta, vistaFila), aCsv(conTotal, encabezados))
   }
 
   const tarjetas = [
@@ -136,14 +140,23 @@ export default function Reportes() {
           </Boton>
         </div>
 
+        <SelectorFila
+          alCambiar={(vista) => {
+            setVistaFila(vista)
+            setPagina(1)
+          }}
+          className="mt-4"
+          valor={vistaFila}
+        />
+
         <div aria-label={t('reportes.periodo')} className="mt-4 flex flex-wrap gap-2" role="group">
           {PERIODOS.map((periodo) => (
             <button
               aria-pressed={activo === periodo}
               className={`min-h-12 rounded-xl border px-4 text-base font-semibold transition ${
                 activo === periodo
-                  ? 'border-principal bg-principal text-white'
-                  : 'border-principal/25 bg-white text-principal hover:border-principal'
+                  ? 'border-marca bg-marca text-white'
+                  : 'border-principal/25 bg-superficie text-principal hover:border-principal'
               }`}
               key={periodo}
               onClick={() => {
@@ -183,7 +196,7 @@ export default function Reportes() {
 
       {cargando && (
         <Tarjeta>
-          <p className="text-base">{t('reportes.cargando')}</p>
+          <EsqueletoLista filas={5} texto={t('reportes.cargando')} />
         </Tarjeta>
       )}
 
@@ -193,7 +206,7 @@ export default function Reportes() {
             {tarjetas.map(({ clave: dato, valor, color = 'text-principal', destacada }) => (
               <div
                 className={`rounded-2xl p-4 ring-1 ${
-                  destacada ? 'bg-principal ring-principal' : 'bg-white ring-principal/10'
+                  destacada ? 'bg-marca ring-marca' : 'bg-superficie ring-principal/10'
                 }`}
                 key={dato}
               >

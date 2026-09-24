@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { useOutletContext, useSearchParams } from 'react-router-dom'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import ListaCitas from '../../componentes/ListaCitas'
 import ListaSinCita from '../../componentes/ListaSinCita'
+import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal, consultarDisponibilidad, formatearHora } from '../../datos/disponibilidad'
+import { filaDe, filtrarPorFila } from '../../datos/filas'
 import { bloquesDelDia, citasDelDia, hoyLocal, resumenDelDia } from '../../datos/panel'
+import { EsqueletoLista, EsqueletoNumeros } from '../../componentes/Esqueleto'
 
 export default function CitasDeHoy() {
   const { t, i18n } = useTranslation()
+  const { permisos = [] } = useOutletContext() ?? {}
   const hoy = hoyLocal()
+
+  // Ver el dia y anotar a alguien sin cita son dos permisos distintos: se
+  // puede querer que el voluntario consulte la lista sin poder sumar cajas.
+  const puedeAnotar = permisos.includes('anotar_sin_cita')
 
   const [parametros] = useSearchParams()
   // Desde Reportes se llega con ?fecha=AAAA-MM-DD para ver ese dia.
@@ -20,6 +28,8 @@ export default function CitasDeHoy() {
   })
   const [proxima, setProxima] = useState(null)
   const [recarga, setRecarga] = useState(0)
+  // Juntas, en carro o a pie. Juntas es la suma y es lo que se reporta.
+  const [vistaFila, setVistaFila] = useState('juntas')
 
   // Los datos guardan de que fecha son. Asi "esta cargando" se deduce al
   // pintar (los datos no son de la fecha que se pide) en vez de andar
@@ -27,10 +37,12 @@ export default function CitasDeHoy() {
   const [datos, setDatos] = useState(null)
   const [fallo, setFallo] = useState(null)
 
-  const cargando = datos?.fecha !== fecha && fallo?.fecha !== fecha
-  const error = fallo?.fecha === fecha ? fallo.codigo : null
+  const clave = `${fecha}|${vistaFila}`
+  const cargando = datos?.clave !== clave && fallo?.clave !== clave
+  const error = fallo?.clave === clave ? fallo.codigo : null
   const esHoy = fecha === hoy
   const esPasado = fecha < hoy
+  const conSinCita = esHoy && puedeAnotar
 
   const recargar = () => setRecarga((n) => n + 1)
 
@@ -53,18 +65,20 @@ export default function CitasDeHoy() {
   useEffect(() => {
     let vigente = true
 
-    Promise.all([resumenDelDia(fecha), bloquesDelDia(fecha), citasDelDia(fecha)])
+    const pedida = `${fecha}|${vistaFila}`
+
+    Promise.all([resumenDelDia(fecha, vistaFila), bloquesDelDia(fecha), citasDelDia(fecha)])
       .then(([resumen, bloques, citas]) => {
-        if (vigente) setDatos({ fecha, resumen, bloques, citas })
+        if (vigente) setDatos({ clave: pedida, resumen, bloques, citas })
       })
       .catch((e) => {
-        if (vigente) setFallo({ fecha, codigo: e.message })
+        if (vigente) setFallo({ clave: pedida, codigo: e.message })
       })
 
     return () => {
       vigente = false
     }
-  }, [fecha, recarga])
+  }, [fecha, vistaFila, recarga])
 
   if (error) {
     return (
@@ -84,8 +98,9 @@ export default function CitasDeHoy() {
   }).format(aFechaLocal(fecha))
 
   const resumen = datos?.resumen
-  const bloques = datos?.bloques ?? []
-  const citas = datos?.citas ?? []
+  // La lista y el cupo se filtran aqui; los numeros ya llegan por fila.
+  const bloques = filtrarPorFila(datos?.bloques, vistaFila)
+  const citas = filtrarPorFila(datos?.citas, vistaFila)
 
   const numeros = [
     { clave: esHoy ? 'conCita' : 'conCitaDia', valor: resumen?.con_cita ?? 0, color: 'text-principal' },
@@ -143,8 +158,10 @@ export default function CitasDeHoy() {
           </div>
         </div>
 
+        <SelectorFila alCambiar={setVistaFila} className="mb-4" valor={vistaFila} />
+
         {cargando ? (
-          <p className="text-base">{t('panel.cargando')}</p>
+          <EsqueletoNumeros texto={t('panel.cargando')} />
         ) : (
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
             {numeros.map(({ clave, valor, color }) => (
@@ -157,12 +174,18 @@ export default function CitasDeHoy() {
         )}
       </Tarjeta>
 
+      {cargando && (
+        <Tarjeta>
+          <EsqueletoLista filas={5} texto={t('panel.cargando')} />
+        </Tarjeta>
+      )}
+
       {!cargando && (
         <>
           {/* Hoy: anotar sin cita junto al cupo. Otro dia solo hay cupo, a todo lo ancho. */}
-          <div className={`grid items-start gap-4 ${esHoy ? 'md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]' : ''}`}>
+          <div className={`grid items-start gap-4 ${conSinCita ? 'md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]' : ''}`}>
             {/* Solo hoy: una entrada sin cita se anota cuando pasa, no despues. */}
-            {esHoy && (
+            {conSinCita && (
               <Tarjeta>
                 <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
                 <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
@@ -179,7 +202,7 @@ export default function CitasDeHoy() {
               ) : (
                 <ul
                   className={`grid grid-cols-2 gap-2 sm:grid-cols-3 ${
-                    esHoy ? 'xl:grid-cols-4' : 'md:grid-cols-5 xl:grid-cols-6'
+                    conSinCita ? 'xl:grid-cols-4' : 'md:grid-cols-5 xl:grid-cols-6'
                   }`}
                 >
                   {bloques.map((bloque) => (
@@ -189,7 +212,15 @@ export default function CitasDeHoy() {
                       }`}
                       key={bloque.bloque_id}
                     >
-                      <p className="text-base font-semibold text-principal">{formatearHora(bloque.hora)}</p>
+                      <p className="flex flex-wrap items-center gap-x-2 text-base font-semibold text-principal">
+                        {formatearHora(bloque.hora)}
+                        {/* Juntas: que se note cual horario es de la fila a pie. */}
+                        {vistaFila === 'juntas' && filaDe(bloque) === 'a_pie' && (
+                          <span className="rounded-full bg-accion/20 px-2 text-chica font-bold">
+                            {t('filas.vista.a_pie')}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-base text-principal/70">
                         {bloque.cerrado
                           ? t('panel.cerrado')
@@ -206,9 +237,19 @@ export default function CitasDeHoy() {
           </div>
 
           {/* key={fecha}: al cambiar de dia, filtros y pagina empiezan de cero. */}
-          <ListaCitas alCambiar={recargar} citas={citas} fecha={fecha} hoy={hoy} key={`citas-${fecha}`} />
+          <ListaCitas alCambiar={recargar} citas={citas} fecha={fecha} hoy={hoy} key={`citas-${fecha}-${vistaFila}`} />
 
-          <ListaSinCita alCambiar={recargar} fecha={fecha} key={`sin-cita-${fecha}`} recarga={recarga} />
+          {/* La lista de quien entro sin cita la pide la misma funcion que
+              la anota, asi que va con la misma palomita. */}
+          {puedeAnotar && (
+            <ListaSinCita
+              alCambiar={recargar}
+              fecha={fecha}
+              key={`sin-cita-${fecha}-${vistaFila}`}
+              recarga={recarga}
+              vistaFila={vistaFila}
+            />
+          )}
         </>
       )}
     </div>

@@ -3,14 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../componentes/Boton'
 import Tarjeta from '../componentes/Tarjeta'
+import { CLAVES_PERMISOS, misPermisos } from '../datos/permisos'
 import { alCambiarSesion, cerrarSesion, obtenerRol, obtenerSesion } from '../datos/sesion'
+import { EsqueletoNumeros, Hueso } from '../componentes/Esqueleto'
 
 export default function RutaProtegida() {
   const { t } = useTranslation()
   const ubicacion = useLocation()
   const navegar = useNavigate()
 
-  const [estado, setEstado] = useState({ revisando: true, sesion: null, rol: null, error: null })
+  const [estado, setEstado] = useState({ revisando: true, sesion: null, rol: null, permisos: [], error: null })
 
   useEffect(() => {
     let vigente = true
@@ -18,6 +20,7 @@ export default function RutaProtegida() {
     async function revisar() {
       const sesion = await obtenerSesion()
       let rol = null
+      let permisos = []
       let error = null
 
       if (sesion) {
@@ -28,7 +31,14 @@ export default function RutaProtegida() {
         }
       }
 
-      if (vigente) setEstado({ revisando: false, sesion, rol, error })
+      if (rol) {
+        // Si la lista todavia no existe en la base (migracion sin aplicar),
+        // el panel no se cae: el administrador sigue con todo y el
+        // voluntario se queda como estaba, nada mas escaneando.
+        permisos = await misPermisos().catch(() => (rol === 'admin' ? CLAVES_PERMISOS : []))
+      }
+
+      if (vigente) setEstado({ revisando: false, sesion, rol, permisos, error })
     }
 
     revisar()
@@ -55,8 +65,9 @@ export default function RutaProtegida() {
   // la sesion siga siendo valida.
   if (estado.revisando) {
     return (
-      <Tarjeta className="mx-auto max-w-xl">
-        <p className="text-base">{t('admin.verificando')}</p>
+      <Tarjeta>
+        <Hueso className="mb-4 h-8 w-1/2" />
+        <EsqueletoNumeros texto={t('admin.verificando')} />
       </Tarjeta>
     )
   }
@@ -90,5 +101,9 @@ export default function RutaProtegida() {
     )
   }
 
-  return <Outlet context={{ rol: estado.rol, correo: estado.sesion.user?.email ?? null }} />
+  return (
+    <Outlet
+      context={{ rol: estado.rol, permisos: estado.permisos, correo: estado.sesion.user?.email ?? null }}
+    />
+  )
 }

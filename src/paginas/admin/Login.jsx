@@ -75,7 +75,7 @@ export default function Login() {
       <p className="mb-4 text-base text-principal/70">{t('admin.soloPersonal')}</p>
 
       <button
-        className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal shadow-sm transition hover:border-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-principal/20 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal shadow-sm transition hover:border-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-principal/20 disabled:cursor-not-allowed disabled:opacity-60"
         disabled={entrando}
         onClick={entrarConGoogle}
         type="button"
@@ -84,7 +84,7 @@ export default function Login() {
         {t('admin.google')}
       </button>
 
-      <div className="my-5 flex items-center gap-3 text-base text-principal/60">
+      <div className="my-5 flex items-center gap-3 text-base text-principal/70">
         <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />
         {t('admin.oCorreo')}
         <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />

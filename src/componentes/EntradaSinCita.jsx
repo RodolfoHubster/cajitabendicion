@@ -23,27 +23,35 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
   // { codigo, nombre, total, anulada }
   const [comprobante, setComprobante] = useState(null)
   const [preguntando, setPreguntando] = useState(false)
+  //  Esa persona ya se anoto hoy: { nombre, codigo } del comprobante que ya tiene.
+  const [repetido, setRepetido] = useState(null)
 
   const errorNombre = tocado ? mensajeNombre(t, validarNombre(nombre), 'sinCita') : undefined
 
-  async function anotar(evento) {
-    evento.preventDefault()
+  async function anotar(evento, { confirmarRepetido = false } = {}) {
+    evento?.preventDefault()
     setTocado(true)
     if (validarNombre(nombre)) return
 
     setOcupado(true)
     setError(null)
+    setRepetido(null)
+
+    const nombreListo = formatearNombre(nombre)
 
     try {
-      const nombreListo = formatearNombre(nombre)
-      const { codigo, total } = await registrarEntradaSinCita(nombreListo)
+      const { codigo, total } = await registrarEntradaSinCita(nombreListo, { confirmarRepetido })
       setComprobante({ codigo, nombre: nombreListo, total, anulada: false })
       setPreguntando(false)
       setNombre('')
       setTocado(false)
       alCambiar?.()
     } catch (e) {
-      setError(e.message)
+      if (e.message === 'NOMBRE_YA_ANOTADO_HOY') {
+        setRepetido({ nombre: nombreListo, codigo: e.codigoPrevio })
+      } else {
+        setError(e.message)
+      }
     } finally {
       setOcupado(false)
     }
@@ -80,7 +88,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
           value={nombre}
         />
         <button
-          className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal bg-white px-4 text-base font-bold text-principal transition hover:bg-principal/5 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal bg-superficie px-4 text-base font-bold text-principal transition hover:bg-principal/5 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={ocupado}
           type="submit"
         >
@@ -95,8 +103,39 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
         </p>
       )}
 
+      {/* Ya se anoto hoy: se pregunta antes de contar una caja de mas. */}
+      {repetido && (
+        <div className="mt-3 space-y-3 rounded-xl border-2 border-accion bg-accion/10 p-4" role="alert">
+          <p className="text-base font-bold text-principal">
+            {t('sinCita.repetido.titulo', { nombre: repetido.nombre, codigo: repetido.codigo })}
+          </p>
+          <p className="text-base text-principal/80">{t('sinCita.repetido.ayuda')}</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white"
+              onClick={() => {
+                setRepetido(null)
+                setNombre('')
+                setTocado(false)
+              }}
+              type="button"
+            >
+              {t('sinCita.repetido.esLaMisma')}
+            </button>
+            <button
+              className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-bold text-principal disabled:opacity-60"
+              disabled={ocupado}
+              onClick={() => anotar(null, { confirmarRepetido: true })}
+              type="button"
+            >
+              {t('sinCita.repetido.esOtra')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {comprobante && !comprobante.anulada && (
-        <div className="mt-3 rounded-xl border-2 border-dashed border-principal/30 bg-white p-4 text-center" role="status">
+        <div className="mt-3 rounded-xl border-2 border-dashed border-principal/30 bg-superficie p-4 text-center" role="status">
           <p className="text-base font-semibold text-puede-pasar">
             {t('sinCita.anotado', { total: comprobante.total })}
           </p>
@@ -120,7 +159,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <button
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white disabled:opacity-60"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-60"
                   disabled={ocupado}
                   onClick={anular}
                   type="button"
@@ -128,7 +167,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
                   {t('sinCita.confirmarAnular')}
                 </button>
                 <button
-                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal"
+                  className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal"
                   onClick={() => setPreguntando(false)}
                   type="button"
                 >

@@ -1,6 +1,8 @@
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useOutletContext } from 'react-router-dom'
 import Campo from './Campo'
+import DeshacerEntrega from './DeshacerEntrega'
 import DetallePersona from './DetallePersona'
 import Paginacion from './Paginacion'
 import PanelFiltros from './PanelFiltros'
@@ -28,7 +30,7 @@ const ESTILO_ESTADO = {
   reservada: 'bg-principal/10 text-principal/70',
   llego: 'bg-accion/20 text-principal',
   no_asistio: 'bg-ya-recibio/10 text-ya-recibio',
-  cancelada: 'bg-principal/5 text-principal/60',
+  cancelada: 'bg-principal/5 text-principal/70',
 }
 
 /** '2026-09-12T17:05:00Z' -> '12 sep, 10:05 AM' (en San Diego). */
@@ -49,6 +51,14 @@ function momento(marca, idioma) {
  * y por que.
  */
 export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
+  const { permisos = [] } = useOutletContext() ?? {}
+
+  // La ficha trae el domicilio y el historial de la persona; cancelar le
+  // quita el lugar a alguien. Cada una va por su lado.
+  const puedeVerFicha = permisos.includes('ver_personas')
+  const puedeCancelarCitas = permisos.includes('cancelar_citas')
+  // Una entrega de hoy marcada por error (la persona equivocada).
+  const puedeDeshacer = permisos.includes('anular_entregas')
   const { t, i18n } = useTranslation()
 
   const [filtros, setFiltros] = useState(FILTROS_CITAS)
@@ -63,6 +73,9 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   const [enviando, setEnviando] = useState(false)
   const [errorCancelar, setErrorCancelar] = useState(null)
   const [cancelada, setCancelada] = useState(null)
+  // Deshacer una entrega: la fila abierta y a quien se le deshizo.
+  const [deshaciendo, setDeshaciendo] = useState(null)
+  const [deshecha, setDeshecha] = useState(null)
 
   const activas = citas.filter((cita) => cita.estado !== 'cancelada')
   const canceladas = citas.length - activas.length
@@ -114,6 +127,12 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
             role="status"
           >
             {t('cancelarPanel.listo', { nombre: cancelada })}
+          </p>
+        )}
+
+        {deshecha && (
+          <p className="mb-3 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
+            {t('deshacer.listoLista', { nombre: deshecha })}
           </p>
         )}
 
@@ -241,18 +260,18 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                         // Quien cancela y vuelve a sacar cita a la misma hora tiene dos filas.
                         const llave = `${cita.codigo_corto}-${cita.hora}-${cita.cancelada_en ?? 'vigente'}`
                         // Solo lo que aun no se usa y de hoy en adelante.
-                        const puedeCancelar = cita.estado === 'reservada' && fecha >= hoy
+                        const puedeCancelar = puedeCancelarCitas && cita.estado === 'reservada' && fecha >= hoy
 
                         return (
                           <Fragment key={llave}>
                             <tr className="border-b border-principal/10 last:border-0">
                               <td className="whitespace-nowrap py-2 pr-3">{formatearHora(cita.hora)}</td>
                               <td className="py-2 pr-3">
-                                <span className={esCancelada ? 'text-principal/60 line-through' : ''}>
+                                <span className={esCancelada ? 'text-principal/70 line-through' : ''}>
                                   {cita.nombre}
                                 </span>
                                 {esCancelada && cita.cancelada_en && (
-                                  <span className="block text-base text-principal/60">
+                                  <span className="block text-base text-principal/70">
                                     {cita.cancelada_por
                                       ? t('panel.canceladaPor', {
                                           quien: cita.cancelada_por,
@@ -282,13 +301,27 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                               <td className="py-2 pr-3 text-principal/70">{cita.ciudad ?? '—'}</td>
                               <td className="py-2 text-right">
                                 <div className="flex items-center justify-end gap-3">
-                                  <button
-                                    className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
-                                    onClick={() => setFicha(cita.codigo_corto)}
-                                    type="button"
-                                  >
-                                    {t('detalle.ver')}
-                                  </button>
+                                  {puedeVerFicha && (
+                                    <button
+                                      className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
+                                      onClick={() => setFicha(cita.codigo_corto)}
+                                      type="button"
+                                    >
+                                      {t('detalle.ver')}
+                                    </button>
+                                  )}
+                                  {puedeDeshacer && cita.estado === 'entregada' && fecha === hoy && deshaciendo !== llave && (
+                                    <button
+                                      className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
+                                      onClick={() => {
+                                        setDeshaciendo(llave)
+                                        setDeshecha(null)
+                                      }}
+                                      type="button"
+                                    >
+                                      {t('deshacer.botonLista')}
+                                    </button>
+                                  )}
                                   {puedeCancelar && cancelando !== llave && (
                                     <button
                                       className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-ya-recibio underline underline-offset-4"
@@ -306,6 +339,24 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                 </div>
                               </td>
                             </tr>
+
+                            {deshaciendo === llave && (
+                              <tr>
+                                <td className="pb-3" colSpan={7}>
+                                  <DeshacerEntrega
+                                    abiertoAlInicio
+                                    alCancelar={() => setDeshaciendo(null)}
+                                    alDeshacer={() => {
+                                      setDeshaciendo(null)
+                                      setDeshecha(cita.nombre)
+                                      alCambiar()
+                                    }}
+                                    codigo={cita.codigo_corto}
+                                    nombre={cita.nombre}
+                                  />
+                                </td>
+                              </tr>
+                            )}
 
                             {cancelando === llave && (
                               <tr>
@@ -335,7 +386,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                     )}
                                     <div className="flex flex-wrap gap-2">
                                       <button
-                                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                                         disabled={enviando}
                                         onClick={() => confirmarCancelacion(cita)}
                                         type="button"
@@ -343,7 +394,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                         {enviando ? t('cancelarPanel.cancelando') : t('cancelarPanel.confirmar')}
                                       </button>
                                       <button
-                                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
                                         onClick={() => setCancelando(null)}
                                         type="button"
                                       >

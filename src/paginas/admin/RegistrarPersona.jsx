@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleCheck } from 'react-icons/lu'
+import { LuCircleCheck, LuInfo } from 'react-icons/lu'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
@@ -44,7 +44,7 @@ const CAMPOS = [
 ]
 
 const ESTILO_SELECT =
-  'min-h-14 w-full rounded-xl border border-principal/25 bg-white px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
+  'min-h-14 w-full rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal shadow-sm outline-none focus:border-principal focus:ring-4 focus:ring-principal/15'
 
 /**
  * Registro desde el panel, para quien no puede registrarse por su cuenta:
@@ -199,10 +199,22 @@ export default function RegistrarPersona() {
   if (registrada) {
     return (
       <Tarjeta className="max-w-2xl">
-        <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
-          <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
-          {t('registrarPanel.listo')}
-        </p>
+        {/* La misma persona ya tenia cita ese dia: se muestra la suya en
+            vez de darle una segunda (seccion 33 de schema.sql). */}
+        {registrada.ya_existia ? (
+          <>
+            <p className="flex items-center gap-2 text-lg font-bold text-principal">
+              <LuInfo aria-hidden="true" className="h-6 w-6 text-accion" />
+              {t('registrarPanel.yaTenia')}
+            </p>
+            <p className="mt-1 text-base text-principal/80">{t('registrarPanel.yaTeniaAyuda')}</p>
+          </>
+        ) : (
+          <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
+            <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
+            {t('registrarPanel.listo')}
+          </p>
+        )}
         <p className="mt-2 text-2xl font-bold first-letter:uppercase">
           {registrada.pase
             ? t('pases.permanente')
@@ -218,7 +230,7 @@ export default function RegistrarPersona() {
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           {/* En otra pestana: para ensenar o imprimir el QR sin perder el panel. */}
           <a
-            className="inline-flex min-h-14 items-center justify-center rounded-xl bg-principal px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
+            className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
             href={registrada.pase ? `/pase/${registrada.pase.token}` : `/confirmacion/${registrada.token_qr}`}
             rel="noopener noreferrer"
             target="_blank"
