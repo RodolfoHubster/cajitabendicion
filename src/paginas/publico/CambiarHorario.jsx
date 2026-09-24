@@ -15,6 +15,7 @@ import {
 } from '../../datos/disponibilidad'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { hoyLocal } from '../../datos/panel'
+import { EsqueletoHorarios } from '../../componentes/Esqueleto'
 
 /**
  * Cambiar el horario de una cita que ya existe.
@@ -83,11 +84,7 @@ export default function CambiarHorario() {
   )
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('cambiar.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoHorarios texto={t('cambiar.cargando')} />
   }
 
   if (error || !cita) {

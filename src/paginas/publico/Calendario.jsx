@@ -5,6 +5,7 @@ import { LuCircleCheck, LuClock, LuLock, LuMapPin, LuUsers } from 'react-icons/l
 import { useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
+import MisCitas from '../../componentes/MisCitas'
 import ModalSuscriptor from '../../componentes/ModalSuscriptor'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
@@ -19,6 +20,7 @@ import {
   segundosHasta,
 } from '../../datos/disponibilidad'
 import { ORGANIZACION } from '../../datos/organizacion'
+import { EsqueletoProximaFecha } from '../../componentes/Esqueleto'
 
 // Azul de Facebook un poco mas oscuro que el oficial (#1877F2): con letra
 // blanca, el oficial no llega al contraste minimo legible.
@@ -94,11 +96,7 @@ export default function Calendario() {
   }, [dia, abierta])
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('calendario.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoProximaFecha texto={t('calendario.cargando')} />
   }
 
   if (error) {
@@ -140,6 +138,10 @@ export default function Calendario() {
 
   return (
     <>
+      {/* Quien ya tiene cita y vuelve a entrar (muchas veces porque no
+          recuerda si la hizo) la ve aqui antes de sacar otra. */}
+      <MisCitas className="mb-4" />
+
       <Tarjeta>
         <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
         <Pasos actual={1} />
@@ -215,7 +217,7 @@ export default function Calendario() {
             <Boton onClick={() => navegar(`/horarios/${dia.fecha}`)}>{t('proxima.registrarme')}</Boton>
           ) : (
             <button
-              className="inline-flex min-h-14 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-principal/10 px-4 text-base font-bold text-principal/50"
+              className="inline-flex min-h-14 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-principal/10 px-4 text-base font-bold text-principal/70"
               disabled
               type="button"
             >
@@ -226,7 +228,7 @@ export default function Calendario() {
         </div>
 
         {!abierta && hayLugar && (
-          <p className="mt-2 text-center text-base text-principal/60">{t('proxima.seActivara')}</p>
+          <p className="mt-2 text-center text-base text-principal/70">{t('proxima.seActivara')}</p>
         )}
       </Tarjeta>
 

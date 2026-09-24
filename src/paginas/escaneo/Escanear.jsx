@@ -1,15 +1,20 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuKeyRound, LuShieldCheck } from 'react-icons/lu'
+import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
+import { LuKeyRound, LuLayers, LuShieldCheck } from 'react-icons/lu'
 import { useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
+import DeshacerEntrega from '../../componentes/DeshacerEntrega'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import LectorQR from '../../componentes/LectorQR'
 import Tarjeta from '../../componentes/Tarjeta'
+import { textoParaBuscar } from '../../datos/codigoCorto'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import {
   buscarParaEscaneo,
+  esRecienEntregado,
+  previaPorError,
   registrarEntrega,
   registrarEntregaAutorizada,
   registrarEntregaAutorizadaPorCodigo,
@@ -17,8 +22,9 @@ import {
   verCita,
   verPase,
 } from '../../datos/escaneo'
+import { esDeOtraFila, filaDe, miFila } from '../../datos/filas'
 import { hoyLocal } from '../../datos/panel'
-import { avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
+import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
 
 // Colores del logo, segun CLAUDE.md: verde puede pasar, rojo ya recibio.
 const ESTILO_RESULTADO = {
@@ -29,9 +35,16 @@ const ESTILO_RESULTADO = {
   NO_ES_DIA_DE_ENTREGA: 'bg-accion/15 text-principal border-accion',
   YA_USADO: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
   OTRA_FECHA: 'bg-accion/15 text-principal border-accion',
+  OTRA_FILA: 'bg-accion/15 text-principal border-accion',
   CANCELADA: 'bg-accion/15 text-principal border-accion',
   NO_EXISTE: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
 }
+
+const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking, ambas: LuLayers }
+
+//  Lo que la vista previa muestra sin ser una cita: el codigo no existe, no
+//  hubo senal para revisarlo, o es el que se acaba de entregar.
+const PREVIAS_ESPECIALES = ['NO_EXISTE', 'SIN_CONEXION', 'RECIEN_ENTREGADO']
 
 // Respuestas de la autorizacion que NO terminan el tramite: se muestran en
 // el mismo formulario para que se pueda corregir el codigo.
@@ -39,11 +52,18 @@ const RECHAZOS_DE_CODIGO = ['CODIGO_INVALIDO', 'BLOQUEADO']
 
 export default function Escanear() {
   const { t, i18n } = useTranslation()
-  const { rol } = useOutletContext() ?? {}
+  const { rol, permisos = [] } = useOutletContext() ?? {}
 
   // El admin autoriza con su propia sesion; el voluntario necesita el
   // codigo de un admin. La base de datos aplica la misma regla.
   const esAdmin = rol === 'admin'
+
+  // Anotar a alguien sin cita ya no es "solo el pastor": es una palomita
+  // que se le puede dar a quien esta en la fila.
+  const puedeAnotarSinCita = permisos.includes('anotar_sin_cita')
+
+  // "Me equivoque de persona": deshacer una entrega de hoy.
+  const puedeDeshacer = permisos.includes('anular_entregas')
 
   const [vista, setVista] = useState('camara')
   // La cita que se esta revisando. Llega del QR (trae `token`) o de la
@@ -55,6 +75,9 @@ export default function Escanear() {
 
   const [busqueda, setBusqueda] = useState('')
   const [encontrados, setEncontrados] = useState(null)
+
+  // En que fila escanea esta cuenta. Hasta saberlo, como siempre: las dos.
+  const [fila, setFila] = useState('ambas')
 
   const [autorizando, setAutorizando] = useState(false)
   const [codigoAutorizacion, setCodigoAutorizacion] = useState('')
@@ -72,6 +95,26 @@ export default function Escanear() {
   // desde el principio, en vez de dejar que se pida la entrega y apenas
   // entonces se sepa que no procedia.
   const citaDeOtroDia = Boolean(previa?.fecha) && previa.fecha !== hoy
+  const previaEspecial = PREVIAS_ESPECIALES.includes(previa?.resultado)
+
+  //  El ultimo codigo entregado con la camara: { token, nombre, momento }.
+  const ultimaEntrega = useRef(null)
+
+  function recordarEntrega(respuesta, token) {
+    if (token && PUEDE_PASAR.includes(respuesta?.resultado)) {
+      ultimaEntrega.current = { token, nombre: respuesta.nombre, momento: Date.now() }
+    }
+  }
+
+  useEffect(() => {
+    let vigente = true
+    miFila().then((suya) => {
+      if (vigente) setFila(suya)
+    })
+    return () => {
+      vigente = false
+    }
+  }, [])
 
   //  Ni el iPhone ni Chrome dejan que una pagina suene antes de que
   //  alguien la haya tocado. Se prepara con el primer toque, sea cual sea:
@@ -92,6 +135,14 @@ export default function Escanear() {
     setPrevia(null)
     setVista('previa')
 
+    //  El QR que se acaba de entregar, leido otra vez porque la persona no
+    //  ha bajado su telefono: no es un intento de sacar otra caja. No se
+    //  pregunta a la base (ahi contaria como "intento repetido").
+    if (esRecienEntregado(ultimaEntrega.current, token)) {
+      setPrevia({ resultado: 'RECIEN_ENTREGADO', token, nombre: ultimaEntrega.current.nombre })
+      return
+    }
+
     try {
       const cita = await verCita(token)
 
@@ -103,8 +154,10 @@ export default function Escanear() {
       // No es una cita: puede ser un pase permanente, que no se quema.
       const pase = await verPase(token)
       setPrevia(pase ? { ...pase, token, pase: true } : { resultado: 'NO_EXISTE', token })
-    } catch {
-      setPrevia({ resultado: 'NO_EXISTE', token })
+    } catch (e) {
+      //  Sin senal NO es "codigo no reconocido": el codigo puede estar bien.
+      //  Decir "no existe" hacia que se rechazara a alguien con cita.
+      setPrevia({ resultado: previaPorError(e.message), token })
     }
   }, [])
 
@@ -140,6 +193,10 @@ export default function Escanear() {
         : await registrarEntrega(previa.token)
       setResultado(respuesta)
       setVista('resultado')
+      recordarEntrega(respuesta, previa.token)
+      //  El tono de "puede pasar" o "detente". Antes solo sonaba en la
+      //  entrega autorizada, y esta es la de todos los dias.
+      avisoDelResultado(respuesta?.resultado)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -167,6 +224,7 @@ export default function Escanear() {
       } else {
         setResultado(respuesta)
         setVista('resultado')
+        recordarEntrega(respuesta, previa.token)
         //  Tono distinto para "puede pasar" y para "detente": en la fila se
         //  distingue sin mirar la pantalla.
         avisoDelResultado(respuesta?.resultado)
@@ -183,7 +241,8 @@ export default function Escanear() {
     setError(null)
 
     try {
-      setEncontrados(await buscarParaEscaneo(busqueda))
+      // "cb 4871", "4871" o "CB487l" se buscan como CB-4871.
+      setEncontrados(await buscarParaEscaneo(textoParaBuscar(busqueda)))
     } catch (e) {
       setError(e.message)
     }
@@ -199,7 +258,9 @@ export default function Escanear() {
     <div className="grid items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <Tarjeta>
         <h1 className="mb-1 text-2xl font-bold">{t('pages.escanear')}</h1>
-        <p className="mb-4 text-base text-principal/70">{t('escaneo.instruccion')}</p>
+        <p className="text-base text-principal/70">{t('escaneo.instruccion')}</p>
+        {/* A la vista siempre: si alguien se para en la fila equivocada, lo ve aqui. */}
+        <FilaActual fila={fila} />
 
         {vista === 'camara' && (
           <>
@@ -236,7 +297,26 @@ export default function Escanear() {
               </div>
             )}
 
-            {previa.resultado !== 'NO_EXISTE' && citaDeOtroDia && (
+            {previa.resultado === 'SIN_CONEXION' && (
+              <div className="rounded-xl border-2 border-accion bg-accion/15 p-4 text-principal" role="alert">
+                <p className="text-2xl font-bold">{t('escaneo.resultado.SIN_CONEXION')}</p>
+                <p className="mt-2 text-base">{t('escaneo.explicacion.SIN_CONEXION')}</p>
+                <Boton className="mt-3" onClick={() => alLeer(previa.token)} variant="secondary">
+                  {t('escaneo.volverARevisar')}
+                </Boton>
+              </div>
+            )}
+
+            {previa.resultado === 'RECIEN_ENTREGADO' && (
+              <div className="rounded-xl border-2 border-puede-pasar bg-puede-pasar/10 p-4 text-principal" role="status">
+                <p className="text-2xl font-bold text-puede-pasar">{t('escaneo.resultado.RECIEN_ENTREGADO')}</p>
+                <p className="mt-2 text-base">
+                  {t('escaneo.explicacion.RECIEN_ENTREGADO', { nombre: previa.nombre ?? '' })}
+                </p>
+              </div>
+            )}
+
+            {!previaEspecial && citaDeOtroDia && (
               <>
                 <div className={`rounded-xl border-2 p-4 ${ESTILO_RESULTADO.OTRA_FECHA}`}>
                   <p className="text-2xl font-bold">{t('escaneo.resultado.OTRA_FECHA')}</p>
@@ -313,11 +393,28 @@ export default function Escanear() {
               </>
             )}
 
-            {previa.resultado !== 'NO_EXISTE' && !citaDeOtroDia && (
+            {/* Antes de tocar "entregar": este codigo es de la otra fila. La
+                base igual lo detiene (OTRA_FILA) y no lo quema. */}
+            {!previa.pase && !previaEspecial && esDeOtraFila(fila, previa.fila) && (
+              <div className={`mb-3 rounded-xl border-2 p-4 ${ESTILO_RESULTADO.OTRA_FILA}`} role="status">
+                <p className="text-xl font-bold">{t('escaneo.resultado.OTRA_FILA')}</p>
+                <p className="mt-1 text-base">
+                  {t('escaneo.deOtraFila', { fila: t(`filas.nombre.${filaDe(previa)}`) })}
+                </p>
+              </div>
+            )}
+
+            {!previaEspecial && !citaDeOtroDia && (
               <div className="rounded-xl border border-principal/20 p-4">
                 {previa.pase && (
                   <p className="mb-2 inline-block rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
                     {t('escaneo.pase')}
+                  </p>
+                )}
+                {!previa.pase && filaDe(previa) === 'a_pie' && (
+                  <p className="mb-2 inline-flex items-center gap-2 rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
+                    <FaPersonWalking aria-hidden="true" className="h-4 w-4" />
+                    {t('filas.nombre.a_pie')}
                   </p>
                 )}
                 <p className="text-2xl font-bold text-principal">{previa.nombre}</p>
@@ -336,7 +433,7 @@ export default function Escanear() {
             {/* Con el formulario de autorizacion abierto, el error ya se muestra dentro. */}
             {!autorizando && avisoError}
 
-            {previa.resultado !== 'NO_EXISTE' && !citaDeOtroDia && !(previa.pase && !previa.activo) && (
+            {!previaEspecial && !citaDeOtroDia && !(previa.pase && !previa.activo) && (
               <Boton className="mt-4" disabled={ocupado} onClick={registrarPrevia}>
                 {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
               </Boton>
@@ -368,6 +465,10 @@ export default function Escanear() {
                 {t(`escaneo.explicacion.${resultado.resultado}`)}
               </p>
             </div>
+
+            {puedeDeshacer && PUEDE_PASAR.includes(resultado.resultado) && resultado.codigo_corto && (
+              <DeshacerEntrega codigo={resultado.codigo_corto} nombre={resultado.nombre} />
+            )}
 
             <Boton className="mt-4" onClick={reiniciar}>
               {t('escaneo.escanearOtro')}
@@ -409,6 +510,13 @@ export default function Escanear() {
                       }`}
                       key={`${persona.codigo_corto}-${persona.fecha}`}
                     >
+                      {/* No hubo ese codigo exacto: este se le parece (un numero
+                          distinto o dos al reves). Se confirma con el nombre. */}
+                      {persona.parecido && (
+                        <p className="mb-1 inline-block rounded-lg bg-accion/20 px-2 py-0.5 text-base font-bold text-principal">
+                          {t('escaneo.parecido')}
+                        </p>
+                      )}
                       <p className="text-lg font-semibold text-principal">{persona.nombre}</p>
                       <p className="text-base text-principal/70">
                         {persona.codigo_corto} · {formatearHora(persona.hora)}
@@ -434,11 +542,11 @@ export default function Escanear() {
         )}
       </Tarjeta>
 
-      {/* Solo el pastor: en la fila tambien pasa gente sin cita. En computadora va a un lado.
+      {/* En la fila tambien pasa gente sin cita. En computadora va a un lado.
           Se queda a la vista tanto con la camara como buscando por codigo: quien
           no trae QR es justo quien acaba anotandose sin cita, y tener que volver
           a la camara para anotarlo cuesta tiempo con la fila afuera. */}
-      {esAdmin && (vista === 'camara' || vista === 'manual') && (
+      {puedeAnotarSinCita && (vista === 'camara' || vista === 'manual') && (
         <Tarjeta>
           <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
           <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
@@ -446,5 +554,18 @@ export default function Escanear() {
         </Tarjeta>
       )}
     </div>
+  )
+}
+
+/** "Escaneas en: Fila de carros", con su icono. */
+function FilaActual({ fila }) {
+  const { t } = useTranslation()
+  const Icono = ICONO_FILA[fila] ?? LuLayers
+
+  return (
+    <p className="mb-4 mt-2 inline-flex items-center gap-2 rounded-full bg-principal/5 px-3 py-1.5 text-base font-semibold text-principal ring-1 ring-principal/10">
+      <Icono aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
+      {t('escaneo.estasEn', { fila: t(`filas.nombre.${fila}`) })}
+    </p>
   )
 }

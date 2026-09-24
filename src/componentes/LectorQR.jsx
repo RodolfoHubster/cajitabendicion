@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { leerQR } from '../datos/escaneo'
+import { LuRefreshCw } from 'react-icons/lu'
+import { clasificarErrorCamara, leerQR, zonaVisible } from '../datos/escaneo'
 
 /**
  * Camara apuntando a un codigo QR.
@@ -14,6 +15,8 @@ export default function LectorQR({ activo, alLeer }) {
   const videoRef = useRef(null)
   const lienzoRef = useRef(null)
   const [error, setError] = useState(null)
+  //  Sube con "Intentar de nuevo": vuelve a pedir la camara sin recargar.
+  const [intento, setIntento] = useState(0)
 
   useEffect(() => {
     if (!activo) return
@@ -40,7 +43,7 @@ export default function LectorQR({ activo, alLeer }) {
         await video.play()
         buscar()
       } catch (e) {
-        if (vigente) setError(clasificar(e))
+        if (vigente) setError(clasificarErrorCamara(e))
       }
     }
 
@@ -57,7 +60,8 @@ export default function LectorQR({ activo, alLeer }) {
         const ctx = lienzo.getContext('2d', { willReadFrequently: true })
         ctx.drawImage(video, 0, 0, lienzo.width, lienzo.height)
 
-        const texto = leerQR(ctx.getImageData(0, 0, lienzo.width, lienzo.height))
+        const { x, y, lado } = zonaVisible(lienzo.width, lienzo.height)
+        const texto = leerQR(ctx.getImageData(x, y, lado, lado))
 
         if (texto) {
           alLeer(texto)
@@ -77,20 +81,38 @@ export default function LectorQR({ activo, alLeer }) {
       if (cuadro) cancelAnimationFrame(cuadro)
       if (flujo) flujo.getTracks().forEach((t) => t.stop())
     }
-  }, [activo, alLeer])
+  }, [activo, alLeer, intento])
 
   if (error) {
     return (
-      <div className="rounded-xl bg-ya-recibio/10 p-4">
-        <p className="text-base text-ya-recibio">{t(`escaneo.camara.${error}`)}</p>
-        <p className="mt-2 text-base text-principal/70">{t('escaneo.camara.usaManual')}</p>
+      <div className="space-y-3 rounded-xl bg-ya-recibio/10 p-4" role="alert">
+        <p className="text-base font-semibold text-ya-recibio">{t(`escaneo.camara.${error}`)}</p>
+        {/* Como arreglarlo, en pasos: el voluntario no tiene por que saber
+            donde estan los permisos del navegador. */}
+        {(error === 'SIN_PERMISO' || error === 'CAMARA_OCUPADA') && (
+          <p className="text-base text-principal">{t(`escaneo.camara.comoArreglar.${error}`)}</p>
+        )}
+        {error !== 'SIN_CAMARA' && error !== 'SIN_HTTPS' && (
+          <button
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+            onClick={() => {
+              setError(null)
+              setIntento((n) => n + 1)
+            }}
+            type="button"
+          >
+            <LuRefreshCw aria-hidden="true" className="h-5 w-5" />
+            {t('escaneo.camara.reintentar')}
+          </button>
+        )}
+        <p className="text-base text-principal/70">{t('escaneo.camara.usaManual')}</p>
       </div>
     )
   }
 
   return (
     <>
-      <div className="overflow-hidden rounded-xl bg-principal/5">
+      <div className="relative overflow-hidden rounded-xl bg-principal/5">
         <video
           className="aspect-square w-full object-cover"
           muted
@@ -98,18 +120,25 @@ export default function LectorQR({ activo, alLeer }) {
           ref={videoRef}
         />
         <canvas className="hidden" ref={lienzoRef} />
+
+        {/* El cuadro guía: dónde va el QR. Lo de afuera se oscurece para que
+            el ojo vaya al centro. Colores fijos: va sobre el video, no
+            sobre la página, así que no cambia con el modo oscuro. */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="relative aspect-square w-[68%] rounded-2xl shadow-[0_0_0_100vmax_rgb(0_0_0/0.45)]">
+            <span className="absolute -left-1 -top-1 h-10 w-10 rounded-tl-2xl border-l-[6px] border-t-[6px] border-white" />
+            <span className="absolute -right-1 -top-1 h-10 w-10 rounded-tr-2xl border-r-[6px] border-t-[6px] border-white" />
+            <span className="absolute -bottom-1 -left-1 h-10 w-10 rounded-bl-2xl border-b-[6px] border-l-[6px] border-white" />
+            <span className="absolute -bottom-1 -right-1 h-10 w-10 rounded-br-2xl border-b-[6px] border-r-[6px] border-white" />
+          </div>
+        </div>
       </div>
       {/* Vive aqui y no en la pagina para que no quede colgado cuando la
           camara no arranca. */}
-      <p className="mt-3 text-center text-base text-principal/70">{t('escaneo.apunta')}</p>
+      {/* Afuera del video y no encima: con la letra grande taparía el cuadro. */}
+      <p className="mt-3 text-center text-lg font-bold text-principal">{t('escaneo.cuadro')}</p>
+      <p className="text-center text-base text-principal/70">{t('escaneo.apunta')}</p>
     </>
   )
 }
 
-function clasificar(error) {
-  if (error.name === 'NotAllowedError') return 'SIN_PERMISO'
-  if (error.name === 'NotFoundError') return 'SIN_CAMARA'
-  // Los navegadores solo dan camara en HTTPS (localhost es la excepcion).
-  if (error.name === 'NotSupportedError' || !window.isSecureContext) return 'SIN_HTTPS'
-  return 'ERROR_CAMARA'
-}

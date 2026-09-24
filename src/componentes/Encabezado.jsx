@@ -13,7 +13,9 @@ export default function Encabezado() {
   return (
     // Fijo solo en pantallas anchas. En el celular, quedarse pegado le
     // robaria pantalla a la persona mientras llena el formulario.
-    <header className="z-20 bg-principal text-white shadow-md sm:sticky sm:top-0">
+    // Con la franja de la base de pruebas, se pega justo debajo de ella
+    // (AvisoPruebas pone su alto en --alto-aviso-pruebas; si no hay, 0).
+    <header className="z-20 bg-marca text-white shadow-md sm:sticky sm:top-[var(--alto-aviso-pruebas,0px)]">
       <div aria-hidden="true" className="h-1 bg-accion" />
 
       <div
@@ -27,8 +29,10 @@ export default function Encabezado() {
           <LogoIglesia className="h-10 w-auto shrink-0 sm:h-11" />
           <span aria-hidden="true" className="hidden h-10 w-px shrink-0 bg-white/25 sm:block" />
           <span className="flex min-w-0 flex-col leading-tight">
-            <span className="truncate font-titulo text-base font-bold sm:text-lg">{ORGANIZACION.programa}</span>
-            <span className="hidden truncate text-[15px] text-accion sm:block">{ORGANIZACION.iglesia}</span>
+            {/* Se parte en dos renglones antes que cortarse: con letra grande,
+                "Cajita de Ben..." no se entiende. */}
+            <span className="font-titulo text-base font-bold leading-tight sm:text-lg">{ORGANIZACION.programa}</span>
+            <span className="hidden truncate text-chica text-accion sm:block">{ORGANIZACION.iglesia}</span>
           </span>
         </Link>
 

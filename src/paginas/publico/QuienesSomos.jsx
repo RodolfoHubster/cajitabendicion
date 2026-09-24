@@ -8,6 +8,7 @@ import TarjetaDonar from '../../componentes/TarjetaDonar'
 import Ubicacion from '../../componentes/Ubicacion'
 import { avisosPublicos, textoDeAviso, tituloDeAviso } from '../../datos/avisos'
 import { ORGANIZACION } from '../../datos/organizacion'
+import { EsqueletoTexto } from '../../componentes/Esqueleto'
 
 /**
  * Quienes somos: la iglesia y el ministerio, en corto.
@@ -49,7 +50,7 @@ export default function QuienesSomos() {
           </p>
         </div>
 
-        {parrafos === null && <p className="text-base">{t('quienesSomos.cargando')}</p>}
+        {parrafos === null && <EsqueletoTexto parrafos={2} texto={t('quienesSomos.cargando')} />}
 
         {parrafos !== null && parrafos.length === 0 && (
           <p className="text-base">{t('quienesSomos.sinTexto')}</p>
@@ -69,7 +70,7 @@ export default function QuienesSomos() {
 
         <div className="mt-6 grid gap-2 sm:grid-cols-2">
           <a
-            className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+            className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
             href={ORGANIZACION.sitioIglesia}
             rel="noopener noreferrer"
             target="_blank"
@@ -77,7 +78,7 @@ export default function QuienesSomos() {
             {t('quienesSomos.sitioIglesia')}
           </a>
           <Link
-            className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+            className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
             to="/preguntas"
           >
             {t('quienesSomos.verPreguntas')}

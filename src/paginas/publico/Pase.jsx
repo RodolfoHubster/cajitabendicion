@@ -8,6 +8,7 @@ import { dibujarTarjetaCita, guardarImagen, nombreArchivoCita } from '../../dato
 import { ORGANIZACION } from '../../datos/organizacion'
 import { dibujarQRPase } from '../../datos/qrPase'
 import { paseDeCodigo } from '../../datos/pases'
+import { EsqueletoQR } from '../../componentes/Esqueleto'
 
 /**
  * El pase permanente, como lo ve la persona.
@@ -98,11 +99,7 @@ export default function Pase() {
   }
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('pase.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoQR texto={t('pase.cargando')} />
   }
 
   if (error || !pase) {
@@ -148,7 +145,7 @@ export default function Pase() {
       <div className="p-5">
         <img
           alt={t('confirmacion.qrAlt')}
-          className="mx-auto w-full max-w-[280px] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
+          className="mx-auto w-full max-w-[17.5rem] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
           src={qr}
         />
 
@@ -164,10 +161,10 @@ export default function Pase() {
 
         <p className="mt-4 text-base text-principal/80">{t('pase.comoFunciona')}</p>
         <p className="mt-2 text-base text-principal/80">{t('pase.soloTuyo')}</p>
-        <p className="mt-2 text-base text-principal/60">{t('pase.sello')}</p>
+        <p className="mt-2 text-base text-principal/70">{t('pase.sello')}</p>
 
         <button
-          className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-principal shadow-sm transition hover:brightness-95"
+          className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-sobre-accion shadow-sm transition hover:brightness-95"
           onClick={guardar}
           type="button"
         >
@@ -181,7 +178,7 @@ export default function Pase() {
           </p>
         )}
 
-        <p className="mt-3 text-center text-base text-principal/60">{t('confirmacion.consejoCaptura')}</p>
+        <p className="mt-3 text-center text-base text-principal/70">{t('confirmacion.consejoCaptura')}</p>
 
         <div className="mt-2 text-center">
           <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>

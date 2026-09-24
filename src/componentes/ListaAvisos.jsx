@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCheck } from 'react-icons/lu'
+import { Cargando, Hueso } from './Esqueleto'
 import { avisosPublicos, textoDeAviso } from '../datos/avisos'
 
 /**
@@ -11,7 +12,7 @@ import { avisosPublicos, textoDeAviso } from '../datos/avisos'
  * gente: preferible una version vieja que un hueco.
  */
 export default function ListaAvisos({ seccion, respaldo = [] }) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [avisos, setAvisos] = useState(null)
 
   useEffect(() => {
@@ -30,9 +31,20 @@ export default function ListaAvisos({ seccion, respaldo = [] }) {
     }
   }, [seccion])
 
-  //  Mientras carga no se dibuja nada: el parpadeo de una lista que
-  //  aparece y se reacomoda molesta mas que esperar medio segundo.
-  if (avisos === null) return null
+  //  Mientras carga, la forma de la lista: si no se dibuja nada, la lista
+  //  aparece de golpe y empuja todo lo de abajo.
+  if (avisos === null) {
+    return (
+      <Cargando className="space-y-3" texto={t('avisos.cargando')}>
+        {['w-11/12', 'w-4/5', 'w-2/3'].map((ancho) => (
+          <div className="flex items-center gap-3" key={ancho}>
+            <Hueso className="size-5 shrink-0 rounded-full" />
+            <Hueso className={`h-4 ${ancho}`} />
+          </div>
+        ))}
+      </Cargando>
+    )
+  }
 
   const textos = avisos.length > 0 ? avisos.map((aviso) => textoDeAviso(aviso, i18n.language)) : respaldo
 

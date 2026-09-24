@@ -1,17 +1,36 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCalendarClock, LuCircleCheck, LuCircleX, LuDownload } from 'react-icons/lu'
+import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
+import {
+  LuCalendarClock,
+  LuCalendarPlus,
+  LuCircleCheck,
+  LuCircleX,
+  LuDownload,
+  LuSun,
+  LuVolume2,
+} from 'react-icons/lu'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
 import TarjetaDonar from '../../componentes/TarjetaDonar'
+import {
+  archivoIcs,
+  enlaceGoogleCalendar,
+  nombreArchivoCalendario,
+  usarGoogleCalendar,
+} from '../../datos/calendario'
 import { consultarCita, dibujarQR } from '../../datos/cita'
+import { filaDe } from '../../datos/filas'
 import { cancelarMiCita } from '../../datos/citas'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import { dibujarTarjetaCita, guardarImagen, nombreArchivoCita } from '../../datos/imagenCita'
+import { guardarMiCita, quitarMiCita } from '../../datos/misCitas'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { hoyLocal } from '../../datos/panel'
+import { callar, deletrear, hablar, puedeHablar } from '../../datos/voz'
+import { EsqueletoQR } from '../../componentes/Esqueleto'
 
 export default function Confirmacion() {
   const { t, i18n } = useTranslation()
@@ -50,6 +69,17 @@ export default function Confirmacion() {
         if (!vigente) return
         setCita(datos)
         setQr(imagen)
+
+        //  "Mis citas en este telefono": asi, si cierra la pagina o pierde la
+        //  captura, al volver a entrar ve su cita en la portada.
+        if (datos.estado === 'cancelada' || datos.estado === 'entregada') {
+          quitarMiCita(token)
+        } else {
+          guardarMiCita(
+            { token, codigo: datos.codigo_corto, fecha: datos.fecha, hora: datos.hora, nombre: datos.nombre },
+            hoyLocal(),
+          )
+        }
       })
       .catch((e) => {
         if (vigente) setError(e.message)
@@ -108,12 +138,56 @@ export default function Confirmacion() {
     }
   }
 
+  //  La cita al calendario del telefono, con recordatorio y con el enlace
+  //  que abre este mismo codigo (ver datos/calendario.js).
+  function agregarCalendario() {
+    const enlace = window.location.href
+    const datos = {
+      fecha: cita.fecha,
+      hora: cita.hora,
+      codigo: cita.codigo_corto,
+      titulo: t('recordatorio.titulo'),
+      lugar: `${ORGANIZACION.iglesia}, ${ORGANIZACION.direccion}`,
+      descripcion: t('recordatorio.descripcion', { codigo: cita.codigo_corto, enlace }),
+      enlace,
+      aviso: t('recordatorio.aviso'),
+    }
+
+    if (usarGoogleCalendar()) {
+      window.open(enlaceGoogleCalendar(datos), '_blank', 'noopener')
+      return
+    }
+
+    const url = URL.createObjectURL(new Blob([archivoIcs(datos)], { type: 'text/calendar;charset=utf-8' }))
+    const enlaceDescarga = document.createElement('a')
+    enlaceDescarga.href = url
+    enlaceDescarga.download = nombreArchivoCalendario(cita.codigo_corto)
+    document.body.appendChild(enlaceDescarga)
+    enlaceDescarga.click()
+    enlaceDescarga.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
+  //  Al salir de la pagina se calla: no se queda hablando en otra pantalla.
+  useEffect(() => callar, [])
+
+  function escuchar() {
+    const fecha = new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      aFechaLocal(cita.fecha),
+    )
+    hablar(
+      t('escuchar.frase', { fecha, hora: formatearHora(cita.hora), codigo: deletrear(cita.codigo_corto) }),
+      i18n.language,
+    )
+  }
+
   async function cancelar() {
     setCancelando(true)
     setErrorCancelar(null)
 
     try {
       await cancelarMiCita(token)
+      quitarMiCita(token)
       setCita((actual) => ({ ...actual, estado: 'cancelada' }))
       setPreguntando(false)
     } catch (e) {
@@ -124,11 +198,7 @@ export default function Confirmacion() {
   }
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('confirmacion.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoQR texto={t('confirmacion.cargando')} />
   }
 
   if (error || !cita) {
@@ -190,6 +260,15 @@ export default function Confirmacion() {
         </div>
 
         <div className="p-5">
+          {/* Volvio a registrarse (el doble toque, o regreso y lo lleno otra
+              vez): se le dice que es la misma cita, para que no crea que
+              ahora tiene dos. */}
+          {state?.yaExistia && (
+            <p className="mb-4 rounded-xl bg-accion/15 p-3 text-base font-semibold text-principal" role="status">
+              {t('confirmacion.yaExistia')}
+            </p>
+          )}
+
           {state?.movida && (
             <p
               className="mb-4 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar"
@@ -199,9 +278,27 @@ export default function Confirmacion() {
             </p>
           )}
 
+          {/* De que fila es el codigo, arriba del QR: cada fila tiene su
+              gente escaneando, y el de carros no entrega uno a pie. */}
+          <p
+            className={`mx-auto mb-3 flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-base font-bold ${
+              filaDe(cita) === 'a_pie' ? 'bg-accion/20 text-principal' : 'bg-principal/10 text-principal'
+            }`}
+          >
+            {filaDe(cita) === 'a_pie' ? (
+              <FaPersonWalking aria-hidden="true" className="h-5 w-5" />
+            ) : (
+              <FaCarSide aria-hidden="true" className="h-5 w-5" />
+            )}
+            {t(`filas.nombre.${filaDe(cita)}`)}
+          </p>
+
+          {/* El QR a pie lleva marco naranja: se distingue de lejos. */}
           <img
             alt={t('confirmacion.qrAlt')}
-            className="mx-auto w-full max-w-[280px] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
+            className={`mx-auto w-full max-w-[17.5rem] rounded-xl bg-white p-2 shadow-sm ${
+              filaDe(cita) === 'a_pie' ? 'border-4 border-accion' : 'border border-principal/15'
+            }`}
             src={qr}
           />
 
@@ -215,10 +312,22 @@ export default function Confirmacion() {
             </p>
           </div>
 
+          {/* Para quien ve poco o lee con trabajo: el telefono lo dice en voz alta. */}
+          {puedeHablar() && (
+            <button
+              className="mt-3 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
+              onClick={escuchar}
+              type="button"
+            >
+              <LuVolume2 aria-hidden="true" className="h-6 w-6 text-accion" />
+              {t('escuchar.boton')}
+            </button>
+          )}
+
           <p className="mt-4 text-base text-principal/80">{t('confirmacion.unSoloUso')}</p>
 
           <button
-            className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-principal shadow-sm transition hover:brightness-95"
+            className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-sobre-accion shadow-sm transition hover:brightness-95"
             onClick={guardar}
             type="button"
           >
@@ -232,8 +341,23 @@ export default function Confirmacion() {
             </p>
           )}
 
-          <p className="mt-3 text-center text-base text-principal/60">
+          <p className="mt-3 text-center text-base text-principal/70">
             {t('confirmacion.consejoCaptura')}
+          </p>
+
+          {/* Para que no se le olvide: un recordatorio en su calendario. */}
+          {cancelable && (
+            <Boton className="mt-3" onClick={agregarCalendario} variant="secondary">
+              <LuCalendarPlus aria-hidden="true" className="h-5 w-5" />
+              {t('recordatorio.agregar')}
+            </Boton>
+          )}
+
+          {/* El dia de la entrega, con el sol de frente, una pantalla oscura
+              es la razon numero uno de que el QR no se lea. */}
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-accion/10 p-3 text-base text-principal">
+            <LuSun aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+            {t('confirmacion.consejoBrillo')}
           </p>
 
           <div className="mt-2 text-center">
@@ -276,7 +400,7 @@ export default function Confirmacion() {
 
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <button
-                      className="inline-flex min-h-14 items-center justify-center rounded-xl bg-ya-recibio px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex min-h-14 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={cancelando}
                       onClick={cancelar}
                       type="button"
@@ -284,7 +408,7 @@ export default function Confirmacion() {
                       {cancelando ? t('confirmacion.cancelando') : t('confirmacion.cancelarSi')}
                     </button>
                     <button
-                      className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-white px-4 text-base font-bold text-principal transition hover:border-principal"
+                      className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
                       onClick={() => {
                         setPreguntando(false)
                         setErrorCancelar(null)

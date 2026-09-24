@@ -11,6 +11,7 @@ import {
   validarCodigoAnticipado,
 } from '../../datos/anticipado'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
+import { EsqueletoHorarios } from '../../componentes/Esqueleto'
 
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/
 
@@ -51,6 +52,7 @@ export default function Horarios() {
   }, [fecha, fechaValida])
 
   const cerradoAlPublico = bloques[0]?.abierto === false
+  const horaElegida = elegido ? bloques.find((bloque) => bloque.bloque_id === elegido)?.hora : null
 
   // El codigo guardado se vuelve a revisar: pudo cambiarse o vencer.
   useEffect(() => {
@@ -89,11 +91,7 @@ export default function Horarios() {
   }
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('horarios.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoHorarios texto={t('horarios.cargando')} />
   }
 
   if (error) {
@@ -185,13 +183,18 @@ export default function Horarios() {
             })}
           </ul>
 
-          <Boton
-            className={elegido ? '' : 'opacity-40'}
-            disabled={!elegido}
-            onClick={() => navegar(`/registro?bloque=${elegido}&fecha=${fecha}`)}
-          >
-            {t('actions.primary')}
-          </Boton>
+          {/* Pegado abajo mientras se baja por la lista: con 16 horarios el
+              boton quedaba fuera de la pantalla, y al escoger parecia que no
+              pasaba nada. Dice la hora escogida, para confirmarla de un vistazo. */}
+          <div className="sticky bottom-3 z-10">
+            <Boton
+              className={elegido ? 'shadow-elevada' : 'opacity-40'}
+              disabled={!elegido}
+              onClick={() => navegar(`/registro?bloque=${elegido}&fecha=${fecha}`)}
+            >
+              {horaElegida ? t('horarios.continuarCon', { hora: formatearHora(horaElegida) }) : t('horarios.eligeUno')}
+            </Boton>
+          </div>
         </>
       )}
     </Tarjeta>

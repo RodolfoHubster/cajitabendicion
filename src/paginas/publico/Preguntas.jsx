@@ -5,6 +5,7 @@ import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
 import { avisosPublicos, textoDeAviso, tituloDeAviso } from '../../datos/avisos'
 import { ORGANIZACION } from '../../datos/organizacion'
+import { EsqueletoTexto } from '../../componentes/Esqueleto'
 
 /**
  * Preguntas frecuentes.
@@ -43,7 +44,7 @@ export default function Preguntas() {
       </h1>
       <p className="mb-4 text-base text-principal/70">{t('preguntas.ayuda')}</p>
 
-      {preguntas === null && <p className="text-base">{t('preguntas.cargando')}</p>}
+      {preguntas === null && <EsqueletoTexto texto={t('preguntas.cargando')} />}
 
       {preguntas !== null && preguntas.length === 0 && (
         <p className="text-base">{t('preguntas.sinPreguntas')}</p>
@@ -58,7 +59,7 @@ export default function Preguntas() {
                   {tituloDeAviso(pregunta, i18n.language)}
                   <LuChevronDown
                     aria-hidden="true"
-                    className="h-5 w-5 shrink-0 text-principal/60 transition group-open:rotate-180"
+                    className="h-5 w-5 shrink-0 text-principal/70 transition group-open:rotate-180"
                   />
                 </summary>
                 <p className="pb-4 text-base text-principal/80">{textoDeAviso(pregunta, i18n.language)}</p>

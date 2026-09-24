@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import AceptarReglas from '../../componentes/AceptarReglas'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
@@ -8,6 +8,7 @@ import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
 import CamposDomicilio from '../../componentes/CamposDomicilio'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
+import OtrosHorarios from '../../componentes/OtrosHorarios'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
 import {
@@ -18,11 +19,22 @@ import {
 } from '../../componentes/mensajesValidacion'
 import useCodigoPostal from '../../componentes/useCodigoPostal'
 import { leerCodigoAnticipado } from '../../datos/anticipado'
+import { borrarBorrador, guardarBorrador, leerBorrador } from '../../datos/borrador'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
 import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
+import { citasDelDiaGuardadas } from '../../datos/misCitas'
 import { registrarYReservar } from '../../datos/registro'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
+import { EsqueletoFormulario } from '../../componentes/Esqueleto'
+
+//  Errores en los que el horario ya no sirve: se ofrecen los otros del dia
+//  ahi mismo, sin salir del formulario.
+const HORARIO_PERDIDO = ['BLOQUE_LLENO', 'BLOQUE_CERRADO', 'BLOQUE_NO_EXISTE']
+
+//  Errores de "ya tienes cita ese dia": si este telefono la guardo, se
+//  ofrece verla en vez de dejar a la persona creyendo que no tiene lugar.
+const YA_TIENE = ['LIMITE_DISPOSITIVO', 'YA_REGISTRADO_ESE_DIA']
 
 // En este orden se revisan; se enfoca el primero que tenga error.
 const CAMPOS = [
@@ -41,7 +53,7 @@ const CAMPOS = [
 
 export default function Registro() {
   const { t, i18n } = useTranslation()
-  const [parametros] = useSearchParams()
+  const [parametros, setParametros] = useSearchParams()
   const navegar = useNavigate()
 
   const bloqueId = parametros.get('bloque')
@@ -51,13 +63,20 @@ export default function Registro() {
   const [cargando, setCargando] = useState(Boolean(bloqueId && fecha))
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
+  //  La hora nueva que escogio tras "ese horario se lleno", para decirselo.
+  const [horaCambiada, setHoraCambiada] = useState(null)
 
-  const [nombres, setNombres] = useState('')
-  const [apellidos, setApellidos] = useState('')
-  const [pais, setPais] = useState('US')
-  const [telefono, setTelefono] = useState('')
-  const [email, setEmail] = useState('')
-  const [domicilio, setDomicilio] = useState(DOMICILIO_VACIO)
+  //  Si la pagina se recargo sola (Android lo hace al volver de otra app),
+  //  se recupera lo que llevaba escrito. Ver datos/borrador.js.
+  const [borrador] = useState(() => leerBorrador())
+  const [recuperado, setRecuperado] = useState(Boolean(borrador))
+
+  const [nombres, setNombres] = useState(borrador?.nombres ?? '')
+  const [apellidos, setApellidos] = useState(borrador?.apellidos ?? '')
+  const [pais, setPais] = useState(borrador?.pais || 'US')
+  const [telefono, setTelefono] = useState(borrador?.telefono ?? '')
+  const [email, setEmail] = useState(borrador?.email ?? '')
+  const [domicilio, setDomicilio] = useState(() => ({ ...DOMICILIO_VACIO, ...(borrador?.domicilio ?? {}) }))
   const [acepto, setAcepto] = useState(false)
   //  Las indicaciones de la entrega, aparte del aviso de privacidad.
   const [aceptoReglas, setAceptoReglas] = useState(false)
@@ -68,6 +87,25 @@ export default function Registro() {
   const [intento, setIntento] = useState(false)
 
   const busqueda = useCodigoPostal(domicilio.pais, domicilio.codigoPostal)
+
+  //  Cada cambio se guarda en la pestana. Solo escribe en el almacen, no
+  //  en el estado: no provoca otro render.
+  useEffect(() => {
+    guardarBorrador({ nombres, apellidos, pais, telefono, email, domicilio })
+  }, [nombres, apellidos, pais, telefono, email, domicilio])
+
+  function empezarDeNuevo() {
+    borrarBorrador()
+    setNombres('')
+    setApellidos('')
+    setPais('US')
+    setTelefono('')
+    setEmail('')
+    setDomicilio(DOMICILIO_VACIO)
+    setTocados(new Set())
+    setIntento(false)
+    setRecuperado(false)
+  }
 
   useEffect(() => {
     if (!bloqueId || !fecha) return
@@ -107,11 +145,7 @@ export default function Registro() {
   }
 
   if (cargando) {
-    return (
-      <Tarjeta>
-        <p className="text-base">{t('registro.cargando')}</p>
-      </Tarjeta>
-    )
+    return <EsqueletoFormulario texto={t('registro.cargando')} />
   }
 
   if (!bloque) {
@@ -158,6 +192,20 @@ export default function Registro() {
   }
 
   const tocar = (campo) => setTocados((actuales) => new Set(actuales).add(campo))
+
+  //  Otra hora del mismo dia: cambia la direccion (?bloque=...) pero la
+  //  pantalla es la misma, asi que todo lo escrito se queda.
+  function elegirOtroHorario(nuevo) {
+    setParametros({ bloque: nuevo.bloque_id, fecha }, { replace: true })
+    setBloque(nuevo)
+    setError(null)
+    setHoraCambiada(formatearHora(nuevo.hora))
+    //  Al boton, para que solo falte tocarlo. setTimeout y no
+    //  requestAnimationFrame: este ultimo no corre con la pestana en segundo plano.
+    setTimeout(() => document.getElementById('confirmar-registro')?.focus(), 0)
+  }
+
+  const guardadas = error && YA_TIENE.includes(error) ? citasDelDiaGuardadas(fecha) : []
   const sugerencia = errores.correo ? null : sugerirCorreo(email)
 
   // Mientras no haya escrito su codigo postal, el domicilio sigue al pais del telefono.
@@ -199,8 +247,10 @@ export default function Registro() {
       // Se pasa el nombre porque la funcion no lo devuelve y la pantalla de
       // confirmacion lo muestra ("A nombre de..."). Al recargar se obtiene
       // de consultar_cita.
+      //  Ya quedo registrada: el borrador ya no sirve y no debe quedarse.
+      borrarBorrador()
       navegar(`/confirmacion/${cita.token_qr}`, {
-        state: { ...cita, nombre: `${nombresListos} ${apellidosListos}` },
+        state: { ...cita, nombre: `${nombresListos} ${apellidosListos}`, yaExistia: cita.ya_existia === true },
       })
     } catch (e) {
       setError(e.message)
@@ -218,6 +268,19 @@ export default function Registro() {
 
       {/* noValidate: los avisos del navegador salen en ingles y en globitos que
           desaparecen; los nuestros se quedan junto al campo y en su idioma. */}
+      {recuperado && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-puede-pasar/10 p-3" role="status">
+          <p className="text-base font-semibold text-puede-pasar">{t('registro.borrador.recuperado')}</p>
+          <button
+            className="inline-flex min-h-12 items-center text-base font-semibold text-principal underline underline-offset-4"
+            onClick={empezarDeNuevo}
+            type="button"
+          >
+            {t('registro.borrador.empezarDeNuevo')}
+          </button>
+        </div>
+      )}
+
       <form className="space-y-4" noValidate onSubmit={enviar}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo
@@ -284,7 +347,7 @@ export default function Registro() {
               </button>
             </p>
           )}
-          <p className="mt-1 text-base text-principal/60">{t('registro.correoAyuda')}</p>
+          <p className="mt-1 text-base text-principal/70">{t('registro.correoAyuda')}</p>
         </div>
 
         <CamposDomicilio
@@ -309,7 +372,34 @@ export default function Registro() {
           </p>
         )}
 
-        <Boton disabled={enviando} type="submit">
+        {error && HORARIO_PERDIDO.includes(error) && (
+          <div className="rounded-xl border border-principal/20 bg-principal/5 p-3">
+            <OtrosHorarios actual={bloqueId} alElegir={elegirOtroHorario} fecha={fecha} />
+          </div>
+        )}
+
+        {guardadas.length > 0 && (
+          <div className="space-y-2 rounded-xl border-2 border-accion bg-accion/10 p-3">
+            <p className="text-base font-semibold">{t('registro.tuCitaGuardada')}</p>
+            {guardadas.map((guardada) => (
+              <Link
+                className="flex min-h-14 items-center justify-center rounded-xl bg-accion px-4 text-center text-base font-bold text-sobre-accion"
+                key={guardada.token}
+                to={`/confirmacion/${guardada.token}`}
+              >
+                {t('registro.verTuCita', { hora: formatearHora(guardada.hora), nombre: guardada.nombre })}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {horaCambiada && !error && (
+          <p className="rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
+            {t('registro.horaCambiada', { hora: horaCambiada })}
+          </p>
+        )}
+
+        <Boton disabled={enviando} id="confirmar-registro" type="submit">
           {enviando ? t('registro.enviando') : t('registro.confirmar')}
         </Boton>
       </form>
