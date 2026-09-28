@@ -16,13 +16,13 @@
 // El bloque tiene que tener capacidad 2, estar vacio y ser de una fecha
 // futura que no este cerrada. En la base de pruebas lo crea
 // supabase/pruebas/datos-de-prueba.sql y lo muestra al final; si no se
-// pasa, se usa el de scripts/datos-prueba.json.
+// pasa, se busca solo (una fecha futura con un horario de carro vacio de 2
+// lugares a las 11:45 PM).
 //
 // Uso:
 //   node scripts/prueba-concurrencia.mjs --pruebas [bloque_id]
 //   node scripts/prueba-concurrencia.mjs --base-real [bloque_id]
 
-import { readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 import { cargarEntorno } from './entorno.mjs'
 
@@ -31,8 +31,6 @@ const { url, key, email, password, argumentos } = cargarEntorno({
   uso: 'node scripts/prueba-concurrencia.mjs <base> [bloque_id]',
 })
 
-const bloque_id =
-  argumentos[0] ?? JSON.parse(readFileSync(new URL('./datos-prueba.json', import.meta.url), 'utf8')).bloque_id
 
 const LLAMADAS = 50
 const CAPACIDAD_ESPERADA = 2
@@ -47,6 +45,27 @@ const { error: errorSesion } = await supabase.auth.signInWithPassword({ email, p
 if (errorSesion) {
   console.error(`No se pudo iniciar sesion con la cuenta de prueba: ${errorSesion.message}`)
   process.exit(1)
+}
+
+let bloque_id = argumentos[0]
+if (!bloque_id) {
+  const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
+  const { data: dias } = await supabase.rpc('listar_dias_entrega', { p_desde: null })
+  for (const dia of (dias ?? []).filter((d) => d.fecha > hoy)) {
+    const { data: bloques } = await supabase.rpc('bloques_del_dia', { p_fecha: dia.fecha })
+    const vacio = (bloques ?? []).find(
+      (b) => b.hora === '23:45:00' && b.capacidad === CAPACIDAD_ESPERADA && b.ocupados === 0 && !b.cerrado && b.fila !== 'a_pie',
+    )
+    if (vacio) {
+      bloque_id = vacio.bloque_id
+      break
+    }
+  }
+  if (!bloque_id) {
+    console.error(`No hay un horario vacio de ${CAPACIDAD_ESPERADA} lugares a las 11:45 PM en una fecha futura.`)
+    console.error('Corre supabase/pruebas/datos-de-prueba.sql en la base de pruebas y vuelve a intentar.')
+    process.exit(1)
+  }
 }
 
 console.log(`Bloque:   ${bloque_id}`)

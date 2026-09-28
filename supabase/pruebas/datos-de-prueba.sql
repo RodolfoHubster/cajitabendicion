@@ -12,6 +12,11 @@
 --      para escanear, una con cita otro dia (para ver "otra fecha") y una
 --      con pase permanente.
 --    * Un horario VACIO de 2 lugares para scripts/prueba-concurrencia.mjs.
+--    * La fila a pie de HOY, ya abierta y con cuatro personas en turno
+--      (CB-9008 a CB-9011), para la pantalla de la voluntaria y para ver el
+--      turno en vivo en /confirmacion.
+--    * Una fila a pie VACIA de 30 lugares en otra fecha, para
+--      scripts/prueba-turnos.mjs.
 --
 --  Se puede correr cuantas veces quieras: borra lo de prueba anterior y lo
 --  vuelve a crear. Al final muestra una tabla con los codigos y los tokens.
@@ -28,7 +33,9 @@ do $datos$
 declare
   v_marcada   boolean := exists (select 1 from configuracion where clave = 'es_base_de_pruebas');
   v_personas  int     := (select count(*) from personas);
-  v_codigos   text[]  := array['CB-9001', 'CB-9002', 'CB-9003', 'CB-9004', 'CB-9005', 'CB-9006', 'CB-9007'];
+  v_codigos   text[]  := array['CB-9001', 'CB-9002', 'CB-9003', 'CB-9004', 'CB-9005', 'CB-9006', 'CB-9007',
+                               'CB-9008', 'CB-9009', 'CB-9010', 'CB-9011'];
+  v_pie       uuid;
   v_hoy       date    := current_date;
   v_fechas    date[];
   v_fecha     date;
@@ -135,6 +142,39 @@ begin
   insert into bloques (fecha, hora, capacidad)
   values (v_otra, '23:45', 2)
   on conflict (fecha, hora, fila) do update set capacidad = 2, cerrado = false;
+
+  -- ----------------------------------------------------------
+  --  La fila a pie de hoy, abierta, con cuatro personas en turno
+  -- ----------------------------------------------------------
+  insert into bloques (fecha, hora, capacidad, fila)
+  values (v_hoy, '16:30', 60, 'a_pie')
+  on conflict (fecha) where fila = 'a_pie' do update set capacidad = 60, cerrado = false
+  returning id into v_pie;
+  update dias_entrega set a_pie_abre_en = now() - interval '1 minute' where fecha = v_hoy;
+
+  for i in 8 .. 11 loop
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, ciudad, acepto_privacidad_en)
+    values (v_codigos[i],
+            (array['Prueba Turno Uno', 'Prueba Turno Dos', 'Prueba Turno Tres', 'Prueba Turno Cuatro'])[i - 7],
+            'Prueba',
+            (array['Turno Uno', 'Turno Dos', 'Turno Tres', 'Turno Cuatro'])[i - 7],
+            '+1619555' || lpad((9000 + i)::text, 4, '0'),
+            'San Diego',
+            now())
+    returning id into v_persona;
+
+    perform reservar_cita(v_persona, v_pie);
+  end loop;
+
+  -- ----------------------------------------------------------
+  --  La fila a pie VACIA de 30 lugares para la prueba de turnos
+  -- ----------------------------------------------------------
+  delete from citas c using bloques b
+   where c.bloque_id = b.id and b.fecha = v_otra and b.fila = 'a_pie';
+  insert into bloques (fecha, hora, capacidad, fila)
+  values (v_otra, '16:30', 30, 'a_pie')
+  on conflict (fecha) where fila = 'a_pie' do update set capacidad = 30, cerrado = false;
+  update dias_entrega set a_pie_abre_en = now() - interval '1 minute' where fecha = v_otra;
 end
 $datos$;
 
@@ -151,10 +191,15 @@ select p.codigo_corto                                   as codigo,
   left join citas   c  on c.persona_id = p.id
   left join bloques b  on b.id = c.bloque_id
   left join pases   pa on pa.persona_id = p.id
- where p.codigo_corto like 'CB-900_'
+ where p.codigo_corto like 'CB-90__'
 union all
 select 'CONCURRENCIA', 'Horario vacio de 2 lugares', b.fecha::text, to_char(b.hora, 'HH12:MI AM'),
        b.id::text, 'node scripts/prueba-concurrencia.mjs --pruebas ' || b.id
   from bloques b
  where b.hora = '23:45' and b.capacidad = 2 and b.fecha > current_date and b.fila = 'carro'
+union all
+select 'TURNOS', 'Fila a pie vacia de 30 lugares', b.fecha::text, to_char(b.hora, 'HH12:MI AM'),
+       b.id::text, 'node scripts/prueba-turnos.mjs --pruebas ' || b.id
+  from bloques b
+ where b.fila = 'a_pie' and b.capacidad = 30 and b.fecha > current_date
  order by 1;

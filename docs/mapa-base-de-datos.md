@@ -181,7 +181,6 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 | `bloques.fila`, `personal.fila` | De qué fila es cada horario y en cuál escanea cada quien (`carro`, `a_pie`, `ambas`). |
 | `puede_escanear_fila(fila)` | Si quien tiene la sesión entrega en esa fila. La usan las dos de escaneo para responder `OTRA_FILA`. |
 | `fila_de_entrega()` | En qué fila se cuenta un pase o un "sin cita": la de quien lo registra. |
-| `a_pie_abierto()` | Lee `configuracion.a_pie_abierto`. Cerrado: `A_PIE_CERRADO`. |
 | `mi_fila()`, `guardar_fila_personal()` | La fila de la sesión; asignarla (solo admin). |
 
 `resumen_del_dia` y `reporte_por_dias` aceptan `p_fila` (null = juntas).
@@ -201,6 +200,32 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 `buscar_para_escaneo` ignora acentos y el orden de las palabras, y si el
 código exacto no existe devuelve los de hoy que se le parecen
 (`parecido = true`).
+
+## Pases VIP (sección 40)
+
+| Objeto | Qué hace |
+|---|---|
+| `pases.vip`, `vip_por`, `vip_desde` | Pase de suscriptor VIP: QR dorado y pasa directo, sin fila. |
+| `marcar_pase_vip(codigo, vip)` | Lo pone o lo quita. Solo admin. `PASE_NO_EXISTE` si esa persona no tiene pase. |
+
+## La fila a pie por turnos (sección 38)
+
+| Objeto | Qué hace |
+|---|---|
+| `citas.turno`, `citas.turno_saltado_en` | Su número en la fila a pie del día y si lo llamaron y no estaba. Nulo en carro. |
+| `dias_entrega.a_pie_abre_en` | A qué hora abre el registro a pie. Nulo: ese día no hay fila a pie (`A_PIE_CERRADO`). |
+| `personal.fila_hoy`, `fila_hoy_fecha` | En qué fila está hoy cada quien. Manda sobre `personal.fila`. |
+| `una_fila_a_pie_por_dia` | Un solo horario a pie por fecha. |
+| `un_turno_por_fila` | Nunca dos citas con el mismo turno en la misma fila. |
+| `dar_turno()` (disparador) | Pone el turno que sigue al guardar la cita. Lo ordena el candado de `reservar_cita()`. |
+| `cupo_sin_limite()` | 10000: el cupo que se guarda con "sin límite". No se suma en reportes ni en la lista de fechas. |
+| `guardar_fila_a_pie(fecha, hora, cupo, abre_en)` | Crea o cambia la fila a pie del día. Sin `abre_en`, una hora antes de empezar. Solo admin. |
+| `crear_dia_a_pie(fecha, hora, cupo, abre_en)` | Una fecha solo a pie (sin horarios de carro), con su fila ya armada. Todo o nada. Solo admin. |
+| `quitar_fila_a_pie(fecha)` | La quita si nadie ha sacado turno (`BLOQUE_CON_CITAS` si sí: se cierra con `actualizar_bloque`). |
+| `turno_de_cita(token)` | Público: su turno, el que va, cuántos tiene antes. Solo números. |
+| `fila_de_turnos(fecha)` | La voluntaria: el que va, los siguientes, los que no se presentaron y las cuentas. Voluntario: solo hoy y solo en a pie. |
+| `saltar_turno(turno, saltado)` | "No se presentó" (o regresarlo a la fila). Solo hoy. |
+| `elegir_fila(fila)`, `mi_fila_de_hoy()` | La fila que cada quien elige en el escáner. |
 
 ## La guía del panel (sección 37)
 

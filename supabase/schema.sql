@@ -106,6 +106,12 @@ create table citas (
   token_qr     text unique not null,
 
   usado_en     timestamptz,
+
+  --  Fila a pie (seccion 38): su numero en la fila del dia y si lo llamaron
+  --  y no estaba. Van aqui porque consultar_cita() es SQL y los lee al crearse.
+  turno            int,
+  turno_saltado_en timestamptz,
+
   creada_en    timestamptz not null default now()
 );
 
@@ -188,9 +194,16 @@ create table excepciones (
 --  segundo sobre un bloque con dos lugares, entran dos y las
 --  otras tres reciben BLOQUE_LLENO. Nunca se sobrepasa el cupo.
 
+--  Le crecio un parametro (p_acompana_a, seccion 39) y Postgres no deja
+--  cambiar los parametros con "create or replace": se borra la de dos.
+drop function if exists reservar_cita(uuid, uuid);
+
 create or replace function reservar_cita(
   p_persona_id uuid,
-  p_bloque_id  uuid
+  p_bloque_id  uuid,
+  --  La cita de quien maneja, si esta persona viene en su carro (seccion
+  --  39). Nulo: trae su propio carro y ocupa un lugar.
+  p_acompana_a uuid default null
 )
 returns citas
 language plpgsql
@@ -200,6 +213,8 @@ declare
   v_ocupados int;
   v_semana   date;
   v_cita     citas;
+  v_duenio   citas;
+  v_limite   int;
 begin
   -- Las demás peticiones sobre este mismo bloque esperan aquí.
   select * into v_bloque
@@ -219,24 +234,57 @@ begin
     raise exception 'FECHA_PASADA';
   end if;
 
-  select count(*) into v_ocupados
-    from citas
-   where bloque_id = p_bloque_id
-     and estado <> 'cancelada';
+  if p_acompana_a is null then
+    --  Un lugar es un CARRO (seccion 39): solo cuentan las citas de carro
+    --  propio. Quien viene de acompanante no ocupa otro lugar.
+    select count(*) into v_ocupados
+      from citas
+     where bloque_id = p_bloque_id
+       and estado <> 'cancelada'
+       and acompana_a is null;
 
-  if v_ocupados >= v_bloque.capacidad then
-    raise exception 'BLOQUE_LLENO';
+    if v_ocupados >= v_bloque.capacidad then
+      raise exception 'BLOQUE_LLENO';
+    end if;
+  else
+    --  Viene en el carro de otra cita: la de quien maneja, en este mismo
+    --  horario, sin recibir todavia y con carro propio. Con el candado del
+    --  bloque de arriba, dos acompanantes al mismo tiempo no pasan del tope.
+    select * into v_duenio from citas where id = p_acompana_a;
+
+    if not found
+       or v_duenio.bloque_id <> p_bloque_id
+       or v_duenio.acompana_a is not null
+       or v_duenio.estado not in ('reservada', 'llego') then
+      raise exception 'ACOMPANANTE_SIN_CITA';
+    end if;
+
+    select case when trim(valor) ~ '^[0-9]+$' then trim(valor)::int end into v_limite
+      from configuracion
+     where clave = 'acompanantes_por_carro';
+
+    v_limite := coalesce(v_limite, 3);
+
+    select count(*) into v_ocupados
+      from citas
+     where acompana_a = p_acompana_a
+       and estado <> 'cancelada';
+
+    if v_ocupados >= v_limite then
+      raise exception 'CARRO_LLENO';
+    end if;
   end if;
 
   -- El lunes de esa semana, en formato fecha.
   v_semana := date_trunc('week', v_bloque.fecha)::date;
 
-  insert into citas (persona_id, bloque_id, semana, token_qr)
+  insert into citas (persona_id, bloque_id, semana, token_qr, acompana_a)
   values (
     p_persona_id,
     p_bloque_id,
     v_semana,
-    encode(gen_random_bytes(24), 'hex')
+    encode(gen_random_bytes(24), 'hex'),
+    p_acompana_a
   )
   returning * into v_cita;
 
@@ -478,7 +526,7 @@ alter database postgres set timezone to 'America/Los_Angeles';
 --  La zona se fija tambien aqui para no depender de la sesion ni de
 --  conexiones viejas que sigan en el pool con la configuracion previa.
 
-alter function reservar_cita(uuid, uuid)
+alter function reservar_cita(uuid, uuid, uuid)
   security definer
   set search_path = public, extensions, pg_temp
   set timezone    = 'America/Los_Angeles';
@@ -490,7 +538,9 @@ alter function registrar_entrega(text)
 
 --  Postgres regala EXECUTE a todo el mundo por defecto. Con security
 --  definer eso es peligroso: se retira y se entrega a mano.
-revoke execute on function reservar_cita(uuid, uuid) from public;
+--  Tambien a anon y authenticated: Supabase se las da solo. Nadie la llama
+--  desde el navegador; las puertas son registrar_y_reservar() y el panel.
+revoke execute on function reservar_cita(uuid, uuid, uuid) from public, anon, authenticated;
 revoke execute on function registrar_entrega(text)   from public;
 
 --  reservar_cita     -> nadie desde el navegador. Solo la llaman
@@ -549,30 +599,33 @@ begin
          b.fecha,
          b.hora,
          b.capacidad,
-         count(c.id) filter (where c.estado <> 'cancelada')::int,
+         --  Carros, no personas: el acompanante no ocupa lugar (seccion 39).
+         count(c.id) filter (where c.estado <> 'cancelada' and c.acompana_a is null)::int,
          greatest(
-           b.capacidad - count(c.id) filter (where c.estado <> 'cancelada'),
+           b.capacidad - count(c.id) filter (where c.estado <> 'cancelada' and c.acompana_a is null),
            0
          )::int,
          -- Las fechas aun no abiertas SI se muestran, con su hora de
          -- apertura: el publico sabe cuando volver. Reservar lo impide
-         -- registrar_y_reservar(), no esta consulta.
-         now() >= d.abre_en,
-         d.abre_en at time zone 'America/Los_Angeles',
-         d.abre_anticipado_en at time zone 'America/Los_Angeles'
+         -- registrar_y_reservar(), no esta consulta. La fila a pie abre a
+         -- su propia hora y sin codigo de suscriptores (seccion 38).
+         now() >= case when b.fila = 'a_pie' then d.a_pie_abre_en else d.abre_en end,
+         (case when b.fila = 'a_pie' then d.a_pie_abre_en else d.abre_en end) at time zone 'America/Los_Angeles',
+         case when b.fila = 'a_pie' then null::timestamp
+              else d.abre_anticipado_en at time zone 'America/Los_Angeles' end
     from bloques b
     join dias_entrega d on d.fecha = b.fecha and not d.cerrado
     left join citas c on c.bloque_id = b.id
    where b.cerrado = false
-     --  Una fila a la vez, y la de a pie no se ofrece mientras este
-     --  cerrada (seccion 32).
+     --  Una fila a la vez. La de a pie sale solo cuando ya tiene su hora
+     --  de apertura (seccion 38); sin ella esta cerrada.
      and b.fila = coalesce(p_fila, 'carro')
-     and (b.fila = 'carro' or a_pie_abierto())
+     and (b.fila = 'carro' or d.a_pie_abre_en is not null)
      -- Nunca se ofrecen fechas pasadas: reservar_cita() las rechazaria
      -- con FECHA_PASADA y el usuario no entenderia por que.
      and b.fecha >= greatest(coalesce(p_desde, current_date), current_date)
      and b.fecha <= coalesce(p_hasta, current_date + 60)
-   group by b.id, b.fecha, b.hora, b.capacidad, d.abre_en, d.abre_anticipado_en
+   group by b.id, b.fecha, b.hora, b.capacidad, b.fila, d.abre_en, d.abre_anticipado_en, d.a_pie_abre_en
    order by b.fecha, b.hora;
 end;
 $$;
@@ -631,6 +684,9 @@ drop function if exists registrar_y_reservar(text, text, text, uuid, text, text,
 
 drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text);
 
+--  Le crecieron p_codigo_acompanante y p_fecha (seccion 39).
+drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date);
+
 create or replace function registrar_y_reservar(
   p_nombre            text,
   p_apellidos         text,
@@ -646,7 +702,12 @@ create or replace function registrar_y_reservar(
   p_sin_domicilio     boolean default false,
   p_acepto_privacidad boolean default false,
   p_dispositivo       text    default null,
-  p_codigo_anticipado text    default null
+  p_codigo_anticipado text    default null,
+  --  Viene en el carro de alguien que ya tiene cita (seccion 39): el codigo
+  --  CB de quien maneja. Su horario es el de esa cita; con p_fecha basta
+  --  (cuando ya no quedan lugares no se puede escoger horario).
+  p_codigo_acompanante text   default null,
+  p_fecha             date    default null
 )
 returns table (
   codigo_corto text,
@@ -662,6 +723,9 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 declare
+  v_bloque_id  uuid := p_bloque_id;
+  v_dia        date;
+  v_duenio     citas;
   --  Sin espacios de mas: "  maria   jose " se guarda "maria jose".
   v_nombres    text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
   v_apellidos  text := regexp_replace(trim(coalesce(p_apellidos, '')), '\s+', ' ', 'g');
@@ -675,6 +739,7 @@ declare
   v_abre_ant   timestamptz;
   v_codigo_dia text;
   v_dia_cerrado boolean;
+  v_abre_a_pie timestamptz;
   v_limite     int;
   v_usadas     int;
   v_persona    personas;
@@ -733,24 +798,44 @@ begin
     raise exception 'CONSENTIMIENTO_REQUERIDO';
   end if;
 
-  select * into v_bloque from bloques where id = p_bloque_id;
-  if not found then
-    raise exception 'BLOQUE_NO_EXISTE';
+  -- ----------------------------------------------------------
+  --  Acompanante: va en el carro de quien maneja (seccion 39)
+  -- ----------------------------------------------------------
+  --  Se busca la cita de carro propio de ese codigo ese dia, y la persona
+  --  queda en ese mismo horario. No ocupa lugar: el carro ya lo tiene.
+  if nullif(trim(coalesce(p_codigo_acompanante, '')), '') is not null then
+    select b.fecha into v_dia from bloques b where b.id = p_bloque_id;
+    v_dia := coalesce(v_dia, p_fecha);
+
+    select c.* into v_duenio
+      from citas c
+      join personas p on p.id = c.persona_id
+      join bloques  b on b.id = c.bloque_id
+     where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo_acompanante)
+       and b.fecha = v_dia
+       and b.fila = 'carro'
+       and c.estado in ('reservada', 'llego')
+       and c.acompana_a is null
+     order by c.creada_en
+     limit 1;
+
+    if v_duenio.id is null then
+      raise exception 'ACOMPANANTE_SIN_CITA';
+    end if;
+
+    v_bloque_id := v_duenio.bloque_id;
   end if;
 
-  --  La fila a pie no recibe citas hasta que se abra (seccion 32). La
-  --  pantalla ya no la ofrece; esto cierra la puerta de atras.
-  if v_bloque.fila = 'a_pie' and not a_pie_abierto() then
-    raise exception 'A_PIE_CERRADO';
+  select * into v_bloque from bloques where id = v_bloque_id;
+  if not found then
+    raise exception 'BLOQUE_NO_EXISTE';
   end if;
 
   -- ----------------------------------------------------------
   --  Apertura del dia
   -- ----------------------------------------------------------
-  --  Antes de la hora de apertura solo entra quien trae el codigo de
-  --  suscriptor, y solo dentro de su ventana de acceso anticipado.
-  select d.abre_en, d.abre_anticipado_en, d.codigo_anticipado, d.cerrado
-    into v_abre_en, v_abre_ant, v_codigo_dia, v_dia_cerrado
+  select d.abre_en, d.abre_anticipado_en, d.codigo_anticipado, d.cerrado, d.a_pie_abre_en
+    into v_abre_en, v_abre_ant, v_codigo_dia, v_dia_cerrado, v_abre_a_pie
     from dias_entrega d
    where d.fecha = v_bloque.fecha;
 
@@ -758,7 +843,21 @@ begin
     raise exception 'DIA_CERRADO';
   end if;
 
-  if now() < v_abre_en then
+  if v_bloque.fila = 'a_pie' then
+    --  La fila a pie abre a su propia hora, por lo general una hora antes de
+    --  empezar a entregar (seccion 38). Sin hora, esta cerrada. El codigo de
+    --  suscriptores no adelanta a nadie: el turno es por orden de llegada.
+    if v_abre_a_pie is null then
+      raise exception 'A_PIE_CERRADO';
+    end if;
+
+    if now() < v_abre_a_pie then
+      raise exception 'AUN_NO_ABRE';
+    end if;
+
+  --  Antes de la hora de apertura solo entra quien trae el codigo de
+  --  suscriptor, y solo dentro de su ventana de acceso anticipado.
+  elsif now() < v_abre_en then
     if v_abre_ant is null or now() < v_abre_ant then
       raise exception 'AUN_NO_ABRE';
     end if;
@@ -815,7 +914,9 @@ begin
   --  tres pestanas mandando al mismo tiempo pasarian las tres el
   --  "cuantas lleva" antes de que ninguna hubiera insertado: es el
   --  mismo patron ingenuo que reproduce el bug del Google Form.
-  if p_dispositivo is not null then
+  --  Quien viene de acompanante no cuenta: es comun que la familia se
+  --  registre desde el telefono de quien maneja, y ya tiene su tope por carro.
+  if p_dispositivo is not null and v_duenio.id is null then
     perform pg_advisory_xact_lock(hashtext(p_dispositivo));
 
     select valor::int into v_limite
@@ -829,7 +930,8 @@ begin
       join bloques b on b.id = c.bloque_id
      where c.dispositivo_id = p_dispositivo
        and b.fecha = v_bloque.fecha
-       and c.estado <> 'cancelada';
+       and c.estado <> 'cancelada'
+       and c.acompana_a is null;
 
     if v_usadas >= v_limite then
       raise exception 'LIMITE_DISPOSITIVO';
@@ -882,7 +984,7 @@ begin
 
   --  reservar_cita hace el bloqueo de fila que impide el sobrecupo y
   --  aplica la regla de una cita por semana. No se duplica aqui.
-  v_cita := reservar_cita(v_persona.id, p_bloque_id);
+  v_cita := reservar_cita(v_persona.id, v_bloque_id, v_duenio.id);
 
   update citas
      set dispositivo_id        = p_dispositivo,
@@ -895,8 +997,8 @@ end;
 $$;
 
 
-revoke execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text) from public;
-grant  execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text) to anon, authenticated;
+revoke execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date) from public;
+grant  execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date) to anon, authenticated;
 
 
 -- ============================================================
@@ -920,7 +1022,9 @@ returns table (
   fecha        date,
   hora         time,
   estado       text,
-  fila         text
+  fila         text,
+  --  Su numero en la fila a pie (seccion 38). Nulo en carro.
+  turno        int
 )
 language sql
 stable
@@ -928,7 +1032,7 @@ security definer
 set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
-  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado, b.fila
+  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado, b.fila, c.turno
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -1133,8 +1237,9 @@ begin
   select b.id,
          b.hora,
          b.capacidad,
-         count(c.id) filter (where c.estado <> 'cancelada')::int,
-         greatest(b.capacidad - count(c.id) filter (where c.estado <> 'cancelada'), 0)::int,
+         --  Carros, no personas (seccion 39).
+         count(c.id) filter (where c.estado <> 'cancelada' and c.acompana_a is null)::int,
+         greatest(b.capacidad - count(c.id) filter (where c.estado <> 'cancelada' and c.acompana_a is null), 0)::int,
          b.cerrado,
          b.fila
     from bloques b
@@ -1811,9 +1916,12 @@ begin
       raise exception 'BLOQUE_NO_EXISTE';
     end if;
 
-    --  La fila a pie no recibe citas hasta que se abra (seccion 32). La
-    --  pantalla ya no la ofrece; esto cierra la puerta de atras.
-    if v_bloque.fila = 'a_pie' and not a_pie_abierto() then
+    --  La fila a pie no recibe citas hasta que el administrador la arme con
+    --  su hora de apertura (seccion 38). El equipo si registra antes de esa
+    --  hora, igual que en carro.
+    if v_bloque.fila = 'a_pie'
+       and not exists (select 1 from dias_entrega d
+                        where d.fecha = v_bloque.fecha and d.a_pie_abre_en is not null) then
       raise exception 'A_PIE_CERRADO';
     end if;
 
@@ -1936,6 +2044,9 @@ create table if not exists dias_entrega (
   abre_anticipado_en timestamptz,
   codigo_anticipado  text not null,
   cerrado            boolean not null default false,
+  --  A que hora abre el registro de la fila a pie (seccion 38). Nulo: ese
+  --  dia no hay fila a pie.
+  a_pie_abre_en      timestamptz,
   creado_en          timestamptz not null default now(),
   actualizado_en     timestamptz not null default now(),
   check (abre_anticipado_en is null or abre_anticipado_en <= abre_en)
@@ -1995,6 +2106,10 @@ grant  execute on function validar_codigo_anticipado(date, text) to anon, authen
 --  ("2026-09-11T12:00"), no con zona: asi no importa en que zona este la
 --  computadora de quien las captura.
 
+--  Se borra antes de crearla: le crecieron columnas (la fila a pie), y
+--  Postgres no deja cambiar lo que devuelve con "create or replace".
+drop function if exists listar_dias_entrega(date);
+
 create or replace function listar_dias_entrega(p_desde date default null)
 returns table (
   fecha              date,
@@ -2006,7 +2121,15 @@ returns table (
   total_bloques      int,
   capacidad_total    int,
   ocupados           int,
-  anticipadas        int
+  anticipadas        int,
+  --  La fila a pie del dia (seccion 38), si la hay. Los de arriba cuentan
+  --  solo los horarios de carro: el cupo a pie va aparte y puede ser sin limite.
+  a_pie_bloque_id    uuid,
+  a_pie_hora         time,
+  a_pie_capacidad    int,
+  a_pie_cerrado      boolean,
+  a_pie_abre_en      timestamp,
+  a_pie_ocupados     int
 )
 language plpgsql
 stable
@@ -2024,15 +2147,22 @@ begin
          d.codigo_anticipado,
          d.cerrado,
          now() >= d.abre_en,
-         (select count(*)::int from bloques b where b.fecha = d.fecha),
-         (select coalesce(sum(b.capacidad), 0)::int from bloques b where b.fecha = d.fecha),
+         (select count(*)::int from bloques b where b.fecha = d.fecha and b.fila = 'carro'),
+         (select coalesce(sum(b.capacidad), 0)::int from bloques b where b.fecha = d.fecha and b.fila = 'carro'),
          (select count(*)::int from citas c
             join bloques b on b.id = c.bloque_id
-           where b.fecha = d.fecha and c.estado <> 'cancelada'),
+           where b.fecha = d.fecha and b.fila = 'carro' and c.estado <> 'cancelada' and c.acompana_a is null),
          (select count(*)::int from citas c
             join bloques b on b.id = c.bloque_id
-           where b.fecha = d.fecha and c.estado <> 'cancelada' and c.con_codigo_anticipado)
+           where b.fecha = d.fecha and c.estado <> 'cancelada' and c.con_codigo_anticipado),
+         pie.id,
+         pie.hora,
+         pie.capacidad,
+         pie.cerrado,
+         d.a_pie_abre_en at time zone 'America/Los_Angeles',
+         (select count(*)::int from citas c where c.bloque_id = pie.id and c.estado <> 'cancelada')
     from dias_entrega d
+    left join bloques pie on pie.fecha = d.fecha and pie.fila = 'a_pie'
    where d.fecha >= coalesce(p_desde, current_date)
    order by d.fecha;
 end;
@@ -2771,7 +2901,8 @@ begin
   select count(*) into v_ocupados
     from citas c
    where c.bloque_id = p_bloque_id
-     and c.estado <> 'cancelada';
+     and c.estado <> 'cancelada'
+     and c.acompana_a is null;
 
   if v_ocupados >= v_bloque.capacidad then
     raise exception 'BLOQUE_LLENO';
@@ -3107,7 +3238,9 @@ begin
     select e.fecha from entregas_pase e where e.fecha between p_desde and p_hasta and (p_fila is null or e.fila = p_fila)
   ),
   cupos as (
-    select b.fecha as dia, sum(b.capacidad)::int as n
+    --  Una fila a pie "sin limite" (seccion 38) no suma cupo: no lo tiene.
+    select b.fecha as dia,
+           sum(case when b.capacidad >= cupo_sin_limite() then 0 else b.capacidad end)::int as n
       from bloques b
      where b.fecha between p_desde and p_hasta
        and (p_fila is null or b.fila = p_fila)
@@ -3483,6 +3616,12 @@ begin
     raise exception 'CITA_YA_ENTREGADA';
   end if;
 
+  --  Quien viene de acompanante va a la hora de quien maneja (seccion 39):
+  --  si cambia el horario, lo cambia quien maneja y se mueven juntos.
+  if v_cita.acompana_a is not null then
+    raise exception 'ACOMPANANTE_SIN_CAMBIO';
+  end if;
+
   select * into v_actual from bloques where id = v_cita.bloque_id;
   if v_actual.fecha < current_date then
     raise exception 'FECHA_PASADA';
@@ -3502,6 +3641,12 @@ begin
   --  su propia gente (seccion 32).
   if v_nuevo.fila <> v_actual.fila then
     raise exception 'OTRA_FILA';
+  end if;
+
+  --  En la fila a pie el lugar de cada quien es su turno del dia (seccion
+  --  38): en otro dia seria otro turno. Se saca uno nuevo ese dia.
+  if v_nuevo.fila = 'a_pie' then
+    raise exception 'A_PIE_SIN_CAMBIO';
   end if;
 
   if v_nuevo.cerrado then
@@ -3532,6 +3677,7 @@ begin
     from citas c
    where c.bloque_id = p_bloque_id
      and c.estado <> 'cancelada'
+     and c.acompana_a is null
      and c.id <> v_cita.id;
 
   if v_ocupados >= v_nuevo.capacidad then
@@ -3546,6 +3692,19 @@ begin
 
   insert into movimientos_cita (cita_id, de_bloque_id, a_bloque_id, origen, usuario_id)
   values (v_cita.id, v_actual.id, v_nuevo.id, p_origen, auth.uid());
+
+  --  Quienes vienen en su carro se mueven con el (seccion 39): mismo carro,
+  --  misma hora. No ocupan lugar, asi que no se vuelven a contar.
+  insert into movimientos_cita (cita_id, de_bloque_id, a_bloque_id, origen, usuario_id)
+  select c.id, v_actual.id, v_nuevo.id, p_origen, auth.uid()
+    from citas c
+   where c.acompana_a = v_cita.id and c.estado in ('reservada', 'llego');
+
+  update citas
+     set bloque_id = p_bloque_id,
+         semana    = date_trunc('week', v_nuevo.fecha)::date
+   where acompana_a = v_cita.id
+     and estado in ('reservada', 'llego');
 
   return v_cita;
 
@@ -3899,6 +4058,12 @@ create table if not exists pases (
   creado_por        uuid,
   creado_en         timestamptz not null default now(),
 
+  --  Suscriptor VIP (seccion 40): su pase es dorado y pasa directo, sin
+  --  hacer fila. Lo pone o lo quita el administrador.
+  vip               boolean not null default false,
+  vip_por           uuid,
+  vip_desde         timestamptz,
+
   --  Revocar no borra: queda quien lo quito, cuando y por que.
   revocado_por      uuid,
   revocado_en       timestamptz,
@@ -4092,6 +4257,9 @@ grant  execute on function revocar_pase(text, text) to authenticated;
 
 
 --  Todos los pases, para la pantalla que los administra.
+--  Le crecio una columna (vip, seccion 40): se borra y se vuelve a crear.
+drop function if exists listar_pases();
+
 create or replace function listar_pases()
 returns table (
   codigo_corto      text,
@@ -4105,7 +4273,8 @@ returns table (
   revocado_en       timestamptz,
   motivo_revocacion text,
   cajas_entregadas  int,
-  ultima_entrega    date
+  ultima_entrega    date,
+  vip               boolean
 )
 language plpgsql
 stable
@@ -4129,7 +4298,8 @@ begin
          pa.revocado_en,
          pa.motivo_revocacion,
          (select count(*)::int from entregas_pase e where e.pase_id = pa.id),
-         (select max(e.fecha) from entregas_pase e where e.pase_id = pa.id)
+         (select max(e.fecha) from entregas_pase e where e.pase_id = pa.id),
+         pa.vip
     from pases pa
     join personas p on p.id = pa.persona_id
     left join auth.users u on u.id = pa.creado_por
@@ -4180,11 +4350,15 @@ grant  execute on function entregas_pase_del_dia(date) to authenticated;
 --
 --  Tener el codigo es ser dueno del pase, igual que con el enlace de la
 --  cita: son 24 bytes al azar. Devuelve solo lo que se imprime.
+--  Le crecio una columna (vip, seccion 40): se borra y se vuelve a crear.
+drop function if exists pase_por_token(text);
+
 create or replace function pase_por_token(p_token text)
 returns table (
   nombre       text,
   codigo_corto text,
-  activo       boolean
+  activo       boolean,
+  vip          boolean
 )
 language sql
 stable
@@ -4192,7 +4366,7 @@ security definer
 set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
-  select p.nombre, p.codigo_corto, pa.activo
+  select p.nombre, p.codigo_corto, pa.activo, pa.vip
     from pases pa
     join personas p on p.id = pa.persona_id
    where pa.token = p_token;
@@ -4226,8 +4400,9 @@ create table if not exists avisos (
   id       uuid primary key default gen_random_uuid(),
 
   --  'inicio'   -> la lista de "Antes de empezar" en la portada
-  --  'registro' -> lo que hay que leer y aceptar antes de sacar el QR
-  seccion  text not null check (seccion in ('inicio', 'registro', 'preguntas', 'quienes')),
+  --  'registro'       -> lo que hay que leer y aceptar antes de sacar el QR (carros)
+  --  'registro_a_pie' -> lo mismo, antes de sacar turno en la fila a pie
+  seccion  text not null check (seccion in ('inicio', 'registro', 'registro_a_pie', 'preguntas', 'quienes')),
   orden    int  not null default 0,
 
   --  En las preguntas frecuentes el titulo es la pregunta y el texto la
@@ -4347,7 +4522,7 @@ declare
 begin
   perform exigir_permiso('editar_textos');
 
-  if p_seccion not in ('inicio', 'registro', 'preguntas', 'quienes') then
+  if p_seccion not in ('inicio', 'registro', 'registro_a_pie', 'preguntas', 'quienes') then
     raise exception 'SECCION_INVALIDA';
   end if;
 
@@ -4538,6 +4713,38 @@ select v.seccion, v.orden, v.texto_es, v.texto_en, v.texto_vi
      'Hãy lưu mã vào điện thoại hoặc in ra: bạn cần nó vào ngày phát quà.')
   ) as v(seccion, orden, texto_es, texto_en, texto_vi)
  where not exists (select 1 from avisos);
+
+-- ------------------------------------------------------------
+--  Las reglas de la fila a pie (28 de septiembre de 2026)
+-- ------------------------------------------------------------
+--  Antes de sacar turno a pie se leen estas, no las de carros: a pie no hay
+--  horario que cambiar, ni cajuela, ni cita que cancelar. Solo si esa
+--  seccion esta vacia, para no pisarle al pastor lo que haya escrito.
+insert into avisos (seccion, orden, texto_es, texto_en, texto_vi)
+select 'registro_a_pie', v.orden, v.texto_es, v.texto_en, v.texto_vi
+  from (values
+    (1,
+     'Cada persona de 18 años o más que vaya a recibir una caja necesita su propio turno y su propio código.',
+     'Each person 18 or older who will receive a box needs their own number and their own code.',
+     'Mỗi người từ 18 tuổi trở lên nhận thùng cần có số và mã riêng.'),
+    (2,
+     'Solo puedes sacar un turno por cada día de entrega.',
+     'You can only get one number per delivery day.',
+     'Mỗi ngày phát bạn chỉ được lấy một số.'),
+    (3,
+     'Tu código sirve para una sola caja y se usa una sola vez.',
+     'Your code is good for one box and can be used only once.',
+     'Mã của bạn chỉ dùng cho một thùng và chỉ dùng được một lần.'),
+    (4,
+     'Trae tu código listo, en el teléfono o impreso. Si no se deja leer, da tu número CB.',
+     'Have your code ready, on your phone or printed. If it will not scan, give your CB number.',
+     'Hãy chuẩn bị sẵn mã, trên điện thoại hoặc in ra. Nếu không quét được, hãy đọc số CB của bạn.'),
+    (5,
+     'Espera cerca. Cuando digan tu número, acércate y muestra tu código.',
+     'Wait nearby. When your number is called, come up and show your code.',
+     'Hãy chờ ở gần. Khi gọi đến số của bạn, hãy đến và đưa mã.')
+  ) as v(orden, texto_es, texto_en, texto_vi)
+ where not exists (select 1 from avisos a where a.seccion = 'registro_a_pie');
 
 -- ------------------------------------------------------------
 --  Con lo que arrancan las dos secciones nuevas
@@ -4818,8 +5025,7 @@ grant  execute on function guardar_permiso(text, boolean) to authenticated;
 -- ============================================================
 --  Fase 2 (CLAUDE.md > Alcance). La entrega tiene dos filas con su propio
 --  cupo, sus propios horarios y su propia gente escaneando. Esto pone la
---  base; la reserva publica a pie sigue cerrada ("Proximamente") hasta que
---  el pastor la abra con la configuracion a_pie_abierto.
+--  base; la fila a pie por turnos esta en la seccion 38.
 --
 --  La fila vive en el HORARIO, no en la cita: una cita es de la fila de su
 --  bloque. Asi el candado de reservar_cita() sobre la fila del bloque sigue
@@ -4850,6 +5056,13 @@ $$;
 --  diga lo que diga aqui.
 alter table personal add column if not exists fila text not null default 'ambas';
 
+--  La fila en que esta HOY (seccion 38). Cada quien la elige al abrir el
+--  escaner y manda sobre la de arriba; al dia siguiente se vuelve a elegir.
+--  Aqui y no en la seccion 38: las funciones de abajo son SQL y las leen al
+--  crearse.
+alter table personal add column if not exists fila_hoy       text;
+alter table personal add column if not exists fila_hoy_fecha date;
+
 --  "Entro sin cita" y los pases no tienen horario: se anotan en la fila de
 --  quien los registra.
 alter table entradas_sin_cita add column if not exists fila text not null default 'carro';
@@ -4859,6 +5072,9 @@ do $$
 begin
   if not exists (select 1 from pg_constraint where conname = 'personal_fila_valida') then
     alter table personal add constraint personal_fila_valida check (fila in ('carro', 'a_pie', 'ambas'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'personal_fila_hoy_valida') then
+    alter table personal add constraint personal_fila_hoy_valida check (fila_hoy in ('carro', 'a_pie'));
   end if;
   if not exists (select 1 from pg_constraint where conname = 'entradas_sin_cita_fila_valida') then
     alter table entradas_sin_cita add constraint entradas_sin_cita_fila_valida check (fila in ('carro', 'a_pie'));
@@ -4871,41 +5087,23 @@ $$;
 
 create index if not exists idx_bloques_fecha_fila on bloques (fecha, fila);
 
-insert into configuracion (clave, valor, nota) values
-  ('a_pie_abierto', 'no',
-   'Si la gente ya puede hacer cita en la fila a pie: si o no. Mientras diga ' ||
-   'no, el inicio muestra "Proximamente", los horarios a pie no salen al ' ||
-   'publico y nadie puede apartar lugar en ellos.')
-on conflict (clave) do nothing;
-
-
---  Si la fila a pie ya recibe citas.
-create or replace function a_pie_abierto()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public, pg_temp
-as $$
-  select coalesce(
-    (select lower(trim(valor)) in ('si', 'sí', 'true', '1') from configuracion where clave = 'a_pie_abierto'),
-    false);
-$$;
-
-revoke execute on function a_pie_abierto() from public, anon, authenticated;
-
-
---  Si quien tiene la sesion puede entregar en esa fila. El administrador,
---  en las dos; el voluntario, en la suya o en las dos si asi lo dejaron.
+--  Si quien tiene la sesion puede entregar en esa fila. Si hoy eligio fila
+--  (seccion 38), solo en esa, sea quien sea. Si no, la regla de siempre:
+--  el administrador en las dos; el voluntario, en la suya o en las dos si
+--  asi lo dejaron.
 create or replace function puede_escanear_fila(p_fila text)
 returns boolean
 language sql
 stable
 security definer
 set search_path = public, pg_temp
+set timezone    = 'America/Los_Angeles'
 as $$
   select coalesce(
-    (select pe.rol = 'admin' or pe.fila = 'ambas' or pe.fila = p_fila
+    (select case
+              when pe.fila_hoy_fecha = current_date and pe.fila_hoy is not null then pe.fila_hoy = p_fila
+              else pe.rol = 'admin' or pe.fila = 'ambas' or pe.fila = p_fila
+            end
        from personal pe
       where pe.usuario_id = auth.uid() and pe.activo),
     false);
@@ -4915,20 +5113,24 @@ revoke execute on function puede_escanear_fila(text) from public, anon, authenti
 
 
 --  En que fila se cuenta un pase o una entrada sin cita: la de quien la
---  registra. Quien escanea en las dos se cuenta en la de carros, que hoy
---  es la unica abierta; cuando abra la fila a pie, la pantalla de escaneo
---  le preguntara en cual esta.
+--  registra. La que eligio hoy (seccion 38); si no eligio, la suya, y
+--  quien escanea en las dos se cuenta en la de carros.
 create or replace function fila_de_entrega()
 returns text
 language sql
 stable
 security definer
 set search_path = public, pg_temp
+set timezone    = 'America/Los_Angeles'
 as $$
   select coalesce(
-    (select case when pe.fila = 'a_pie' then 'a_pie' else 'carro' end
+    (select case
+              when pe.fila_hoy_fecha = current_date and pe.fila_hoy is not null then pe.fila_hoy
+              when pe.rol <> 'admin' and pe.fila = 'a_pie' then 'a_pie'
+              else 'carro'
+            end
        from personal pe
-      where pe.usuario_id = auth.uid() and pe.activo and pe.rol <> 'admin'),
+      where pe.usuario_id = auth.uid() and pe.activo),
     'carro');
 $$;
 
@@ -5583,9 +5785,12 @@ begin
   perform 1 from bloques b where b.fecha = p_fecha for update;
 
   --  La fecha nueva abre como la original, con el mismo codigo de
-  --  suscriptores (el que ya se publico en Facebook sigue sirviendo).
-  insert into dias_entrega (fecha, abre_en, abre_anticipado_en, codigo_anticipado)
-  values (p_fecha_nueva, v_dia.abre_en, v_dia.abre_anticipado_en, v_dia.codigo_anticipado);
+  --  suscriptores (el que ya se publico en Facebook sigue sirviendo). La
+  --  fila a pie abre a la misma hora, pero del dia nuevo (seccion 38); cada
+  --  quien toma alla su turno en el mismo orden.
+  insert into dias_entrega (fecha, abre_en, abre_anticipado_en, codigo_anticipado, a_pie_abre_en)
+  values (p_fecha_nueva, v_dia.abre_en, v_dia.abre_anticipado_en, v_dia.codigo_anticipado,
+          v_dia.a_pie_abre_en + (p_fecha_nueva - p_fecha) * interval '1 day');
 
   for v_bloque in
     select * from bloques b where b.fecha = p_fecha order by b.hora, b.fila
@@ -5934,6 +6139,606 @@ $$;
 
 revoke execute on function marcar_guia_vista(text, int) from public, anon;
 grant  execute on function marcar_guia_vista(text, int) to authenticated;
+
+
+-- ============================================================
+--  38. LA FILA A PIE POR TURNOS
+-- ============================================================
+--  Decidido el 27 de septiembre de 2026. La fila a pie no va por horarios
+--  de 15 minutos: es una fila con turnos numerados, como en Costco. Un
+--  cartel con el QR de la pagina lleva al registro de siempre (los mismos
+--  datos que en carro); al terminar, la persona recibe su QR y su turno.
+--
+--    * Un solo horario a pie por dia: su hora es cuando se empieza a
+--      entregar y su cupo es el de todo el dia. "Sin limite" guarda
+--      cupo_sin_limite(), un numero, para que reservar_cita() cuente igual.
+--    * El registro a pie abre a su propia hora (dias_entrega.a_pie_abre_en),
+--      por lo general una hora antes de empezar. Sin esa hora, la fila a pie
+--      esta cerrada (A_PIE_CERRADO).
+--    * El turno lo pone un disparador al guardar la cita. Lo ordena el
+--      mismo candado de reservar_cita() sobre la fila del bloque: cincuenta
+--      registros al mismo tiempo reciben los turnos 1 a 50, sin repetir ni
+--      saltarse ninguno. reservar_cita() NO se toca.
+--    * El turno que va es el menor que sigue esperando. La voluntaria puede
+--      marcar "no se presento" (turno_saltado_en): la fila avanza, y si la
+--      persona llega despues, su QR sigue sirviendo.
+--    * Cada quien del equipo elige cada dia en que fila esta (fila_hoy,
+--      seccion 32). Eso manda sobre la fila que le asignaron en Equipo.
+--    * Una caja por QR, igual que en carro, y una cita por semana entre las
+--      dos filas.
+
+alter table citas        add column if not exists turno            int;
+alter table citas        add column if not exists turno_saltado_en timestamptz;
+alter table dias_entrega add column if not exists a_pie_abre_en    timestamptz;
+
+--  El cupo que se guarda cuando el administrador elige "sin limite". Las
+--  pantallas y los reportes lo reconocen y no lo suman.
+create or replace function cupo_sin_limite()
+returns int
+language sql
+immutable
+as $$
+  select 10000;
+$$;
+
+--  Un solo horario a pie por dia: la fila del dia.
+create unique index if not exists una_fila_a_pie_por_dia on bloques (fecha) where fila = 'a_pie';
+
+--  Las citas a pie que ya existieran reciben su turno en el orden en que se
+--  registraron. Solo en filas que todavia no tienen ninguno: se puede repetir.
+update citas c
+   set turno = x.n
+  from (select c2.id,
+               row_number() over (partition by c2.bloque_id order by c2.creada_en, c2.id) as n
+          from citas c2
+          join bloques b on b.id = c2.bloque_id
+         where b.fila = 'a_pie'
+           and not exists (select 1 from citas c3 where c3.bloque_id = c2.bloque_id and c3.turno is not null)) x
+ where x.id = c.id;
+
+--  Nunca dos personas con el mismo turno en la misma fila. Es la red por
+--  debajo del candado.
+create unique index if not exists un_turno_por_fila on citas (bloque_id, turno) where turno is not null;
+
+--  Da el turno que sigue. Tambien al moverse la cita a otra fila a pie
+--  (cuando se mueve la entrega de un dia completo): alla toma el turno que
+--  sigue, en el mismo orden en que llegaron.
+--
+--  El candado sobre la fila del bloque es el mismo de reservar_cita(), que
+--  ya lo tiene tomado cuando esto corre: quien reserve al mismo tiempo
+--  espera, y al seguir ya ve el turno que se acaba de dar.
+create or replace function dar_turno()
+returns trigger
+language plpgsql
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_fila text;
+begin
+  if tg_op = 'UPDATE' and new.bloque_id is not distinct from old.bloque_id then
+    return new;
+  end if;
+
+  select b.fila into v_fila from bloques b where b.id = new.bloque_id for update;
+
+  if v_fila = 'a_pie' then
+    select coalesce(max(c.turno), 0) + 1 into new.turno
+      from citas c
+     where c.bloque_id = new.bloque_id;
+  else
+    new.turno := null;
+  end if;
+
+  new.turno_saltado_en := null;
+  return new;
+end;
+$$;
+
+revoke execute on function dar_turno() from public, anon, authenticated;
+
+drop trigger if exists citas_dar_turno on citas;
+create trigger citas_dar_turno
+  before insert or update of bloque_id on citas
+  for each row execute function dar_turno();
+
+--  Ya no hay interruptor general: cada dia se arma su fila a pie.
+drop function if exists a_pie_abierto();
+delete from configuracion where clave = 'a_pie_abierto';
+
+
+--  ---------- Horarios: armar la fila a pie de un dia ----------
+
+--  Crea o cambia la fila a pie de un dia: a que hora se empieza a entregar,
+--  el cupo del dia (nulo = sin limite) y a que hora abre el registro (nulo =
+--  una hora antes de empezar). Horas LOCALES de San Diego, como las demas
+--  funciones de Horarios. Solo admin. Devuelve el horario a pie.
+--
+--  Si ya tiene turnos dados, se pueden cambiar la hora y el cupo; bajar el
+--  cupo no le quita el lugar a nadie, solo ya no entran mas.
+create or replace function guardar_fila_a_pie(
+  p_fecha   date,
+  p_hora    time,
+  p_cupo    int       default null,
+  p_abre_en timestamp default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_dia    dias_entrega;
+  v_bloque bloques;
+  v_cupo   int := coalesce(p_cupo, cupo_sin_limite());
+  v_inicio timestamptz;
+  v_abre   timestamptz;
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_fecha is null or p_fecha < current_date then
+    raise exception 'FECHA_PASADA';
+  end if;
+
+  select * into v_dia from dias_entrega d where d.fecha = p_fecha for update;
+  if not found then
+    raise exception 'DIA_NO_EXISTE';
+  end if;
+
+  if v_dia.cerrado then
+    raise exception 'DIA_CERRADO';
+  end if;
+
+  if p_hora is null then
+    raise exception 'HORARIO_INVALIDO';
+  end if;
+
+  if v_cupo < 1 or v_cupo > cupo_sin_limite() then
+    raise exception 'CAPACIDAD_INVALIDA';
+  end if;
+
+  v_inicio := (p_fecha + p_hora) at time zone 'America/Los_Angeles';
+  v_abre   := coalesce(p_abre_en at time zone 'America/Los_Angeles', v_inicio - interval '1 hour');
+
+  --  La gente tiene que poder sacar su turno antes de que la llamen.
+  if v_abre > v_inicio then
+    raise exception 'APERTURA_DESPUES_DE_INICIO';
+  end if;
+
+  --  El mismo candado que reservar_cita(): quien este sacando turno en este
+  --  momento espera, y al seguir ya ve el cupo nuevo.
+  select * into v_bloque from bloques b where b.fecha = p_fecha and b.fila = 'a_pie' for update;
+
+  if found then
+    update bloques set hora = p_hora, capacidad = v_cupo where id = v_bloque.id;
+  else
+    insert into bloques (fecha, hora, capacidad, fila)
+    values (p_fecha, p_hora, v_cupo, 'a_pie')
+    returning * into v_bloque;
+  end if;
+
+  update dias_entrega
+     set a_pie_abre_en  = v_abre,
+         actualizado_en = now()
+   where fecha = p_fecha;
+
+  return v_bloque.id;
+end;
+$$;
+
+revoke execute on function guardar_fila_a_pie(date, time, int, timestamp) from public, anon;
+grant  execute on function guardar_fila_a_pie(date, time, int, timestamp) to authenticated;
+
+
+--  Una fecha de entrega SOLO a pie, desde "Nueva fecha" en Horarios: el dia
+--  sin horarios de carro y con su fila a pie ya armada. (Si lleva las dos
+--  filas, se crea con crear_dia_entrega() y luego guardar_fila_a_pie().)
+--
+--  Todo o nada: si la fila a pie no se puede armar (los turnos abren
+--  despues de empezar, cupo de cero), el dia tampoco se crea. Sin horarios
+--  de carro, lo unico que abre ese dia son los turnos: el dia abre con ellos.
+create or replace function crear_dia_a_pie(
+  p_fecha   date,
+  p_hora    time,
+  p_cupo    int       default null,
+  p_abre_en timestamp default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_fecha is null or p_fecha < current_date then
+    raise exception 'FECHA_PASADA';
+  end if;
+
+  if p_hora is null then
+    raise exception 'HORARIO_INVALIDO';
+  end if;
+
+  if exists (select 1 from dias_entrega d where d.fecha = p_fecha) then
+    raise exception 'DIA_YA_EXISTE';
+  end if;
+
+  insert into dias_entrega (fecha, abre_en, codigo_anticipado)
+  values (p_fecha,
+          coalesce(p_abre_en at time zone 'America/Los_Angeles',
+                   (p_fecha + p_hora) at time zone 'America/Los_Angeles' - interval '1 hour'),
+          generar_codigo_anticipado());
+
+  return guardar_fila_a_pie(p_fecha, p_hora, p_cupo, p_abre_en);
+
+exception
+  --  Dos administradores creando la misma fecha al mismo tiempo.
+  when unique_violation then
+    raise exception 'DIA_YA_EXISTE';
+end;
+$$;
+
+revoke execute on function crear_dia_a_pie(date, time, int, timestamp) from public, anon;
+grant  execute on function crear_dia_a_pie(date, time, int, timestamp) to authenticated;
+
+
+--  Quita la fila a pie de un dia, si todavia nadie saco turno. Con turnos
+--  dados no se borra: se cierra el registro (actualizar_bloque) y los que
+--  ya tienen turno lo conservan.
+create or replace function quitar_fila_a_pie(p_fecha date)
+returns void
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_bloque bloques;
+begin
+  perform exigir_rol(array['admin']);
+
+  perform 1 from dias_entrega d where d.fecha = p_fecha for update;
+  if not found then
+    raise exception 'DIA_NO_EXISTE';
+  end if;
+
+  select * into v_bloque from bloques b where b.fecha = p_fecha and b.fila = 'a_pie' for update;
+  if not found then
+    raise exception 'FILA_A_PIE_NO_EXISTE';
+  end if;
+
+  if exists (select 1 from citas c where c.bloque_id = v_bloque.id) then
+    raise exception 'BLOQUE_CON_CITAS';
+  end if;
+
+  delete from bloques where id = v_bloque.id;
+
+  update dias_entrega
+     set a_pie_abre_en  = null,
+         actualizado_en = now()
+   where fecha = p_fecha;
+end;
+$$;
+
+revoke execute on function quitar_fila_a_pie(date) from public, anon;
+grant  execute on function quitar_fila_a_pie(date) to authenticated;
+
+
+--  ---------- La persona: su turno en vivo ----------
+
+--  Alimenta /confirmacion/:token en la fila a pie: su turno, el que va y
+--  cuantos tiene antes. La pagina lo vuelve a pedir cada pocos segundos.
+--  Solo numeros: nada de quien esta antes o despues. Sin filas si la cita
+--  no existe o no es de la fila a pie.
+create or replace function turno_de_cita(p_token text)
+returns table (
+  turno     int,
+  estado    text,
+  saltado   boolean,
+  actual    int,
+  antes     int,
+  atendidos int,
+  en_espera int,
+  fecha     date,
+  hora      time
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_cita   citas;
+  v_bloque bloques;
+begin
+  select * into v_cita from citas c where c.token_qr = p_token;
+  if not found or v_cita.turno is null then
+    return;
+  end if;
+
+  select * into v_bloque from bloques b where b.id = v_cita.bloque_id;
+
+  return query
+  with esperando as (
+    select c.turno
+      from citas c
+     where c.bloque_id = v_bloque.id
+       and c.estado in ('reservada', 'llego')
+       and c.turno_saltado_en is null
+  )
+  select v_cita.turno,
+         v_cita.estado,
+         v_cita.turno_saltado_en is not null,
+         (select min(e.turno) from esperando e)::int,
+         (select count(*) from esperando e where e.turno < v_cita.turno)::int,
+         (select count(*) from citas c where c.bloque_id = v_bloque.id and c.estado = 'entregada')::int,
+         (select count(*) from esperando e)::int,
+         v_bloque.fecha,
+         v_bloque.hora;
+end;
+$$;
+
+revoke execute on function turno_de_cita(text) from public;
+grant  execute on function turno_de_cita(text) to anon, authenticated;
+
+
+--  ---------- La voluntaria: la fila en vivo ----------
+
+--  Lo que ve en su telefono quien llama los turnos: el que va (con nombre y
+--  codigo, para gritarlo y cotejar), los que siguen, los que no se
+--  presentaron y las cuentas del dia. La pantalla lo vuelve a pedir cada
+--  pocos segundos. Null si ese dia no hay fila a pie.
+--
+--  Un voluntario solo ve la de hoy y solo si esta en la fila a pie: son
+--  nombres de personas, y solo los necesita quien las llama.
+create or replace function fila_de_turnos(p_fecha date default null)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_fecha  date := coalesce(p_fecha, current_date);
+  v_rol    text;
+  v_bloque bloques;
+  v_abre   timestamptz;
+  v_json   jsonb;
+begin
+  v_rol := exigir_rol(array['admin', 'voluntario']);
+
+  if v_rol <> 'admin' then
+    if v_fecha <> current_date then
+      raise exception 'SOLO_HOY';
+    end if;
+    if not puede_escanear_fila('a_pie') then
+      raise exception 'OTRA_FILA';
+    end if;
+  end if;
+
+  select * into v_bloque from bloques b where b.fecha = v_fecha and b.fila = 'a_pie';
+  if not found then
+    return null;
+  end if;
+
+  select d.a_pie_abre_en into v_abre from dias_entrega d where d.fecha = v_fecha;
+
+  with turnos as (
+    select c.turno, c.estado, c.turno_saltado_en, c.usado_en, p.nombre, p.codigo_corto
+      from citas c
+      join personas p on p.id = c.persona_id
+     where c.bloque_id = v_bloque.id
+       and c.estado <> 'cancelada'
+  ),
+  esperando as (
+    select * from turnos t where t.estado in ('reservada', 'llego') and t.turno_saltado_en is null
+  )
+  select jsonb_build_object(
+    'bloque_id',  v_bloque.id,
+    'fecha',      v_bloque.fecha,
+    'hora',       v_bloque.hora,
+    'capacidad',  v_bloque.capacidad,
+    'sin_limite', v_bloque.capacidad >= cupo_sin_limite(),
+    'cerrado',    v_bloque.cerrado,
+    'abre_en',    v_abre at time zone 'America/Los_Angeles',
+    'actual',     (select jsonb_build_object('turno', e.turno, 'nombre', e.nombre, 'codigo_corto', e.codigo_corto)
+                     from esperando e order by e.turno limit 1),
+    'siguientes', coalesce((select jsonb_agg(jsonb_build_object('turno', s.turno, 'nombre', s.nombre,
+                                                                'codigo_corto', s.codigo_corto) order by s.turno)
+                              from (select * from esperando e order by e.turno offset 1 limit 5) s), '[]'::jsonb),
+    'saltados',   coalesce((select jsonb_agg(jsonb_build_object('turno', t.turno, 'nombre', t.nombre,
+                                                                'codigo_corto', t.codigo_corto) order by t.turno)
+                              from turnos t
+                             where t.estado in ('reservada', 'llego') and t.turno_saltado_en is not null), '[]'::jsonb),
+    'ultimo',     (select jsonb_build_object('turno', t.turno, 'nombre', t.nombre, 'codigo_corto', t.codigo_corto)
+                     from turnos t where t.estado = 'entregada' order by t.usado_en desc nulls last, t.turno desc limit 1),
+    'atendidos',  (select count(*) from turnos t where t.estado = 'entregada'),
+    'en_espera',  (select count(*) from esperando),
+    'total',      (select count(*) from turnos)
+  ) into v_json;
+
+  return v_json;
+end;
+$$;
+
+revoke execute on function fila_de_turnos(date) from public, anon;
+grant  execute on function fila_de_turnos(date) to authenticated;
+
+
+--  "No se presento": la fila pasa al siguiente. Con p_saltado = false, la
+--  persona regresa a la fila en su mismo turno. Por NUMERO de turno y no
+--  "el que va": si dos voluntarias lo tocan al mismo tiempo, se salta uno
+--  solo. Solo en la fila a pie de hoy.
+create or replace function saltar_turno(p_turno int, p_saltado boolean default true)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_id uuid;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  update citas c
+     set turno_saltado_en = case when coalesce(p_saltado, true) then coalesce(c.turno_saltado_en, now()) end
+    from bloques b
+   where b.id = c.bloque_id
+     and b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado in ('reservada', 'llego')
+  returning c.id into v_id;
+
+  if v_id is null then
+    raise exception 'TURNO_NO_EXISTE';
+  end if;
+
+  return p_turno;
+end;
+$$;
+
+revoke execute on function saltar_turno(int, boolean) from public, anon;
+grant  execute on function saltar_turno(int, boolean) to authenticated;
+
+
+--  ---------- El escaner: en que fila estoy hoy ----------
+
+--  Cada quien elige al abrir el escaner. Cualquiera del equipo puede
+--  cambiarse (la pantalla le pide confirmar); al dia siguiente se vuelve a
+--  elegir. Manda sobre la fila asignada en Equipo (seccion 32).
+create or replace function elegir_fila(p_fila text)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if p_fila is null or p_fila not in ('carro', 'a_pie') then
+    raise exception 'FILA_INVALIDA';
+  end if;
+
+  update personal
+     set fila_hoy       = p_fila,
+         fila_hoy_fecha = current_date
+   where usuario_id = auth.uid() and activo;
+
+  return p_fila;
+end;
+$$;
+
+revoke execute on function elegir_fila(text) from public, anon;
+grant  execute on function elegir_fila(text) to authenticated;
+
+
+--  La fila que eligio hoy quien tiene la sesion. Null si todavia no elige.
+create or replace function mi_fila_de_hoy()
+returns text
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+  select case when pe.fila_hoy_fecha = current_date then pe.fila_hoy end
+    from personal pe
+   where pe.usuario_id = auth.uid() and pe.activo;
+$$;
+
+revoke execute on function mi_fila_de_hoy() from public, anon;
+grant  execute on function mi_fila_de_hoy() to authenticated;
+
+
+-- ============================================================
+--  39. ACOMPANANTES EN EL CARRO: UN LUGAR ES UN CARRO
+-- ============================================================
+--  Pedido del 28 de septiembre de 2026 (opcion A de las que se platicaron
+--  el 24): el cupo de cada horario es de CARROS, no de personas. Quien
+--  trae su carro aparta un lugar; quien viene en el carro de alguien que
+--  ya tiene cita se registra como acompanante con el codigo CB de quien
+--  maneja: tiene su propio QR y su propia caja (1 QR = 1 caja), pero no
+--  ocupa otro lugar.
+--
+--  El tope: cuantos acompanantes caben en un carro (configuracion
+--  acompanantes_por_carro, 3 de arranque). Sin tope, cualquiera se diria
+--  acompanante y el cupo dejaria de existir: el bug del Google Form.
+--
+--  Lo cuidan reservar_cita() (con el mismo candado de siempre), la
+--  disponibilidad y los conteos de Horarios. El acompanante va a la hora de
+--  quien maneja: no cambia de horario por su cuenta, y si quien maneja
+--  cambia el suyo, se mueven juntos.
+
+alter table citas add column if not exists acompana_a uuid references citas (id) on delete set null;
+
+create index if not exists idx_citas_acompana on citas (acompana_a) where acompana_a is not null;
+
+insert into configuracion (clave, valor, nota) values
+  ('acompanantes_por_carro', '3',
+   'Cuantas personas pueden registrarse como acompanantes de un mismo carro, ' ||
+   'ademas de quien maneja. Los acompanantes no ocupan lugar en el horario.')
+on conflict (clave) do nothing;
+
+
+-- ============================================================
+--  40. PASES VIP
+-- ============================================================
+--  Pedido del pastor, 28 de septiembre de 2026: los suscriptores VIP de
+--  Facebook no hacen fila, pasan directo. Su pase permanente (seccion 29)
+--  se marca VIP: el QR sale dorado y al escanearlo la pantalla dice "VIP,
+--  pasa directo". Todo lo demas es igual que cualquier pase: una caja por
+--  dia de entrega, no aparta lugar, se renueva o se quita igual.
+--
+--  Es del pase y no de la cita porque cada registro publico crea un codigo
+--  CB nuevo: marcar una cita se perderia la semana siguiente. Solo el
+--  administrador lo pone o lo quita; queda quien y desde cuando.
+
+alter table pases add column if not exists vip       boolean not null default false;
+alter table pases add column if not exists vip_por   uuid;
+alter table pases add column if not exists vip_desde timestamptz;
+
+--  Hacer VIP (o quitarle lo VIP) el pase de alguien, por su codigo CB.
+--  Devuelve como quedo.
+create or replace function marcar_pase_vip(p_codigo text, p_vip boolean)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_vip boolean := coalesce(p_vip, false);
+  v_id  uuid;
+begin
+  perform exigir_rol(array['admin']);
+
+  update pases pa
+     set vip       = v_vip,
+         vip_por   = case when v_vip then auth.uid() end,
+         vip_desde = case when v_vip then coalesce(pa.vip_desde, now()) end
+    from personas p
+   where p.id = pa.persona_id
+     and upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
+  returning pa.id into v_id;
+
+  if v_id is null then
+    raise exception 'PASE_NO_EXISTE';
+  end if;
+
+  return v_vip;
+end;
+$$;
+
+revoke execute on function marcar_pase_vip(text, boolean) from public, anon;
+grant  execute on function marcar_pase_vip(text, boolean) to authenticated;
 
 
 -- ============================================================

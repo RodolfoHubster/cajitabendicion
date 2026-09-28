@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-27-guia-del-panel.sql.
+--  Requiere todas las migraciones, hasta 2026-09-28-pases-vip.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -43,6 +43,10 @@ declare
   v_b_hoy        uuid;
   v_b_nuevo      uuid;
   v_b_pie        uuid;
+  v_b_pie2       uuid;
+  v_b_acomp      uuid;
+  v_b_acomp2     uuid;
+  v_duenio       text;
   v_inc          date;
   v_inc_nueva    date;
   v_inc_cancelar date;
@@ -78,6 +82,7 @@ declare
   v_numero2      int;
   i              int;
   v_fila         record;
+  v_json         jsonb;
 
   v_total        int;
   v_pasaron      int;
@@ -173,16 +178,20 @@ begin
       p_numero        text    default '4250',
       p_interior      text    default null,
       p_sin_domicilio boolean default false,
-      p_acepto        boolean default true
+      p_acepto        boolean default true,
+      p_acompanante   text    default null,
+      p_fecha         date    default null
     )
     returns text language sql as $b$
       select format(
         'select * from registrar_y_reservar(p_nombre => %L, p_apellidos => %L, p_telefono => %L, '
         'p_bloque_id => %L::uuid, p_email => %L, p_dispositivo => %L, p_codigo_anticipado => %L, '
         'p_pais => %L, p_codigo_postal => %L, p_colonia => %L, p_calle => %L, p_numero => %L, '
-        'p_numero_interior => %L, p_sin_domicilio => %L::boolean, p_acepto_privacidad => %L::boolean)',
+        'p_numero_interior => %L, p_sin_domicilio => %L::boolean, p_acepto_privacidad => %L::boolean, '
+        'p_codigo_acompanante => %L, p_fecha => %L::date)',
         p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_dispositivo, p_codigo,
-        p_pais, p_cp, p_colonia, p_calle, p_numero, p_interior, p_sin_domicilio, p_acepto);
+        p_pais, p_cp, p_colonia, p_calle, p_numero, p_interior, p_sin_domicilio, p_acepto,
+        p_acompanante, p_fecha);
     $b$
   $f$;
 
@@ -734,6 +743,90 @@ begin
     (select bloque_id from citas where token_qr = 'token-prueba-semana-b') = v_b_ventana);
 
   -- ==========================================================
+  --  10b. Acompanantes en el carro: un lugar es un carro (seccion 39)
+  -- ==========================================================
+  --  Un registro por telefono por dia, como en la iglesia.
+  update configuracion set valor = '1' where clave = 'limite_citas_por_dispositivo';
+  insert into bloques (fecha, hora, capacidad) values (v_jueves, '15:30', 1) returning id into v_b_acomp;
+  insert into bloques (fecha, hora, capacidad) values (v_jueves, '15:45', 5) returning id into v_b_acomp2;
+
+  v_duenio := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Carlos', p_apellidos => 'Maneja', p_telefono => '+16195557001',
+                     p_email => 'carlos.maneja@gmail.com', p_dispositivo => 'tel-carlos')));
+  perform pg_temp.comprobar('Acompañantes: quien trae su carro aparta el lugar', v_duenio like 'CB-%', v_duenio);
+
+  perform pg_temp.esperar_error('Acompañantes: con el lugar tomado, otro carro ya no cabe',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Otro', p_apellidos => 'Carro', p_telefono => '+16195557002',
+                     p_email => 'otro.carro@gmail.com'), 'BLOQUE_LLENO');
+
+  --  Desde el mismo telefono de quien maneja (la familia comparte telefono).
+  v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Laura', p_apellidos => 'Acompaña', p_telefono => '+16195557003',
+                     p_email => 'laura.acompana@gmail.com', p_dispositivo => 'tel-carlos', p_acompanante => lower(v_duenio))));
+  perform pg_temp.comprobar('Acompañantes: con el horario lleno, quien viene en ese carro sí se registra', v_texto like 'CB-%', v_texto);
+  select count(*) into v_numero
+    from citas c join personas p on p.id = c.persona_id
+   where p.codigo_corto = v_texto and c.bloque_id = v_b_acomp
+     and c.acompana_a = (select c2.id from citas c2 join personas p2 on p2.id = c2.persona_id where p2.codigo_corto = v_duenio);
+  perform pg_temp.comprobar('Acompañantes: queda en el carro y el horario de quien maneja', v_numero = 1, v_numero::text);
+  select d.ocupados into v_numero from consultar_disponibilidad(v_jueves, v_jueves) d where d.bloque_id = v_b_acomp;
+  perform pg_temp.comprobar('Acompañantes: el horario sigue contando un carro, no dos personas', v_numero = 1, v_numero::text);
+
+  --  Sin escoger horario (el dia ya no tiene lugares): basta la fecha.
+  v_texto2 := pg_temp.valor(format('select r.hora::text from (%s) r',
+    pg_temp.registro(null, p_nombre => 'Mario', p_apellidos => 'Acompaña', p_telefono => '+16195557004',
+                     p_email => 'mario.acompana@gmail.com', p_acompanante => v_duenio, p_fecha => v_jueves)));
+  perform pg_temp.comprobar('Acompañantes: sin escoger horario, le toca la hora de quien maneja', v_texto2 = '15:30:00', v_texto2);
+
+  perform pg_temp.esperar_ok('Acompañantes: tercer acompañante',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Rosa', p_apellidos => 'Acompaña', p_telefono => '+16195557005',
+                     p_email => 'rosa.acompana@gmail.com', p_acompanante => v_duenio));
+  perform pg_temp.esperar_error('Acompañantes: el carro tiene tope (3 acompañantes)',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Luis', p_apellidos => 'Sobra', p_telefono => '+16195557006',
+                     p_email => 'luis.sobra@gmail.com', p_acompanante => v_duenio), 'CARRO_LLENO');
+
+  perform pg_temp.esperar_error('Acompañantes: un código que no existe',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Ana', p_apellidos => 'Inventa', p_telefono => '+16195557007',
+                     p_email => 'ana.inventa@gmail.com', p_acompanante => 'CB-0000'), 'ACOMPANANTE_SIN_CITA');
+  perform pg_temp.esperar_error('Acompañantes: el código de otro acompañante no sirve (no trae carro)',
+    pg_temp.registro(v_b_acomp, p_nombre => 'Ana', p_apellidos => 'Inventa', p_telefono => '+16195557007',
+                     p_email => 'ana.inventa@gmail.com', p_acompanante => v_texto), 'ACOMPANANTE_SIN_CITA');
+  perform pg_temp.esperar_error('Acompañantes: ni pidiéndolo directo, un acompañante no lleva acompañantes',
+    format('select reservar_cita(%L::uuid, %L::uuid, (select c.id from citas c join personas p on p.id = c.persona_id where p.codigo_corto = %L))',
+           (select id from personas where codigo_corto = v_duenio), v_b_acomp, v_texto),
+    'ACOMPANANTE_SIN_CITA');
+  perform pg_temp.esperar_error('Acompañantes: quien maneja tiene que tener cita ese mismo día',
+    pg_temp.registro(v_b_lunes, p_nombre => 'Ana', p_apellidos => 'Inventa', p_telefono => '+16195557007',
+                     p_email => 'ana.inventa@gmail.com', p_acompanante => v_duenio), 'ACOMPANANTE_SIN_CITA');
+
+  --  Cambiar de horario: el acompañante no por su cuenta; con quien maneja, juntos.
+  select c.id into v_cita from citas c join personas p on p.id = c.persona_id where p.codigo_corto = v_texto;
+  perform pg_temp.esperar_error('Acompañantes: no cambia de horario por su cuenta',
+    format('select mover_cita(%L::uuid, %L::uuid, ''panel'')', v_cita, v_b_acomp2), 'ACOMPANANTE_SIN_CAMBIO');
+  perform mover_cita((select c.id from citas c join personas p on p.id = c.persona_id where p.codigo_corto = v_duenio),
+                     v_b_acomp2, 'panel');
+  select count(*) into v_numero from citas c where c.bloque_id = v_b_acomp2;
+  perform pg_temp.comprobar('Acompañantes: si quien maneja cambia de horario, su carro completo se mueve', v_numero = 4, v_numero::text);
+  select d.ocupados into v_numero from consultar_disponibilidad(v_jueves, v_jueves) d where d.bloque_id = v_b_acomp2;
+  perform pg_temp.comprobar('Acompañantes: y en el horario nuevo ocupa un solo lugar', v_numero = 1, v_numero::text);
+  select d.ocupados into v_numero from consultar_disponibilidad(v_jueves, v_jueves) d where d.bloque_id = v_b_acomp;
+  perform pg_temp.comprobar('Acompañantes: el horario de antes queda libre', v_numero = 0, v_numero::text);
+
+  --  Con 1 carro y 3 acompañantes en un horario de 5, caben otros 4 carros.
+  for i in 1 .. 4 loop
+    perform pg_temp.esperar_ok(format('Acompañantes: caben los demás carros del horario (%s de 4)', i),
+      pg_temp.registro(v_b_acomp2, p_nombre => 'Carro', p_apellidos => 'Numero ' || chr(64 + i),
+                       p_telefono => '+1619555710' || i, p_email => format('carro%s@gmail.com', i)));
+  end loop;
+  perform pg_temp.esperar_error('Acompañantes: y el sexto carro ya no',
+    pg_temp.registro(v_b_acomp2, p_nombre => 'Carro', p_apellidos => 'Sobra', p_telefono => '+16195557109',
+                     p_email => 'carro.sobra@gmail.com'), 'BLOQUE_LLENO');
+
+  perform pg_temp.comprobar('Acompañantes: nadie aparta lugar llamando a reservar_cita() desde el navegador',
+    not has_function_privilege('anon', 'reservar_cita(uuid, uuid, uuid)', 'execute')
+    and not has_function_privilege('authenticated', 'reservar_cita(uuid, uuid, uuid)', 'execute'));
+
+  -- ==========================================================
   --  11. Panel, escaneo y roles (como la primera cuenta admin)
   -- ==========================================================
   select usuario_id into v_admin from personal where rol = 'admin' and activo order by creado_en limit 1;
@@ -743,6 +836,10 @@ begin
   else
     perform set_config('request.jwt.claim.sub', v_admin::text, true);
     perform set_config('request.jwt.claims', json_build_object('sub', v_admin, 'role', 'authenticated')::text, true);
+    update personal set fila_hoy = null, fila_hoy_fecha = null where usuario_id = v_admin;
+
+    select b.ocupados into v_numero from bloques_del_dia(v_jueves) b where b.bloque_id = v_b_acomp2;
+    perform pg_temp.comprobar('Acompañantes: el panel cuenta carros (5), no personas (8)', v_numero = 5, v_numero::text);
 
     -- ---------- Crear y editar fechas ----------
     perform pg_temp.esperar_error('Panel: no crea fechas que ya pasaron',
@@ -1097,6 +1194,21 @@ begin
     select count(*) into v_numero from incidencias_de_fecha(v_inc_cancelar) x where x.tipo = 'cancelada' and x.creada_por is not null and x.afectadas = 1;
     perform pg_temp.comprobar('Incidencia: el historial dice quién, cuándo y a cuántas', v_numero = 1, v_numero::text);
 
+    --  Mover una entrega que tiene fila a pie (sección 38).
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values (v_lunes + 56, now() - interval '1 day', 'INCID3');
+    v_b_pie2 := guardar_fila_a_pie(v_lunes + 56, '16:00', 5, (v_lunes + 56) + time '15:00');
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRI4', 'Prueba Incidencia Pie', 'Prueba', 'Incidencia Pie', '+16195550804') returning id into v_persona;
+    perform reservar_cita(v_persona, v_b_pie2);
+    perform mover_entrega(v_lunes + 56, v_lunes + 63);
+    select (d.a_pie_abre_en at time zone 'America/Los_Angeles') = (v_lunes + 63) + time '15:00' into v_si
+      from dias_entrega d where d.fecha = v_lunes + 63;
+    perform pg_temp.comprobar('Fila a pie: al mover la entrega, el registro a pie abre a la misma hora en la fecha nueva', v_si);
+    select b.fila || ' ' || c.turno into v_texto
+      from citas c join bloques b on b.id = c.bloque_id join personas p on p.id = c.persona_id
+     where p.codigo_corto = 'CB-PRI4' and b.fecha = v_lunes + 63;
+    perform pg_temp.comprobar('Fila a pie: y la persona sigue en la fila a pie, con su turno', v_texto = 'a_pie 1', v_texto);
+
     -- ---------- La guía del panel (sección 37) ----------
     delete from guias_vistas where usuario_id = v_admin;
     select count(*) into v_numero from mis_guias_vistas();
@@ -1428,6 +1540,14 @@ begin
     perform pg_temp.esperar_error('Avisos: una pregunta frecuente sin pregunta',
       'select guardar_aviso(''preguntas'', ''Una respuesta suelta'')', 'TITULO_REQUERIDO');
 
+    select count(*) into v_numero from avisos_publicos('registro_a_pie');
+    perform pg_temp.comprobar('Avisos: la fila a pie tiene sus propias reglas', v_numero >= 1, v_numero::text);
+    select count(*) into v_numero from avisos_publicos('registro_a_pie') a
+     where a.texto_es ilike '%cajuela%' or a.texto_es ilike '%cambiar tu horario%';
+    perform pg_temp.comprobar('Avisos: y no traen las de carros (cajuela, cambiar horario)', v_numero = 0, v_numero::text);
+    perform pg_temp.esperar_ok('Avisos: se agregan reglas a la fila a pie',
+      'select guardar_aviso(''registro_a_pie'', ''Regla de prueba a pie'')');
+
     select guardar_aviso('inicio', 'Aviso de prueba') into v_aviso;
     perform pg_temp.comprobar('Avisos: se crea y devuelve su id', v_aviso is not null);
 
@@ -1488,6 +1608,23 @@ begin
     select count(*) into v_numero from listar_pases() l
      where l.codigo_corto = 'CB-PRP1' and l.activo;
     perform pg_temp.comprobar('Pase: aparece en la lista, activo', v_numero = 1, v_numero::text);
+
+    --  VIP (sección 40): pasa directo, sin fila.
+    perform pg_temp.comprobar('Pase VIP: un pase nuevo no es VIP',
+      not (select pa.vip from pase_por_token(v_token) pa));
+    perform pg_temp.esperar_error('Pase VIP: solo a quien ya tiene pase',
+      'select marcar_pase_vip(''CB-NOEXISTE'', true)', 'PASE_NO_EXISTE');
+    perform pg_temp.comprobar('Pase VIP: el administrador lo hace VIP', marcar_pase_vip('cb-prp1', true));
+    perform pg_temp.comprobar('Pase VIP: la persona lo ve en su pase',
+      (select pa.vip from pase_por_token(v_token) pa));
+    perform pg_temp.comprobar('Pase VIP: y la lista de pases lo dice',
+      (select l.vip from listar_pases() l where l.codigo_corto = 'CB-PRP1'));
+    perform pg_temp.comprobar('Pase VIP: queda quién y desde cuándo',
+      exists (select 1 from pases pa join personas p on p.id = pa.persona_id
+               where p.codigo_corto = 'CB-PRP1' and pa.vip_por = v_admin and pa.vip_desde is not null));
+    perform pg_temp.comprobar('Pase VIP: se le quita', not marcar_pase_vip('CB-PRP1', false));
+    perform pg_temp.comprobar('Pase VIP: y deja de verse dorado', not (select pa.vip from pase_por_token(v_token) pa));
+    perform marcar_pase_vip('CB-PRP1', true);
 
     select r.resultado into v_texto from registrar_entrega(v_token) r;
     perform pg_temp.comprobar('Pase: al escanearlo entrega la caja', v_texto = 'VALIDO_PASE', v_texto);
@@ -1611,6 +1748,8 @@ begin
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no da pases permanentes',
       'select * from crear_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no hace VIP a nadie',
+      'select marcar_pase_vip(''CB-PRP1'', true)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no revoca pases',
       'select revocar_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve la lista de pases',
@@ -1651,6 +1790,13 @@ begin
       'select anular_entrega(''CB-PRE4'', ''Prueba'')', 'FUERA_DE_PLAZO');
     v_texto := pg_temp.valor('select marcar_guia_vista(''voluntario'', 1)');
     perform pg_temp.comprobar('Guía: un voluntario también marca que ya la vio', v_texto = '1', v_texto);
+
+    perform pg_temp.esperar_error('Roles: un voluntario no arma la fila a pie',
+      format('select guardar_fila_a_pie(%L::date, ''15:00'')', v_jueves), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: ni crea fechas solo a pie',
+      format('select crear_dia_a_pie(%L::date, ''15:00'')', v_lunes + 71), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: ni la quita',
+      format('select quitar_fila_a_pie(%L::date)', v_jueves), 'SIN_PERMISO');
 
     perform pg_temp.esperar_error('Roles: un voluntario no avisa retrasos',
       format('select anunciar_retraso(%L::date, 30)', v_inc_nueva), 'SIN_PERMISO');
@@ -1775,128 +1921,338 @@ begin
     update personal set rol = 'admin' where usuario_id = v_admin;
     select u.email into v_email from auth.users u where u.id = v_admin;
 
-    insert into bloques (fecha, hora, capacidad, fila) values (v_hoy, '23:58', 3, 'a_pie')
-    returning id into v_b_pie;
-    perform pg_temp.comprobar('Filas: a la misma hora caben un horario de carro y uno a pie', v_b_pie is not null);
+    --  La fila a pie va por turnos (sección 38). Se arma sobre hoy: escanear
+    --  solo sirve el mismo día. Si hoy ya hay una fila a pie de verdad, no se
+    --  toca y estas pruebas se omiten.
+    if exists (select 1 from bloques b where b.fecha = v_hoy and b.fila = 'a_pie') then
+      perform pg_temp.comprobar('Fila a pie: OMITIDAS porque hoy hay una fila a pie de verdad', true, 'omitidas');
+    else
+      --  Sin armar (sin hora de apertura), la fila a pie está cerrada.
+      insert into bloques (fecha, hora, capacidad, fila) values (v_hoy, '23:58', 3, 'a_pie')
+      returning id into v_b_pie;
+      perform pg_temp.comprobar('Filas: a la misma hora caben un horario de carro y uno a pie', v_b_pie is not null);
 
-    perform pg_temp.esperar_error('Filas: dos horarios a pie a la misma hora, no',
-      format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:58'', 3, ''a_pie'')', v_hoy),
-      'bloques_fecha_hora_fila_key');
-    perform pg_temp.esperar_error('Filas: una fila que no existe, no',
-      format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:57'', 3, ''bici'')', v_hoy),
-      'bloques_fila_valida');
+      perform pg_temp.esperar_error('Fila a pie: un solo horario a pie por día',
+        format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:57'', 3, ''a_pie'')', v_hoy),
+        'una_fila_a_pie_por_dia');
+      perform pg_temp.esperar_error('Filas: una fila que no existe, no',
+        format('insert into bloques (fecha, hora, capacidad, fila) values (%L::date, ''23:57'', 3, ''bici'')', v_hoy),
+        'bloques_fila_valida');
 
-    --  Mientras a pie esta cerrado, nadie lo ve ni aparta lugar.
-    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_pie;
-    perform pg_temp.comprobar('Filas: con a pie cerrado, sus horarios no salen al público', v_numero = 0, v_numero::text);
-    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie;
-    perform pg_temp.comprobar('Filas: ni pidiéndolos a propósito', v_numero = 0, v_numero::text);
-    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_hoy;
-    perform pg_temp.comprobar('Filas: los de carro siguen saliendo igual', v_numero = 1, v_numero::text);
+      select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie;
+      perform pg_temp.comprobar('Fila a pie: sin hora de apertura no sale al público', v_numero = 0, v_numero::text);
+      select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_hoy;
+      perform pg_temp.comprobar('Filas: los de carro siguen saliendo igual', v_numero = 1, v_numero::text);
+      perform pg_temp.esperar_error('Fila a pie: sin hora de apertura nadie saca turno',
+        pg_temp.registro(v_b_pie), 'A_PIE_CERRADO');
+      perform pg_temp.esperar_error('Fila a pie: tampoco desde el panel',
+        pg_temp.panel(v_b_pie), 'A_PIE_CERRADO');
 
-    perform pg_temp.esperar_error('Filas: nadie aparta lugar a pie mientras esté cerrado',
-      pg_temp.registro(v_b_pie), 'A_PIE_CERRADO');
-    perform pg_temp.esperar_error('Filas: tampoco desde el panel',
-      pg_temp.panel(v_b_pie), 'A_PIE_CERRADO');
+      --  Armar la fila del día.
+      perform pg_temp.esperar_error('Fila a pie: no en una fecha pasada',
+        format('select guardar_fila_a_pie(%L::date, ''15:00'')', v_hoy - 1), 'FECHA_PASADA');
+      perform pg_temp.esperar_error('Fila a pie: solo en un día de entrega',
+        format('select guardar_fila_a_pie(%L::date, ''15:00'')', v_lunes + 1), 'DIA_NO_EXISTE');
+      perform pg_temp.esperar_error('Fila a pie: no en un día cerrado',
+        format('select guardar_fila_a_pie(%L::date, ''15:00'')', v_cerrada), 'DIA_CERRADO');
+      perform pg_temp.esperar_error('Fila a pie: sin hora de inicio, no',
+        format('select guardar_fila_a_pie(%L::date, null)', v_hoy), 'HORARIO_INVALIDO');
+      perform pg_temp.esperar_error('Fila a pie: cupo de cero, no',
+        format('select guardar_fila_a_pie(%L::date, ''23:58'', 0)', v_hoy), 'CAPACIDAD_INVALIDA');
+      perform pg_temp.esperar_error('Fila a pie: el registro no abre después de empezar a entregar',
+        format('select guardar_fila_a_pie(%L::date, ''23:58'', 3, %L::timestamp)', v_hoy, v_hoy + time '23:59'),
+        'APERTURA_DESPUES_DE_INICIO');
 
-    --  Se abre.
-    update configuracion set valor = 'si' where clave = 'a_pie_abierto';
+      v_texto := pg_temp.valor(format('select guardar_fila_a_pie(%L::date, ''23:58'', 3)', v_hoy));
+      perform pg_temp.comprobar('Fila a pie: se arma sobre el horario a pie del día', v_texto = v_b_pie::text, v_texto);
+      select (d.a_pie_abre_en at time zone 'America/Los_Angeles') = v_hoy + time '22:58' into v_si
+        from dias_entrega d where d.fecha = v_hoy;
+      perform pg_temp.comprobar('Fila a pie: si no se dice, el registro abre una hora antes de empezar', v_si);
 
-    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie;
-    perform pg_temp.comprobar('Filas: con a pie abierto, sus horarios salen cuando se piden', v_numero = 1, v_numero::text);
-    select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_pie;
-    perform pg_temp.comprobar('Filas: y no se revuelven con los de carro', v_numero = 0, v_numero::text);
+      --  Todavía no abre.
+      update dias_entrega set a_pie_abre_en = now() + interval '1 hour' where fecha = v_hoy;
+      select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d
+       where d.bloque_id = v_b_pie and not d.abierto and d.abre_en is not null and d.abre_anticipado_en is null;
+      perform pg_temp.comprobar('Fila a pie: antes de abrir sale al público con su hora de apertura', v_numero = 1, v_numero::text);
+      select d.codigo_anticipado into v_texto2 from dias_entrega d where d.fecha = v_hoy;
+      perform pg_temp.esperar_error('Fila a pie: antes de abrir nadie saca turno',
+        pg_temp.registro(v_b_pie, p_nombre => 'Ana', p_apellidos => 'Temprano', p_telefono => '+16195552201'), 'AUN_NO_ABRE');
+      perform pg_temp.esperar_error('Fila a pie: ni con el código de suscriptores (el turno es por llegada)',
+        pg_temp.registro(v_b_pie, v_texto2, p_nombre => 'Ana', p_apellidos => 'Temprano', p_telefono => '+16195552201'), 'AUN_NO_ABRE');
 
-    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
-    values ('CB-PRF1', 'Prueba A Pie', 'Prueba', 'A Pie', '+16195550301') returning id into v_persona;
-    select (reservar_cita(v_persona, v_b_pie)).token_qr into v_token_pie;
+      v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+        pg_temp.panel(v_b_pie, p_nombre => 'Pedro', p_apellidos => 'Turno Uno', p_telefono => '+526641112201')));
+      perform pg_temp.comprobar('Fila a pie: el equipo sí registra antes de que abra', v_texto like 'CB-%', v_texto);
 
-    select c.fila into v_texto from consultar_cita(v_token_pie) c;
-    perform pg_temp.comprobar('Filas: la vista previa del QR dice de qué fila es', v_texto = 'a_pie', v_texto);
+      --  Abre.
+      update dias_entrega set a_pie_abre_en = now() - interval '1 minute' where fecha = v_hoy;
+      select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy, 'a_pie') d where d.bloque_id = v_b_pie and d.abierto;
+      perform pg_temp.comprobar('Fila a pie: ya abierta, sale al público', v_numero = 1, v_numero::text);
+      select count(*) into v_numero from consultar_disponibilidad(v_hoy, v_hoy) d where d.bloque_id = v_b_pie;
+      perform pg_temp.comprobar('Filas: y no se revuelve con los de carro', v_numero = 0, v_numero::text);
 
-    --  Una cita no se pasa de fila.
-    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
-    values ('CB-PRF2', 'Prueba Carro Mover', 'Prueba', 'Carro Mover', '+16195550302') returning id into v_persona;
-    select (reservar_cita(v_persona, v_b_hoy)).id into v_cita;
-    perform pg_temp.esperar_error('Filas: una cita de carro no se mueve a un horario a pie',
-      format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_pie), 'OTRA_FILA');
+      v_token_pie := pg_temp.valor(format('select r.token_qr from (%s) r',
+        pg_temp.registro(v_b_pie, p_nombre => 'Ana', p_apellidos => 'Turno Dos', p_telefono => '+16195552202',
+                         p_email => 'ana.turno@gmail.com')));
+      select c.turno into v_numero from citas c where c.token_qr = v_token_pie;
+      perform pg_temp.comprobar('Fila a pie: cada quien recibe el turno que sigue', v_numero = 2, coalesce(v_numero::text, v_token_pie));
+      select c.turno, c.fila into v_numero, v_texto from consultar_cita(v_token_pie) c;
+      perform pg_temp.comprobar('Fila a pie: su página dice su turno y su fila', v_numero = 2 and v_texto = 'a_pie',
+        format('%s %s', v_numero, v_texto));
 
-    --  En qué fila escanea cada quien.
-    perform pg_temp.esperar_error('Filas: una fila que no existe no se le asigna a nadie',
-      format('select guardar_fila_personal(%L, ''bici'')', v_email), 'FILA_INVALIDA');
-    perform pg_temp.esperar_error('Filas: a alguien que no es del equipo, no',
-      'select guardar_fila_personal(''nadie.cb@gmail.com'', ''carro'')', 'PERSONAL_NO_EXISTE');
-    perform pg_temp.esperar_ok('Filas: el administrador asigna la fila',
-      format('select guardar_fila_personal(%L, ''carro'')', v_email));
-    perform pg_temp.comprobar('Filas: el administrador escanea en las dos, diga lo que diga', mi_fila() = 'ambas', mi_fila());
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+      values ('CB-PRF1', 'Prueba A Pie', 'Prueba', 'A Pie', '+16195550301') returning id into v_persona;
+      select (reservar_cita(v_persona, v_b_pie)).token_qr into v_texto2;
+      select c.turno into v_numero from citas c where c.token_qr = v_texto2;
+      perform pg_temp.comprobar('Fila a pie: el tercero, turno 3', v_numero = 3, v_numero::text);
 
-    update personal set rol = 'voluntario' where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Fila a pie: con el cupo del día lleno, ya no hay turnos',
+        pg_temp.registro(v_b_pie, p_nombre => 'Beto', p_apellidos => 'Sin Lugar', p_telefono => '+16195552204',
+                         p_email => 'beto.turno@gmail.com'),
+        'BLOQUE_LLENO');
 
-    perform pg_temp.comprobar('Filas: el voluntario ve su fila', mi_fila() = 'carro', mi_fila());
-    perform pg_temp.esperar_error('Filas: un voluntario no se cambia de fila solo',
-      format('select guardar_fila_personal(%L, ''ambas'')', v_email), 'SIN_PERMISO');
+      perform guardar_fila_a_pie(v_hoy, '23:58', null, (now() - interval '1 minute') at time zone 'America/Los_Angeles');
+      select b.capacidad = cupo_sin_limite() into v_si from bloques b where b.id = v_b_pie;
+      perform pg_temp.comprobar('Fila a pie: "sin límite" guarda el cupo sin límite', v_si);
 
-    select resultado into v_texto from registrar_entrega(v_token_pie);
-    perform pg_temp.comprobar('Filas: el de la fila de carros no entrega un código a pie', v_texto = 'OTRA_FILA', v_texto);
-    select c.estado into v_texto from citas c where c.token_qr = v_token_pie;
-    perform pg_temp.comprobar('Filas: y el código no se quema', v_texto = 'reservada', v_texto);
-    select resultado into v_texto from registrar_entrega_por_codigo('CB-PRF1');
-    perform pg_temp.comprobar('Filas: tampoco por código corto', v_texto = 'OTRA_FILA', v_texto);
+      --  Una cita por semana entre las dos filas.
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+      values ('CB-PRF2', 'Prueba Carro Mover', 'Prueba', 'Carro Mover', '+16195550302') returning id into v_persona;
+      select (reservar_cita(v_persona, v_b_hoy)).id into v_cita;
+      perform pg_temp.esperar_error('Filas: una cita de carro no se mueve a un horario a pie',
+        format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_pie), 'OTRA_FILA');
+      perform pg_temp.esperar_error('Fila a pie: quien ya tiene su cita de carro esta semana no saca turno a pie',
+        format('select reservar_cita(%L::uuid, %L::uuid)', v_persona, v_b_pie), 'YA_TIENE_CITA_ESTA_SEMANA');
 
-    update personal set fila = 'a_pie' where usuario_id = v_admin;
+      --  Su lugar es su turno: no se cambia a otro día.
+      insert into bloques (fecha, hora, capacidad, fila) values (v_lunes, '15:00', 5, 'a_pie') returning id into v_b_pie2;
+      select c.id into v_cita from citas c where c.token_qr = v_token_pie;
+      perform pg_temp.esperar_error('Fila a pie: un turno no se cambia a otro día',
+        format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_pie2), 'A_PIE_SIN_CAMBIO');
 
-    select resultado into v_texto from registrar_entrega(v_token_pie);
-    perform pg_temp.comprobar('Filas: en su fila, sí pasa', v_texto = 'VALIDO', v_texto);
-    select resultado into v_texto from registrar_entrega(v_token_pie);
-    perform pg_temp.comprobar('Filas: y una sola vez, como siempre', v_texto = 'YA_USADO', v_texto);
+      --  Si una cita pasa a otra fila a pie (mover la entrega de un día), allá
+      --  toma el turno que sigue, desde cero.
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+      values ('CB-PRF5', 'Prueba Turno Movido', 'Prueba', 'Turno Movido', '+16195550305') returning id into v_persona;
+      select (reservar_cita(v_persona, v_b_pie)).id into v_cita;
+      update citas set turno_saltado_en = now() where id = v_cita;
+      update citas set bloque_id = v_b_pie2, semana = date_trunc('week', v_lunes)::date where id = v_cita;
+      select c.turno::text || ' ' || (c.turno_saltado_en is null)::text into v_texto from citas c where c.id = v_cita;
+      perform pg_temp.comprobar('Fila a pie: al pasar a otra fila a pie toma el turno que sigue allá', v_texto = '1 true', v_texto);
 
-    --  "Entró sin cita" se anota en la fila de quien lo anota.
-    update permisos set activo = true where clave = 'anotar_sin_cita';
+      --  Lo que ve la persona.
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: la persona ve qué turno va y cuántos tiene antes',
+        v_fila.turno = 2 and v_fila.actual = 1 and v_fila.antes = 1 and v_fila.en_espera = 3 and not v_fila.saltado,
+        format('turno %s, va %s, antes %s, esperando %s', v_fila.turno, v_fila.actual, v_fila.antes, v_fila.en_espera));
+      select count(*) into v_numero from turno_de_cita('no-existe');
+      perform pg_temp.comprobar('Fila a pie: un código que no existe no dice nada', v_numero = 0, v_numero::text);
+      select count(*) into v_numero from turno_de_cita((select c.token_qr from citas c join personas p on p.id = c.persona_id
+                                                          where p.codigo_corto = 'CB-PRF2' and c.bloque_id = v_b_hoy));
+      perform pg_temp.comprobar('Fila a pie: una cita de carro no tiene turno', v_numero = 0, v_numero::text);
 
-    select s.codigo into v_codigo from registrar_entrada_sin_cita('Prueba Fila Pie') s;
-    select s.fila into v_texto from entradas_sin_cita s where s.codigo = v_codigo and s.fecha = v_hoy;
-    perform pg_temp.comprobar('Filas: el de a pie anota "sin cita" en su fila', v_texto = 'a_pie', v_texto);
-    perform pg_temp.esperar_error('Filas: y no en la fila de otros',
-      'select * from registrar_entrada_sin_cita(''Otra Persona'', ''carro'')', 'OTRA_FILA');
+      --  Lo que ve la voluntaria.
+      v_json := fila_de_turnos(v_hoy);
+      perform pg_temp.comprobar('Fila a pie: la voluntaria ve el turno que va, con nombre y código',
+        (v_json->'actual'->>'turno')::int = 1 and v_json->'actual'->>'nombre' = 'Pedro Turno Uno'
+        and v_json->'actual'->>'codigo_corto' like 'CB-%',
+        v_json->>'actual');
+      perform pg_temp.comprobar('Fila a pie: y los que siguen, en orden',
+        jsonb_array_length(v_json->'siguientes') = 2
+        and (v_json->'siguientes'->0->>'turno')::int = 2 and (v_json->'siguientes'->1->>'turno')::int = 3,
+        v_json->>'siguientes');
+      perform pg_temp.comprobar('Fila a pie: con las cuentas del día',
+        (v_json->>'en_espera')::int = 3 and (v_json->>'atendidos')::int = 0 and (v_json->>'total')::int = 3
+        and (v_json->>'sin_limite')::boolean,
+        format('esperando %s, atendidos %s, total %s', v_json->>'en_espera', v_json->>'atendidos', v_json->>'total'));
+      perform pg_temp.comprobar('Fila a pie: un día sin fila a pie no trae nada', fila_de_turnos(v_jueves) is null);
 
-    update permisos set activo = false where clave = 'anotar_sin_cita';
+      --  "No se presentó".
+      perform saltar_turno(1);
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: "no se presentó" pasa al siguiente', v_fila.actual = 2 and v_fila.antes = 0,
+        format('va %s, antes %s', v_fila.actual, v_fila.antes));
+      v_json := fila_de_turnos(v_hoy);
+      perform pg_temp.comprobar('Fila a pie: quien no se presentó queda aparte',
+        jsonb_array_length(v_json->'saltados') = 1 and (v_json->>'en_espera')::int = 2, v_json->>'saltados');
+      perform pg_temp.esperar_error('Fila a pie: no se salta un turno que no existe',
+        'select saltar_turno(999)', 'TURNO_NO_EXISTE');
+      perform saltar_turno(1, false);
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: y se le puede regresar a la fila', v_fila.actual = 1, v_fila.actual::text);
+      perform saltar_turno(1);
+      select * into v_fila from turno_de_cita((select c.token_qr from citas c where c.bloque_id = v_b_pie and c.turno = 1));
+      perform pg_temp.comprobar('Fila a pie: la persona ve que ya la llamaron', v_fila.saltado);
 
-    --  Las cuentas: cada fila por su lado, y juntas es la suma.
-    update personal set rol = 'admin', fila = 'ambas' where usuario_id = v_admin;
+      --  En qué fila escanea cada quien.
+      perform pg_temp.esperar_error('Filas: una fila que no existe no se le asigna a nadie',
+        format('select guardar_fila_personal(%L, ''bici'')', v_email), 'FILA_INVALIDA');
+      perform pg_temp.esperar_error('Filas: a alguien que no es del equipo, no',
+        'select guardar_fila_personal(''nadie.cb@gmail.com'', ''carro'')', 'PERSONAL_NO_EXISTE');
+      perform pg_temp.esperar_ok('Filas: el administrador asigna la fila',
+        format('select guardar_fila_personal(%L, ''carro'')', v_email));
+      perform pg_temp.comprobar('Filas: el administrador escanea en las dos, diga lo que diga', mi_fila() = 'ambas', mi_fila());
+      perform pg_temp.esperar_error('Fila a pie: una fila que no existe no se elige',
+        'select elegir_fila(''bici'')', 'FILA_INVALIDA');
+      perform pg_temp.comprobar('Fila a pie: sin elegir, no hay fila de hoy', mi_fila_de_hoy() is null, mi_fila_de_hoy());
 
-    select r.ya_recibieron into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
-    perform pg_temp.comprobar('Filas: el resumen a pie cuenta solo las cajas a pie', v_numero = 1, v_numero::text);
-    select r.sin_cita into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
-    perform pg_temp.comprobar('Filas: y solo los "sin cita" a pie', v_numero = 1, v_numero::text);
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
 
-    select (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy) r)
-         = (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'carro') r)
-         + (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'a_pie') r)
-      into v_si;
-    perform pg_temp.comprobar('Filas: en el resumen del día, juntas = carro + a pie', v_si);
+      perform pg_temp.comprobar('Filas: el voluntario ve su fila', mi_fila() = 'carro', mi_fila());
+      perform pg_temp.esperar_error('Filas: un voluntario no se cambia de fila solo',
+        format('select guardar_fila_personal(%L, ''ambas'')', v_email), 'SIN_PERMISO');
 
-    select coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy) r), 0)
-         = coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'carro') r), 0)
-         + coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r), 0)
-      into v_si;
-    perform pg_temp.comprobar('Filas: en los reportes, juntas = carro + a pie', v_si);
+      select resultado into v_texto from registrar_entrega(v_token_pie);
+      perform pg_temp.comprobar('Filas: el de la fila de carros no entrega un código a pie', v_texto = 'OTRA_FILA', v_texto);
+      select c.estado into v_texto from citas c where c.token_qr = v_token_pie;
+      perform pg_temp.comprobar('Filas: y el código no se quema', v_texto = 'reservada', v_texto);
+      select resultado into v_texto from registrar_entrega_por_codigo('CB-PRF1');
+      perform pg_temp.comprobar('Filas: tampoco por código corto', v_texto = 'OTRA_FILA', v_texto);
+      perform pg_temp.esperar_error('Fila a pie: quien está en carros no ve la lista de turnos',
+        format('select fila_de_turnos(%L::date)', v_hoy), 'OTRA_FILA');
+      perform pg_temp.esperar_error('Fila a pie: ni salta turnos',
+        'select saltar_turno(2)', 'OTRA_FILA');
 
-    select coalesce(sum(r.cajas), 0) into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
-    perform pg_temp.comprobar('Filas: las cajas a pie del día (1 con cita + 1 sin cita)', v_numero = 2, v_numero::text);
+      perform elegir_fila('a_pie');
+      perform pg_temp.comprobar('Fila a pie: cada quien elige en qué fila está hoy', mi_fila_de_hoy() = 'a_pie', mi_fila_de_hoy());
+      perform pg_temp.esperar_error('Fila a pie: el voluntario ve solo la fila de hoy',
+        format('select fila_de_turnos(%L::date)', v_hoy + 1), 'SOLO_HOY');
+      v_json := fila_de_turnos(null);
+      perform pg_temp.comprobar('Fila a pie: ya en a pie, ve la lista de turnos', (v_json->'actual'->>'turno')::int = 2, v_json->>'actual');
 
-    perform pg_temp.esperar_error('Filas: el resumen no acepta una fila inventada',
-      format('select * from resumen_del_dia(%L::date, ''bici'')', v_hoy), 'FILA_INVALIDA');
-    perform pg_temp.esperar_error('Filas: los reportes tampoco',
-      format('select * from reporte_por_dias(%L::date, %L::date, ''bici'')', v_hoy, v_hoy), 'FILA_INVALIDA');
+      select resultado into v_texto from registrar_entrega(v_texto2);
+      perform pg_temp.comprobar('Fila a pie: la fila elegida hoy manda sobre la asignada', v_texto = 'VALIDO', v_texto);
+      perform pg_temp.comprobar('Fila a pie: un turno adelantado sí pasa (el aviso lo da la pantalla)',
+        (select c.estado from citas c where c.token_qr = v_texto2) = 'entregada');
+      select resultado into v_texto from registrar_entrega(v_texto2);
+      perform pg_temp.comprobar('Filas: y una sola vez, como siempre', v_texto = 'YA_USADO', v_texto);
+      select resultado into v_texto from registrar_entrega((select c.token_qr from citas c where c.bloque_id = v_b_pie and c.turno = 1));
+      perform pg_temp.comprobar('Fila a pie: quien no se presentó y llega después, pasa', v_texto = 'VALIDO', v_texto);
+      select resultado into v_texto from registrar_entrega((select c.token_qr from citas c join personas p on p.id = c.persona_id
+                                                              where p.codigo_corto = 'CB-PRF2' and c.bloque_id = v_b_hoy));
+      perform pg_temp.comprobar('Fila a pie: estando en a pie, un código de carro se manda a su fila', v_texto = 'OTRA_FILA', v_texto);
 
-    select count(*) into v_numero from citas_del_dia(v_hoy) c where c.codigo_corto = 'CB-PRF1' and c.fila = 'a_pie';
-    perform pg_temp.comprobar('Filas: la lista del día dice la fila de cada cita', v_numero = 1, v_numero::text);
-    select count(*) into v_numero from bloques_del_dia(v_hoy) b where b.bloque_id = v_b_pie and b.fila = 'a_pie';
-    perform pg_temp.comprobar('Filas: el cupo del día dice la fila de cada horario', v_numero = 1, v_numero::text);
-    select count(*) into v_numero from listar_personal() l where l.es_yo and l.fila = 'ambas';
-    perform pg_temp.comprobar('Filas: la lista del equipo dice la fila de cada quien', v_numero = 1, v_numero::text);
+      v_json := fila_de_turnos(null);
+      perform pg_temp.comprobar('Fila a pie: la lista cuenta cada entrega',
+        (v_json->>'atendidos')::int = 2 and (v_json->'actual'->>'turno')::int = 2 and jsonb_typeof(v_json->'ultimo') = 'object',
+        format('atendidos %s, va %s', v_json->>'atendidos', v_json->'actual'->>'turno'));
 
-    update configuracion set valor = 'no' where clave = 'a_pie_abierto';
+      perform elegir_fila('carro');
+      select resultado into v_texto from registrar_entrega(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: al cambiarse a carros, ya no entrega a pie', v_texto = 'OTRA_FILA', v_texto);
+      perform elegir_fila('a_pie');
+      select resultado into v_texto from registrar_entrega(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: y al regresar, sí', v_texto = 'VALIDO', v_texto);
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: la persona ve que ya recibió', v_fila.estado = 'entregada', v_fila.estado);
+
+      --  Se escaneó a la persona equivocada: quien escaneó lo deshace en el
+      --  primer minuto. Regresa a la fila con su mismo turno y su QR vuelve a servir.
+      select p.codigo_corto into v_codigo2 from citas c join personas p on p.id = c.persona_id where c.token_qr = v_token_pie;
+      v_texto := pg_temp.valor(format('select anular_entrega(%L, %L)', v_codigo2, 'Prueba: se escaneó a la persona equivocada'));
+      perform pg_temp.comprobar('Fila a pie: quien escaneó deshace su propia entrega a pie', v_texto = 'ANULADA', v_texto);
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: al deshacerla, la persona regresa a la fila con su mismo turno',
+        v_fila.estado = 'reservada' and v_fila.turno = 2 and v_fila.actual = 2,
+        format('%s, turno %s, va %s', v_fila.estado, v_fila.turno, v_fila.actual));
+      v_json := fila_de_turnos(null);
+      perform pg_temp.comprobar('Fila a pie: y la voluntaria la ve otra vez como el turno que va',
+        (v_json->'actual'->>'turno')::int = 2 and (v_json->>'atendidos')::int = 2, v_json->>'actual');
+      select resultado into v_texto from registrar_entrega(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: y su QR vuelve a servir', v_texto = 'VALIDO', v_texto);
+
+      --  "Entró sin cita" se anota en la fila en que está hoy.
+      update permisos set activo = true where clave = 'anotar_sin_cita';
+
+      select s.codigo into v_codigo from registrar_entrada_sin_cita('Prueba Fila Pie') s;
+      select s.fila into v_texto from entradas_sin_cita s where s.codigo = v_codigo and s.fecha = v_hoy;
+      perform pg_temp.comprobar('Filas: el de a pie anota "sin cita" en su fila', v_texto = 'a_pie', v_texto);
+      perform pg_temp.esperar_error('Filas: y no en la fila de otros',
+        'select * from registrar_entrada_sin_cita(''Otra Persona'', ''carro'')', 'OTRA_FILA');
+
+      update permisos set activo = false where clave = 'anotar_sin_cita';
+
+      update personal set fila_hoy_fecha = current_date - 1 where usuario_id = v_admin;
+      perform pg_temp.comprobar('Fila a pie: lo que eligió ayer ya no cuenta hoy', mi_fila_de_hoy() is null, mi_fila_de_hoy());
+      perform pg_temp.comprobar('Fila a pie: y vuelve a la fila que le asignaron',
+        puede_escanear_fila('carro') and not puede_escanear_fila('a_pie'));
+
+      --  Las cuentas: cada fila por su lado, y juntas es la suma.
+      update personal set rol = 'admin', fila = 'ambas', fila_hoy = null, fila_hoy_fecha = null where usuario_id = v_admin;
+
+      select r.ya_recibieron into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
+      perform pg_temp.comprobar('Filas: el resumen a pie cuenta solo las cajas a pie', v_numero = 3, v_numero::text);
+      select r.sin_cita into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
+      perform pg_temp.comprobar('Filas: y solo los "sin cita" a pie', v_numero = 1, v_numero::text);
+
+      select (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy) r)
+           = (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'carro') r)
+           + (select r.ya_recibieron + r.sin_cita + r.con_pase from resumen_del_dia(v_hoy, 'a_pie') r)
+        into v_si;
+      perform pg_temp.comprobar('Filas: en el resumen del día, juntas = carro + a pie', v_si);
+
+      select coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy) r), 0)
+           = coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'carro') r), 0)
+           + coalesce((select sum(r.cajas) from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r), 0)
+        into v_si;
+      perform pg_temp.comprobar('Filas: en los reportes, juntas = carro + a pie', v_si);
+
+      select coalesce(sum(r.cajas), 0) into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
+      perform pg_temp.comprobar('Filas: las cajas a pie del día (3 con turno + 1 sin cita)', v_numero = 4, v_numero::text);
+      select r.capacidad into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
+      perform pg_temp.comprobar('Fila a pie: "sin límite" no se suma al cupo del reporte', v_numero = 0, v_numero::text);
+
+      select * into v_fila from listar_dias_entrega(v_hoy) l where l.fecha = v_hoy;
+      perform pg_temp.comprobar('Fila a pie: la lista de fechas trae la fila a pie aparte de los horarios de carro',
+        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 3 and v_fila.a_pie_abre_en is not null
+        and v_fila.capacidad_total < cupo_sin_limite(),
+        format('ocupados %s, cupo de carro %s', v_fila.a_pie_ocupados, v_fila.capacidad_total));
+
+      perform pg_temp.esperar_error('Filas: el resumen no acepta una fila inventada',
+        format('select * from resumen_del_dia(%L::date, ''bici'')', v_hoy), 'FILA_INVALIDA');
+      perform pg_temp.esperar_error('Filas: los reportes tampoco',
+        format('select * from reporte_por_dias(%L::date, %L::date, ''bici'')', v_hoy, v_hoy), 'FILA_INVALIDA');
+
+      select count(*) into v_numero from citas_del_dia(v_hoy) c where c.codigo_corto = 'CB-PRF1' and c.fila = 'a_pie';
+      perform pg_temp.comprobar('Filas: la lista del día dice la fila de cada cita', v_numero = 1, v_numero::text);
+      select count(*) into v_numero from bloques_del_dia(v_hoy) b where b.bloque_id = v_b_pie and b.fila = 'a_pie';
+      perform pg_temp.comprobar('Filas: el cupo del día dice la fila de cada horario', v_numero = 1, v_numero::text);
+      select count(*) into v_numero from listar_personal() l where l.es_yo and l.fila = 'ambas';
+      perform pg_temp.comprobar('Filas: la lista del equipo dice la fila de cada quien', v_numero = 1, v_numero::text);
+
+      --  Una fecha solo a pie, desde "Nueva fecha".
+      perform pg_temp.esperar_error('Fila a pie: una fecha que ya existe no se vuelve a crear',
+        format('select crear_dia_a_pie(%L::date, ''16:00'')', v_jueves), 'DIA_YA_EXISTE');
+      perform pg_temp.esperar_error('Fila a pie: si los turnos abren después de empezar, no se crea nada',
+        format('select crear_dia_a_pie(%L::date, ''16:00'', null, %L::timestamp)', v_lunes + 70, (v_lunes + 70) + time '17:00'),
+        'APERTURA_DESPUES_DE_INICIO');
+      perform pg_temp.comprobar('Fila a pie: y la fecha no quedó a medias',
+        not exists (select 1 from dias_entrega d where d.fecha = v_lunes + 70));
+
+      v_texto := pg_temp.valor(format('select crear_dia_a_pie(%L::date, ''16:00'', 40)', v_lunes + 70));
+      select count(*) filter (where b.fila = 'carro'), count(*) filter (where b.fila = 'a_pie' and b.capacidad = 40 and b.id::text = v_texto)
+        into v_numero, v_numero2
+        from bloques b where b.fecha = v_lunes + 70;
+      perform pg_temp.comprobar('Fila a pie: la fecha solo a pie se crea sin horarios de carro y con su fila',
+        v_numero = 0 and v_numero2 = 1, format('carro %s, a pie %s (%s)', v_numero, v_numero2, v_texto));
+      select (d.a_pie_abre_en at time zone 'America/Los_Angeles') = (v_lunes + 70) + time '15:00'
+             and d.abre_en = d.a_pie_abre_en
+        into v_si
+        from dias_entrega d where d.fecha = v_lunes + 70;
+      perform pg_temp.comprobar('Fila a pie: sus turnos (y el día) abren una hora antes de empezar', v_si);
+
+      --  Quitar la fila a pie de un día.
+      perform pg_temp.esperar_error('Fila a pie: con turnos dados no se quita (se cierra el registro)',
+        format('select quitar_fila_a_pie(%L::date)', v_hoy), 'BLOQUE_CON_CITAS');
+      perform guardar_fila_a_pie(v_jueves, '15:00', 20);
+      perform quitar_fila_a_pie(v_jueves);
+      perform pg_temp.comprobar('Fila a pie: sin turnos dados, se quita',
+        not exists (select 1 from bloques b where b.fecha = v_jueves and b.fila = 'a_pie')
+        and (select d.a_pie_abre_en from dias_entrega d where d.fecha = v_jueves) is null);
+      perform pg_temp.esperar_error('Fila a pie: no se quita lo que no hay',
+        format('select quitar_fila_a_pie(%L::date)', v_jueves), 'FILA_A_PIE_NO_EXISTE');
+    end if;
+
     update personal set rol = 'voluntario' where usuario_id = v_admin;
 
     -- ---------- Roles: sin sesion ----------
@@ -1929,6 +2285,23 @@ begin
       'select guardar_fila_personal(''alguien.cb@gmail.com'', ''carro'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se deshacen entregas',
       'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se elige fila',
+      'select elegir_fila(''a_pie'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve la fila de turnos',
+      'select fila_de_turnos(null)', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se saltan turnos',
+      'select saltar_turno(1)', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se crean fechas solo a pie',
+      format('select crear_dia_a_pie(%L::date, ''15:00'')', v_lunes + 71), 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se arma la fila a pie',
+      format('select guardar_fila_a_pie(%L::date, ''15:00'')', v_jueves), 'SIN_SESION');
+    perform pg_temp.comprobar('Roles: sin sesión no hay fila de hoy', mi_fila_de_hoy() is null, mi_fila_de_hoy());
+    if v_token_pie is not null then
+      select count(*) into v_numero from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Fila a pie: la persona ve su turno sin cuenta', v_numero = 1, v_numero::text);
+    end if;
+    perform pg_temp.esperar_error('Roles: sin sesión no se hace VIP a nadie',
+      'select marcar_pase_vip(''CB-PRP1'', true)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se marca la guía',
       'select marcar_guia_vista(''admin'', 1)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se cancela una entrega',
