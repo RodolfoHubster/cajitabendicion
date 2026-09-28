@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-25-incidencias.sql.
+--  Requiere todas las migraciones, hasta 2026-09-27-guia-del-panel.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -1097,6 +1097,31 @@ begin
     select count(*) into v_numero from incidencias_de_fecha(v_inc_cancelar) x where x.tipo = 'cancelada' and x.creada_por is not null and x.afectadas = 1;
     perform pg_temp.comprobar('Incidencia: el historial dice quién, cuándo y a cuántas', v_numero = 1, v_numero::text);
 
+    -- ---------- La guía del panel (sección 37) ----------
+    delete from guias_vistas where usuario_id = v_admin;
+    select count(*) into v_numero from mis_guias_vistas();
+    perform pg_temp.comprobar('Guía: quien nunca la ha visto no tiene nada guardado', v_numero = 0, v_numero::text);
+
+    v_numero := marcar_guia_vista('admin', 1);
+    select count(*) into v_numero2 from mis_guias_vistas() g where g.guia = 'admin' and g.version = 1;
+    perform pg_temp.comprobar('Guía: queda que ya la vio, con su versión', v_numero = 1 and v_numero2 = 1,
+      format('%s / %s', v_numero, v_numero2));
+
+    perform marcar_guia_vista('admin', 3);
+    v_numero := marcar_guia_vista('admin', 2);
+    perform pg_temp.comprobar('Guía: nunca baja de versión (un teléfono viejo no la vuelve a enseñar)', v_numero = 3, v_numero::text);
+    select count(*) into v_numero from guias_vistas g where g.usuario_id = v_admin;
+    perform pg_temp.comprobar('Guía: una sola fila por guía, aunque se marque varias veces', v_numero = 1, v_numero::text);
+
+    insert into guias_vistas (usuario_id, guia, version) values (gen_random_uuid(), 'voluntario', 7);
+    select count(*) into v_numero from mis_guias_vistas();
+    perform pg_temp.comprobar('Guía: cada quien ve solo las suyas', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Guía: una guía que no existe',
+      'select marcar_guia_vista(''publico'', 1)', 'GUIA_INVALIDA');
+    perform pg_temp.esperar_error('Guía: una versión que no existe',
+      'select marcar_guia_vista(''admin'', 0)', 'VERSION_INVALIDA');
+
     perform pg_temp.comprobar('Ver QR: la lista del día sigue sin traer los QR',
       pg_get_function_result('citas_del_dia(date)'::regprocedure) not like '%token%',
       pg_get_function_result('citas_del_dia(date)'::regprocedure));
@@ -1624,6 +1649,9 @@ begin
     insert into escaneos (cita_id, usuario_id, resultado) values (v_cita, gen_random_uuid(), 'VALIDO');
     perform pg_temp.esperar_error('Roles: un voluntario no deshace entregas ajenas sin su palomita',
       'select anular_entrega(''CB-PRE4'', ''Prueba'')', 'FUERA_DE_PLAZO');
+    v_texto := pg_temp.valor('select marcar_guia_vista(''voluntario'', 1)');
+    perform pg_temp.comprobar('Guía: un voluntario también marca que ya la vio', v_texto = '1', v_texto);
+
     perform pg_temp.esperar_error('Roles: un voluntario no avisa retrasos',
       format('select anunciar_retraso(%L::date, 30)', v_inc_nueva), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no mueve la entrega',
@@ -1901,6 +1929,8 @@ begin
       'select guardar_fila_personal(''alguien.cb@gmail.com'', ''carro'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se deshacen entregas',
       'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se marca la guía',
+      'select marcar_guia_vista(''admin'', 1)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se cancela una entrega',
       format('select cancelar_entrega(%L::date)', v_inc_nueva), 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve el QR de nadie',

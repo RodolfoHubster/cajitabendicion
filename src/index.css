@@ -85,3 +85,445 @@
     }
   }
 }
+
+/*
+  La guia del panel: las escenas animadas (src/componentes/guia/Escenas.jsx).
+
+  Regla de estas animaciones: el estado SIN animacion es el que se quiere
+  ensenar (el QR adentro del cuadro, el verde de "puede pasar", la palomita
+  prendida). Asi, quien pidio menos movimiento en su telefono ve la escena
+  quieta y completa, no a medias.
+*/
+.guia-anim {
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guia-anim {
+    animation: none !important;
+  }
+}
+
+/* Cada paso entra con un fundido corto, no a pedazos. */
+@keyframes guia-paso {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.guia-paso {
+  animation: guia-paso 0.25s ease-out;
+}
+
+/* Iconos que flotan (bienvenida). */
+@keyframes guia-flotar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.guia-flotar {
+  animation-name: guia-flotar;
+  animation-duration: 3s;
+}
+
+/* El QR entra al cuadro, se queda, y se va. */
+@keyframes guia-qr-entra {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translate(70%, 55%) rotate(-14deg);
+  }
+  28%,
+  82% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: translate(70%, 55%) rotate(-14deg);
+  }
+}
+.guia-qr-entra {
+  animation-name: guia-qr-entra;
+}
+
+/* El cuadro "late" cuando el QR ya esta adentro. */
+@keyframes guia-cuadro {
+  0%,
+  27% {
+    transform: scale(1);
+  }
+  33% {
+    transform: scale(1.07);
+  }
+  39%,
+  100% {
+    transform: scale(1);
+  }
+}
+.guia-cuadro {
+  animation-name: guia-cuadro;
+}
+
+/* El verde de "puede pasar" sube cuando ya se leyo. */
+@keyframes guia-sube {
+  0%,
+  36% {
+    opacity: 0;
+    transform: translateY(115%);
+  }
+  44%,
+  84% {
+    opacity: 1;
+    transform: none;
+  }
+  94%,
+  100% {
+    opacity: 0;
+    transform: translateY(115%);
+  }
+}
+.guia-sube {
+  animation-name: guia-sube;
+}
+
+/* Aparecer en tres tiempos: temprano, a la mitad y al final. */
+@keyframes guia-fase-1 {
+  0%,
+  15% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  24%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes guia-fase-2 {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  50%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes guia-fase-3 {
+  0%,
+  62% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  70%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+.guia-fase-1 {
+  animation-name: guia-fase-1;
+}
+.guia-fase-2 {
+  animation-name: guia-fase-2;
+}
+.guia-fase-3 {
+  animation-name: guia-fase-3;
+}
+
+/* Uno a la vez: los tres colores del resultado (con retrasos negativos). */
+@keyframes guia-turno {
+  0%,
+  30% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  36%,
+  94% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+.guia-turno {
+  animation-name: guia-turno;
+  animation-duration: 6s;
+}
+
+/* El minuto para deshacer: la barra se acaba y el boton se apaga. */
+@keyframes guia-plazo {
+  0% {
+    transform: scaleX(1);
+  }
+  85%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.guia-plazo {
+  animation-name: guia-plazo;
+  animation-timing-function: linear;
+  transform-origin: left;
+}
+@keyframes guia-se-apaga {
+  0%,
+  84% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    opacity: 0.35;
+  }
+}
+.guia-se-apaga {
+  animation-name: guia-se-apaga;
+}
+
+/* Escribir letra por letra. --letras: cuantas; el ancho va en ch. */
+@keyframes guia-escribe {
+  0%,
+  10% {
+    width: 0;
+  }
+  40%,
+  100% {
+    width: calc(var(--letras, 8) * 1ch);
+  }
+}
+@keyframes guia-escribe-despues {
+  0%,
+  42% {
+    width: 0;
+  }
+  64%,
+  100% {
+    width: calc(var(--letras, 8) * 1ch);
+  }
+}
+.guia-escribe,
+.guia-escribe-despues {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  width: calc(var(--letras, 8) * 1ch);
+  animation-timing-function: steps(var(--letras, 8), end);
+}
+.guia-escribe {
+  animation-name: guia-escribe;
+}
+.guia-escribe-despues {
+  animation-name: guia-escribe-despues;
+}
+
+/* El cursor que parpadea. */
+@keyframes guia-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+.guia-cursor {
+  animation-name: guia-cursor;
+  animation-duration: 0.9s;
+  animation-timing-function: steps(1, end);
+}
+
+/* Un dedo que toca un boton (y el boton que se hunde). */
+@keyframes guia-dedo {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translate(18px, 18px);
+  }
+  18% {
+    opacity: 1;
+    transform: none;
+  }
+  22% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  27% {
+    opacity: 1;
+    transform: none;
+  }
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+.guia-dedo {
+  animation-name: guia-dedo;
+}
+@keyframes guia-toque {
+  0%,
+  56% {
+    transform: scale(1);
+  }
+  61% {
+    transform: scale(0.9);
+  }
+  67%,
+  100% {
+    transform: scale(1);
+  }
+}
+.guia-toque {
+  animation-name: guia-toque;
+}
+
+/* El menu que se abre hacia abajo. */
+@keyframes guia-menu {
+  0%,
+  24% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  32%,
+  86% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  94%,
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+}
+.guia-menu {
+  animation-name: guia-menu;
+  transform-origin: top;
+}
+
+/* Dos opciones que se turnan (cita o pase). */
+@keyframes guia-alterna {
+  0%,
+  45% {
+    border-color: rgb(var(--c-marca));
+    background-color: rgb(var(--c-marca) / 0.12);
+  }
+  50%,
+  95% {
+    border-color: rgb(var(--c-principal) / 0.2);
+    background-color: transparent;
+  }
+  100% {
+    border-color: rgb(var(--c-marca));
+    background-color: rgb(var(--c-marca) / 0.12);
+  }
+}
+.guia-alterna {
+  animation-name: guia-alterna;
+}
+
+/* Interruptores (palomitas) que se prenden. Sin animacion: prendidos. */
+@keyframes guia-pista {
+  0%,
+  22% {
+    background-color: rgb(var(--c-principal) / 0.25);
+  }
+  32%,
+  92% {
+    background-color: rgb(var(--c-puede-pasar));
+  }
+  100% {
+    background-color: rgb(var(--c-principal) / 0.25);
+  }
+}
+@keyframes guia-perilla {
+  0%,
+  22% {
+    transform: translateX(0);
+  }
+  32%,
+  92% {
+    transform: translateX(1.25rem);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.guia-pista {
+  animation-name: guia-pista;
+}
+.guia-perilla {
+  animation-name: guia-perilla;
+  transform: translateX(1.25rem);
+}
+
+/* Barras que crecen (reportes). */
+@keyframes guia-barra {
+  0%,
+  8% {
+    transform: scaleY(0.05);
+  }
+  40%,
+  90% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0.05);
+  }
+}
+.guia-barra {
+  animation-name: guia-barra;
+  transform-origin: bottom;
+}
+
+/* La palomita que se dibuja. Sin animacion: dibujada. */
+@keyframes guia-palomita {
+  0%,
+  15% {
+    stroke-dashoffset: 60;
+  }
+  45%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+.guia-palomita {
+  animation-name: guia-palomita;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 0;
+}
+
+/* Un latido suave, para lo que hay que tocar. */
+@keyframes guia-latido {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+.guia-latido {
+  animation-name: guia-latido;
+  animation-duration: 1.8s;
+}

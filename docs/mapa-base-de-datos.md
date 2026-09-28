@@ -202,6 +202,14 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 código exacto no existe devuelve los de hoy que se le parecen
 (`parecido = true`).
 
+## La guía del panel (sección 37)
+
+| Objeto | Qué hace |
+|---|---|
+| `guias_vistas` | Quién vio qué guía (`admin` o `voluntario`) y hasta qué versión. |
+| `mis_guias_vistas()` | Las de quien pregunta, nadie más. |
+| `marcar_guia_vista(guia, version)` | Ya la vio. Nunca baja de versión. |
+
 ## Incidencias del día (sección 36)
 
 | Objeto | Qué hace |

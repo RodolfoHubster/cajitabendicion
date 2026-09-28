@@ -75,6 +75,20 @@ papel: el pastor le da a ciertas personas un pase que no vence.
 - Solo un admin da y quita pases. Revocar **no borra**: queda quién lo quitó,
   cuándo y por qué. Deja de servir al momento.
 
+### La guía del panel (desde el 27 de septiembre de 2026)
+
+La primera vez que alguien del equipo entra al panel se le abre una guía paso
+a paso con una escena animada por paso (`src/componentes/guia/`). Cada quien
+ve solo los pasos de lo que puede usar, se guarda **por cuenta** (un teléfono
+compartido no se la esconde al segundo voluntario) y se vuelve a abrir desde
+el menú, en "Guía de uso".
+
+**Cuando cambie cómo se trabaja** (como el 24 de septiembre, cuando escanear
+pasó a entregar de una vez), no basta con cambiar la pantalla: se agrega o se
+cambia el paso en `PASOS_GUIA` (`src/datos/guia.js`) con `desde` = la versión
+siguiente, su texto en los tres idiomas y su escena. A quien ya la vio le salen
+solo esas novedades. Las pruebas fallan si a un paso le falta texto o escena.
+
 ### Incidencias del día (propuesta del 25 de septiembre de 2026)
 
 El camión llega tarde, llueve, día festivo. En cada fecha de Horarios, "Hay

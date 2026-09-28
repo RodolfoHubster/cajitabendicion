@@ -93,7 +93,7 @@
     "camara": {
       "SIN_PERMISO": "You did not allow camera access.",
       "SIN_CAMARA": "This device has no camera available.",
-      "SIN_HTTPS": "The camera only works on secure sites (https).",
+      "SIN_HTTPS": "The camera cannot be used from this address. Open the system from its usual address.",
       "ERROR_CAMARA": "We could not turn on the camera.",
       "usaManual": "You can keep working: look the person up by name or code.",
       "CAMARA_OCUPADA": "Another app is using the camera.",
@@ -104,7 +104,7 @@
       }
     },
     "errores": {
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "SIN_PERMISO": "Your account cannot scan. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your mobile data.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
@@ -180,7 +180,7 @@
   "panel": {
     "cargando": "Loading today…",
     "errores": {
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "SIN_PERMISO": "Your account does not have permission to see this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your mobile data and try again.",
       "ERROR_DESCONOCIDO": "We could not load today's data. Please try again in a moment."
@@ -575,7 +575,7 @@
       "BLOQUE_YA_EXISTE": "That time slot already exists on this date.",
       "BLOQUE_CON_CITAS": "This time slot already has registrations and cannot be deleted. You can close it.",
       "BLOQUE_NO_EXISTE": "That time slot no longer exists. Reload the page.",
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
@@ -680,8 +680,104 @@
       "FECHA_YA_TIENE_ENTREGA": "That date already has its own delivery: joining two days would go over capacity. Choose another.",
       "SIN_PERMISO": "Only the administrator can do this.",
       "SIN_CONEXION": "No connection. Check your mobile data and try again.",
-      "FUNCION_NO_INSTALADA": "A database update still needs to be applied.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "ERROR_DESCONOCIDO": "It did not work. Try again in a moment."
+    }
+  },
+  "guia": {
+    "abrir": "User guide",
+    "paso": "Step {{actual}} of {{total}}",
+    "novedades": "What's new",
+    "anterior": "Back",
+    "siguiente": "Next",
+    "empezar": "Get started",
+    "saltar": "Skip the guide",
+    "cerrar": "Close the guide",
+    "irAlPaso": "Go to step {{n}}",
+    "pasos": {
+      "bienvenida": {
+        "titulo": "Welcome",
+        "texto": "In one minute we show you how the Cajita de Bendición panel works. You can see this guide again anytime from the menu, under “User guide”."
+      },
+      "menu": {
+        "titulo": "Everything is in the menu",
+        "texto": "On a phone, tap the button at the top to open it; on a computer it is on the side. You only see the screens that are yours."
+      },
+      "escanear": {
+        "titulo": "Scanning is delivering",
+        "texto": "Put the person's QR inside the frame. If everything is right, it is delivered on its own: a green “Let them through” appears with their name, and the camera is ready for the next car. No button to tap."
+      },
+      "colores": {
+        "titulo": "Look at the color",
+        "texto": "Green: let them through, give them their box. Red: they already received today, do not give another. Orange: it is for another date or another line; read what the screen says before delivering."
+      },
+      "deshacer": {
+        "titulo": "Scanned the wrong phone?",
+        "texto": "Tap “Undo this delivery” during the first minute and that code works again. After a minute, ask an administrator."
+      },
+      "buscar": {
+        "titulo": "If the QR will not scan",
+        "texto": "Tap “Search by name or code” and type their code, for example CB-4871. You can also search by name, but check carefully: many names repeat. When searching by hand, you do confirm the delivery."
+      },
+      "sinCita": {
+        "titulo": "If someone arrives without an appointment",
+        "texto": "Write down their name and, if they give it, their phone. Give them the receipt code (SC-…) shown on screen, in case something needs to be cleared up later."
+      },
+      "citasHoy": {
+        "titulo": "Today's appointments",
+        "texto": "How many have come, how many are left, and the list for the day. “View” opens a person's record. The administrator also sees their QR there and can mark as delivered a box that was not recorded."
+      },
+      "registrar": {
+        "titulo": "Register a person",
+        "texto": "For someone who cannot register on their own, like an older adult without a phone: give them an appointment for a date or a permanent pass."
+      },
+      "horarios": {
+        "titulo": "Slots and capacity",
+        "texto": "Here you create delivery dates, their time slots and how many fit in each. If the truck is late or a day must be moved or cancelled, use “There is a problem this day”."
+      },
+      "reportes": {
+        "titulo": "Reports",
+        "texto": "How many boxes were delivered each day, with and without an appointment: what is reported to the food bank."
+      },
+      "avisos": {
+        "titulo": "Texts and rules",
+        "texto": "What people read on the home page and the rules they accept before booking. You can change it right here whenever you need to."
+      },
+      "equipo": {
+        "titulo": "Team and permissions",
+        "texto": "In “Team & access” you give someone access with their Google email. In “Permissions” you choose, with checkmarks, what else each volunteer can do."
+      },
+      "listo": {
+        "titulo": "All set!",
+        "texto": "That is all. If you have a question, open this guide from the menu, under “User guide”. Thank you for serving!"
+      }
+    },
+    "escena": {
+      "sinTocar": "No tapping!",
+      "color": {
+        "VALIDO": "Give their box",
+        "YA_USADO": "Not another one",
+        "OTRA_FECHA": "Read the screen"
+      },
+      "deshacer": "Undo this delivery",
+      "unMinuto": "1 minute",
+      "entregar": "Deliver",
+      "pasaron": "Came",
+      "faltan": "Left",
+      "sinCita": "No appt.",
+      "ver": "View",
+      "cita": "Appointment",
+      "pase": "Permanent pass",
+      "suQr": "Their QR",
+      "jueves": "Thursday",
+      "incidencia": {
+        "retraso": "Delay",
+        "movida": "Move",
+        "cancelada": "Cancel"
+      },
+      "reglaEjemplo": "Arrive 5 minutes early",
+      "guardar": "Save",
+      "enLaPortada": "Now on the home page"
     }
   },
   "validacion": {
@@ -781,7 +877,7 @@
       "BLOQUE_CERRADO": "That time slot is closed.",
       "BLOQUE_NO_EXISTE": "That time slot no longer exists.",
       "DIA_CERRADO": "That day is closed.",
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not available right now. Please try again later.",
       "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
@@ -934,7 +1030,7 @@
       "PERSONAL_NO_EXISTE": "That person is no longer on the team. Reload the page.",
       "CODIGO_MUY_CORTO": "The code must have at least 6 characters.",
       "NO_ES_ADMIN": "Only an administrator can have an authorization code.",
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
@@ -1019,7 +1115,7 @@
     "errores": {
       "RANGO_INVALIDO": "The “From” date must be on or before “To”.",
       "RANGO_MUY_LARGO": "Choose a period of one year or less.",
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "SIN_PERMISO": "Your account does not have permission to see this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not load the report. Please try again.",
@@ -1172,7 +1268,7 @@
   },
   "permisos": {
     "titulo": "Volunteer permissions",
-    "ayuda": "Check what you want volunteers to be able to do. When you uncheck one, the screen disappears from their panel and the database turns them away too, even if they type the address by hand.",
+    "ayuda": "Check what you want volunteers to be able to do. When you uncheck one, that screen disappears from their panel and the system will not let them in, even if they type the address by hand.",
     "lista": "What they can do",
     "prendidos": "{{prendidos}} of {{total}} turned on",
     "cargando": "Loading…",
@@ -1241,7 +1337,7 @@
       "PERMISO_NO_EXISTE": "That permission no longer exists. Reload the page.",
       "SIN_PERMISO": "Only the administrator can change permissions.",
       "SIN_CONEXION": "No connection. Check your mobile data and try again.",
-      "FUNCION_NO_INSTALADA": "A database update is missing. Run the pending migration in supabase/migraciones and reload.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "ERROR_DESCONOCIDO": "We could not save the change. Please try again in a moment."
     }
   },
@@ -1296,7 +1392,7 @@
       "ENTREGA_NO_EXISTE": "That delivery can no longer be undone: it is not from today or it was already undone.",
       "SIN_PERMISO": "Your account is not allowed to undo deliveries. Ask the administrator.",
       "SIN_CONEXION": "No connection. Check your mobile data and try again.",
-      "FUNCION_NO_INSTALADA": "A database update is missing.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
       "ERROR_DESCONOCIDO": "We could not undo it. Please try again in a moment.",
       "FUERA_DE_PLAZO": "It can no longer be undone from here: more than a minute has passed or someone else delivered it. Ask an administrator."
     },

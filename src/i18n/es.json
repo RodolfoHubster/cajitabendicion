@@ -93,7 +93,7 @@
     "camara": {
       "SIN_PERMISO": "No diste permiso para usar la cámara.",
       "SIN_CAMARA": "Este dispositivo no tiene cámara disponible.",
-      "SIN_HTTPS": "La cámara solo funciona en sitios seguros (https).",
+      "SIN_HTTPS": "La cámara no se puede usar desde esta dirección. Abre el sistema desde su dirección de siempre.",
       "ERROR_CAMARA": "No pudimos encender la cámara.",
       "usaManual": "Puedes seguir trabajando: busca a la persona por nombre o código.",
       "CAMARA_OCUPADA": "Otra aplicación está usando la cámara.",
@@ -104,7 +104,7 @@
       }
     },
     "errores": {
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para escanear. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
@@ -180,7 +180,7 @@
   "panel": {
     "cargando": "Cargando el día…",
     "errores": {
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para ver esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No pudimos cargar los datos del día. Vuelve a intentar en un momento."
@@ -575,7 +575,7 @@
       "BLOQUE_YA_EXISTE": "Ese horario ya existe en esta fecha.",
       "BLOQUE_CON_CITAS": "Este horario ya tiene registros y no se puede eliminar. Puedes cerrarlo.",
       "BLOQUE_NO_EXISTE": "Ese horario ya no existe. Recarga la página.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
@@ -680,8 +680,104 @@
       "FECHA_YA_TIENE_ENTREGA": "Esa fecha ya tiene su propia entrega: juntar dos días pasaría del cupo. Elige otra.",
       "SIN_PERMISO": "Solo el administrador puede hacer esto.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "ERROR_DESCONOCIDO": "No se pudo. Vuelve a intentar en un momento."
+    }
+  },
+  "guia": {
+    "abrir": "Guía de uso",
+    "paso": "Paso {{actual}} de {{total}}",
+    "novedades": "Novedades",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente",
+    "empezar": "Empezar",
+    "saltar": "Saltar la guía",
+    "cerrar": "Cerrar la guía",
+    "irAlPaso": "Ir al paso {{n}}",
+    "pasos": {
+      "bienvenida": {
+        "titulo": "Te damos la bienvenida",
+        "texto": "En un minuto te enseñamos cómo funciona el panel de Cajita de Bendición. Puedes volver a ver esta guía cuando quieras desde el menú, en «Guía de uso»."
+      },
+      "menu": {
+        "titulo": "Todo está en el menú",
+        "texto": "En el celular, toca el botón de arriba para abrirlo; en la computadora está a un lado. Solo ves las pantallas que te tocan."
+      },
+      "escanear": {
+        "titulo": "Escanear es entregar",
+        "texto": "Pon el QR de la persona dentro del cuadro. Si todo está bien, se entrega solo: sale en verde «Puede pasar» con su nombre y la cámara queda lista para el siguiente carro. No hay que tocar ningún botón."
+      },
+      "colores": {
+        "titulo": "Fíjate en el color",
+        "texto": "Verde: puede pasar, dale su caja. Rojo: ya recibió hoy, no le des otra. Naranja: es de otra fecha o de otra fila; lee lo que dice la pantalla antes de entregar."
+      },
+      "deshacer": {
+        "titulo": "¿Escaneaste el teléfono equivocado?",
+        "texto": "Toca «Deshacer esta entrega» durante el primer minuto y ese código vuelve a servir. Pasado el minuto, pídeselo a un administrador."
+      },
+      "buscar": {
+        "titulo": "Si el QR no se deja leer",
+        "texto": "Toca «Buscar por nombre o código» y escribe su código, por ejemplo CB-4871. También puedes buscar por nombre, pero revisa bien: hay muchos nombres repetidos. Buscando a mano sí hay que confirmar la entrega."
+      },
+      "sinCita": {
+        "titulo": "Si llega alguien sin cita",
+        "texto": "Anota su nombre y, si lo da, su teléfono. Dale el código de comprobante (SC-…) que sale en pantalla, por si hay que aclarar algo después."
+      },
+      "citasHoy": {
+        "titulo": "Citas de hoy",
+        "texto": "Cuántos han pasado, cuántos faltan y la lista del día. Con «Ver» abres la ficha de una persona. El administrador también ve ahí su QR y puede marcar como entregada una caja que no se registró."
+      },
+      "registrar": {
+        "titulo": "Registrar a una persona",
+        "texto": "Para quien no puede registrarse sola, como un adulto mayor sin celular: le das una cita para una fecha o un pase permanente."
+      },
+      "horarios": {
+        "titulo": "Horarios y cupos",
+        "texto": "Aquí creas las fechas de entrega, sus horarios y cuántos caben en cada uno. Si el camión llega tarde o hay que mover o cancelar un día, usa «Hay un problema este día»."
+      },
+      "reportes": {
+        "titulo": "Reportes",
+        "texto": "Cuántas cajas se entregaron cada día, con y sin cita: lo que se reporta al banco de alimentos."
+      },
+      "avisos": {
+        "titulo": "Textos y reglas",
+        "texto": "Lo que la gente lee en la portada y las reglas que acepta antes de sacar su cita. Aquí mismo lo cambias cuando haga falta."
+      },
+      "equipo": {
+        "titulo": "Equipo y permisos",
+        "texto": "En «Equipo y accesos» das acceso a una persona con su correo de Google. En «Permisos» decides con palomitas qué más puede hacer cada voluntario."
+      },
+      "listo": {
+        "titulo": "¡Listo!",
+        "texto": "Eso es todo. Si te queda una duda, abre esta guía desde el menú, en «Guía de uso». ¡Gracias por servir!"
+      }
+    },
+    "escena": {
+      "sinTocar": "¡Sin tocar nada!",
+      "color": {
+        "VALIDO": "Dale su caja",
+        "YA_USADO": "No le des otra",
+        "OTRA_FECHA": "Lee la pantalla"
+      },
+      "deshacer": "Deshacer esta entrega",
+      "unMinuto": "1 minuto",
+      "entregar": "Entregar",
+      "pasaron": "Pasaron",
+      "faltan": "Faltan",
+      "sinCita": "Sin cita",
+      "ver": "Ver",
+      "cita": "Cita",
+      "pase": "Pase permanente",
+      "suQr": "Su QR",
+      "jueves": "Jueves",
+      "incidencia": {
+        "retraso": "Retraso",
+        "movida": "Mover",
+        "cancelada": "Cancelar"
+      },
+      "reglaEjemplo": "Llega 5 minutos antes",
+      "guardar": "Guardar",
+      "enLaPortada": "Ya sale en la portada"
     }
   },
   "validacion": {
@@ -781,7 +877,7 @@
       "BLOQUE_CERRADO": "Ese horario está cerrado.",
       "BLOQUE_NO_EXISTE": "Ese horario ya no existe.",
       "DIA_CERRADO": "Ese día está cerrado.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción no está disponible por ahora. Intenta más tarde.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
@@ -934,7 +1030,7 @@
       "PERSONAL_NO_EXISTE": "Esa persona ya no está en el equipo. Recarga la página.",
       "CODIGO_MUY_CORTO": "El código debe tener al menos 6 caracteres.",
       "NO_ES_ADMIN": "Solo un administrador puede tener código de autorización.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
@@ -1019,7 +1115,7 @@
     "errores": {
       "RANGO_INVALIDO": "La fecha «Desde» debe ser igual o anterior a «Hasta».",
       "RANGO_MUY_LARGO": "Elige un periodo de un año o menos.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para ver esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar.",
@@ -1172,7 +1268,7 @@
   },
   "permisos": {
     "titulo": "Permisos del voluntario",
-    "ayuda": "Marca lo que quieres que los voluntarios puedan hacer. Al quitar una palomita, la pantalla desaparece de su panel y la base de datos también se lo niega, aunque escriba la dirección a mano.",
+    "ayuda": "Marca lo que quieres que los voluntarios puedan hacer. Al quitar una palomita, esa pantalla desaparece de su panel y el sistema no los deja entrar, aunque escriban la dirección a mano.",
     "lista": "Lo que pueden hacer",
     "prendidos": "{{prendidos}} de {{total}} activados",
     "cargando": "Cargando…",
@@ -1241,7 +1337,7 @@
       "PERMISO_NO_EXISTE": "Ese permiso ya no existe. Recarga la página.",
       "SIN_PERMISO": "Solo el administrador puede cambiar los permisos.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos. Corre la migración pendiente en supabase/migraciones y recarga.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "ERROR_DESCONOCIDO": "No pudimos guardar el cambio. Vuelve a intentar en un momento."
     }
   },
@@ -1296,7 +1392,7 @@
       "ENTREGA_NO_EXISTE": "Esa entrega ya no se puede deshacer: no es de hoy o ya se había deshecho.",
       "SIN_PERMISO": "Tu cuenta no tiene permiso para deshacer entregas. Pídeselo al administrador.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
-      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
       "ERROR_DESCONOCIDO": "No pudimos deshacerla. Vuelve a intentar en un momento.",
       "FUERA_DE_PLAZO": "Ya no se puede deshacer desde aquí: pasó más de un minuto o la entregó otra persona. Pídeselo a un administrador."
     },

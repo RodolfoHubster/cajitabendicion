@@ -1,7 +1,16 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuChevronDown, LuMenu } from 'react-icons/lu'
+import { LuChevronDown, LuCircleHelp, LuMenu } from 'react-icons/lu'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
+import GuiaDelPanel from '../componentes/guia/GuiaDelPanel'
+import {
+  VERSION_GUIA,
+  guiaDeRol,
+  marcarGuiaVista,
+  pasosDeGuia,
+  pasosPendientes,
+  versionVista,
+} from '../datos/guia'
 import { cerrarSesion } from '../datos/sesion'
 import { seccionActual, seccionesVisibles } from './menu'
 
@@ -18,6 +27,42 @@ export default function DisenoAdmin() {
 
   const secciones = seccionesVisibles(rol, permisos)
   const actual = seccionActual(secciones, pathname)
+
+  // La guia paso a paso: { pasos, novedades } mientras esta abierta.
+  const [guia, setGuia] = useState(null)
+  const tipoGuia = guiaDeRol(rol)
+
+  //  La primera vez que esta cuenta entra al panel (o si hay novedades desde
+  //  la ultima vez), la guia se abre sola. Se guarda por cuenta: en un
+  //  telefono compartido, el segundo voluntario tambien la ve.
+  useEffect(() => {
+    let vigente = true
+
+    versionVista(tipoGuia, correo).then((vista) => {
+      if (!vigente || vista >= VERSION_GUIA) return
+      const claves = seccionesVisibles(rol, permisos).map((seccion) => seccion.clave)
+      const pendientes = pasosPendientes(pasosDeGuia({ rol, permisos, secciones: claves }), vista)
+      //  Si lo nuevo es de pantallas que no le tocan, no hay nada que ensenarle.
+      if (pendientes.length > 0) setGuia({ pasos: pendientes, novedades: vista > 0 })
+      else marcarGuiaVista(tipoGuia, correo)
+    })
+
+    return () => {
+      vigente = false
+    }
+  }, [tipoGuia, correo, rol, permisos])
+
+  //  Terminada, saltada o cerrada: ya la vio. Se vuelve a abrir desde el menu.
+  const cerrarGuia = useCallback(() => {
+    setGuia(null)
+    marcarGuiaVista(tipoGuia, correo)
+  }, [tipoGuia, correo])
+
+  function abrirGuia() {
+    setAbierto(false)
+    const claves = secciones.map((seccion) => seccion.clave)
+    setGuia({ pasos: pasosDeGuia({ rol, permisos, secciones: claves }), novedades: false })
+  }
 
   async function salir() {
     await cerrarSesion()
@@ -83,6 +128,17 @@ export default function DisenoAdmin() {
               </NavLink>
             </li>
           ))}
+          <li>
+            {/* La guia paso a paso, para volver a verla cuando se quiera. */}
+            <button
+              className="flex min-h-14 w-full items-center gap-2 whitespace-nowrap rounded-xl px-4 text-left text-base font-semibold text-principal transition hover:bg-principal/10"
+              onClick={abrirGuia}
+              type="button"
+            >
+              <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+              {t('guia.abrir')}
+            </button>
+          </li>
         </ul>
 
         <div className="mt-3 hidden rounded-xl bg-principal/5 p-3 lg:block">{cuenta}</div>
@@ -93,6 +149,8 @@ export default function DisenoAdmin() {
 
         <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden">{cuenta}</div>
       </div>
+
+      {guia && <GuiaDelPanel alCerrar={cerrarGuia} novedades={guia.novedades} pasos={guia.pasos} />}
     </div>
   )
 }

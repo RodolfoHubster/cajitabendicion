@@ -98,7 +98,7 @@
     "camara": {
       "SIN_PERMISO": "Bạn chưa cho phép sử dụng camera.",
       "SIN_CAMARA": "Thiết bị này không có camera.",
-      "SIN_HTTPS": "Camera chỉ hoạt động trên trang web bảo mật (https).",
+      "SIN_HTTPS": "Không thể dùng máy ảnh từ địa chỉ này. Hãy mở hệ thống từ địa chỉ thường dùng.",
       "ERROR_CAMARA": "Không thể bật camera.",
       "usaManual": "Bạn vẫn có thể tiếp tục: hãy tìm người đó theo tên hoặc mã.",
       "CAMARA_OCUPADA": "Một ứng dụng khác đang dùng máy ảnh.",
@@ -109,7 +109,7 @@
       }
     },
     "errores": {
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền quét mã. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
@@ -185,7 +185,7 @@
   "panel": {
     "cargando": "Đang tải dữ liệu trong ngày…",
     "errores": {
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền xem mục này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể tải dữ liệu trong ngày. Vui lòng thử lại sau."
@@ -574,7 +574,7 @@
       "BLOQUE_YA_EXISTE": "Khung giờ này đã có trong ngày.",
       "BLOQUE_CON_CITAS": "Khung giờ này đã có người đăng ký nên không thể xóa. Bạn có thể đóng khung giờ.",
       "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa. Hãy tải lại trang.",
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
@@ -679,8 +679,104 @@
       "FECHA_YA_TIENE_ENTREGA": "Ngày đó đã có buổi phát riêng: gộp hai ngày sẽ vượt quá số chỗ. Hãy chọn ngày khác.",
       "SIN_PERMISO": "Chỉ quản trị viên mới làm được việc này.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
-      "FUNCION_NO_INSTALADA": "Cần áp dụng một bản cập nhật cơ sở dữ liệu.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "ERROR_DESCONOCIDO": "Không thực hiện được. Hãy thử lại sau giây lát."
+    }
+  },
+  "guia": {
+    "abrir": "Hướng dẫn sử dụng",
+    "paso": "Bước {{actual}} / {{total}}",
+    "novedades": "Điểm mới",
+    "anterior": "Quay lại",
+    "siguiente": "Tiếp",
+    "empezar": "Bắt đầu",
+    "saltar": "Bỏ qua hướng dẫn",
+    "cerrar": "Đóng hướng dẫn",
+    "irAlPaso": "Đến bước {{n}}",
+    "pasos": {
+      "bienvenida": {
+        "titulo": "Chào mừng bạn",
+        "texto": "Trong một phút, chúng tôi chỉ cho bạn cách dùng trang quản lý của Cajita de Bendición. Bạn có thể xem lại hướng dẫn này bất cứ lúc nào trong trình đơn, mục “Hướng dẫn sử dụng”."
+      },
+      "menu": {
+        "titulo": "Mọi thứ đều ở trình đơn",
+        "texto": "Trên điện thoại, chạm vào nút ở trên cùng để mở; trên máy tính, trình đơn nằm ở bên cạnh. Bạn chỉ thấy những màn hình dành cho bạn."
+      },
+      "escanear": {
+        "titulo": "Quét là phát",
+        "texto": "Đưa mã QR của người đó vào trong khung. Nếu mọi thứ đúng, việc phát được ghi tự động: hiện màu xanh “Được vào” kèm tên của họ, và máy ảnh sẵn sàng cho xe tiếp theo. Không cần chạm nút nào."
+      },
+      "colores": {
+        "titulo": "Hãy nhìn màu",
+        "texto": "Xanh: được vào, hãy đưa thùng cho họ. Đỏ: hôm nay đã nhận rồi, đừng đưa thêm. Cam: là của ngày khác hoặc hàng khác; hãy đọc màn hình trước khi phát."
+      },
+      "deshacer": {
+        "titulo": "Quét nhầm điện thoại?",
+        "texto": "Chạm “Hoàn tác lần phát này” trong phút đầu tiên và mã đó dùng lại được. Sau một phút, hãy nhờ quản trị viên."
+      },
+      "buscar": {
+        "titulo": "Nếu không quét được mã QR",
+        "texto": "Chạm “Tìm theo tên hoặc mã” và gõ mã của họ, ví dụ CB-4871. Cũng có thể tìm theo tên, nhưng hãy kiểm tra kỹ: có nhiều tên trùng nhau. Khi tìm bằng tay thì phải xác nhận việc phát."
+      },
+      "sinCita": {
+        "titulo": "Nếu có người đến mà không có lịch hẹn",
+        "texto": "Ghi tên của họ và, nếu họ cho, số điện thoại. Đưa cho họ mã biên nhận (SC-…) hiện trên màn hình, phòng khi cần làm rõ sau này."
+      },
+      "citasHoy": {
+        "titulo": "Lịch hẹn hôm nay",
+        "texto": "Bao nhiêu người đã đến, còn bao nhiêu người, và danh sách trong ngày. Nút “Xem” mở hồ sơ của một người. Quản trị viên còn thấy mã QR của họ ở đó và có thể đánh dấu đã phát một thùng chưa được ghi lại."
+      },
+      "registrar": {
+        "titulo": "Đăng ký cho người khác",
+        "texto": "Dành cho người không tự đăng ký được, như người lớn tuổi không có điện thoại: bạn cho họ một lịch hẹn vào một ngày hoặc một thẻ vào lâu dài."
+      },
+      "horarios": {
+        "titulo": "Khung giờ và số chỗ",
+        "texto": "Ở đây bạn tạo các ngày phát, khung giờ và số chỗ của mỗi khung. Nếu xe tải đến trễ hoặc cần dời hay hủy một ngày, hãy dùng “Ngày này có sự cố”."
+      },
+      "reportes": {
+        "titulo": "Báo cáo",
+        "texto": "Số thùng đã phát mỗi ngày, có và không có lịch hẹn: số liệu báo cho ngân hàng thực phẩm."
+      },
+      "avisos": {
+        "titulo": "Văn bản và quy định",
+        "texto": "Những gì mọi người đọc ở trang chủ và các quy định họ đồng ý trước khi đặt lịch. Bạn có thể sửa ngay tại đây khi cần."
+      },
+      "equipo": {
+        "titulo": "Nhóm và quyền hạn",
+        "texto": "Trong “Nhóm và quyền truy cập”, bạn cấp quyền cho một người bằng email Google của họ. Trong “Quyền hạn”, bạn đánh dấu để chọn mỗi tình nguyện viên được làm thêm những gì."
+      },
+      "listo": {
+        "titulo": "Xong rồi!",
+        "texto": "Vậy là xong. Nếu còn thắc mắc, hãy mở hướng dẫn này trong trình đơn, mục “Hướng dẫn sử dụng”. Cảm ơn bạn đã phục vụ!"
+      }
+    },
+    "escena": {
+      "sinTocar": "Không cần chạm!",
+      "color": {
+        "VALIDO": "Đưa thùng",
+        "YA_USADO": "Đừng đưa thêm",
+        "OTRA_FECHA": "Đọc màn hình"
+      },
+      "deshacer": "Hoàn tác lần phát này",
+      "unMinuto": "1 phút",
+      "entregar": "Phát",
+      "pasaron": "Đã đến",
+      "faltan": "Còn lại",
+      "sinCita": "Không hẹn",
+      "ver": "Xem",
+      "cita": "Lịch hẹn",
+      "pase": "Thẻ vào lâu dài",
+      "suQr": "Mã QR của họ",
+      "jueves": "Thứ Năm",
+      "incidencia": {
+        "retraso": "Trễ",
+        "movida": "Dời",
+        "cancelada": "Hủy"
+      },
+      "reglaEjemplo": "Đến sớm 5 phút",
+      "guardar": "Lưu",
+      "enLaPortada": "Đã hiện ở trang chủ"
     }
   },
   "validacion": {
@@ -778,7 +874,7 @@
       "BLOQUE_CERRADO": "Khung giờ này đã đóng.",
       "BLOQUE_NO_EXISTE": "Khung giờ này không còn nữa.",
       "DIA_CERRADO": "Ngày này đã đóng.",
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này hiện chưa dùng được. Vui lòng thử lại sau.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
@@ -931,7 +1027,7 @@
       "PERSONAL_NO_EXISTE": "Người này không còn trong nhóm. Hãy tải lại trang.",
       "CODIGO_MUY_CORTO": "Mã phải có ít nhất 6 ký tự.",
       "NO_ES_ADMIN": "Chỉ quản trị viên mới có mã cho phép.",
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
@@ -1016,7 +1112,7 @@
     "errores": {
       "RANGO_INVALIDO": "Ngày «Từ» phải trùng hoặc trước ngày «Đến».",
       "RANGO_MUY_LARGO": "Hãy chọn khoảng thời gian tối đa một năm.",
-      "FUNCION_NO_INSTALADA": "Cơ sở dữ liệu còn thiếu một bản cập nhật. Hãy chạy migration còn chờ trong supabase/migraciones rồi tải lại trang.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "SIN_PERMISO": "Tài khoản của bạn không có quyền xem mục này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể tải báo cáo. Vui lòng thử lại.",
@@ -1169,7 +1265,7 @@
   },
   "permisos": {
     "titulo": "Quyền của tình nguyện viên",
-    "ayuda": "Đánh dấu những việc bạn muốn tình nguyện viên được làm. Khi bỏ dấu, màn hình đó biến mất khỏi bảng điều khiển của họ và cơ sở dữ liệu cũng từ chối, dù họ tự gõ địa chỉ.",
+    "ayuda": "Đánh dấu những việc bạn muốn tình nguyện viên được làm. Khi bỏ dấu, màn hình đó biến mất khỏi bảng điều khiển của họ và hệ thống cũng không cho họ vào, dù họ tự gõ địa chỉ.",
     "lista": "Những việc họ được làm",
     "prendidos": "Đang bật {{prendidos}} trên {{total}}",
     "cargando": "Đang tải…",
@@ -1238,7 +1334,7 @@
       "PERMISO_NO_EXISTE": "Quyền đó không còn nữa. Hãy tải lại trang.",
       "SIN_PERMISO": "Chỉ quản trị viên mới đổi được quyền.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
-      "FUNCION_NO_INSTALADA": "Thiếu một bản cập nhật cơ sở dữ liệu. Hãy chạy migration còn lại trong supabase/migraciones rồi tải lại.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "ERROR_DESCONOCIDO": "Chúng tôi không lưu được thay đổi. Vui lòng thử lại sau giây lát."
     }
   },
@@ -1293,7 +1389,7 @@
       "ENTREGA_NO_EXISTE": "Không thể hoàn tác lần phát đó nữa: không phải của hôm nay hoặc đã được hoàn tác.",
       "SIN_PERMISO": "Tài khoản của bạn không được hoàn tác lần phát. Hãy hỏi quản trị viên.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
-      "FUNCION_NO_INSTALADA": "Thiếu một bản cập nhật cơ sở dữ liệu.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
       "ERROR_DESCONOCIDO": "Chúng tôi không hoàn tác được. Vui lòng thử lại sau giây lát.",
       "FUERA_DE_PLAZO": "Không thể hoàn tác từ đây nữa: đã quá một phút hoặc người khác đã phát. Hãy nhờ quản trị viên."
     },

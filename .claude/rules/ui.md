@@ -97,6 +97,13 @@ Reutiliza antes de escribir uno nuevo.
 Ningún texto visible se escribe directo en el JSX: va por `t('clave')` de
 react-i18next. Ver la regla de i18n.
 
+**Para quien lo usa, no para quien lo programa.** Los textos los leen el
+pastor, los voluntarios y la gente que saca su cita: nada de "base de datos",
+"migración", "programar", "servidor" ni "https". Si algo falla por falta de
+una actualización, al equipo se le dice que avise a quien le da mantenimiento
+al sistema, y a la gente, que intente más tarde. `src/datos/textos.test.js`
+revisa los tres idiomas y falla si se cuela jerga.
+
 ## Datos de la organización
 
 Teléfono, dirección, redes, enlaces de donación y rutas de logos viven en
