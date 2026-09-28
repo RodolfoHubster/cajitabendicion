@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-25-entregas-a-mano.sql.
+--  Requiere todas las migraciones, hasta 2026-09-25-incidencias.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -43,6 +43,15 @@ declare
   v_b_hoy        uuid;
   v_b_nuevo      uuid;
   v_b_pie        uuid;
+  v_inc          date;
+  v_inc_nueva    date;
+  v_inc_cancelar date;
+  v_b_inc        uuid;
+  v_b_inc2       uuid;
+  v_b_inc3       uuid;
+  v_token_inc    text;
+  v_token_inc2   text;
+  v_token_choque text;
   v_b_marcar     uuid;
   v_marcar       date := current_date - 407;
 
@@ -988,6 +997,106 @@ begin
     select resultado into v_texto from registrar_entrega('token-prueba-marcar-mano');
     perform pg_temp.comprobar('Marcar a mano: ese QR ya no da otra caja', v_texto in ('YA_USADO', 'OTRA_FECHA'), v_texto);
 
+    -- ---------- Incidencias del día (sección 36) ----------
+    --  Tres fechas propias, lejos de las demás pruebas: un lunes (se mueve al
+    --  martes de la semana siguiente) y el lunes de esa semana (se cancela).
+    v_inc          := v_lunes + 42;
+    v_inc_nueva    := v_lunes + 50;
+    v_inc_cancelar := v_lunes + 49;
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values
+      (v_inc,          now() - interval '1 day', 'INCID1'),
+      (v_inc_cancelar, now() - interval '1 day', 'INCID2');
+    insert into bloques (fecha, hora, capacidad) values (v_inc, '15:00', 3) returning id into v_b_inc;
+    insert into bloques (fecha, hora, capacidad) values (v_inc, '15:15', 3) returning id into v_b_inc2;
+    insert into bloques (fecha, hora, capacidad) values (v_inc_cancelar, '15:00', 3) returning id into v_b_inc3;
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRI1', 'Prueba Incidencia Uno', 'Prueba', 'Incidencia Uno', '+16195550801') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_inc)).token_qr into v_token_inc;
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRI2', 'Prueba Incidencia Dos', 'Prueba', 'Incidencia Dos', '+16195550802') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_inc2)).token_qr into v_token_inc2;
+    --  Esta persona ya tiene su cita en la semana a la que se va a mover el día.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRI3', 'Prueba Incidencia Choque', 'Prueba', 'Incidencia Choque', '+16195550803') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_inc)).token_qr into v_token_choque;
+    insert into citas (persona_id, bloque_id, semana, token_qr)
+    values (v_persona, v_b_inc3, date_trunc('week', v_inc_cancelar)::date, 'token-prueba-incidencia-cancelar');
+
+    -- Retraso
+    v_texto := pg_temp.valor(format('select anunciar_retraso(%L::date, 30, %L)', v_inc, '  El camión   viene tarde '));
+    perform pg_temp.comprobar('Incidencia: se avisa un retraso', v_texto = 'AVISADO', v_texto);
+    select count(*) into v_numero from incidencia_de_cita(v_token_inc) x where x.tipo = 'retraso' and x.minutos = 30
+       and x.mensaje = 'El camión viene tarde';
+    perform pg_temp.comprobar('Incidencia: la página de la cita ve el retraso y el mensaje', v_numero = 1, v_numero::text);
+    perform anunciar_retraso(v_inc, 45);
+    select count(*) into v_numero from incidencias_publicas() x where x.fecha = v_inc and x.tipo = 'retraso';
+    select minutos into v_numero2 from incidencias_publicas() x where x.fecha = v_inc and x.tipo = 'retraso';
+    perform pg_temp.comprobar('Incidencia: el retraso nuevo reemplaza al anterior', v_numero = 1 and v_numero2 = 45,
+      format('%s avisos, %s min', v_numero, v_numero2));
+    v_texto := pg_temp.valor(format('select anunciar_retraso(%L::date, 0)', v_inc));
+    select count(*) into v_numero from incidencias_publicas() x where x.fecha = v_inc and x.tipo = 'retraso';
+    perform pg_temp.comprobar('Incidencia: con 0 minutos el aviso se quita', v_texto = 'RETIRADO' and v_numero = 0, v_texto);
+    perform pg_temp.esperar_error('Incidencia: más de 8 horas de retraso no',
+      format('select anunciar_retraso(%L::date, 500)', v_inc), 'MINUTOS_INVALIDOS');
+    perform pg_temp.esperar_error('Incidencia: un día que ya pasó no',
+      format('select anunciar_retraso(%L::date, 30)', v_pasada), 'FECHA_PASADA');
+    perform pg_temp.esperar_error('Incidencia: una fecha sin entrega',
+      format('select anunciar_retraso(%L::date, 30)', v_lunes + 43), 'DIA_NO_EXISTE');
+
+    -- Mover
+    perform pg_temp.esperar_error('Incidencia: no se mueve a una fecha que ya tiene entrega',
+      format('select * from mover_entrega(%L::date, %L::date)', v_inc, v_inc_cancelar), 'FECHA_YA_TIENE_ENTREGA');
+    perform pg_temp.esperar_error('Incidencia: no se mueve al mismo día',
+      format('select * from mover_entrega(%L::date, %L::date)', v_inc, v_inc), 'FECHA_NUEVA_INVALIDA');
+
+    select m.movidas, m.sin_mover into v_numero, v_numero2
+      from mover_entrega(v_inc, v_inc_nueva, 'No llegó el camión') m;
+    perform pg_temp.comprobar('Incidencia: se mueven las citas; la que choca con su cita de esa semana se queda',
+      v_numero = 2 and v_numero2 = 1, format('movidas %s, sin mover %s', v_numero, v_numero2));
+
+    select b.fecha::text || ' ' || b.hora::text into v_texto
+      from citas c join bloques b on b.id = c.bloque_id where c.token_qr = v_token_inc2;
+    perform pg_temp.comprobar('Incidencia: la cita movida conserva su QR y su hora, en la fecha nueva',
+      v_texto = v_inc_nueva::text || ' 15:15:00', v_texto);
+
+    select count(*) into v_numero from bloques b where b.fecha = v_inc_nueva and b.capacidad = 3;
+    perform pg_temp.comprobar('Incidencia: la fecha nueva tiene los mismos horarios y cupos', v_numero = 2, v_numero::text);
+    perform pg_temp.comprobar('Incidencia: la fecha original queda cerrada',
+      (select d.cerrado from dias_entrega d where d.fecha = v_inc)
+      and not exists (select 1 from bloques b where b.fecha = v_inc and not b.cerrado));
+    perform pg_temp.esperar_error('Incidencia: en la fecha original ya no se reserva',
+      pg_temp.registro(v_b_inc2, p_telefono => '+16195550809', p_nombre => 'Prueba', p_apellidos => 'Tarde'), 'CERRADO');
+
+    select count(*) into v_numero from movimientos_cita m
+      join citas c on c.id = m.cita_id where c.token_qr = v_token_inc and m.origen = 'incidencia' and m.usuario_id = v_admin;
+    perform pg_temp.comprobar('Incidencia: el movimiento queda en el historial de la cita', v_numero = 1, v_numero::text);
+    perform pg_temp.comprobar('Incidencia: mover no le gasta a la persona su cambio de horario',
+      cambios_restantes(v_token_inc) = 1, cambios_restantes(v_token_inc)::text);
+
+    select count(*) into v_numero from incidencia_de_cita(v_token_inc) x
+     where x.tipo = 'movida' and x.fecha = v_inc and x.fecha_nueva = v_inc_nueva and x.mensaje = 'No llegó el camión';
+    perform pg_temp.comprobar('Incidencia: la página de la cita dice de qué fecha se movió', v_numero = 1, v_numero::text);
+
+    select count(*) into v_numero from personas_a_avisar(v_inc) x where x.telefono is not null;
+    perform pg_temp.comprobar('Incidencia: a quién avisar: las movidas y la que se quedó', v_numero = 3, v_numero::text);
+    perform pg_temp.esperar_error('Incidencia: una fecha que ya se movió no se vuelve a mover',
+      format('select * from mover_entrega(%L::date, %L::date)', v_inc, v_inc_nueva + 7), 'DIA_YA_RESUELTO');
+
+    -- Cancelar
+    v_numero := pg_temp.valor(format('select cancelar_entrega(%L::date, %L)', v_inc_cancelar, 'Día festivo'))::int;
+    perform pg_temp.comprobar('Incidencia: se cancela la entrega', v_numero = 1, v_numero::text);
+    select c.estado || ' / ' || c.motivo_cancelacion into v_texto from citas c where c.token_qr = 'token-prueba-incidencia-cancelar';
+    perform pg_temp.comprobar('Incidencia: la cita queda cancelada con el motivo', v_texto = 'cancelada / Día festivo', v_texto);
+    select count(*) into v_numero from incidencia_de_cita('token-prueba-incidencia-cancelar') x where x.tipo = 'cancelada';
+    perform pg_temp.comprobar('Incidencia: la página de la cita dice que se canceló la entrega', v_numero = 1, v_numero::text);
+    select count(*) into v_numero from personas_a_avisar(v_inc_cancelar);
+    perform pg_temp.comprobar('Incidencia: a quién avisar incluye las canceladas por la incidencia', v_numero = 1, v_numero::text);
+    perform pg_temp.esperar_error('Incidencia: no se cancela dos veces',
+      format('select cancelar_entrega(%L::date)', v_inc_cancelar), 'DIA_YA_RESUELTO');
+    select count(*) into v_numero from incidencias_de_fecha(v_inc_cancelar) x where x.tipo = 'cancelada' and x.creada_por is not null and x.afectadas = 1;
+    perform pg_temp.comprobar('Incidencia: el historial dice quién, cuándo y a cuántas', v_numero = 1, v_numero::text);
+
     perform pg_temp.comprobar('Ver QR: la lista del día sigue sin traer los QR',
       pg_get_function_result('citas_del_dia(date)'::regprocedure) not like '%token%',
       pg_get_function_result('citas_del_dia(date)'::regprocedure));
@@ -1515,6 +1624,14 @@ begin
     insert into escaneos (cita_id, usuario_id, resultado) values (v_cita, gen_random_uuid(), 'VALIDO');
     perform pg_temp.esperar_error('Roles: un voluntario no deshace entregas ajenas sin su palomita',
       'select anular_entrega(''CB-PRE4'', ''Prueba'')', 'FUERA_DE_PLAZO');
+    perform pg_temp.esperar_error('Roles: un voluntario no avisa retrasos',
+      format('select anunciar_retraso(%L::date, 30)', v_inc_nueva), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no mueve la entrega',
+      format('select * from mover_entrega(%L::date, %L::date)', v_inc_nueva, v_inc_nueva + 7), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no cancela la entrega',
+      format('select cancelar_entrega(%L::date)', v_inc_nueva), 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario no ve a quién avisar (teléfonos)',
+      format('select * from personas_a_avisar(%L::date)', v_inc), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no marca entregas a mano',
       format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-PRE1', v_marcar, '14:00'), 'SIN_PERMISO');
 
@@ -1784,6 +1901,8 @@ begin
       'select guardar_fila_personal(''alguien.cb@gmail.com'', ''carro'')', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se deshacen entregas',
       'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se cancela una entrega',
+      format('select cancelar_entrega(%L::date)', v_inc_nueva), 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve el QR de nadie',
       format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ1', v_hoy, '23:58'), 'SIN_SESION');
     perform pg_temp.comprobar('Roles: sin sesión no hay fila', mi_fila() is null, mi_fila());

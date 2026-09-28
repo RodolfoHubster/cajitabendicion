@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import { LuArrowRight, LuHeart, LuHeartHandshake, LuListChecks } from 'react-icons/lu'
 import { Link, useNavigate } from 'react-router-dom'
+import AvisoIncidencias from '../../componentes/AvisoIncidencias'
 import ListaAvisos from '../../componentes/ListaAvisos'
 import { LogoCompleto } from '../../componentes/Logo'
 import MisCitas from '../../componentes/MisCitas'
@@ -24,6 +25,8 @@ export default function Inicio() {
     <div className="space-y-5">
       {/* Si este telefono ya hizo una cita, es lo primero que se ve. */}
       <MisCitas />
+      {/* El camion llega tarde, se movio o se cancelo una entrega. */}
+      <AvisoIncidencias />
 
       {/* Todo aparece junto, sin entrada escalonada: bloque por bloque se
           veia como una pagina que carga a pedazos. */}

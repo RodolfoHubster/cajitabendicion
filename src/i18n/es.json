@@ -597,6 +597,93 @@
     "aplicarTodos": "Aplicar a todos",
     "suscriptoresYaAbierta": "Esa hora ya pasó: la fecha está abierta para todos y el código no se pediría. Para que primero entren solo los suscriptores, pon una hora futura en «Se abren al público el»."
   },
+  "incidencias": {
+    "boton": "Hay un problema este día",
+    "titulo": "¿Qué pasó este día?",
+    "cerrar": "Cerrar",
+    "cargando": "Buscando lo que ya se hizo con esta fecha…",
+    "tipos": {
+      "retraso": {
+        "titulo": "Se va a atrasar",
+        "ayuda": "El camión viene tarde. Nadie se mueve: cada quien ve su hora nueva, en el mismo orden de siempre. El código sirve todo el día."
+      },
+      "movida": {
+        "titulo": "Mover la entrega a otro día",
+        "ayuda": "Todas las citas pasan a la fecha nueva con su mismo código y su misma hora. Este día se cierra."
+      },
+      "cancelada": {
+        "titulo": "Cancelar la entrega",
+        "ayuda": "Se cancelan todas las citas pendientes y el lugar queda libre para sacar otra. No cuentan como \"no asistió\"."
+      }
+    },
+    "minutos": "Minutos de retraso",
+    "minutosOpcion": "{{minutos}} minutos",
+    "fechaNueva": "Fecha nueva",
+    "fechaNuevaAyuda": "Un día que todavía no tenga entrega: juntar dos días pasaría del cupo.",
+    "mensaje": "Mensaje para la gente (opcional)",
+    "mensajeEjemplo": "Ej. El camión no llegó por la lluvia",
+    "aplicar": "Aplicar",
+    "aplicando": "Aplicando…",
+    "confirmarMovida": "¿Mover todas las citas del {{fecha}} al {{fechaNueva}}? Cada quien conserva su código y su hora.",
+    "confirmarCancelada": "¿Cancelar la entrega del {{fecha}}? Se cancelan todas las citas pendientes.",
+    "siMover": "Sí, mover la entrega",
+    "siCancelar": "Sí, cancelar la entrega",
+    "noVolver": "No, volver",
+    "listo": {
+      "retraso": "Listo: se avisó el retraso de {{minutos}} minutos.",
+      "retirado": "Listo: se quitó el aviso de retraso.",
+      "movida": "Listo: se movieron {{movidas}} citas al {{fechaNueva}}.",
+      "sinMover": "Sin mover: {{n}} (ya tenían su cita de esa semana; siguen en este día, revísalas en Citas de hoy).",
+      "cancelada": "Listo: citas canceladas: {{n}}."
+    },
+    "retrasoVigente": "Aviso vigente: {{minutos}} minutos de retraso.",
+    "quitarRetraso": "Quitar el aviso",
+    "yaResuelta": {
+      "movida": "Esta entrega ya se movió al {{fechaNueva}}.",
+      "cancelada": "Esta entrega ya se canceló."
+    },
+    "historial": "Lo que se ha hecho",
+    "historialLinea": {
+      "retraso": "Retraso de {{minutos}} minutos",
+      "movida": "Se movió al {{fechaNueva}} ({{n}} citas)",
+      "cancelada": "Se canceló ({{n}} citas)",
+      "llegada": "Llegaron {{n}} citas movidas del {{fecha}}"
+    },
+    "por": "{{quien}} · {{cuando}}",
+    "avisar": {
+      "ver": "Ver a quién avisar por WhatsApp",
+      "titulo": "Avisar por WhatsApp",
+      "ayuda": "Toca cada botón: se abre WhatsApp con su mensaje ya escrito y el enlace a su código; solo falta enviar. Es mientras se decide el envío automático.",
+      "cargando": "Buscando a quién avisar…",
+      "ninguna": "No hay a quién avisar.",
+      "cuenta": "Avisadas: {{avisadas}} de {{total}}",
+      "boton": "WhatsApp",
+      "avisada": "Avisada",
+      "sinTelefono": "Sin teléfono"
+    },
+    "publico": {
+      "retraso": "La entrega del {{fecha}} va con {{minutos}} minutos de retraso. Todos pasan en el mismo orden, {{minutos}} minutos después de su hora.",
+      "movida": "La entrega del {{fecha}} se movió al {{fechaNueva}}, a la misma hora. Tu mismo código sirve.",
+      "cancelada": "Se canceló la entrega del {{fecha}}. Si tenías cita, puedes sacar una nueva en el calendario."
+    },
+    "miCita": {
+      "retraso": "La entrega de tu día va con {{minutos}} minutos de retraso: tu nueva hora aproximada es {{hora}}. Tu mismo código sirve.",
+      "movida": "Tu cita se movió del {{fecha}} al {{fechaNueva}}, a la misma hora. Tu mismo código sirve.",
+      "cancelada": "Se canceló la entrega de este día."
+    },
+    "errores": {
+      "FECHA_PASADA": "Esa fecha ya pasó.",
+      "DIA_NO_EXISTE": "Esa fecha no tiene entrega.",
+      "DIA_YA_RESUELTO": "Esta entrega ya se movió o se canceló.",
+      "MINUTOS_INVALIDOS": "El retraso va de 15 minutos a 8 horas.",
+      "FECHA_NUEVA_INVALIDA": "Elige una fecha nueva que todavía no llegue y que no sea este mismo día.",
+      "FECHA_YA_TIENE_ENTREGA": "Esa fecha ya tiene su propia entrega: juntar dos días pasaría del cupo. Elige otra.",
+      "SIN_PERMISO": "Solo el administrador puede hacer esto.",
+      "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
+      "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos.",
+      "ERROR_DESCONOCIDO": "No se pudo. Vuelve a intentar en un momento."
+    }
+  },
   "validacion": {
     "nombres": {
       "VACIO": "Falta tu nombre.",

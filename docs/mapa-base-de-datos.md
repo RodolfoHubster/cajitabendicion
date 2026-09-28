@@ -202,6 +202,17 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 código exacto no existe devuelve los de hoy que se le parecen
 (`parecido = true`).
 
+## Incidencias del día (sección 36)
+
+| Objeto | Qué hace |
+|---|---|
+| `anunciar_retraso(fecha, minutos, mensaje)` | Solo admin. Reemplaza el aviso anterior; 0 lo quita. Nadie se mueve. |
+| `mover_entrega(fecha, fecha_nueva, mensaje)` | Solo admin. Crea la fecha nueva, copia los horarios y mueve cada cita con su QR y hora (`movimientos_cita.origen = 'incidencia'`). La original se cierra. Devuelve `movidas`, `sin_mover` (las que chocan con la regla de una por semana). |
+| `cancelar_entrega(fecha, mensaje)` | Solo admin. Cancela las pendientes con el motivo y cierra el día. |
+| `incidencias_publicas()` | Público. Lo vigente de hoy en adelante, sin datos de nadie. |
+| `incidencia_de_cita(token)` | Público. El retraso, la cancelación o de dónde se movió SU cita. |
+| `incidencias_de_fecha(fecha)`, `personas_a_avisar(fecha)` | Solo admin. Historial y lista con teléfono y token para avisar. |
+
 ## Entregas a mano (sección 35)
 
 | Objeto | Qué hace |

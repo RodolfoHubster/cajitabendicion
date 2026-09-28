@@ -11,6 +11,7 @@ import {
   LuVolume2,
 } from 'react-icons/lu'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import AvisoDeMiCita from '../../componentes/AvisoDeMiCita'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
@@ -233,6 +234,8 @@ export default function Confirmacion() {
           {fechaLarga}, {formatearHora(cita.hora)}
         </p>
         <p className="mt-2 text-base text-principal/80">{t('confirmacion.canceladaTexto')}</p>
+        {/* Si fue porque se cancelo la entrega de ese dia, se dice. */}
+        <AvisoDeMiCita className="mt-3" estado="cancelada" hora={cita.hora} token={token} />
         <Boton className="mt-4" onClick={() => navegar('/calendario')}>
           {t('confirmacion.registrarOtra')}
         </Boton>
@@ -260,6 +263,9 @@ export default function Confirmacion() {
         </div>
 
         <div className="p-5">
+          {/* Retraso de su dia (con su hora nueva), o de donde se movio su cita. */}
+          <AvisoDeMiCita className="mb-4" estado={estado} hora={cita.hora} token={token} />
+
           {/* Volvio a registrarse (el doble toque, o regreso y lo lleno otra
               vez): se le dice que es la misma cita, para que no crea que
               ahora tiene dos. */}

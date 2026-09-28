@@ -596,6 +596,93 @@
     "aplicarTodos": "Áp dụng cho tất cả",
     "suscriptoresYaAbierta": "Giờ này đã qua: ngày này đang mở cho mọi người nên mã sẽ không được yêu cầu. Để chỉ người theo dõi được vào trước, hãy đặt giờ trong tương lai ở mục «Mở cho công chúng vào»."
   },
+  "incidencias": {
+    "boton": "Ngày này có sự cố",
+    "titulo": "Ngày này đã xảy ra chuyện gì?",
+    "cerrar": "Đóng",
+    "cargando": "Đang tìm những gì đã làm với ngày này…",
+    "tipos": {
+      "retraso": {
+        "titulo": "Sẽ bị trễ",
+        "ayuda": "Xe tải đến trễ. Không ai phải đổi: mỗi người thấy giờ mới của mình, theo thứ tự như thường lệ. Mã dùng được cả ngày."
+      },
+      "movida": {
+        "titulo": "Dời buổi phát sang ngày khác",
+        "ayuda": "Tất cả lịch hẹn chuyển sang ngày mới với cùng mã và cùng giờ. Ngày này sẽ đóng."
+      },
+      "cancelada": {
+        "titulo": "Hủy buổi phát",
+        "ayuda": "Tất cả lịch hẹn đang chờ bị hủy và chỗ được trả lại để đặt lịch khác. Không tính là \"không đến\"."
+      }
+    },
+    "minutos": "Số phút trễ",
+    "minutosOpcion": "{{minutos}} phút",
+    "fechaNueva": "Ngày mới",
+    "fechaNuevaAyuda": "Một ngày chưa có buổi phát: gộp hai ngày sẽ vượt quá số chỗ.",
+    "mensaje": "Lời nhắn cho mọi người (không bắt buộc)",
+    "mensajeEjemplo": "Ví dụ: Xe tải không đến vì trời mưa",
+    "aplicar": "Áp dụng",
+    "aplicando": "Đang áp dụng…",
+    "confirmarMovida": "Dời tất cả lịch hẹn từ {{fecha}} sang {{fechaNueva}}? Mỗi người giữ nguyên mã và giờ.",
+    "confirmarCancelada": "Hủy buổi phát ngày {{fecha}}? Tất cả lịch hẹn đang chờ sẽ bị hủy.",
+    "siMover": "Có, dời buổi phát",
+    "siCancelar": "Có, hủy buổi phát",
+    "noVolver": "Không, quay lại",
+    "listo": {
+      "retraso": "Xong: đã thông báo trễ {{minutos}} phút.",
+      "retirado": "Xong: đã gỡ thông báo trễ.",
+      "movida": "Xong: đã dời {{movidas}} lịch hẹn sang {{fechaNueva}}.",
+      "sinMover": "Không dời được: {{n}} (họ đã có lịch hẹn trong tuần đó; vẫn ở ngày này, hãy xem trong Lịch hẹn hôm nay).",
+      "cancelada": "Xong: số lịch hẹn đã hủy: {{n}}."
+    },
+    "retrasoVigente": "Thông báo hiện tại: trễ {{minutos}} phút.",
+    "quitarRetraso": "Gỡ thông báo",
+    "yaResuelta": {
+      "movida": "Buổi phát này đã được dời sang {{fechaNueva}}.",
+      "cancelada": "Buổi phát này đã bị hủy."
+    },
+    "historial": "Những gì đã làm",
+    "historialLinea": {
+      "retraso": "Trễ {{minutos}} phút",
+      "movida": "Đã dời sang {{fechaNueva}} ({{n}} lịch hẹn)",
+      "cancelada": "Đã hủy ({{n}} lịch hẹn)",
+      "llegada": "{{n}} lịch hẹn được dời đến từ {{fecha}}"
+    },
+    "por": "{{quien}} · {{cuando}}",
+    "avisar": {
+      "ver": "Xem ai cần báo qua WhatsApp",
+      "titulo": "Báo qua WhatsApp",
+      "ayuda": "Chạm từng nút: WhatsApp mở ra với lời nhắn đã viết sẵn và đường dẫn tới mã của họ; chỉ cần gửi. Dùng tạm cho đến khi quyết định gửi tự động.",
+      "cargando": "Đang tìm người cần báo…",
+      "ninguna": "Không có ai cần báo.",
+      "cuenta": "Đã báo: {{avisadas}} trên {{total}}",
+      "boton": "WhatsApp",
+      "avisada": "Đã báo",
+      "sinTelefono": "Không có số điện thoại"
+    },
+    "publico": {
+      "retraso": "Buổi phát ngày {{fecha}} bị trễ {{minutos}} phút. Mọi người vào theo thứ tự như cũ, trễ {{minutos}} phút so với giờ của mình.",
+      "movida": "Buổi phát ngày {{fecha}} đã được dời sang {{fechaNueva}}, cùng giờ. Mã của bạn vẫn dùng được.",
+      "cancelada": "Buổi phát ngày {{fecha}} đã bị hủy. Nếu bạn có lịch hẹn, bạn có thể đặt lịch mới trong lịch."
+    },
+    "miCita": {
+      "retraso": "Buổi phát của ngày bạn bị trễ {{minutos}} phút: giờ mới dự kiến của bạn là {{hora}}. Mã của bạn vẫn dùng được.",
+      "movida": "Lịch hẹn của bạn đã được dời từ {{fecha}} sang {{fechaNueva}}, cùng giờ. Mã của bạn vẫn dùng được.",
+      "cancelada": "Buổi phát của ngày này đã bị hủy."
+    },
+    "errores": {
+      "FECHA_PASADA": "Ngày đó đã qua.",
+      "DIA_NO_EXISTE": "Ngày đó không có buổi phát.",
+      "DIA_YA_RESUELTO": "Buổi phát này đã được dời hoặc đã bị hủy.",
+      "MINUTOS_INVALIDOS": "Thời gian trễ từ 15 phút đến 8 giờ.",
+      "FECHA_NUEVA_INVALIDA": "Hãy chọn một ngày mới chưa đến và không phải chính ngày này.",
+      "FECHA_YA_TIENE_ENTREGA": "Ngày đó đã có buổi phát riêng: gộp hai ngày sẽ vượt quá số chỗ. Hãy chọn ngày khác.",
+      "SIN_PERMISO": "Chỉ quản trị viên mới làm được việc này.",
+      "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
+      "FUNCION_NO_INSTALADA": "Cần áp dụng một bản cập nhật cơ sở dữ liệu.",
+      "ERROR_DESCONOCIDO": "Không thực hiện được. Hãy thử lại sau giây lát."
+    }
+  },
   "validacion": {
     "nombres": {
       "VACIO": "Bạn chưa nhập tên.",

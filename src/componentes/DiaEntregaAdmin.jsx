@@ -17,6 +17,8 @@ import {
 } from '../datos/diasEntrega'
 import { aFechaLocal, ahoraSanDiego, formatearFechaHora, formatearHora } from '../datos/disponibilidad'
 import { EsqueletoLista } from './Esqueleto'
+import IncidenciaDelDia from './IncidenciaDelDia'
+import { hoyLocal } from '../datos/panel'
 
 const BOTON =
   'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-principal/25 bg-superficie px-4 text-base font-semibold text-principal transition hover:border-principal disabled:cursor-not-allowed disabled:opacity-50'
@@ -396,6 +398,9 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
             mensaje={mensajeDe('apertura')}
             ocupado={ocupado}
           />
+
+          {/* El camion llega tarde, llueve, dia festivo: de hoy en adelante. */}
+          {dia.fecha >= hoyLocal() && <IncidenciaDelDia alCambiar={alCambiar} dia={dia} />}
 
           <Seccion titulo={t('diasAdmin.seccionLugares')}>
             {bloques === null ? (

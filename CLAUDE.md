@@ -75,6 +75,17 @@ papel: el pastor le da a ciertas personas un pase que no vence.
 - Solo un admin da y quita pases. Revocar **no borra**: queda quién lo quitó,
   cuándo y por qué. Deja de servir al momento.
 
+### Incidencias del día (propuesta del 25 de septiembre de 2026)
+
+El camión llega tarde, llueve, día festivo. En cada fecha de Horarios, "Hay
+un problema este día" (solo admin) con tres salidas: **retraso** (nadie se
+mueve; cada quien ve su hora nueva en el mismo orden, y el QR se revisa por
+fecha, no por hora), **mover la entrega** a una fecha que no tenga entrega
+(cada cita con su mismo QR y hora) o **cancelarla**. **No se recorren las
+demás fechas.** Queda quién, cuándo y a cuántas (`incidencias`). Mientras se
+decide el envío automático, se avisa con un botón de WhatsApp por persona.
+Falta el visto bueno del pastor: si pide cambios, se cambia aquí primero.
+
 ### Escanear es entregar (desde el 25 de septiembre de 2026)
 
 El 24 de septiembre los voluntarios escaneaban y no tocaban "Registrar

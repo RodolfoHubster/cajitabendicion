@@ -597,6 +597,93 @@
     "aplicarTodos": "Apply to all",
     "suscriptoresYaAbierta": "That time has already passed: the date is open to everyone and the code would not be asked for. So that only subscribers get in first, set a future time in “Opens to the public on”."
   },
+  "incidencias": {
+    "boton": "There is a problem this day",
+    "titulo": "What happened this day?",
+    "cerrar": "Close",
+    "cargando": "Looking up what has been done with this date…",
+    "tipos": {
+      "retraso": {
+        "titulo": "It will be late",
+        "ayuda": "The truck is late. Nobody moves: everyone sees their new time, in the usual order. The code works all day."
+      },
+      "movida": {
+        "titulo": "Move the delivery to another day",
+        "ayuda": "All appointments move to the new date with the same code and the same time. This day is closed."
+      },
+      "cancelada": {
+        "titulo": "Cancel the delivery",
+        "ayuda": "All pending appointments are cancelled and the spots are freed to book again. They do not count as \"did not come\"."
+      }
+    },
+    "minutos": "Minutes late",
+    "minutosOpcion": "{{minutos}} minutes",
+    "fechaNueva": "New date",
+    "fechaNuevaAyuda": "A day that has no delivery yet: joining two days would go over capacity.",
+    "mensaje": "Message for people (optional)",
+    "mensajeEjemplo": "E.g. The truck did not arrive because of the rain",
+    "aplicar": "Apply",
+    "aplicando": "Applying…",
+    "confirmarMovida": "Move all appointments from {{fecha}} to {{fechaNueva}}? Everyone keeps their code and their time.",
+    "confirmarCancelada": "Cancel the {{fecha}} delivery? All pending appointments will be cancelled.",
+    "siMover": "Yes, move the delivery",
+    "siCancelar": "Yes, cancel the delivery",
+    "noVolver": "No, go back",
+    "listo": {
+      "retraso": "Done: the {{minutos}}-minute delay was announced.",
+      "retirado": "Done: the delay notice was removed.",
+      "movida": "Done: {{movidas}} appointments moved to {{fechaNueva}}.",
+      "sinMover": "Not moved: {{n}} (they already had their appointment that week; they stay on this day, check them in Today’s appointments).",
+      "cancelada": "Done: appointments cancelled: {{n}}."
+    },
+    "retrasoVigente": "Current notice: {{minutos}} minutes late.",
+    "quitarRetraso": "Remove the notice",
+    "yaResuelta": {
+      "movida": "This delivery was already moved to {{fechaNueva}}.",
+      "cancelada": "This delivery was already cancelled."
+    },
+    "historial": "What has been done",
+    "historialLinea": {
+      "retraso": "{{minutos}}-minute delay",
+      "movida": "Moved to {{fechaNueva}} ({{n}} appointments)",
+      "cancelada": "Cancelled ({{n}} appointments)",
+      "llegada": "{{n}} appointments moved here from {{fecha}}"
+    },
+    "por": "{{quien}} · {{cuando}}",
+    "avisar": {
+      "ver": "See who to notify by WhatsApp",
+      "titulo": "Notify by WhatsApp",
+      "ayuda": "Tap each button: WhatsApp opens with their message already written and the link to their code; you only need to send it. This is until automatic sending is decided.",
+      "cargando": "Looking for who to notify…",
+      "ninguna": "Nobody to notify.",
+      "cuenta": "Notified: {{avisadas}} of {{total}}",
+      "boton": "WhatsApp",
+      "avisada": "Notified",
+      "sinTelefono": "No phone"
+    },
+    "publico": {
+      "retraso": "The {{fecha}} delivery is running {{minutos}} minutes late. Everyone goes in the same order, {{minutos}} minutes after their time.",
+      "movida": "The {{fecha}} delivery moved to {{fechaNueva}}, same time. Your same code works.",
+      "cancelada": "The {{fecha}} delivery was cancelled. If you had an appointment, you can book a new one in the calendar."
+    },
+    "miCita": {
+      "retraso": "Your day’s delivery is running {{minutos}} minutes late: your new approximate time is {{hora}}. Your same code works.",
+      "movida": "Your appointment moved from {{fecha}} to {{fechaNueva}}, same time. Your same code works.",
+      "cancelada": "The delivery for this day was cancelled."
+    },
+    "errores": {
+      "FECHA_PASADA": "That date has passed.",
+      "DIA_NO_EXISTE": "That date has no delivery.",
+      "DIA_YA_RESUELTO": "This delivery was already moved or cancelled.",
+      "MINUTOS_INVALIDOS": "The delay goes from 15 minutes to 8 hours.",
+      "FECHA_NUEVA_INVALIDA": "Choose a new date that has not arrived yet and is not this same day.",
+      "FECHA_YA_TIENE_ENTREGA": "That date already has its own delivery: joining two days would go over capacity. Choose another.",
+      "SIN_PERMISO": "Only the administrator can do this.",
+      "SIN_CONEXION": "No connection. Check your mobile data and try again.",
+      "FUNCION_NO_INSTALADA": "A database update still needs to be applied.",
+      "ERROR_DESCONOCIDO": "It did not work. Try again in a moment."
+    }
+  },
   "validacion": {
     "nombres": {
       "VACIO": "Your first name is missing.",

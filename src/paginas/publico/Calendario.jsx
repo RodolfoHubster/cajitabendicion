@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FaFacebook } from 'react-icons/fa6'
 import { LuCircleCheck, LuClock, LuLock, LuMapPin, LuUsers } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
+import AvisoIncidencias from '../../componentes/AvisoIncidencias'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import MisCitas from '../../componentes/MisCitas'
@@ -141,6 +142,7 @@ export default function Calendario() {
       {/* Quien ya tiene cita y vuelve a entrar (muchas veces porque no
           recuerda si la hizo) la ve aqui antes de sacar otra. */}
       <MisCitas className="mb-4" />
+      <AvisoIncidencias className="mb-4" />
 
       <Tarjeta>
         <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
