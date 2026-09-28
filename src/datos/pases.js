@@ -33,8 +33,16 @@ const primera = (data) => (Array.isArray(data) ? data[0] : data) ?? null
  * Le da el pase a una persona que ya esta registrada, por su codigo CB.
  * Si ya tenia uno, le actualiza el motivo y lo reactiva.
  */
-export async function crearPase(codigo, motivo = null) {
-  return primera(await llamar('crear_pase', { p_codigo: codigo, p_motivo: motivo?.trim() || null }))
+export async function crearPase(codigo, motivo = null, { vip = false } = {}) {
+  const pase = primera(await llamar('crear_pase', { p_codigo: codigo, p_motivo: motivo?.trim() || null }))
+  //  VIP es aparte: solo lo puede poner el administrador (seccion 40).
+  if (vip) await marcarPaseVip(codigo, true)
+  return pase
+}
+
+/** Pase VIP: dorado y pasa directo, sin fila. Solo el administrador. */
+export function marcarPaseVip(codigo, vip) {
+  return llamar('marcar_pase_vip', { p_codigo: codigo, p_vip: Boolean(vip) })
 }
 
 /**

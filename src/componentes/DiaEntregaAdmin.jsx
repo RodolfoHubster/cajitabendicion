@@ -17,6 +17,8 @@ import {
 } from '../datos/diasEntrega'
 import { aFechaLocal, ahoraSanDiego, formatearFechaHora, formatearHora } from '../datos/disponibilidad'
 import { EsqueletoLista } from './Esqueleto'
+import FilaAPieDelDia from './FilaAPieDelDia'
+import { filaDe } from '../datos/filas'
 import IncidenciaDelDia from './IncidenciaDelDia'
 import { hoyLocal } from '../datos/panel'
 
@@ -289,7 +291,16 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
     }
   }, [abierta, dia.fecha, recargaBloques])
 
-  const estado = dia.cerrado ? 'cerrada' : dia.abierto ? 'abierta' : 'programada'
+  //  Una fecha solo a pie (sin horarios de carro): abre y cierra con sus turnos.
+  const soloAPie = dia.total_bloques === 0 && Boolean(dia.a_pie_bloque_id)
+  const abierto = soloAPie
+    ? Boolean(dia.a_pie_abre_en) && dia.a_pie_abre_en.slice(0, 16) <= ahoraSanDiego()
+    : dia.abierto
+  const estado = dia.cerrado || (soloAPie && dia.a_pie_cerrado) ? 'cerrada' : abierto ? 'abierta' : 'programada'
+  //  Los horarios de carro. La fila a pie tiene su propia seccion (y su cupo
+  //  puede ser "sin limite"): "aplicar a todos" no debe tocarla.
+  const deCarro = bloques === null ? null : bloques.filter((bloque) => filaDe(bloque) === 'carro')
+  const conCitas = dia.ocupados + (dia.a_pie_ocupados ?? 0)
 
   const titulo = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
@@ -337,7 +348,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
 
     ejecutar(
       async () => {
-        for (const bloque of bloques ?? []) {
+        for (const bloque of deCarro ?? []) {
           if (bloque.capacidad !== capacidad) {
             await actualizarBloque({ bloqueId: bloque.bloque_id, capacidad })
           }
@@ -373,9 +384,16 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
       >
         <span className="min-w-0 flex-1">
           <span className="block text-lg font-semibold first-letter:uppercase">{titulo}</span>
-          <span className="block text-base text-principal/70">
-            {t('diasAdmin.lugares', { ocupados: dia.ocupados, total: dia.capacidad_total })}
-          </span>
+          {!soloAPie && (
+            <span className="block text-base text-principal/70">
+              {t('diasAdmin.lugares', { ocupados: dia.ocupados, total: dia.capacidad_total })}
+            </span>
+          )}
+          {dia.a_pie_bloque_id && (
+            <span className="block text-base text-principal/70">
+              {t('filaAPieAdmin.resumen', { count: dia.a_pie_ocupados ?? 0 })}
+            </span>
+          )}
         </span>
         <span className={`shrink-0 rounded-full px-3 py-1 text-base font-semibold ${ESTILO_ESTADO[estado]}`}>
           {t(`diasAdmin.estado.${estado}`)}
@@ -388,22 +406,26 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
 
       {abierta && (
         <div className="mb-3 space-y-3 rounded-xl bg-principal/5 p-3">
-          {/* La llave reinicia el formulario con lo guardado despues de cada cambio. */}
-          <Apertura
-            codigoRecien={mensaje?.ok === 'diasAdmin.codigoGenerado'}
-            dia={dia}
-            ejecutar={ejecutar}
-            estado={estado}
-            key={`${dia.abre_en}|${dia.abre_anticipado_en}|${dia.cerrado}`}
-            mensaje={mensajeDe('apertura')}
-            ocupado={ocupado}
-          />
+          {/* La llave reinicia el formulario con lo guardado despues de cada
+              cambio. Solo a pie no hay registros de carro que abrir: los
+              turnos abren en la seccion de la fila a pie. */}
+          {!soloAPie && (
+            <Apertura
+              codigoRecien={mensaje?.ok === 'diasAdmin.codigoGenerado'}
+              dia={dia}
+              ejecutar={ejecutar}
+              estado={estado}
+              key={`${dia.abre_en}|${dia.abre_anticipado_en}|${dia.cerrado}`}
+              mensaje={mensajeDe('apertura')}
+              ocupado={ocupado}
+            />
+          )}
 
           {/* El camion llega tarde, llueve, dia festivo: de hoy en adelante. */}
           {dia.fecha >= hoyLocal() && <IncidenciaDelDia alCambiar={alCambiar} dia={dia} />}
 
           <Seccion titulo={t('diasAdmin.seccionLugares')}>
-            {bloques === null ? (
+            {deCarro === null ? (
               <EsqueletoLista filas={3} texto={t('diasAdmin.cargandoHorarios')} />
             ) : (
               <>
@@ -424,7 +446,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
                       value={todos}
                     />
                   </label>
-                  <button className={BOTON_FUERTE} disabled={ocupado || bloques.length === 0} type="submit">
+                  <button className={BOTON_FUERTE} disabled={ocupado || deCarro.length === 0} type="submit">
                     {t('diasAdmin.aplicarTodos')}
                   </button>
                 </form>
@@ -432,7 +454,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
                 {mensajeDe('lugares')}
 
                 <ul className="mt-2 divide-y divide-principal/10">
-                  {bloques.map((bloque) => (
+                  {deCarro.map((bloque) => (
                     <FilaHorario
                       alAlternar={() =>
                         ejecutar(
@@ -495,11 +517,22 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
             )}
           </Seccion>
 
+          {/* La fila a pie de ese dia, con sus turnos. De hoy en adelante. */}
+          {dia.fecha >= hoyLocal() && (
+            <FilaAPieDelDia
+              dia={dia}
+              ejecutar={ejecutar}
+              key={`${dia.a_pie_bloque_id}|${dia.a_pie_hora}|${dia.a_pie_capacidad}|${dia.a_pie_abre_en}|${dia.a_pie_cerrado}`}
+              mensaje={mensajeDe('aPie')}
+              ocupado={ocupado}
+            />
+          )}
+
           {/* Solo sin registros. Con registros se cierra, no se borra:
               borrarla le quitaria la cita a alguien sin que se entere. */}
-          {dia.ocupados > 0 ? (
+          {conCitas > 0 ? (
             <p className="rounded-xl bg-principal/5 p-3 text-base text-principal/80">
-              {t('diasAdmin.noSeElimina', { count: dia.ocupados })}
+              {t('diasAdmin.noSeElimina', { count: conCitas })}
             </p>
           ) : preguntandoEliminar ? (
             <div

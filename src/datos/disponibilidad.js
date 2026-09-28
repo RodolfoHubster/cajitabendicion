@@ -8,12 +8,14 @@ import { supabase } from '../lib/supabase'
  * unica puerta de lectura.
  *
  * Sin argumentos trae todo lo disponible. Con una fecha trae solo ese dia
- * (para /horarios/:fecha).
+ * (para /horarios/:fecha). Sin fila, la de carros; con fila 'a_pie', la
+ * fila a pie de cada dia (ver datos/filaAPie.js).
  */
-export async function consultarDisponibilidad({ desde = null, hasta = null } = {}) {
+export async function consultarDisponibilidad({ desde = null, hasta = null, fila = null } = {}) {
   const { data, error } = await supabase.rpc('consultar_disponibilidad', {
     p_desde: desde,
     p_hasta: hasta,
+    ...(fila ? { p_fila: fila } : {}),
   })
 
   if (error) {
@@ -24,8 +26,8 @@ export async function consultarDisponibilidad({ desde = null, hasta = null } = {
 }
 
 /** Todos los bloques de una sola fecha, en orden. */
-export function consultarBloquesDeFecha(fecha) {
-  return consultarDisponibilidad({ desde: fecha, hasta: fecha })
+export function consultarBloquesDeFecha(fecha, fila = null) {
+  return consultarDisponibilidad({ desde: fecha, hasta: fecha, fila })
 }
 
 /**

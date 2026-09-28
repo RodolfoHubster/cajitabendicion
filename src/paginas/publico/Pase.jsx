@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleX, LuDownload, LuStar } from 'react-icons/lu'
+import { LuCircleX, LuCrown, LuDownload, LuStar } from 'react-icons/lu'
 import { Link, useParams } from 'react-router-dom'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
+import SelloVip, { BORDE_ORO, FONDO_ORO } from '../../componentes/SelloVip'
 import Tarjeta from '../../componentes/Tarjeta'
 import { dibujarTarjetaCita, guardarImagen, nombreArchivoCita } from '../../datos/imagenCita'
 import { ORGANIZACION } from '../../datos/organizacion'
@@ -35,8 +36,9 @@ export default function Pase() {
     let vigente = true
 
     // El codigo del pase lleva el techo en el centro: se distingue de
-    // uno de cita nada mas de verlo.
-    Promise.all([paseDeCodigo(token), dibujarQRPase(token)])
+    // uno de cita nada mas de verlo. El VIP va dorado, con corona.
+    paseDeCodigo(token)
+      .then(async (datos) => [datos, datos ? await dibujarQRPase(token, { vip: Boolean(datos.vip) }) : null])
       .then(([datos, imagen]) => {
         if (!vigente) return
         if (!datos) {
@@ -70,7 +72,7 @@ export default function Pase() {
       textos: {
         programa: ORGANIZACION.programa,
         iglesia: ORGANIZACION.iglesia,
-        lista: t('pase.etiqueta'),
+        lista: pase.vip ? t('vip.etiqueta') : t('pase.etiqueta'),
         fecha: t('pase.titulo'),
         hora: t('pase.dias'),
         siNoSeLee: t('confirmacion.siNoSeLee'),
@@ -133,19 +135,26 @@ export default function Pase() {
 
   return (
     <Tarjeta className="overflow-hidden p-0">
-      <div className="bg-accion/20 px-5 py-4">
+      <div className={`px-5 py-4 ${pase.vip ? FONDO_ORO : 'bg-accion/20'}`}>
         <p className="flex items-center gap-2 text-lg font-bold text-principal">
-          <LuStar aria-hidden="true" className="h-6 w-6" />
-          {t('pase.etiqueta')}
+          {pase.vip ? (
+            <LuCrown aria-hidden="true" className="h-6 w-6 text-[#B8860B]" />
+          ) : (
+            <LuStar aria-hidden="true" className="h-6 w-6" />
+          )}
+          {pase.vip ? t('vip.etiqueta') : t('pase.etiqueta')}
         </p>
         <h1 className="mt-1 text-2xl font-bold">{t('pase.titulo')}</h1>
         <p className="font-titulo text-xl font-bold text-principal">{t('pase.dias')}</p>
       </div>
 
       <div className="p-5">
+        {pase.vip && <SelloVip className="mb-4" para="persona" />}
         <img
           alt={t('confirmacion.qrAlt')}
-          className="mx-auto w-full max-w-[17.5rem] rounded-xl border border-principal/15 bg-white p-2 shadow-sm"
+          className={`mx-auto w-full max-w-[17.5rem] rounded-xl bg-white p-2 shadow-sm ${
+            pase.vip ? `border-4 ${BORDE_ORO}` : 'border border-principal/15'
+          }`}
           src={qr}
         />
 

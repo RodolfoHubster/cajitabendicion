@@ -48,8 +48,20 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
       'colores',
       'deshacer',
       'buscar',
+      'elegirFila',
+      'dosQr',
+      'turnos',
       'listo',
     ])
+  })
+
+  it('quien ya vio la primera guía solo ve lo nuevo de la fila a pie', () => {
+    const voluntario = pasosDeGuia({ rol: 'voluntario', permisos: [], secciones: ['escanear'] })
+    expect(claves(pasosPendientes(voluntario, 1))).toEqual(['elegirFila', 'dosQr', 'turnos'])
+
+    const admin = pasosDeGuia({ rol: 'admin', permisos: [], secciones: ['escanear', 'horarios'] })
+    expect(claves(pasosPendientes(admin, 1))).toEqual(['elegirFila', 'dosQr', 'turnos', 'filaAPie'])
+    expect(VERSION_GUIA).toBe(2)
   })
 
   it('con sus palomitas: el menú, anotar sin cita y citas de hoy', () => {

@@ -16,6 +16,7 @@ import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
 import TarjetaDonar from '../../componentes/TarjetaDonar'
+import TurnoEnVivo from '../../componentes/TurnoEnVivo'
 import {
   archivoIcs,
   enlaceGoogleCalendar,
@@ -63,9 +64,13 @@ export default function Confirmacion() {
     // Se exige `nombre` y no solo que exista el estado: el navegador
     // conserva estados de visitas anteriores, y uno viejo o incompleto
     // dejaria el "A nombre de" en blanco en vez de ir a buscarlo.
-    const obtener = state?.nombre ? Promise.resolve(state) : consultarCita(token)
+    //
+    //  A pie se consulta siempre: el turno lo da la base al guardar.
+    const obtener = state?.nombre && state?.fila !== 'a_pie' ? Promise.resolve(state) : consultarCita(token)
 
-    Promise.all([obtener, dibujarQR(token)])
+    //  El QR lleva el sello de su fila (un carrito o una persona caminando).
+    obtener
+      .then((datos) => Promise.all([datos, dibujarQR(token, filaDe(datos))]))
       .then(([datos, imagen]) => {
         if (!vigente) return
         setCita(datos)
@@ -102,6 +107,8 @@ export default function Confirmacion() {
     const fecha = new Intl.DateTimeFormat(idioma, { weekday: 'long', day: 'numeric', month: 'long' }).format(
       aFechaLocal(cita.fecha),
     )
+    //  A pie, la imagen lleva su numero de turno en vez de la hora.
+    const conTurno = filaDe(cita) === 'a_pie' && cita.turno != null
 
     dibujarTarjetaCita({
       qr,
@@ -110,9 +117,9 @@ export default function Confirmacion() {
       textos: {
         programa: ORGANIZACION.programa,
         iglesia: ORGANIZACION.iglesia,
-        lista: t('confirmacion.lista'),
+        lista: conTurno ? t('filas.nombre.a_pie') : t('confirmacion.lista'),
         fecha: fecha.charAt(0).toLocaleUpperCase(idioma) + fecha.slice(1),
-        hora: formatearHora(cita.hora),
+        hora: conTurno ? t('turno.numero', { turno: cita.turno }) : formatearHora(cita.hora),
         siNoSeLee: t('confirmacion.siNoSeLee'),
         aNombreDe: t('confirmacion.aNombreDe'),
       },
@@ -248,6 +255,14 @@ export default function Confirmacion() {
 
   // Solo una cita que no se ha usado y cuyo dia no ha pasado.
   const cancelable = estado === 'reservada' && cita.fecha >= hoyLocal()
+  //  La fila a pie va por turnos: se ve el turno en vivo y no se cambia de horario.
+  const aPie = filaDe(cita) === 'a_pie'
+
+  //  Cuando la fila en vivo dice que ya recibio (o se cancelo), la pagina
+  //  tambien lo sabe.
+  function alCambiarTurno(datos) {
+    setCita((actual) => (datos?.estado && datos.estado !== actual.estado ? { ...actual, estado: datos.estado } : actual))
+  }
 
   return (
     <div className="space-y-4">
@@ -255,16 +270,34 @@ export default function Confirmacion() {
         <div className="bg-puede-pasar/10 px-5 py-4">
           <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
             <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
-            {t('confirmacion.lista')}
+            {aPie ? t('turno.listo') : t('confirmacion.lista')}
           </p>
           {/* first-letter y no capitalize: capitalize pondria "14 De Septiembre" */}
           <h1 className="mt-1 text-2xl font-bold first-letter:uppercase">{fechaLarga}</h1>
-          <p className="font-titulo text-4xl font-bold text-principal">{formatearHora(cita.hora)}</p>
+          {aPie ? (
+            <p className="text-lg font-semibold text-principal">
+              {t('aPie.empiezaA', { hora: formatearHora(cita.hora) })}
+            </p>
+          ) : (
+            <p className="font-titulo text-4xl font-bold text-principal">{formatearHora(cita.hora)}</p>
+          )}
         </div>
 
         <div className="p-5">
           {/* Retraso de su dia (con su hora nueva), o de donde se movio su cita. */}
           <AvisoDeMiCita className="mb-4" estado={estado} hora={cita.hora} token={token} />
+
+          {/* Su turno, en vivo el dia de la entrega. */}
+          {aPie && (
+            <div className="mb-4">
+              <TurnoEnVivo
+                alCambiar={alCambiarTurno}
+                esHoy={cita.fecha === hoyLocal()}
+                token={token}
+                turnoInicial={cita.turno ?? null}
+              />
+            </div>
+          )}
 
           {/* Volvio a registrarse (el doble toque, o regreso y lo lleno otra
               vez): se le dice que es la misma cita, para que no crea que
@@ -374,10 +407,12 @@ export default function Confirmacion() {
             <div className="mt-6 border-t border-principal/10 pt-4">
               {!preguntando ? (
                 <>
-                  <Boton onClick={() => navegar(`/cambiar/${token}`)} variant="secondary">
-                    <LuCalendarClock aria-hidden="true" className="h-5 w-5" />
-                    {t('confirmacion.cambiarHorario')}
-                  </Boton>
+                  {!aPie && (
+                    <Boton onClick={() => navegar(`/cambiar/${token}`)} variant="secondary">
+                      <LuCalendarClock aria-hidden="true" className="h-5 w-5" />
+                      {t('confirmacion.cambiarHorario')}
+                    </Boton>
+                  )}
                   <button
                     className="mt-2 min-h-12 w-full text-base font-semibold text-ya-recibio underline underline-offset-4"
                     onClick={() => setPreguntando(true)}

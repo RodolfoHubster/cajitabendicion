@@ -9,6 +9,7 @@ import {
   crearPase,
   entregasPaseDelDia,
   listarPases,
+  marcarPaseVip,
   paseDeCodigo,
   renovarPase,
   revocarPase,
@@ -19,6 +20,25 @@ beforeEach(() => {
 })
 
 describe('dar el pase', () => {
+  it('un pase VIP: se da el pase y luego se marca VIP', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-6280', nombre: 'Óscar', token: 't' }], error: null })
+    await crearPase('CB-6280', 'Suscriptor VIP', { vip: true })
+    expect(supabase.rpc.mock.calls.map((llamada) => llamada[0])).toEqual(['crear_pase', 'marcar_pase_vip'])
+    expect(supabase.rpc).toHaveBeenLastCalledWith('marcar_pase_vip', { p_codigo: 'CB-6280', p_vip: true })
+  })
+
+  it('sin VIP no se toca lo VIP', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-6280', nombre: 'Óscar', token: 't' }], error: null })
+    await crearPase('CB-6280')
+    expect(supabase.rpc).toHaveBeenCalledTimes(1)
+  })
+
+  it('quitarle lo VIP', async () => {
+    supabase.rpc.mockResolvedValue({ data: false, error: null })
+    await marcarPaseVip('CB-6280', false)
+    expect(supabase.rpc).toHaveBeenCalledWith('marcar_pase_vip', { p_codigo: 'CB-6280', p_vip: false })
+  })
+
   it('manda el código de la persona y el motivo sin espacios de más', async () => {
     supabase.rpc.mockResolvedValue({
       data: [{ codigo_corto: 'CB-4871', nombre: 'María', token: 'abc123' }],

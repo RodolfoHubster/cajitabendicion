@@ -1,16 +1,18 @@
 import { useTranslation } from 'react-i18next'
-import { FaCarSide } from 'react-icons/fa6'
+import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import {
   LuCalendarClock,
   LuCalendarDays,
   LuCircleCheck,
   LuCircleX,
+  LuClock,
   LuMenu,
   LuPencilLine,
   LuQrCode,
   LuSearch,
   LuTriangleAlert,
   LuUndo2,
+  LuUserX,
   LuUsers,
 } from 'react-icons/lu'
 import { TechoSvg } from '../Logo'
@@ -490,6 +492,134 @@ function Listo() {
 
 //  Una escena por paso de la guia (datos/guia.js). La prueba revisa que no
 //  falte ninguna.
+function ElegirFilaEscena() {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex h-56 items-center justify-center">
+      <Telefono>
+        <div className="absolute inset-x-2 top-3 space-y-1.5">
+          <div className="flex items-center justify-center gap-1 rounded-lg bg-marca px-1 py-2 text-[0.6rem] font-bold text-white">
+            <FaCarSide className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{t('filas.nombre.carro')}</span>
+          </div>
+          <div className="flex items-center justify-center gap-1 rounded-lg bg-accion px-1 py-2 text-[0.6rem] font-bold text-sobre-accion">
+            <FaPersonWalking className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{t('filas.nombre.a_pie')}</span>
+          </div>
+        </div>
+        {/* El dedo escoge la fila a pie... */}
+        <span className="guia-anim guia-dedo absolute left-9 top-12 h-7 w-7 rounded-full border-2 border-principal bg-accion/40 opacity-0" />
+        {/* ...y la pantalla dice en cual esta. */}
+        <div className="guia-anim guia-fase-2 absolute inset-x-2 bottom-3 rounded-lg border-2 border-accion bg-accion/15 px-1.5 py-1.5 text-center text-[0.55rem] font-bold text-principal">
+          {t('escaneo.estasEn', { fila: t('filas.nombre.a_pie') })}
+        </div>
+      </Telefono>
+    </div>
+  )
+}
+
+/** Un QR con su sello en medio, como el de la persona. */
+function QrConSello({ Icono, anillo, color, etiqueta, retraso }) {
+  return (
+    <div className="guia-anim guia-flotar flex flex-col items-center gap-2" style={{ animationDelay: retraso }}>
+      <div className="relative">
+        <QrDibujo className="h-24 w-24 rounded-lg shadow-tarjeta" />
+        <span
+          className={`absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[3px] bg-superficie ${anillo}`}
+        >
+          <Icono className={`h-5 w-5 ${color}`} />
+        </span>
+      </div>
+      <span className="text-xs font-bold text-principal">{etiqueta}</span>
+    </div>
+  )
+}
+
+function DosQr() {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex h-56 items-center justify-center gap-6 px-4">
+      <QrConSello
+        Icono={FaCarSide}
+        anillo="border-principal"
+        color="text-principal"
+        etiqueta={t('filas.nombre.carro')}
+        retraso="0s"
+      />
+      <QrConSello
+        Icono={FaPersonWalking}
+        anillo="border-accion"
+        color="text-accion"
+        etiqueta={t('filas.nombre.a_pie')}
+        retraso="-1.5s"
+      />
+    </div>
+  )
+}
+
+function Turnos() {
+  const { t } = useTranslation()
+  const siguen = [
+    ['13', 'Luis'],
+    ['14', 'Rosa'],
+    ['15', 'Juan'],
+  ]
+
+  return (
+    <div className={CAJA}>
+      <div className="guia-anim guia-latido w-full max-w-[16rem] rounded-xl border-[3px] border-accion bg-accion/10 px-3 py-2 text-center">
+        <p className="text-[0.65rem] font-bold uppercase tracking-wide text-principal/80">{t('filaTurnos.va')}</p>
+        <p className="font-titulo text-4xl font-bold leading-none text-principal">12</p>
+        <p className="text-xs font-semibold text-principal">Ana · CB-4871</p>
+      </div>
+      <ol className={`${TARJETA} divide-y divide-principal/10 px-2`}>
+        {siguen.map(([turno, nombre], i) => (
+          <li
+            className={`guia-anim guia-fase-${i + 1} flex items-center gap-2 py-1 text-xs text-principal`}
+            key={turno}
+          >
+            <span className="w-6 font-titulo text-sm font-bold">{turno}</span>
+            {nombre}
+          </li>
+        ))}
+      </ol>
+      <span className="flex items-center gap-1 text-xs font-semibold text-principal/80">
+        <LuUserX className="h-4 w-4 text-ya-recibio" />
+        {t('filaTurnos.noSePresento')}
+      </span>
+    </div>
+  )
+}
+
+function FilaAPieEscena() {
+  const { t } = useTranslation()
+
+  return (
+    <div className={CAJA}>
+      <div className={`${TARJETA} border-2 border-accion/50 p-2.5`}>
+        <p className="flex items-center gap-1.5 text-sm font-bold text-principal">
+          <FaPersonWalking className="h-4 w-4 shrink-0 text-accion" />
+          {t('filaAPieAdmin.titulo')}
+        </p>
+        <div className="mt-1.5 space-y-1 text-[0.65rem] text-principal">
+          <p className="guia-anim guia-fase-1 flex items-center gap-1 rounded-md bg-principal/10 px-1.5 py-1">
+            <LuClock className="h-3.5 w-3.5 shrink-0 text-accion" />
+            {t('filaAPieAdmin.hora')} 4:30 PM
+          </p>
+          <p className="guia-anim guia-fase-2 rounded-md bg-principal/10 px-1.5 py-1">
+            {t('filaAPieAdmin.cupo')}: {t('filaAPieAdmin.sinLimite')}
+          </p>
+          <p className="guia-anim guia-fase-3 rounded-md bg-accion/20 px-1.5 py-1 font-semibold">
+            {t('filaAPieAdmin.unaHoraAntes', { hora: '3:30 PM' })}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const ESCENAS = {
   bienvenida: Bienvenida,
   menu: Menu,
@@ -497,10 +627,14 @@ const ESCENAS = {
   colores: Colores,
   deshacer: Deshacer,
   buscar: Buscar,
+  elegirFila: ElegirFilaEscena,
+  dosQr: DosQr,
+  turnos: Turnos,
   sinCita: SinCita,
   citasHoy: CitasHoy,
   registrar: Registrar,
   horarios: Horarios,
+  filaAPie: FilaAPieEscena,
   reportes: Reportes,
   avisos: Avisos,
   equipo: Equipo,

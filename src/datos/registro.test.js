@@ -100,6 +100,27 @@ describe('registrarYReservar', () => {
     expect(supabase.rpc.mock.calls[0][1].p_codigo_anticipado).toBe('K7MP2Q')
   })
 
+  it('de acompañante manda el código de quien maneja y el día; si no, nada de eso', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-1234', token_qr: 'token' }], error: null })
+
+    await registrarYReservar({ ...PERSONA, bloqueId: null, codigoAcompanante: 'CB-4871' })
+    expect(supabase.rpc.mock.calls[0][1]).toMatchObject({
+      p_bloque_id: null,
+      p_codigo_acompanante: 'CB-4871',
+      p_fecha: PERSONA.fecha,
+    })
+
+    supabase.rpc.mockClear()
+    await registrarYReservar(PERSONA)
+    expect(supabase.rpc.mock.calls[0][1]).not.toHaveProperty('p_codigo_acompanante')
+    expect(supabase.rpc.mock.calls[0][1]).not.toHaveProperty('p_fecha')
+  })
+
+  it('los errores de acompañante llegan con su nombre', () => {
+    expect(traducirError('ACOMPANANTE_SIN_CITA')).toBe('ACOMPANANTE_SIN_CITA')
+    expect(traducirError('P0001: CARRO_LLENO')).toBe('CARRO_LLENO')
+  })
+
   it('el codigo de otra fecha no se manda', async () => {
     supabase.rpc.mockResolvedValue({ data: [{}], error: null })
     guardarCodigoAnticipado('2026-09-17', 'K7MP2Q')

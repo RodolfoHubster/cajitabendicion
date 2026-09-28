@@ -38,7 +38,8 @@
     "equipo": "Equipo y accesos",
     "avisos": "Textos y reglas",
     "permisos": "Permisos",
-    "menu": "Menú"
+    "menu": "Menú",
+    "codigosQr": "Códigos QR"
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
@@ -109,7 +110,11 @@
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
       "CODIGO_INVALIDO": "Ese código de autorización no es válido.",
-      "BLOQUEADO": "Demasiados intentos fallidos. Espera 15 minutos antes de volver a intentar."
+      "BLOQUEADO": "Demasiados intentos fallidos. Espera 15 minutos antes de volver a intentar.",
+      "FILA_INVALIDA": "Elige la fila de carros o la fila a pie.",
+      "OTRA_FILA": "Eso es de la otra fila.",
+      "SOLO_HOY": "Solo se puede ver la fila de hoy.",
+      "TURNO_NO_EXISTE": "Ese turno ya no está esperando."
     },
     "otraFechaDetalle": "Su cita es para el {{fecha}} a las {{hora}}. No procede.",
     "autorizar": {
@@ -127,7 +132,12 @@
     "deOtraFila": "Este código es de la otra fila ({{fila}}). Mándalo allá: ahí le entregan su caja.",
     "parecido": "¿Es este? El código se parece",
     "volverARevisar": "Volver a revisar",
-    "siguiente": "Escanea el siguiente"
+    "siguiente": "Escanea el siguiente",
+    "turnoAdelantado": {
+      "titulo": "Todavía no es su turno",
+      "texto": "Tiene el turno {{turno}} y va el {{actual}}. Puede pasar si tú lo decides.",
+      "paso": "Pasó antes de su turno: tiene el {{turno}} y va el {{actual}}. Si no debía pasar, deshaz la entrega con el botón de abajo."
+    }
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -175,7 +185,22 @@
       "renovar": "Sí, generar otro",
       "revocar": "Sí, quitar el pase",
       "devolver": "Sí, dárselo otra vez"
-    }
+    },
+    "dar": "Dar pase permanente",
+    "codigoPersona": "Código CB de la persona",
+    "motivoOpcional": "Motivo (opcional)",
+    "faltaCodigo": "Escribe su código, por ejemplo CB-4871. Si todavía no está registrada, regístrala primero en \"Registrar persona\".",
+    "opcionVip": "Pase VIP",
+    "opcionVipAyuda": "Para suscriptores VIP: su QR sale dorado y pasa directo, sin hacer fila.",
+    "darBoton": "Dar pase",
+    "dado": "Listo: {{codigo}} ya tiene su pase permanente.",
+    "dadoVip": "Listo: {{codigo}} ya tiene su pase VIP.",
+    "vips_one": "{{count}} VIP",
+    "vips_other": "{{count}} VIP",
+    "hacerVip": "Hacer VIP",
+    "quitarVip": "Quitar VIP",
+    "vipPuesto": "{{codigo}} ahora es VIP: su pase sale dorado.",
+    "vipQuitado": "{{codigo}} ya no es VIP."
   },
   "panel": {
     "cargando": "Cargando el día…",
@@ -333,8 +358,10 @@
       "CONSENTIMIENTO_REQUERIDO": "Falta confirmar que compartes tu información por tu propia voluntad.",
       "FALTA_HORARIO": "Elige la fecha y el horario.",
       "YA_REGISTRADO_ESE_DIA": "Ya hay una cita a tu nombre para ese día. Si perdiste tu código, el día de la entrega pide ayuda al equipo: te buscan por tu nombre.",
-      "A_PIE_CERRADO": "La fila a pie todavía no recibe citas.",
-      "SIN_CONEXION": "Se cortó la conexión. Revisa tu señal y vuelve a tocar «Confirmar»."
+      "A_PIE_CERRADO": "Por ahora no hay fila a pie para ese día.",
+      "SIN_CONEXION": "Se cortó la conexión. Revisa tu señal y vuelve a tocar «Confirmar».",
+      "ACOMPANANTE_SIN_CITA": "No encontramos una cita de carro con ese código para este día. Revisa el código con quien maneja.",
+      "CARRO_LLENO": "Ese carro ya tiene el máximo de acompañantes."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
@@ -353,6 +380,13 @@
     "borrador": {
       "recuperado": "Recuperamos lo que habías escrito.",
       "empezarDeNuevo": "Borrar y empezar de nuevo"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Se acabaron los turnos mientras llenabas tus datos. Lo sentimos mucho.",
+      "BLOQUE_CERRADO": "Ya se cerraron los turnos para este día.",
+      "BLOQUE_NO_EXISTE": "Esta fila a pie ya no existe. Vuelve a revisar la página de la fila a pie.",
+      "AUN_NO_ABRE": "Los turnos todavía no se abren. Vuelve a la hora que dice la página.",
+      "DIA_CERRADO": "Este día ya no da turnos."
     }
   },
   "pasos": {
@@ -409,11 +443,11 @@
     "enCarro": "En carro",
     "enCarroAyuda": "Te entregamos en la ventanilla",
     "aPie": "A pie",
-    "proximamente": "Próximamente",
-    "aPieAviso": "Por ahora la entrega es solo en la fila de carros. Estamos preparando la fila para quien llega caminando.",
+    "aPieAviso": "A pie no hay horario: el día de la entrega sacas tu turno desde aquí y esperas a que te llamen.",
     "gratuito": "Los alimentos son gratuitos. No se requiere ninguna donación.",
     "yaTienesCita": "¿Ya tienes cita? Lleva la imagen o la captura de tu código el día de la entrega.",
-    "hacerCita": "Hacer cita"
+    "hacerCita": "Hacer cita",
+    "sacarTurno": "Sacar turno"
   },
   "navegacion": {
     "inicio": "Volver al inicio",
@@ -506,12 +540,11 @@
     "fecha": "Fecha de la entrega",
     "desde": "Primer horario",
     "hasta": "Último horario",
-    "capacidad": "Lugares por horario",
-    "cabenEnTotal": "Son {{horarios}} horarios de 15 minutos. Con {{porHorario}} lugares en cada uno, caben {{total}} personas ese día.",
+    "capacidad": "Carros por horario",
+    "cabenEnTotal": "{{horarios}} horarios de 15 minutos × {{porHorario}} carros = {{total}} carros ese día.",
     "cuandoAbre": "¿Cuándo se abren los registros?",
     "abreProgramado": "En una fecha y hora",
     "abreAhora": "Ahora mismo",
-    "eligeFecha": "Primero elige la fecha de la entrega.",
     "abreEn": "Se abren al público el",
     "anticipo": {
       "unaHora": "1 hora antes que el público",
@@ -555,7 +588,7 @@
     "eliminarHorario": "Eliminar el horario de las {{hora}}",
     "confirmarEliminarHorario": "¿Eliminar este horario?",
     "hora": "Hora",
-    "cupo": "Lugares",
+    "cupo": "Carros",
     "agregar": "Agregar horario",
     "eliminarFecha": "Eliminar esta fecha",
     "confirmarEliminarFecha": "¿Eliminar {{fecha}} y todos sus horarios? Esto no se puede deshacer.",
@@ -566,7 +599,7 @@
     "errores": {
       "FECHA_PASADA": "Esa fecha ya pasó.",
       "HORARIO_INVALIDO": "Revisa los horarios: el último no puede ser antes del primero.",
-      "CAPACIDAD_INVALIDA": "Los lugares por horario tienen que ser 0 o más.",
+      "CAPACIDAD_INVALIDA": "Los carros por horario tienen que ser 0 o más.",
       "APERTURA_REQUERIDA": "Falta la fecha y hora de apertura.",
       "ANTICIPADO_DESPUES_DE_APERTURA": "El acceso de suscriptores tiene que empezar antes de la apertura al público.",
       "DIA_YA_EXISTE": "Esa fecha ya existe. Búscala en la lista.",
@@ -579,7 +612,14 @@
       "SIN_PERMISO": "Tu cuenta no tiene permiso para esto. Vuelve a iniciar sesión.",
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo completar. Vuelve a intentar.",
-      "SUSCRIPTORES_FECHA_ABIERTA": "Para pedir el código a los suscriptores, «Se abren al público el» tiene que ser una hora futura."
+      "SUSCRIPTORES_FECHA_ABIERTA": "Para pedir el código a los suscriptores, «Se abren al público el» tiene que ser una hora futura.",
+      "APERTURA_DESPUES_DE_INICIO": "Los turnos tienen que abrirse antes de empezar a entregar.",
+      "FILA_A_PIE_NO_EXISTE": "Ese día ya no tiene fila a pie.",
+      "DIA_CERRADO": "Este día está cerrado. Vuelve a abrir los registros primero.",
+      "A_PIE_HORARIO_INVALIDO": "Falta la hora en que empieza la entrega a pie.",
+      "A_PIE_CAPACIDAD_INVALIDA": "Los turnos tienen que ser 1 o más, o sin límite.",
+      "A_PIE_APERTURA_REQUERIDA": "Falta la fecha y hora en que se abren los turnos.",
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Los turnos tienen que abrirse antes de empezar a entregar."
     },
     "activarSuscriptores": "Activar acceso para suscriptores de Facebook",
     "entran": "Los suscriptores entran",
@@ -592,10 +632,17 @@
     "guardado": "Cambios guardados.",
     "regenerar": "Generar otro",
     "confirmarRegenerar": "El código actual dejará de funcionar. ¿Generar uno nuevo?",
-    "seccionLugares": "Lugares por horario",
+    "seccionLugares": "Carros por horario",
     "todos": "Todos los horarios",
     "aplicarTodos": "Aplicar a todos",
-    "suscriptoresYaAbierta": "Esa hora ya pasó: la fecha está abierta para todos y el código no se pediría. Para que primero entren solo los suscriptores, pon una hora futura en «Se abren al público el»."
+    "suscriptoresYaAbierta": "Esa hora ya pasó: la fecha está abierta para todos y el código no se pediría. Para que primero entren solo los suscriptores, pon una hora futura en «Se abren al público el».",
+    "filas": {
+      "pregunta": "¿Qué filas habrá este día?",
+      "carro": "Solo carros",
+      "a_pie": "Solo a pie",
+      "ambas": "Carros y a pie",
+      "faltoAPie": "La fecha se creó, pero la fila a pie no se pudo guardar. Ábrela en la lista de abajo y ármala ahí."
+    }
   },
   "incidencias": {
     "boton": "Hay un problema este día",
@@ -750,6 +797,22 @@
       "listo": {
         "titulo": "¡Listo!",
         "texto": "Eso es todo. Si te queda una duda, abre esta guía desde el menú, en «Guía de uso». ¡Gracias por servir!"
+      },
+      "elegirFila": {
+        "titulo": "Primero, tu fila del día",
+        "texto": "Al abrir el escáner, elige si hoy estás en la fila de carros o en la fila a pie. Solo vas a entregar los códigos de esa fila. Si te mueven, toca «Cambiar de fila» y confirma."
+      },
+      "dosQr": {
+        "titulo": "Cada fila tiene su QR",
+        "texto": "El código de carros trae un carrito azul en medio; el de a pie, una persona caminando en naranja. Así sabes de qué fila es antes de escanear."
+      },
+      "turnos": {
+        "titulo": "La fila a pie va por turnos",
+        "texto": "En la fila a pie ves en grande el turno que va, para llamarlo, y los que siguen. Al escanear, la fila avanza sola. Si no se presenta, toca «No se presentó». Si llega alguien antes de su turno, pasa igual y la pantalla te avisa; si no debía, deshaces la entrega."
+      },
+      "filaAPie": {
+        "titulo": "Armar la fila a pie",
+        "texto": "Al crear una fecha, escoge si es solo de carros, solo a pie o de las dos. De la fila a pie pones a qué hora empieza la entrega y cuántos turnos (o sin límite). Los turnos se abren una hora antes; si eliges más temprano, te avisa. También se cambia después, dentro de cada día."
       }
     },
     "escena": {
@@ -893,7 +956,9 @@
       "PASE_NO_EXISTE": "Esta persona no tiene pase.",
       "PASE_YA_REVOCADO": "Ese pase ya estaba retirado.",
       "TELEFONO_INVALIDO": "El teléfono no es válido. Revisa la lada y el número.",
-      "FECHA_FUTURA": "Esa fecha todavía no llega."
+      "FECHA_FUTURA": "Esa fecha todavía no llega.",
+      "ACOMPANANTE_SIN_CAMBIO": "Vienes en el carro de alguien: tu hora es la de quien maneja. Si cambia su horario, cambia también el tuyo.",
+      "A_PIE_SIN_CAMBIO": "En la fila a pie no se cambia de horario: se saca un turno nuevo ese día."
     }
   },
   "sinCita": {
@@ -1194,23 +1259,28 @@
     "falta": "Necesitas leer y aceptar las indicaciones para continuar.",
     "respaldo1": "Llega 5 minutos antes de tu hora. Es obligatorio.",
     "respaldo2": "Tu código sirve para una sola caja y se usa una sola vez.",
-    "respaldo3": "Puedes cambiar tu horario una sola vez."
+    "respaldo3": "Puedes cambiar tu horario una sola vez.",
+    "tituloAPie": "Antes de sacar tu turno, lee esto",
+    "respaldoAPie1": "Cada persona de 18 años o más necesita su propio turno y su propio código.",
+    "respaldoAPie2": "Espera cerca. Cuando digan tu número, acércate y muestra tu código."
   },
   "avisos": {
     "titulo": "Textos y reglas",
-    "ayuda": "Lo que la gente lee en la portada y antes de confirmar su cita. Se cambia aquí, sin tocar el sistema. Ojo: aquí se cambia lo que se explica, no lo que el sistema hace.",
+    "ayuda": "Lo que la gente lee, tal como lo ve. Toca un texto para cambiarlo.",
     "cargando": "Buscando los textos…",
     "seccion": {
       "inicio": "Portada",
-      "registro": "Antes de confirmar la cita",
+      "registro": "Antes de confirmar · fila de carros",
       "preguntas": "Preguntas frecuentes",
-      "quienes": "Quiénes somos"
+      "quienes": "Quiénes somos",
+      "registro_a_pie": "Antes de sacar turno · fila a pie"
     },
     "donde": {
       "inicio": "Sale en la página de inicio, en “Antes de empezar”.",
-      "registro": "Sale justo antes del botón que genera el código QR, con una casilla obligatoria.",
+      "registro": "Sale antes del botón que genera el QR de una cita en carro, con una casilla obligatoria.",
       "preguntas": "Sale en la página de preguntas frecuentes, en el signo de interrogación de la portada.",
-      "quienes": "Sale en la página “Quiénes somos”, a la que se entra desde la portada."
+      "quienes": "Sale en la página “Quiénes somos”, a la que se entra desde la portada.",
+      "registro_a_pie": "Sale antes del botón para sacar turno a pie, con una casilla obligatoria."
     },
     "agregar": "Agregar una regla",
     "editar": "Editar",
@@ -1249,7 +1319,26 @@
     "tituloCampo": {
       "preguntas": "La pregunta (obligatoria)",
       "quienes": "Encabezado (opcional)"
-    }
+    },
+    "pista": "Arrastra desde ⠿ para cambiar el orden. El ojo lo oculta sin borrarlo.",
+    "pestana": {
+      "reglas": "Reglas de la cita",
+      "inicio": "Portada",
+      "preguntas": "Preguntas",
+      "quienes": "Quiénes somos"
+    },
+    "agregarEn": {
+      "inicio": "Agregar a la portada",
+      "registro": "Agregar una regla de carros",
+      "registro_a_pie": "Agregar una regla a pie",
+      "preguntas": "Agregar una pregunta",
+      "quienes": "Agregar un párrafo"
+    },
+    "arrastrar": "Arrastrar para cambiar el orden (o usa las flechas del teclado)",
+    "tocarParaEditar": "Toca para editar",
+    "oculta": "Oculta: la gente no la ve",
+    "quitarPregunta": "¿Quitar este texto?",
+    "traducciones": "Inglés y vietnamita (opcional)"
   },
   "preguntas": {
     "titulo": "Preguntas frecuentes",
@@ -1442,5 +1531,171 @@
   "entornoPruebas": {
     "aviso": "Base de pruebas · nada de esto es real",
     "lento": "modo lento: {{segundos}} s"
+  },
+  "aPie": {
+    "titulo": "Fila a pie",
+    "subtitulo": "Sin horario: sacas tu turno y esperas tu número.",
+    "cargando": "Revisando la fila a pie…",
+    "sinConexion": "Se cortó la conexión. Esto puede no estar al día; revisa tu señal.",
+    "noHay": "Por ahora no hay fila a pie. Cuando haya, aquí mismo vas a poder sacar tu turno.",
+    "hoy": "Hoy",
+    "proxima": "Próxima fila a pie",
+    "empiezaA": "Empezamos a entregar a las {{hora}}",
+    "abreA": "Los turnos se abren el {{cuando}}.",
+    "seActualiza": "Deja esta página abierta: el botón aparece solo cuando se abran.",
+    "llena": "Ya no hay turnos para ese día. Gracias por tu paciencia.",
+    "sacarTurno": "Sacar mi turno",
+    "comoFunciona": "¿Cómo funciona?",
+    "pasos": {
+      "uno": "Llena tus datos. Son los mismos que en la cita en carro.",
+      "dos": "Recibes tu código QR y tu número de turno. Guárdalo o tómale captura.",
+      "tres": "Espera cerca. En tu teléfono ves qué turno va; cuando sea el tuyo, muestra tu código."
+    },
+    "unaPorPersona": "Cada persona de 18 años o más necesita su propio turno y su propio código. Un código es una caja.",
+    "volver": "Volver a la fila a pie",
+    "registroTitulo": "Saca tu turno",
+    "confirmar": "Sacar mi turno"
+  },
+  "turno": {
+    "tuTurno": "Tu turno",
+    "numero": "Turno {{turno}}",
+    "listo": "Ya tienes tu turno",
+    "van": "Van en el turno {{turno}}",
+    "antes_one": "Falta {{count}} persona antes de ti",
+    "antes_other": "Faltan {{count}} personas antes de ti",
+    "eresElSiguiente": "¡Eres el siguiente! Acércate.",
+    "esTuTurno": "¡Es tu turno! Acércate y muestra tu código.",
+    "teLlamaron": "Ya te llamaron. Acércate con tu código: todavía te pueden atender.",
+    "recibida": "Ya recibiste tu caja. ¡Gracias por venir!",
+    "otroDia": "El día de la entrega, aquí mismo vas a ver qué turno va.",
+    "seActualiza": "Se actualiza solo cada pocos segundos."
+  },
+  "elegirFila": {
+    "pregunta": "¿En qué fila estás hoy?",
+    "ayuda": "Se elige una vez al día. Solo vas a poder entregar los códigos de esa fila.",
+    "laDeSiempre": "Tu fila de siempre",
+    "cargando": "Revisando tu fila…",
+    "cambiar": "Cambiar de fila",
+    "confirmarPregunta": "¿Pasarte a «{{fila}}»?",
+    "confirmarAyuda": "Los códigos de «{{fila}}» ya no los vas a poder entregar hasta que regreses.",
+    "confirmarSi": "Sí, pasarme a «{{fila}}»",
+    "confirmarNo": "No, me quedo"
+  },
+  "filaTurnos": {
+    "titulo": "Turnos de la fila a pie",
+    "cargando": "Revisando la fila…",
+    "noHay": "Hoy no hay fila a pie.",
+    "empieza": "Empieza a las {{hora}}",
+    "sinConexion": "Sin señal: lo que ves puede no estar al día.",
+    "va": "Turno que va",
+    "decir": "Decirlo en voz alta",
+    "frase": "Turno {{turno}}",
+    "noSePresento": "No se presentó",
+    "nadieEsperando": "No hay nadie esperando por ahora.",
+    "saltado": "El turno {{turno}} quedó como que no se presentó.",
+    "deshacer": "Deshacer",
+    "cuentas": {
+      "atendidos": "Ya recibieron",
+      "esperando": "Esperando",
+      "cupo": "Turnos dados"
+    },
+    "sinLimite": "Sin límite",
+    "siguen": "Siguen",
+    "noSePresentaron_one": "{{count}} no se presentó",
+    "noSePresentaron_other": "{{count}} no se presentaron",
+    "noSePresentaronAyuda": "Si llegan después, su código sigue sirviendo: escanéalo normal.",
+    "regresar": "Regresar a la fila",
+    "buscar": "Buscar por nombre o código",
+    "seActualiza": "Se actualiza sola cada pocos segundos.",
+    "errores": {
+      "TURNO_NO_EXISTE": "Ese turno ya no está esperando: puede que ya haya recibido.",
+      "OTRA_FILA": "Para ver los turnos, elige la fila a pie.",
+      "SOLO_HOY": "Solo se puede ver la fila de hoy."
+    },
+    "anunciar": "Anunciar cada turno en voz alta",
+    "voz": "Voz",
+    "vozDelTelefono": "La del teléfono"
+  },
+  "filaAPieAdmin": {
+    "titulo": "Fila a pie",
+    "ayuda": "La fila a pie va por turnos, sin horarios. La gente saca su turno desde la página, con el QR del cartel.",
+    "registroCerrado": "Turnos cerrados: ya no se dan más.",
+    "registroAbierto": "Turnos abiertos.",
+    "abre": "Los turnos se abren el {{cuando}}.",
+    "turnosDados_one": "{{count}} turno dado",
+    "turnosDados_other": "{{count}} turnos dados",
+    "hora": "Empieza a las",
+    "cupo": "Turnos",
+    "sinLimite": "Sin límite",
+    "conLimite": "Hasta",
+    "cuantos": "Cuántos turnos",
+    "apertura": "Los turnos se abren",
+    "unaHoraAntes": "Una hora antes ({{hora}})",
+    "unaHoraAntesSinHora": "Una hora antes",
+    "otraHora": "Otra hora",
+    "masTemprano": "Más de una hora antes: hay quien saca turno y ya no llega.",
+    "despuesDeInicio": "Tienen que abrirse antes de empezar a entregar.",
+    "guardarCambios": "Guardar la fila a pie",
+    "crear": "Crear la fila a pie",
+    "reabrir": "Volver a abrir los turnos",
+    "cerrar": "Cerrar los turnos",
+    "confirmarCerrar": "¿Cerrar los turnos a pie? Ya no se darán más; quien ya tiene turno lo conserva.",
+    "guardado": "Listo, se guardó la fila a pie.",
+    "quitada": "Se quitó la fila a pie de este día.",
+    "confirmarQuitar": "¿Quitar la fila a pie de este día?",
+    "siQuitar": "Sí, quitarla",
+    "noQuitar": "No",
+    "quitar": "Quitar la fila a pie",
+    "resumen_one": "A pie: {{count}} turno",
+    "resumen_other": "A pie: {{count}} turnos",
+    "recomendado": "Se recomienda una hora antes de empezar."
+  },
+  "codigosQr": {
+    "titulo": "Códigos QR",
+    "ayuda": "Crea un QR con el logo de Cajita de Bendición para cualquier página. Cada uno se queda guardado abajo.",
+    "url": "Dirección de la página",
+    "mensaje": "Texto arriba del QR (opcional)",
+    "mensajeEjemplo": "Escanea para sacar tu turno",
+    "alt": "Código QR de {{url}}",
+    "descargar": "Descargar",
+    "copiar": "Copiar imagen",
+    "avisos": {
+      "descargada": "Se descargó el cartel. Búscalo en tus descargas.",
+      "copiada": "Copiado. Pégalo donde lo necesites.",
+      "noCopia": "Este navegador no deja copiar imágenes. Descárgalo o tómale captura."
+    },
+    "crear": "Crear QR",
+    "creando": "Creando…",
+    "ninguno": "Aún no has creado ningún QR.",
+    "quitar": "Quitar",
+    "quitarPregunta": "¿Quitar este QR?",
+    "siQuitar": "Sí",
+    "no": "No",
+    "errores": {
+      "VACIA": "Escribe la dirección de la página.",
+      "INVALIDA": "Esa dirección no parece de una página. Revísala.",
+      "NO_SE_PUDO": "No se pudo crear el QR con esa dirección. Prueba con una más corta."
+    }
+  },
+  "acompanante": {
+    "titulo": "¿Cómo vienes?",
+    "queEs": "¿Qué es esto?",
+    "explicacion": "Cada lugar es un carro. Si vienes en el carro de alguien que ya hizo su cita, escoge \"Vengo en el carro de alguien\": tienes tu propio código y tu propia caja, pero no ocupas otro lugar. Tu hora es la de quien maneja.",
+    "propio": "Traigo mi carro",
+    "propioAyuda": "Apartas un lugar para tu carro.",
+    "acompanante": "Vengo en el carro de alguien que ya tiene cita",
+    "acompananteAyuda": "No ocupas otro lugar.",
+    "codigo": "Código de quien maneja",
+    "codigoAyuda": "Está en su página de la cita, debajo de su QR (por ejemplo CB-4871).",
+    "faltaCodigo": "Escribe el código de quien maneja, por ejemplo CB-4871.",
+    "horaDeQuienManeja": "Tu hora es la de quien maneja.",
+    "enlace": "¿Vienes en el carro de alguien que ya tiene cita? Regístrate aquí",
+    "escogeHorario": "Para traer tu carro, primero escoge un horario con lugar.",
+    "verHorarios": "Ver horarios"
+  },
+  "vip": {
+    "voluntario": "Pasa directo, sin hacer fila",
+    "persona": "Pasas directo, sin hacer fila",
+    "etiqueta": "Pase VIP"
   }
 }

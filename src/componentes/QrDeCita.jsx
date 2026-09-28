@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaEye } from 'react-icons/fa6'
 import { Cargando, Hueso } from './Esqueleto'
-import { dibujarQR } from '../datos/cita'
+import { consultarCita, dibujarQR } from '../datos/cita'
+import { filaDe } from '../datos/filas'
 import { qrDeCita } from '../datos/panel'
 
 //  Lo borroso es un QR de adorno, el mismo para todos: NO es el de la
@@ -32,6 +33,7 @@ export default function QrDeCita({ codigo, cita, cuando, hoy, abiertoAlInicio = 
   const [adornoListo, setAdornoListo] = useState(null)
 
   const pedir = estado.tipo === 'cargando'
+  const filaGuardada = filaDe(cita)
 
   useEffect(() => {
     let vivo = true
@@ -49,7 +51,11 @@ export default function QrDeCita({ codigo, cita, cuando, hoy, abiertoAlInicio = 
 
     qrDeCita({ codigo, fecha: cita.fecha, hora: cita.hora })
       .then(async (datos) => {
-        const imagen = await dibujarQR(datos.token)
+        //  El sello de su fila (carrito o persona caminando), igual que el QR
+        //  que tiene la persona. La lista de la ficha no dice la fila: se
+        //  pregunta con el mismo QR. Si no se puede, se dibuja con la que venga.
+        const fila = await consultarCita(datos.token).then(filaDe, () => filaGuardada)
+        const imagen = await dibujarQR(datos.token, fila)
         if (vivo) setEstado({ tipo: 'listo', ...datos, imagen })
       })
       .catch((e) => {
@@ -59,7 +65,7 @@ export default function QrDeCita({ codigo, cita, cuando, hoy, abiertoAlInicio = 
     return () => {
       vivo = false
     }
-  }, [pedir, codigo, cita.fecha, cita.hora])
+  }, [pedir, codigo, cita.fecha, cita.hora, filaGuardada])
 
   //  Lo que va a pasar si se escanea, para que nadie se confunda al probar.
   const nota =

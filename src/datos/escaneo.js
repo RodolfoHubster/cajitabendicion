@@ -200,7 +200,11 @@ export function previaPorError(mensaje) {
  * Lo que necesita que alguien decida se sigue viendo antes: otra fecha (pide
  * autorizacion), otra fila, un codigo que no existe, sin senal, un pase
  * revocado. Y la busqueda a mano nunca entrega sola: ahi es facil tocar a la
- * Maria equivocada.
+ * Maria equivocada (tiene su propio boton de "Registrar entrega").
+ *
+ * A pie, alguien que llega antes de su turno tambien pasa de una vez (asi se
+ * pidio el 28 de septiembre de 2026): la respuesta lo avisa y se puede
+ * deshacer en el primer minuto.
  */
 export function entregaDirecta(previa, { hoy, fila }) {
   if (!previa || previa.resultado || previa.porCodigo) return false

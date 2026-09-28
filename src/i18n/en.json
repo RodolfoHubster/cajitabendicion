@@ -38,7 +38,8 @@
     "equipo": "Team & access",
     "avisos": "Texts and rules",
     "permisos": "Permissions",
-    "menu": "Menu"
+    "menu": "Menu",
+    "codigosQr": "QR codes"
   },
   "escaneo": {
     "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
@@ -109,7 +110,11 @@
       "SIN_CONEXION": "No connection. Check your mobile data.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
       "CODIGO_INVALIDO": "That authorization code is not valid.",
-      "BLOQUEADO": "Too many failed attempts. Wait 15 minutes before trying again."
+      "BLOQUEADO": "Too many failed attempts. Wait 15 minutes before trying again.",
+      "FILA_INVALIDA": "Choose the car line or the walk-up line.",
+      "OTRA_FILA": "That belongs to the other line.",
+      "SOLO_HOY": "Only today's line can be viewed.",
+      "TURNO_NO_EXISTE": "That number is no longer waiting."
     },
     "otraFechaDetalle": "Their appointment is on {{fecha}} at {{hora}}. Not valid.",
     "autorizar": {
@@ -127,7 +132,12 @@
     "deOtraFila": "This code belongs to the other line ({{fila}}). Send them there: they get their box in that line.",
     "parecido": "Is it this one? The code is similar",
     "volverARevisar": "Check again",
-    "siguiente": "Scan the next one"
+    "siguiente": "Scan the next one",
+    "turnoAdelantado": {
+      "titulo": "It is not their turn yet",
+      "texto": "They have number {{turno}} and we are on {{actual}}. They can go ahead if you decide so.",
+      "paso": "Went ahead of their turn: they have {{turno}} and we are on {{actual}}. If they should not have, undo it with the button below."
+    }
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -175,7 +185,22 @@
       "renovar": "Yes, generate another",
       "revocar": "Yes, remove the pass",
       "devolver": "Yes, give it back"
-    }
+    },
+    "dar": "Give a permanent pass",
+    "codigoPersona": "Person's CB code",
+    "motivoOpcional": "Reason (optional)",
+    "faltaCodigo": "Type their code, for example CB-4871. If they are not registered yet, register them first in \"Register a person\".",
+    "opcionVip": "VIP pass",
+    "opcionVipAyuda": "For VIP subscribers: their QR is gold and they go straight in, no line.",
+    "darBoton": "Give pass",
+    "dado": "Done: {{codigo}} now has a permanent pass.",
+    "dadoVip": "Done: {{codigo}} now has a VIP pass.",
+    "vips_one": "{{count}} VIP",
+    "vips_other": "{{count}} VIPs",
+    "hacerVip": "Make VIP",
+    "quitarVip": "Remove VIP",
+    "vipPuesto": "{{codigo}} is now VIP: their pass is gold.",
+    "vipQuitado": "{{codigo}} is no longer VIP."
   },
   "panel": {
     "cargando": "Loading today…",
@@ -333,8 +358,10 @@
       "CONSENTIMIENTO_REQUERIDO": "Please confirm that you share your information of your own free will.",
       "FALTA_HORARIO": "Choose the date and the time.",
       "YA_REGISTRADO_ESE_DIA": "There is already an appointment in your name for that day. If you lost your code, ask the team for help on delivery day: they will look you up by name.",
-      "A_PIE_CERRADO": "The walk-up line is not taking appointments yet.",
-      "SIN_CONEXION": "The connection dropped. Check your signal and tap “Confirm” again."
+      "A_PIE_CERRADO": "There is no walk-up line for that day right now.",
+      "SIN_CONEXION": "The connection dropped. Check your signal and tap “Confirm” again.",
+      "ACOMPANANTE_SIN_CITA": "We could not find a car appointment with that code for this day. Check the code with the driver.",
+      "CARRO_LLENO": "That car already has the maximum number of passengers."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
@@ -353,6 +380,13 @@
     "borrador": {
       "recuperado": "We recovered what you had typed.",
       "empezarDeNuevo": "Clear and start over"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "The numbers ran out while you were filling in your information. We are very sorry.",
+      "BLOQUE_CERRADO": "Numbers are closed for this day.",
+      "BLOQUE_NO_EXISTE": "This walk-up line no longer exists. Check the walk-up line page again.",
+      "AUN_NO_ABRE": "Numbers are not open yet. Come back at the time shown on the page.",
+      "DIA_CERRADO": "This day is no longer giving out numbers."
     }
   },
   "pasos": {
@@ -409,11 +443,11 @@
     "enCarro": "By car",
     "enCarroAyuda": "We hand it to you at your window",
     "aPie": "On foot",
-    "proximamente": "Coming soon",
-    "aPieAviso": "For now the delivery is only in the car line. We are getting the walk-up line ready.",
+    "aPieAviso": "On foot there is no time slot: on delivery day you get your number here and wait to be called.",
     "gratuito": "The food is free. No donation is required.",
     "yaTienesCita": "Already have an appointment? Bring the saved image or screenshot of your code on distribution day.",
-    "hacerCita": "Book now"
+    "hacerCita": "Book now",
+    "sacarTurno": "Get a number"
   },
   "navegacion": {
     "inicio": "Back to home",
@@ -506,12 +540,11 @@
     "fecha": "Distribution date",
     "desde": "First time slot",
     "hasta": "Last time slot",
-    "capacidad": "Spots per time slot",
-    "cabenEnTotal": "That is {{horarios}} slots of 15 minutes. With {{porHorario}} spots each, {{total}} people fit that day.",
+    "capacidad": "Cars per time slot",
+    "cabenEnTotal": "{{horarios}} slots of 15 minutes × {{porHorario}} cars = {{total}} cars that day.",
     "cuandoAbre": "When does registration open?",
     "abreProgramado": "On a date and time",
     "abreAhora": "Right now",
-    "eligeFecha": "First pick the distribution date.",
     "abreEn": "Opens to the public on",
     "anticipo": {
       "unaHora": "1 hour before the public",
@@ -555,7 +588,7 @@
     "eliminarHorario": "Delete the {{hora}} time slot",
     "confirmarEliminarHorario": "Delete this time slot?",
     "hora": "Time",
-    "cupo": "Spots",
+    "cupo": "Cars",
     "agregar": "Add time slot",
     "eliminarFecha": "Delete this date",
     "confirmarEliminarFecha": "Delete {{fecha}} and all its time slots? This cannot be undone.",
@@ -566,7 +599,7 @@
     "errores": {
       "FECHA_PASADA": "That date has already passed.",
       "HORARIO_INVALIDO": "Check the times: the last slot cannot be before the first.",
-      "CAPACIDAD_INVALIDA": "Spots per time slot must be 0 or more.",
+      "CAPACIDAD_INVALIDA": "Cars per time slot must be 0 or more.",
       "APERTURA_REQUERIDA": "The opening date and time are missing.",
       "ANTICIPADO_DESPUES_DE_APERTURA": "Subscriber access has to start before the public opening.",
       "DIA_YA_EXISTE": "That date already exists. Find it in the list.",
@@ -579,7 +612,14 @@
       "SIN_PERMISO": "Your account does not have permission for this. Please sign in again.",
       "SIN_CONEXION": "No connection. Check your internet and try again.",
       "ERROR_DESCONOCIDO": "Could not complete. Please try again.",
-      "SUSCRIPTORES_FECHA_ABIERTA": "To ask subscribers for the code, “Opens to the public on” has to be a future time."
+      "SUSCRIPTORES_FECHA_ABIERTA": "To ask subscribers for the code, “Opens to the public on” has to be a future time.",
+      "APERTURA_DESPUES_DE_INICIO": "Numbers must open before the delivery starts.",
+      "FILA_A_PIE_NO_EXISTE": "That day no longer has a walk-up line.",
+      "DIA_CERRADO": "This day is closed. Reopen registrations first.",
+      "A_PIE_HORARIO_INVALIDO": "The time the walk-up delivery starts is missing.",
+      "A_PIE_CAPACIDAD_INVALIDA": "Numbers must be 1 or more, or no limit.",
+      "A_PIE_APERTURA_REQUERIDA": "The date and time numbers open is missing.",
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Numbers must open before the delivery starts."
     },
     "activarSuscriptores": "Turn on access for Facebook subscribers",
     "entran": "Subscribers get in",
@@ -592,10 +632,17 @@
     "guardado": "Changes saved.",
     "regenerar": "Generate another",
     "confirmarRegenerar": "The current code will stop working. Generate a new one?",
-    "seccionLugares": "Spots per time slot",
+    "seccionLugares": "Cars per time slot",
     "todos": "All time slots",
     "aplicarTodos": "Apply to all",
-    "suscriptoresYaAbierta": "That time has already passed: the date is open to everyone and the code would not be asked for. So that only subscribers get in first, set a future time in “Opens to the public on”."
+    "suscriptoresYaAbierta": "That time has already passed: the date is open to everyone and the code would not be asked for. So that only subscribers get in first, set a future time in “Opens to the public on”.",
+    "filas": {
+      "pregunta": "Which lines will there be this day?",
+      "carro": "Cars only",
+      "a_pie": "Walk-up only",
+      "ambas": "Cars and walk-up",
+      "faltoAPie": "The date was created, but the walk-up line could not be saved. Open it in the list below and set it up there."
+    }
   },
   "incidencias": {
     "boton": "There is a problem this day",
@@ -750,6 +797,22 @@
       "listo": {
         "titulo": "All set!",
         "texto": "That is all. If you have a question, open this guide from the menu, under “User guide”. Thank you for serving!"
+      },
+      "elegirFila": {
+        "titulo": "First, your line for the day",
+        "texto": "When you open the scanner, choose whether you are in the car line or the walk-up line today. You will only hand out codes from that line. If you are moved, tap «Change line» and confirm."
+      },
+      "dosQr": {
+        "titulo": "Each line has its own QR",
+        "texto": "The car code has a blue car in the middle; the walk-up code, an orange walking person. That way you know which line it belongs to before scanning."
+      },
+      "turnos": {
+        "titulo": "The walk-up line works with numbers",
+        "texto": "In the walk-up line you see in large print the number being served, to call it out, and the ones coming next. When you scan, the line moves forward by itself. If someone does not show up, tap «Did not show up». If someone comes before their turn, they go through and the screen warns you; if they should not have, undo it."
+      },
+      "filaAPie": {
+        "titulo": "Setting up the walk-up line",
+        "texto": "When you create a date, choose whether it is cars only, walk-up only or both. For the walk-up line, set the time the delivery starts and how many numbers (or no limit). Numbers open one hour before; if you choose earlier, you get a warning. You can also change it later, inside each day."
       }
     },
     "escena": {
@@ -893,7 +956,9 @@
       "PASE_NO_EXISTE": "This person does not have a pass.",
       "PASE_YA_REVOCADO": "That pass was already removed.",
       "TELEFONO_INVALIDO": "The phone number is not valid. Check the country code and the number.",
-      "FECHA_FUTURA": "That date has not arrived yet."
+      "FECHA_FUTURA": "That date has not arrived yet.",
+      "ACOMPANANTE_SIN_CAMBIO": "You are coming in someone else's car: your time is the driver's. If they change their time, yours changes too.",
+      "A_PIE_SIN_CAMBIO": "In the walk-up line the time does not change: get a new number that day."
     }
   },
   "sinCita": {
@@ -1194,23 +1259,28 @@
     "falta": "You need to read and accept the instructions to continue.",
     "respaldo1": "Arrive 5 minutes before your time. This is required.",
     "respaldo2": "Your code is good for one box and can be used only once.",
-    "respaldo3": "You can change your time only once."
+    "respaldo3": "You can change your time only once.",
+    "tituloAPie": "Before you get your number, read this",
+    "respaldoAPie1": "Each person 18 or older needs their own number and their own code.",
+    "respaldoAPie2": "Wait nearby. When your number is called, come up and show your code."
   },
   "avisos": {
     "titulo": "Texts and rules",
-    "ayuda": "What people read on the home page and before confirming their appointment. You change it here, without touching the system. Note: this changes what is explained, not what the system does.",
+    "ayuda": "What people read, just as they see it. Tap a text to change it.",
     "cargando": "Loading texts…",
     "seccion": {
       "inicio": "Home page",
-      "registro": "Before confirming the appointment",
+      "registro": "Before confirming · car line",
       "preguntas": "Frequently asked questions",
-      "quienes": "About us"
+      "quienes": "About us",
+      "registro_a_pie": "Before getting a number · walk-up line"
     },
     "donde": {
       "inicio": "Shows on the home page, under “Before you start”.",
-      "registro": "Shows right before the button that creates the QR code, with a required checkbox.",
+      "registro": "Shown before the button that creates the QR for a car appointment, with a required checkbox.",
       "preguntas": "Shows on the questions page, reached from the question mark on the home page.",
-      "quienes": "Shows on the “About us” page, reached from the home page."
+      "quienes": "Shows on the “About us” page, reached from the home page.",
+      "registro_a_pie": "Shown before the button to get a walk-up number, with a required checkbox."
     },
     "agregar": "Add a rule",
     "editar": "Edit",
@@ -1249,7 +1319,26 @@
     "tituloCampo": {
       "preguntas": "The question (required)",
       "quienes": "Heading (optional)"
-    }
+    },
+    "pista": "Drag from ⠿ to change the order. The eye hides it without deleting it.",
+    "pestana": {
+      "reglas": "Appointment rules",
+      "inicio": "Home page",
+      "preguntas": "Questions",
+      "quienes": "About us"
+    },
+    "agregarEn": {
+      "inicio": "Add to the home page",
+      "registro": "Add a car rule",
+      "registro_a_pie": "Add a walk-up rule",
+      "preguntas": "Add a question",
+      "quienes": "Add a paragraph"
+    },
+    "arrastrar": "Drag to change the order (or use the arrow keys)",
+    "tocarParaEditar": "Tap to edit",
+    "oculta": "Hidden: people do not see it",
+    "quitarPregunta": "Remove this text?",
+    "traducciones": "English and Vietnamese (optional)"
   },
   "preguntas": {
     "titulo": "Frequently asked questions",
@@ -1442,5 +1531,171 @@
   "entornoPruebas": {
     "aviso": "Test database · none of this is real",
     "lento": "slow mode: {{segundos}} s"
+  },
+  "aPie": {
+    "titulo": "Walk-up line",
+    "subtitulo": "No time slot: get your number and wait to be called.",
+    "cargando": "Checking the walk-up line…",
+    "sinConexion": "The connection dropped. This may not be up to date; check your signal.",
+    "noHay": "There is no walk-up line right now. When there is one, you can get your number right here.",
+    "hoy": "Today",
+    "proxima": "Next walk-up line",
+    "empiezaA": "We start handing out at {{hora}}",
+    "abreA": "Numbers open on {{cuando}}.",
+    "seActualiza": "Keep this page open: the button shows up by itself when they open.",
+    "llena": "There are no more numbers for that day. Thank you for your patience.",
+    "sacarTurno": "Get my number",
+    "comoFunciona": "How does it work?",
+    "pasos": {
+      "uno": "Fill in your information. It is the same as for a car appointment.",
+      "dos": "You get your QR code and your number. Save it or take a screenshot.",
+      "tres": "Wait nearby. Your phone shows which number is being served; when it is yours, show your code."
+    },
+    "unaPorPersona": "Each person 18 or older needs their own number and their own code. One code is one box.",
+    "volver": "Back to the walk-up line",
+    "registroTitulo": "Get your number",
+    "confirmar": "Get my number"
+  },
+  "turno": {
+    "tuTurno": "Your number",
+    "numero": "Number {{turno}}",
+    "listo": "You have your number",
+    "van": "Now serving number {{turno}}",
+    "antes_one": "{{count}} person ahead of you",
+    "antes_other": "{{count}} people ahead of you",
+    "eresElSiguiente": "You are next! Come closer.",
+    "esTuTurno": "It is your turn! Come up and show your code.",
+    "teLlamaron": "Your number was already called. Come up with your code: you can still be served.",
+    "recibida": "You already received your box. Thank you for coming!",
+    "otroDia": "On delivery day, you will see here which number is being served.",
+    "seActualiza": "Updates by itself every few seconds."
+  },
+  "elegirFila": {
+    "pregunta": "Which line are you in today?",
+    "ayuda": "You choose once a day. You will only be able to hand out codes from that line.",
+    "laDeSiempre": "Your usual line",
+    "cargando": "Checking your line…",
+    "cambiar": "Change line",
+    "confirmarPregunta": "Switch to «{{fila}}»?",
+    "confirmarAyuda": "You will not be able to hand out codes from «{{fila}}» until you switch back.",
+    "confirmarSi": "Yes, switch to «{{fila}}»",
+    "confirmarNo": "No, stay here"
+  },
+  "filaTurnos": {
+    "titulo": "Walk-up line numbers",
+    "cargando": "Checking the line…",
+    "noHay": "There is no walk-up line today.",
+    "empieza": "Starts at {{hora}}",
+    "sinConexion": "No signal: what you see may not be up to date.",
+    "va": "Now serving",
+    "decir": "Say it out loud",
+    "frase": "Number {{turno}}",
+    "noSePresento": "Did not show up",
+    "nadieEsperando": "Nobody is waiting right now.",
+    "saltado": "Number {{turno}} was marked as not showing up.",
+    "deshacer": "Undo",
+    "cuentas": {
+      "atendidos": "Received",
+      "esperando": "Waiting",
+      "cupo": "Numbers given"
+    },
+    "sinLimite": "No limit",
+    "siguen": "Next up",
+    "noSePresentaron_one": "{{count}} did not show up",
+    "noSePresentaron_other": "{{count}} did not show up",
+    "noSePresentaronAyuda": "If they arrive later, their code still works: scan it as usual.",
+    "regresar": "Put back in line",
+    "buscar": "Search by name or code",
+    "seActualiza": "Updates by itself every few seconds.",
+    "errores": {
+      "TURNO_NO_EXISTE": "That number is no longer waiting: they may have already received.",
+      "OTRA_FILA": "To see the numbers, choose the walk-up line.",
+      "SOLO_HOY": "Only today's line can be viewed."
+    },
+    "anunciar": "Announce each number out loud",
+    "voz": "Voice",
+    "vozDelTelefono": "The phone's default"
+  },
+  "filaAPieAdmin": {
+    "titulo": "Walk-up line",
+    "ayuda": "The walk-up line works with numbers, not time slots. People get their number on the website, with the QR on the sign.",
+    "registroCerrado": "Numbers closed: no more are given out.",
+    "registroAbierto": "Numbers open.",
+    "abre": "Numbers open on {{cuando}}.",
+    "turnosDados_one": "{{count}} number given",
+    "turnosDados_other": "{{count}} numbers given",
+    "hora": "Starts at",
+    "cupo": "Numbers",
+    "sinLimite": "No limit",
+    "conLimite": "Up to",
+    "cuantos": "How many numbers",
+    "apertura": "Numbers open",
+    "unaHoraAntes": "One hour before ({{hora}})",
+    "unaHoraAntesSinHora": "One hour before",
+    "otraHora": "Another time",
+    "masTemprano": "More than one hour before: some people take a number and never come.",
+    "despuesDeInicio": "They must open before the delivery starts.",
+    "guardarCambios": "Save the walk-up line",
+    "crear": "Create the walk-up line",
+    "reabrir": "Open numbers again",
+    "cerrar": "Close numbers",
+    "confirmarCerrar": "Close walk-up numbers? No more will be given out; people who already have a number keep it.",
+    "guardado": "Done, the walk-up line was saved.",
+    "quitada": "The walk-up line was removed from this day.",
+    "confirmarQuitar": "Remove the walk-up line from this day?",
+    "siQuitar": "Yes, remove it",
+    "noQuitar": "No",
+    "quitar": "Remove the walk-up line",
+    "resumen_one": "Walk-up: {{count}} number",
+    "resumen_other": "Walk-up: {{count}} numbers",
+    "recomendado": "One hour before starting is recommended."
+  },
+  "codigosQr": {
+    "titulo": "QR codes",
+    "ayuda": "Create a QR with the Cajita de Bendición logo for any page. Each one stays saved below.",
+    "url": "Page address",
+    "mensaje": "Text above the QR (optional)",
+    "mensajeEjemplo": "Scan to get your number",
+    "alt": "QR code for {{url}}",
+    "descargar": "Download",
+    "copiar": "Copy image",
+    "avisos": {
+      "descargada": "The sign was downloaded. Look for it in your downloads.",
+      "copiada": "Copied. Paste it wherever you need it.",
+      "noCopia": "This browser does not allow copying images. Download it or take a screenshot."
+    },
+    "crear": "Create QR",
+    "creando": "Creating…",
+    "ninguno": "You have not created any QR yet.",
+    "quitar": "Remove",
+    "quitarPregunta": "Remove this QR?",
+    "siQuitar": "Yes",
+    "no": "No",
+    "errores": {
+      "VACIA": "Type the page address.",
+      "INVALIDA": "That address does not look like a web page. Check it.",
+      "NO_SE_PUDO": "The QR could not be created with that address. Try a shorter one."
+    }
+  },
+  "acompanante": {
+    "titulo": "How are you coming?",
+    "queEs": "What is this?",
+    "explicacion": "Each spot is one car. If you are coming in the car of someone who already has an appointment, choose \"I am coming in someone else's car\": you get your own code and your own box, but you do not take another spot. Your time is the driver's time.",
+    "propio": "I am bringing my car",
+    "propioAyuda": "You save a spot for your car.",
+    "acompanante": "I am coming in the car of someone who already has an appointment",
+    "acompananteAyuda": "You do not take another spot.",
+    "codigo": "Driver's code",
+    "codigoAyuda": "It is on their appointment page, below their QR (for example CB-4871).",
+    "faltaCodigo": "Type the driver's code, for example CB-4871.",
+    "horaDeQuienManeja": "Your time is the driver's time.",
+    "enlace": "Coming in the car of someone who already has an appointment? Register here",
+    "escogeHorario": "To bring your car, first choose a time slot with space.",
+    "verHorarios": "See time slots"
+  },
+  "vip": {
+    "voluntario": "Goes straight in, no line",
+    "persona": "You go straight in, no line",
+    "etiqueta": "VIP pass"
   }
 }

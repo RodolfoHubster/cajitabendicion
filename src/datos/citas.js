@@ -34,6 +34,8 @@ export const CODIGOS = [
   'YA_CAMBIO_HORARIO',
   'YA_TIENE_CITA_ESTA_SEMANA',
   'AUN_NO_ABRE',
+  'ACOMPANANTE_SIN_CAMBIO',
+  'A_PIE_SIN_CAMBIO',
 ]
 
 async function llamar(funcion, parametros) {

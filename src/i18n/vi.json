@@ -43,7 +43,8 @@
     "equipo": "Nhóm và quyền truy cập",
     "avisos": "Văn bản và quy định",
     "permisos": "Quyền hạn",
-    "menu": "Trình đơn"
+    "menu": "Trình đơn",
+    "codigosQr": "Mã QR"
   },
   "escaneo": {
     "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
@@ -114,7 +115,11 @@
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
       "CODIGO_INVALIDO": "Mã cho phép không hợp lệ.",
-      "BLOQUEADO": "Nhập sai quá nhiều lần. Vui lòng đợi 15 phút rồi thử lại."
+      "BLOQUEADO": "Nhập sai quá nhiều lần. Vui lòng đợi 15 phút rồi thử lại.",
+      "FILA_INVALIDA": "Hãy chọn hàng xe hoặc hàng đi bộ.",
+      "OTRA_FILA": "Mã này thuộc hàng kia.",
+      "SOLO_HOY": "Chỉ xem được hàng của hôm nay.",
+      "TURNO_NO_EXISTE": "Số đó không còn đang chờ."
     },
     "otraFechaDetalle": "Lịch hẹn của họ vào {{fecha}} lúc {{hora}}. Không hợp lệ.",
     "autorizar": {
@@ -132,7 +137,12 @@
     "deOtraFila": "Mã này thuộc hàng kia ({{fila}}). Hãy mời họ sang đó để nhận thùng.",
     "parecido": "Có phải người này? Mã gần giống",
     "volverARevisar": "Kiểm tra lại",
-    "siguiente": "Quét người tiếp theo"
+    "siguiente": "Quét người tiếp theo",
+    "turnoAdelantado": {
+      "titulo": "Chưa đến lượt người này",
+      "texto": "Người này có số {{turno}} và đang gọi số {{actual}}. Có thể cho qua nếu bạn quyết định.",
+      "paso": "Đã qua trước lượt: có số {{turno}}, đang gọi số {{actual}}. Nếu không nên cho qua, hãy hoàn tác bằng nút bên dưới."
+    }
   },
   "pase": {
     "etiqueta": "Thẻ vào vĩnh viễn",
@@ -180,7 +190,21 @@
       "renovar": "Có, tạo mã khác",
       "revocar": "Có, thu hồi thẻ",
       "devolver": "Có, cấp lại"
-    }
+    },
+    "dar": "Cấp thẻ vĩnh viễn",
+    "codigoPersona": "Mã CB của người đó",
+    "motivoOpcional": "Lý do (không bắt buộc)",
+    "faltaCodigo": "Hãy nhập mã, ví dụ CB-4871. Nếu người đó chưa đăng ký, hãy đăng ký trước ở \"Đăng ký người\".",
+    "opcionVip": "Thẻ VIP",
+    "opcionVipAyuda": "Dành cho người đăng ký VIP: mã QR màu vàng và vào thẳng, không cần xếp hàng.",
+    "darBoton": "Cấp thẻ",
+    "dado": "Xong: {{codigo}} đã có thẻ vĩnh viễn.",
+    "dadoVip": "Xong: {{codigo}} đã có thẻ VIP.",
+    "vips_other": "{{count}} VIP",
+    "hacerVip": "Chuyển thành VIP",
+    "quitarVip": "Bỏ VIP",
+    "vipPuesto": "{{codigo}} giờ là VIP: thẻ có màu vàng.",
+    "vipQuitado": "{{codigo}} không còn là VIP."
   },
   "panel": {
     "cargando": "Đang tải dữ liệu trong ngày…",
@@ -337,8 +361,10 @@
       "CONSENTIMIENTO_REQUERIDO": "Hãy xác nhận rằng bạn tự nguyện chia sẻ thông tin.",
       "FALTA_HORARIO": "Hãy chọn ngày và giờ.",
       "YA_REGISTRADO_ESE_DIA": "Đã có lịch hẹn mang tên bạn cho ngày đó. Nếu bạn mất mã, vào ngày phát hãy nhờ nhóm giúp: họ sẽ tìm theo tên bạn.",
-      "A_PIE_CERRADO": "Hàng đi bộ chưa nhận lịch hẹn.",
-      "SIN_CONEXION": "Mất kết nối. Hãy kiểm tra sóng và bấm «Xác nhận» lại."
+      "A_PIE_CERRADO": "Hiện chưa có hàng đi bộ cho ngày đó.",
+      "SIN_CONEXION": "Mất kết nối. Hãy kiểm tra sóng và bấm «Xác nhận» lại.",
+      "ACOMPANANTE_SIN_CITA": "Không tìm thấy lịch hẹn đi xe với mã này trong ngày này. Hãy kiểm tra lại mã với người lái xe.",
+      "CARRO_LLENO": "Xe đó đã đủ số người đi chung."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
@@ -357,6 +383,13 @@
     "borrador": {
       "recuperado": "Chúng tôi đã khôi phục những gì bạn đã nhập.",
       "empezarDeNuevo": "Xóa và bắt đầu lại"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Đã hết số trong lúc bạn điền thông tin. Chúng tôi rất tiếc.",
+      "BLOQUE_CERRADO": "Đã đóng lấy số cho ngày này.",
+      "BLOQUE_NO_EXISTE": "Hàng đi bộ này không còn nữa. Hãy xem lại trang hàng đi bộ.",
+      "AUN_NO_ABRE": "Chưa mở lấy số. Hãy quay lại vào giờ ghi trên trang.",
+      "DIA_CERRADO": "Ngày này không còn phát số."
     }
   },
   "pasos": {
@@ -411,11 +444,11 @@
     "enCarro": "Bằng xe hơi",
     "enCarroAyuda": "Chúng tôi trao tận cửa xe",
     "aPie": "Đi bộ",
-    "proximamente": "Sắp có",
-    "aPieAviso": "Hiện tại chỉ phát ở hàng xe hơi. Chúng tôi đang chuẩn bị hàng dành cho người đi bộ.",
+    "aPieAviso": "Đi bộ thì không có giờ hẹn: vào ngày phát, bạn lấy số tại đây và chờ được gọi.",
     "gratuito": "Thực phẩm hoàn toàn miễn phí. Không cần quyên góp.",
     "yaTienesCita": "Đã có lịch hẹn? Hãy mang theo hình đã lưu hoặc ảnh chụp màn hình mã của bạn vào ngày phát hàng.",
-    "hacerCita": "Đặt hẹn"
+    "hacerCita": "Đặt hẹn",
+    "sacarTurno": "Lấy số"
   },
   "navegacion": {
     "inicio": "Về trang chủ",
@@ -507,12 +540,11 @@
     "fecha": "Ngày phát hàng",
     "desde": "Khung giờ đầu tiên",
     "hasta": "Khung giờ cuối cùng",
-    "capacidad": "Số chỗ mỗi khung giờ",
-    "cabenEnTotal": "Có {{horarios}} khung giờ 15 phút. Mỗi khung {{porHorario}} chỗ, tổng cộng {{total}} người trong ngày đó.",
+    "capacidad": "Số xe mỗi khung giờ",
+    "cabenEnTotal": "{{horarios}} khung giờ 15 phút × {{porHorario}} xe = {{total}} xe trong ngày đó.",
     "cuandoAbre": "Khi nào mở đăng ký?",
     "abreProgramado": "Vào ngày giờ cụ thể",
     "abreAhora": "Ngay bây giờ",
-    "eligeFecha": "Trước tiên hãy chọn ngày phát hàng.",
     "abreEn": "Mở cho công chúng vào",
     "anticipo": {
       "unaHora": "Sớm hơn công chúng 1 giờ",
@@ -555,7 +587,7 @@
     "eliminarHorario": "Xóa khung giờ {{hora}}",
     "confirmarEliminarHorario": "Xóa khung giờ này?",
     "hora": "Giờ",
-    "cupo": "Số chỗ",
+    "cupo": "Số xe",
     "agregar": "Thêm khung giờ",
     "eliminarFecha": "Xóa ngày này",
     "confirmarEliminarFecha": "Xóa {{fecha}} và tất cả khung giờ của ngày đó? Không thể hoàn tác.",
@@ -565,7 +597,7 @@
     "errores": {
       "FECHA_PASADA": "Ngày này đã qua.",
       "HORARIO_INVALIDO": "Hãy kiểm tra lại giờ: khung giờ cuối không được trước khung giờ đầu.",
-      "CAPACIDAD_INVALIDA": "Số chỗ mỗi khung giờ phải từ 0 trở lên.",
+      "CAPACIDAD_INVALIDA": "Số xe mỗi khung giờ phải từ 0 trở lên.",
       "APERTURA_REQUERIDA": "Thiếu ngày giờ mở đăng ký.",
       "ANTICIPADO_DESPUES_DE_APERTURA": "Giờ đăng ký sớm phải trước giờ mở cho công chúng.",
       "DIA_YA_EXISTE": "Ngày này đã tồn tại. Hãy tìm trong danh sách.",
@@ -578,7 +610,14 @@
       "SIN_PERMISO": "Tài khoản của bạn không có quyền làm việc này. Vui lòng đăng nhập lại.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra internet rồi thử lại.",
       "ERROR_DESCONOCIDO": "Không thể hoàn tất. Vui lòng thử lại.",
-      "SUSCRIPTORES_FECHA_ABIERTA": "Để yêu cầu mã với người theo dõi, «Mở cho công chúng vào» phải là giờ trong tương lai."
+      "SUSCRIPTORES_FECHA_ABIERTA": "Để yêu cầu mã với người theo dõi, «Mở cho công chúng vào» phải là giờ trong tương lai.",
+      "APERTURA_DESPUES_DE_INICIO": "Phải mở lấy số trước khi bắt đầu phát.",
+      "FILA_A_PIE_NO_EXISTE": "Ngày đó không còn hàng đi bộ.",
+      "DIA_CERRADO": "Ngày này đã đóng. Hãy mở đăng ký lại trước.",
+      "A_PIE_HORARIO_INVALIDO": "Thiếu giờ bắt đầu phát cho hàng đi bộ.",
+      "A_PIE_CAPACIDAD_INVALIDA": "Số lượng phải từ 1 trở lên, hoặc không giới hạn.",
+      "A_PIE_APERTURA_REQUERIDA": "Thiếu ngày giờ mở lấy số.",
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Phải mở lấy số trước khi bắt đầu phát."
     },
     "activarSuscriptores": "Bật đăng ký sớm cho người theo dõi trên Facebook",
     "entran": "Người theo dõi được vào",
@@ -591,10 +630,17 @@
     "guardado": "Đã lưu thay đổi.",
     "regenerar": "Tạo mã khác",
     "confirmarRegenerar": "Mã hiện tại sẽ ngừng hoạt động. Tạo mã mới?",
-    "seccionLugares": "Số chỗ mỗi khung giờ",
+    "seccionLugares": "Số xe mỗi khung giờ",
     "todos": "Tất cả khung giờ",
     "aplicarTodos": "Áp dụng cho tất cả",
-    "suscriptoresYaAbierta": "Giờ này đã qua: ngày này đang mở cho mọi người nên mã sẽ không được yêu cầu. Để chỉ người theo dõi được vào trước, hãy đặt giờ trong tương lai ở mục «Mở cho công chúng vào»."
+    "suscriptoresYaAbierta": "Giờ này đã qua: ngày này đang mở cho mọi người nên mã sẽ không được yêu cầu. Để chỉ người theo dõi được vào trước, hãy đặt giờ trong tương lai ở mục «Mở cho công chúng vào».",
+    "filas": {
+      "pregunta": "Ngày này có những hàng nào?",
+      "carro": "Chỉ xe hơi",
+      "a_pie": "Chỉ đi bộ",
+      "ambas": "Xe hơi và đi bộ",
+      "faltoAPie": "Đã tạo ngày, nhưng chưa lưu được hàng đi bộ. Hãy mở ngày đó trong danh sách bên dưới và tạo hàng tại đó."
+    }
   },
   "incidencias": {
     "boton": "Ngày này có sự cố",
@@ -749,6 +795,22 @@
       "listo": {
         "titulo": "Xong rồi!",
         "texto": "Vậy là xong. Nếu còn thắc mắc, hãy mở hướng dẫn này trong trình đơn, mục “Hướng dẫn sử dụng”. Cảm ơn bạn đã phục vụ!"
+      },
+      "elegirFila": {
+        "titulo": "Trước tiên, hàng của bạn hôm nay",
+        "texto": "Khi mở máy quét, hãy chọn hôm nay bạn ở hàng xe hay hàng đi bộ. Bạn chỉ phát mã của hàng đó. Nếu được chuyển, hãy chạm «Đổi hàng» và xác nhận."
+      },
+      "dosQr": {
+        "titulo": "Mỗi hàng có mã QR riêng",
+        "texto": "Mã của hàng xe có hình chiếc xe màu xanh ở giữa; mã đi bộ có hình người đi bộ màu cam. Nhờ vậy bạn biết mã thuộc hàng nào trước khi quét."
+      },
+      "turnos": {
+        "titulo": "Hàng đi bộ dùng số thứ tự",
+        "texto": "Ở hàng đi bộ, bạn thấy số đang gọi thật lớn để đọc to, và các số kế tiếp. Khi quét, hàng tự tiến lên. Nếu ai không có mặt, hãy chạm «Không có mặt». Nếu ai đến trước lượt, vẫn cho qua và màn hình sẽ báo; nếu không nên, hãy hoàn tác."
+      },
+      "filaAPie": {
+        "titulo": "Tạo hàng đi bộ",
+        "texto": "Khi tạo một ngày, hãy chọn chỉ xe hơi, chỉ đi bộ hay cả hai. Với hàng đi bộ, hãy đặt giờ bắt đầu phát và bao nhiêu số (hoặc không giới hạn). Mở lấy số một giờ trước; nếu chọn sớm hơn, sẽ có cảnh báo. Sau đó vẫn có thể đổi, trong từng ngày."
       }
     },
     "escena": {
@@ -890,7 +952,9 @@
       "PASE_NO_EXISTE": "Người này không có thẻ.",
       "PASE_YA_REVOCADO": "Thẻ đó đã bị thu hồi rồi.",
       "TELEFONO_INVALIDO": "Số điện thoại không hợp lệ. Hãy kiểm tra mã quốc gia và số.",
-      "FECHA_FUTURA": "Ngày đó vẫn chưa đến."
+      "FECHA_FUTURA": "Ngày đó vẫn chưa đến.",
+      "ACOMPANANTE_SIN_CAMBIO": "Bạn đi chung xe: giờ của bạn là giờ của người lái. Nếu họ đổi giờ, giờ của bạn cũng đổi theo.",
+      "A_PIE_SIN_CAMBIO": "Ở hàng đi bộ không đổi giờ: hãy lấy số mới trong ngày đó."
     }
   },
   "sinCita": {
@@ -1191,23 +1255,28 @@
     "falta": "Bạn cần đọc và chấp nhận hướng dẫn để tiếp tục.",
     "respaldo1": "Hãy đến sớm 5 phút trước giờ hẹn. Đây là bắt buộc.",
     "respaldo2": "Mã của bạn chỉ dùng cho một phần quà và chỉ dùng được một lần.",
-    "respaldo3": "Bạn chỉ có thể đổi giờ một lần."
+    "respaldo3": "Bạn chỉ có thể đổi giờ một lần.",
+    "tituloAPie": "Trước khi lấy số, hãy đọc điều này",
+    "respaldoAPie1": "Mỗi người từ 18 tuổi trở lên cần có số và mã riêng.",
+    "respaldoAPie2": "Hãy chờ ở gần. Khi gọi đến số của bạn, hãy đến và đưa mã."
   },
   "avisos": {
     "titulo": "Văn bản và quy định",
-    "ayuda": "Những gì mọi người đọc ở trang chủ và trước khi xác nhận lịch hẹn. Bạn thay đổi ở đây, không cần đụng vào hệ thống. Lưu ý: chỗ này đổi phần giải thích, không đổi cách hệ thống hoạt động.",
+    "ayuda": "Những gì mọi người đọc, đúng như họ thấy. Chạm vào một đoạn để sửa.",
     "cargando": "Đang tải văn bản…",
     "seccion": {
       "inicio": "Trang chủ",
-      "registro": "Trước khi xác nhận lịch hẹn",
+      "registro": "Trước khi xác nhận · hàng xe hơi",
       "preguntas": "Câu hỏi thường gặp",
-      "quienes": "Về chúng tôi"
+      "quienes": "Về chúng tôi",
+      "registro_a_pie": "Trước khi lấy số · hàng đi bộ"
     },
     "donde": {
       "inicio": "Hiển thị ở trang chủ, trong mục “Trước khi bắt đầu”.",
-      "registro": "Hiển thị ngay trước nút tạo mã QR, kèm ô đánh dấu bắt buộc.",
+      "registro": "Hiện trước nút tạo mã QR cho lịch hẹn đi xe, kèm ô bắt buộc.",
       "preguntas": "Hiển thị ở trang câu hỏi, vào từ dấu chấm hỏi trên trang chủ.",
-      "quienes": "Hiển thị ở trang “Về chúng tôi”, vào từ trang chủ."
+      "quienes": "Hiển thị ở trang “Về chúng tôi”, vào từ trang chủ.",
+      "registro_a_pie": "Hiện trước nút lấy số đi bộ, kèm ô bắt buộc."
     },
     "agregar": "Thêm quy định",
     "editar": "Sửa",
@@ -1246,7 +1315,26 @@
     "tituloCampo": {
       "preguntas": "Câu hỏi (bắt buộc)",
       "quienes": "Tiêu đề (không bắt buộc)"
-    }
+    },
+    "pista": "Kéo từ ⠿ để đổi thứ tự. Biểu tượng con mắt ẩn đi mà không xóa.",
+    "pestana": {
+      "reglas": "Quy định lịch hẹn",
+      "inicio": "Trang chủ",
+      "preguntas": "Câu hỏi",
+      "quienes": "Về chúng tôi"
+    },
+    "agregarEn": {
+      "inicio": "Thêm vào trang chủ",
+      "registro": "Thêm quy định cho xe hơi",
+      "registro_a_pie": "Thêm quy định cho đi bộ",
+      "preguntas": "Thêm câu hỏi",
+      "quienes": "Thêm đoạn văn"
+    },
+    "arrastrar": "Kéo để đổi thứ tự (hoặc dùng phím mũi tên)",
+    "tocarParaEditar": "Chạm để sửa",
+    "oculta": "Đang ẩn: mọi người không thấy",
+    "quitarPregunta": "Xóa đoạn này?",
+    "traducciones": "Tiếng Anh và tiếng Việt (không bắt buộc)"
   },
   "preguntas": {
     "titulo": "Câu hỏi thường gặp",
@@ -1439,5 +1527,167 @@
   "entornoPruebas": {
     "aviso": "Cơ sở dữ liệu thử · không có gì ở đây là thật",
     "lento": "chế độ chậm: {{segundos}} giây"
+  },
+  "aPie": {
+    "titulo": "Hàng đi bộ",
+    "subtitulo": "Không có giờ hẹn: lấy số và chờ được gọi.",
+    "cargando": "Đang xem hàng đi bộ…",
+    "sinConexion": "Mất kết nối. Thông tin có thể chưa mới nhất; hãy kiểm tra sóng điện thoại.",
+    "noHay": "Hiện chưa có hàng đi bộ. Khi có, bạn có thể lấy số ngay tại đây.",
+    "hoy": "Hôm nay",
+    "proxima": "Hàng đi bộ sắp tới",
+    "empiezaA": "Bắt đầu phát lúc {{hora}}",
+    "abreA": "Mở lấy số vào {{cuando}}.",
+    "seActualiza": "Hãy để trang này mở: nút sẽ tự hiện khi mở lấy số.",
+    "llena": "Đã hết số cho ngày đó. Cảm ơn bạn đã kiên nhẫn.",
+    "sacarTurno": "Lấy số của tôi",
+    "comoFunciona": "Cách thức hoạt động",
+    "pasos": {
+      "uno": "Điền thông tin của bạn. Giống như khi đặt lịch đi xe.",
+      "dos": "Bạn nhận mã QR và số thứ tự. Hãy lưu lại hoặc chụp màn hình.",
+      "tres": "Chờ ở gần. Điện thoại của bạn cho biết đang gọi số nào; khi đến số của bạn, hãy đưa mã."
+    },
+    "unaPorPersona": "Mỗi người từ 18 tuổi trở lên cần số và mã riêng. Một mã là một thùng.",
+    "volver": "Quay lại hàng đi bộ",
+    "registroTitulo": "Lấy số của bạn",
+    "confirmar": "Lấy số của tôi"
+  },
+  "turno": {
+    "tuTurno": "Số của bạn",
+    "numero": "Số {{turno}}",
+    "listo": "Bạn đã có số",
+    "van": "Đang gọi số {{turno}}",
+    "antes_other": "Còn {{count}} người trước bạn",
+    "eresElSiguiente": "Bạn là người kế tiếp! Hãy đến gần.",
+    "esTuTurno": "Đến lượt bạn! Hãy đến và đưa mã.",
+    "teLlamaron": "Số của bạn đã được gọi. Hãy đến với mã của bạn: vẫn có thể được phục vụ.",
+    "recibida": "Bạn đã nhận thùng. Cảm ơn bạn đã đến!",
+    "otroDia": "Vào ngày phát, bạn sẽ thấy tại đây đang gọi số nào.",
+    "seActualiza": "Tự cập nhật mỗi vài giây."
+  },
+  "elegirFila": {
+    "pregunta": "Hôm nay bạn ở hàng nào?",
+    "ayuda": "Chọn một lần mỗi ngày. Bạn chỉ phát được mã của hàng đó.",
+    "laDeSiempre": "Hàng thường ngày của bạn",
+    "cargando": "Đang xem hàng của bạn…",
+    "cambiar": "Đổi hàng",
+    "confirmarPregunta": "Chuyển sang «{{fila}}»?",
+    "confirmarAyuda": "Bạn sẽ không phát được mã của «{{fila}}» cho đến khi quay lại.",
+    "confirmarSi": "Có, chuyển sang «{{fila}}»",
+    "confirmarNo": "Không, ở lại"
+  },
+  "filaTurnos": {
+    "titulo": "Số thứ tự hàng đi bộ",
+    "cargando": "Đang xem hàng…",
+    "noHay": "Hôm nay không có hàng đi bộ.",
+    "empieza": "Bắt đầu lúc {{hora}}",
+    "sinConexion": "Không có sóng: thông tin có thể chưa mới nhất.",
+    "va": "Đang gọi số",
+    "decir": "Đọc to",
+    "frase": "Số {{turno}}",
+    "noSePresento": "Không có mặt",
+    "nadieEsperando": "Hiện không có ai đang chờ.",
+    "saltado": "Số {{turno}} đã được ghi là không có mặt.",
+    "deshacer": "Hoàn tác",
+    "cuentas": {
+      "atendidos": "Đã nhận",
+      "esperando": "Đang chờ",
+      "cupo": "Số đã phát"
+    },
+    "sinLimite": "Không giới hạn",
+    "siguen": "Kế tiếp",
+    "noSePresentaron_other": "{{count}} người không có mặt",
+    "noSePresentaronAyuda": "Nếu họ đến sau, mã vẫn dùng được: cứ quét như bình thường.",
+    "regresar": "Cho vào hàng lại",
+    "buscar": "Tìm theo tên hoặc mã",
+    "seActualiza": "Tự cập nhật mỗi vài giây.",
+    "errores": {
+      "TURNO_NO_EXISTE": "Số đó không còn đang chờ: có thể người đó đã nhận rồi.",
+      "OTRA_FILA": "Để xem số thứ tự, hãy chọn hàng đi bộ.",
+      "SOLO_HOY": "Chỉ xem được hàng của hôm nay."
+    },
+    "anunciar": "Đọc to mỗi số",
+    "voz": "Giọng",
+    "vozDelTelefono": "Giọng mặc định của điện thoại"
+  },
+  "filaAPieAdmin": {
+    "titulo": "Hàng đi bộ",
+    "ayuda": "Hàng đi bộ dùng số thứ tự, không có giờ hẹn. Mọi người lấy số trên trang web, bằng mã QR trên bảng.",
+    "registroCerrado": "Đã đóng lấy số: không phát thêm.",
+    "registroAbierto": "Đang mở lấy số.",
+    "abre": "Mở lấy số vào {{cuando}}.",
+    "turnosDados_other": "Đã phát {{count}} số",
+    "hora": "Bắt đầu lúc",
+    "cupo": "Số lượng số",
+    "sinLimite": "Không giới hạn",
+    "conLimite": "Tối đa",
+    "cuantos": "Bao nhiêu số",
+    "apertura": "Mở lấy số",
+    "unaHoraAntes": "Một giờ trước ({{hora}})",
+    "unaHoraAntesSinHora": "Một giờ trước",
+    "otraHora": "Giờ khác",
+    "masTemprano": "Sớm hơn một giờ: có người lấy số rồi không đến.",
+    "despuesDeInicio": "Phải mở trước khi bắt đầu phát.",
+    "guardarCambios": "Lưu hàng đi bộ",
+    "crear": "Tạo hàng đi bộ",
+    "reabrir": "Mở lấy số lại",
+    "cerrar": "Đóng lấy số",
+    "confirmarCerrar": "Đóng lấy số hàng đi bộ? Sẽ không phát thêm; ai đã có số vẫn giữ số.",
+    "guardado": "Xong, đã lưu hàng đi bộ.",
+    "quitada": "Đã bỏ hàng đi bộ của ngày này.",
+    "confirmarQuitar": "Bỏ hàng đi bộ của ngày này?",
+    "siQuitar": "Có, bỏ đi",
+    "noQuitar": "Không",
+    "quitar": "Bỏ hàng đi bộ",
+    "resumen_other": "Đi bộ: {{count}} số",
+    "recomendado": "Nên mở một giờ trước khi bắt đầu."
+  },
+  "codigosQr": {
+    "titulo": "Mã QR",
+    "ayuda": "Tạo mã QR có logo Cajita de Bendición cho bất kỳ trang nào. Mỗi mã được lưu bên dưới.",
+    "url": "Địa chỉ trang",
+    "mensaje": "Chữ phía trên mã QR (không bắt buộc)",
+    "mensajeEjemplo": "Quét để lấy số",
+    "alt": "Mã QR của {{url}}",
+    "descargar": "Tải xuống",
+    "copiar": "Sao chép hình",
+    "avisos": {
+      "descargada": "Đã tải bảng xuống. Hãy tìm trong mục tải xuống.",
+      "copiada": "Đã sao chép. Dán vào nơi bạn cần.",
+      "noCopia": "Trình duyệt này không cho sao chép hình. Hãy tải xuống hoặc chụp màn hình."
+    },
+    "crear": "Tạo mã QR",
+    "creando": "Đang tạo…",
+    "ninguno": "Bạn chưa tạo mã QR nào.",
+    "quitar": "Xóa",
+    "quitarPregunta": "Xóa mã QR này?",
+    "siQuitar": "Có",
+    "no": "Không",
+    "errores": {
+      "VACIA": "Hãy nhập địa chỉ trang.",
+      "INVALIDA": "Địa chỉ này có vẻ không phải trang web. Hãy kiểm tra lại.",
+      "NO_SE_PUDO": "Không tạo được mã QR với địa chỉ này. Hãy thử địa chỉ ngắn hơn."
+    }
+  },
+  "acompanante": {
+    "titulo": "Bạn đến bằng cách nào?",
+    "queEs": "Đây là gì?",
+    "explicacion": "Mỗi chỗ là một xe. Nếu bạn đi chung xe với người đã có lịch hẹn, hãy chọn \"Tôi đi chung xe\": bạn có mã và thùng riêng, nhưng không chiếm thêm chỗ. Giờ của bạn là giờ của người lái xe.",
+    "propio": "Tôi tự lái xe",
+    "propioAyuda": "Bạn giữ một chỗ cho xe của mình.",
+    "acompanante": "Tôi đi chung xe với người đã có lịch hẹn",
+    "acompananteAyuda": "Bạn không chiếm thêm chỗ.",
+    "codigo": "Mã của người lái xe",
+    "codigoAyuda": "Mã nằm trên trang lịch hẹn của họ, bên dưới mã QR (ví dụ CB-4871).",
+    "faltaCodigo": "Hãy nhập mã của người lái xe, ví dụ CB-4871.",
+    "horaDeQuienManeja": "Giờ của bạn là giờ của người lái xe.",
+    "enlace": "Đi chung xe với người đã có lịch hẹn? Đăng ký tại đây",
+    "escogeHorario": "Để tự lái xe, hãy chọn khung giờ còn chỗ trước.",
+    "verHorarios": "Xem khung giờ"
+  },
+  "vip": {
+    "voluntario": "Vào thẳng, không cần xếp hàng",
+    "persona": "Bạn vào thẳng, không cần xếp hàng",
+    "etiqueta": "Thẻ VIP"
   }
 }

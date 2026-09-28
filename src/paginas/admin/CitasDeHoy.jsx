@@ -7,6 +7,7 @@ import ListaSinCita from '../../componentes/ListaSinCita'
 import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal, consultarDisponibilidad, formatearHora } from '../../datos/disponibilidad'
+import { esSinLimite } from '../../datos/filaAPie'
 import { filaDe, filtrarPorFila } from '../../datos/filas'
 import { bloquesDelDia, citasDelDia, hoyLocal, resumenDelDia } from '../../datos/panel'
 import { EsqueletoLista, EsqueletoNumeros } from '../../componentes/Esqueleto'
@@ -224,10 +225,12 @@ export default function CitasDeHoy() {
                       <p className="text-base text-principal/70">
                         {bloque.cerrado
                           ? t('panel.cerrado')
-                          : t('panel.deTotal', {
-                              ocupados: bloque.ocupados,
-                              total: bloque.capacidad,
-                            })}
+                          : esSinLimite(bloque.capacidad)
+                            ? t('filaAPieAdmin.turnosDados', { count: bloque.ocupados })
+                            : t('panel.deTotal', {
+                                ocupados: bloque.ocupados,
+                                total: bloque.capacidad,
+                              })}
                       </p>
                     </li>
                   ))}

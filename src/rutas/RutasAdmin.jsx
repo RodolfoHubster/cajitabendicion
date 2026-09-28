@@ -1,6 +1,7 @@
 import { Route } from 'react-router-dom'
 import Avisos from '../paginas/admin/Avisos'
 import CitasDeHoy from '../paginas/admin/CitasDeHoy'
+import CodigosQr from '../paginas/admin/CodigosQr'
 import Equipo from '../paginas/admin/Equipo'
 import HorariosAdmin from '../paginas/admin/Horarios'
 import Login from '../paginas/admin/Login'
@@ -57,6 +58,7 @@ export default function RutasAdmin() {
             <Route element={<HorariosAdmin />} path="/admin/horarios" />
             <Route element={<Equipo />} path="/admin/equipo" />
             <Route element={<Permisos />} path="/admin/permisos" />
+            <Route element={<CodigosQr />} path="/admin/qr" />
           </Route>
 
           <Route element={<SoloRol roles={['admin', 'voluntario']} />}>

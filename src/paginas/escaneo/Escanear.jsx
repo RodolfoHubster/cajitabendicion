@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
-import { LuKeyRound, LuLayers, LuShieldCheck } from 'react-icons/lu'
+import { LuArrowLeftRight, LuKeyRound, LuLayers, LuShieldCheck } from 'react-icons/lu'
 import { useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import DeshacerEntrega from '../../componentes/DeshacerEntrega'
+import ElegirFila from '../../componentes/ElegirFila'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import LectorQR from '../../componentes/LectorQR'
+import PanelTurnos from '../../componentes/PanelTurnos'
+import SelloVip from '../../componentes/SelloVip'
+import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import { textoParaBuscar } from '../../datos/codigoCorto'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
@@ -24,6 +28,7 @@ import {
   verCita,
   verPase,
 } from '../../datos/escaneo'
+import { elegirFila, miFilaDeHoy, turnoAdelantado } from '../../datos/filaAPie'
 import { esDeOtraFila, filaDe, miFila } from '../../datos/filas'
 import { hoyLocal } from '../../datos/panel'
 import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
@@ -83,8 +88,27 @@ export default function Escanear() {
   const [busqueda, setBusqueda] = useState('')
   const [encontrados, setEncontrados] = useState(null)
 
-  // En que fila escanea esta cuenta. Hasta saberlo, como siempre: las dos.
-  const [fila, setFila] = useState('ambas')
+  // La fila que le dieron en Equipo ('ambas' hasta saberla) y la que eligio
+  // hoy al abrir el escaner (undefined: preguntando; null: todavia no elige).
+  // Manda la de hoy: asi nadie entrega en la fila equivocada.
+  const [asignada, setAsignada] = useState('ambas')
+  const [filaHoy, setFilaHoy] = useState(undefined)
+  // Si la base todavia no sabe de filas por dia, se sigue como antes.
+  const [sinEleccion, setSinEleccion] = useState(false)
+  const [eligiendo, setEligiendo] = useState(false)
+  const [errorFila, setErrorFila] = useState(null)
+  const [preguntaCambio, setPreguntaCambio] = useState(false)
+  const fila = filaHoy ?? asignada
+  const cargandoFila = filaHoy === undefined && !sinEleccion
+  const debeElegir = filaHoy === null && !sinEleccion
+  const listo = !cargandoFila && !debeElegir
+
+  // A pie: el turno que va (lo trae el panel de turnos) y cuantas veces ha
+  // cambiado la fila, para que el panel pregunte de inmediato.
+  const [queVa, setQueVa] = useState(null)
+  const turnoQueVa = queVa?.turno ?? null
+  const turnoQueVaRef = useRef(null)
+  const [versionTurnos, setVersionTurnos] = useState(0)
 
   const [autorizando, setAutorizando] = useState(false)
   const [codigoAutorizacion, setCodigoAutorizacion] = useState('')
@@ -117,10 +141,10 @@ export default function Escanear() {
 
   useEffect(() => {
     let vigente = true
-    miFila().then((suya) => {
+    Promise.all([miFila(), miFilaDeHoy()]).then(([suya, deHoy]) => {
       if (!vigente) return
-      setFila(suya)
-      filaRef.current = suya
+      setAsignada(suya)
+      setFilaHoy(deHoy)
     })
     return () => {
       vigente = false
@@ -128,15 +152,52 @@ export default function Escanear() {
     }
   }, [])
 
+  useEffect(() => {
+    filaRef.current = fila
+  }, [fila])
+
+  //  Elegir (o cambiar) la fila de hoy. La base la guarda: si recarga la
+  //  pagina o cambia de telefono, sigue en la misma.
+  async function elegir(nueva) {
+    setEligiendo(true)
+    setErrorFila(null)
+    try {
+      await elegirFila(nueva)
+      setFilaHoy(nueva)
+      setPreguntaCambio(false)
+      setQueVa(null)
+      turnoQueVaRef.current = null
+      reiniciar()
+    } catch (e) {
+      if (e.message === 'FUNCION_NO_INSTALADA') {
+        setSinEleccion(true)
+        setPreguntaCambio(false)
+      } else {
+        setErrorFila(e.message)
+      }
+    } finally {
+      setEligiendo(false)
+    }
+  }
+
+  function alActualizarTurnos(datos) {
+    turnoQueVaRef.current = datos?.actual?.turno ?? null
+    setQueVa(datos?.actual ?? null)
+  }
+
   //  La respuesta de la base, con su tono. Si puede pasar, "Deshacer" queda a
   //  la mano el primer minuto (la base revisa que sea quien escaneo).
-  function mostrarResultado(respuesta, token) {
-    setResultado(respuesta)
+  //  extra: lo que la pantalla sabe y la base no dice (a pie, si llego
+  //  antes de su turno).
+  function mostrarResultado(respuesta, token, extra = {}) {
+    setResultado(respuesta ? { ...respuesta, ...extra } : respuesta)
     setVista('resultado')
     recordarEntrega(respuesta, token)
     avisoDelResultado(respuesta?.resultado)
     clearTimeout(plazoDeshacer.current)
     const puedePasar = PUEDE_PASAR.includes(respuesta?.resultado)
+    //  La fila a pie avanza: el panel pregunta de inmediato.
+    if (puedePasar) setVersionTurnos((n) => n + 1)
     setDeshacerPropia(puedePasar)
     setTokenEntregado(puedePasar ? (token ?? null) : null)
     if (puedePasar) plazoDeshacer.current = setTimeout(() => setDeshacerPropia(false), MS_DESHACER_PROPIA)
@@ -182,8 +243,14 @@ export default function Escanear() {
       //  El caso de todos los dias: escanear ya es entregar (ver
       //  entregaDirecta). Lo demas se sigue revisando antes.
       if (entregaDirecta(vistaPrevia, { hoy: hoyLocal(), fila: filaRef.current })) {
+        //  A pie, si llega antes de su turno pasa igual: la respuesta lo avisa
+        //  y queda "Deshacer" a la mano.
+        const va = filaRef.current === 'a_pie' ? turnoQueVaRef.current : null
+        const adelantado = turnoAdelantado(vistaPrevia.turno, va) ? { turno: vistaPrevia.turno, va } : null
         try {
-          mostrarResultado(await registrarEntrega(token), token)
+          //  Pase VIP: la pantalla lo dice en grande (pasa directo, sin fila).
+          const vip = Boolean(vistaPrevia.pase && vistaPrevia.vip)
+          mostrarResultado(await registrarEntrega(token), token, { adelantado, vip })
         } catch (e) {
           //  Sin senal a medio camino: queda la vista previa con su boton
           //  para volver a intentar. La base no entrega dos veces.
@@ -216,6 +283,20 @@ export default function Escanear() {
     setVista('camara')
   }
 
+  //  Desde la busqueda, entregar sin pasar por "Ver cita": el nombre y el
+  //  codigo ya estan a la vista. Es un toque a proposito, nunca automatico.
+  async function entregarDeLista(persona) {
+    setOcupado(true)
+    setError(null)
+    try {
+      mostrarResultado(await registrarEntregaPorCodigo(persona.codigo_corto), null)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
   // Un resultado de la busqueda manual abre la misma vista previa que el QR.
   function elegirDeLista(persona) {
     cerrarAutorizacion()
@@ -231,7 +312,7 @@ export default function Escanear() {
       const respuesta = previa.porCodigo
         ? await registrarEntregaPorCodigo(previa.codigo_corto)
         : await registrarEntrega(previa.token)
-      mostrarResultado(respuesta, previa.token)
+      mostrarResultado(respuesta, previa.token, { vip: Boolean(previa.pase && previa.vip) })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -284,15 +365,91 @@ export default function Escanear() {
     </p>
   )
 
+  const otraFila = fila === 'a_pie' ? 'carro' : 'a_pie'
+
   return (
     <div className="grid items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-      <Tarjeta>
+      {/* El color de arriba es el de la fila: azul carros, naranja a pie. */}
+      <Tarjeta className={listo && fila === 'a_pie' ? 'border-t-8 border-accion' : listo && fila === 'carro' ? 'border-t-8 border-principal' : ''}>
         <h1 className="mb-1 text-2xl font-bold">{t('pages.escanear')}</h1>
         <p className="text-base text-principal/70">{t('escaneo.instruccion')}</p>
-        {/* A la vista siempre: si alguien se para en la fila equivocada, lo ve aqui. */}
-        <FilaActual fila={fila} />
 
-        {vista === 'camara' && (
+        {cargandoFila && (
+          <div className="mt-4 space-y-3" role="status">
+            <span className="sr-only">{t('elegirFila.cargando')}</span>
+            <Hueso className="h-10 w-56" />
+            <Hueso className="h-28 w-full" />
+          </div>
+        )}
+
+        {/* Una vez al dia, antes de la camara: en que fila esta hoy. */}
+        {debeElegir && (
+          <div className="mt-4">
+            <ElegirFila alElegir={elegir} asignada={asignada} error={errorFila} ocupado={eligiendo} />
+          </div>
+        )}
+
+        {/* A la vista siempre: si alguien se para en la fila equivocada, lo ve aqui. */}
+        {listo && (
+          <FilaActual
+            alCambiar={sinEleccion ? null : () => setPreguntaCambio(true)}
+            fila={fila}
+          />
+        )}
+
+        {/* Cambiarse de fila se confirma: un toque sin querer dejaria a la
+            voluntaria entregando en la fila de otros. */}
+        {listo && preguntaCambio && (
+          <div
+            aria-labelledby="pregunta-cambiar-fila"
+            className="mb-4 rounded-xl border-2 border-accion bg-accion/10 p-4 text-principal"
+            role="alertdialog"
+          >
+            <p className="text-lg font-bold" id="pregunta-cambiar-fila">
+              {t('elegirFila.confirmarPregunta', { fila: t(`filas.nombre.${otraFila}`) })}
+            </p>
+            <p className="mt-1 text-base">
+              {t('elegirFila.confirmarAyuda', { fila: t(`filas.nombre.${fila}`) })}
+            </p>
+            {errorFila && (
+              <p className="mt-2 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+                {t(`escaneo.errores.${errorFila}`, { defaultValue: t('escaneo.errores.ERROR_DESCONOCIDO') })}
+              </p>
+            )}
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <Boton disabled={eligiendo} onClick={() => elegir(otraFila)}>
+                {t('elegirFila.confirmarSi', { fila: t(`filas.nombre.${otraFila}`) })}
+              </Boton>
+              <Boton
+                onClick={() => {
+                  setPreguntaCambio(false)
+                  setErrorFila(null)
+                }}
+                variant="secondary"
+              >
+                {t('elegirFila.confirmarNo')}
+              </Boton>
+            </div>
+          </div>
+        )}
+
+        {/* A pie, el turno que va queda siempre encima de la camara: se
+            grita y se escanea sin tener que bajar al panel. */}
+        {listo && fila === 'a_pie' && queVa && (vista === 'camara' || vista === 'resultado') && (
+          <p
+            aria-live="polite"
+            className="mb-3 flex items-center gap-3 rounded-xl border-2 border-accion bg-accion/10 px-3 py-2 text-principal"
+          >
+            <span className="text-base font-bold uppercase leading-tight">{t('filaTurnos.va')}</span>
+            <span className="font-titulo text-4xl font-bold leading-none">{queVa.turno}</span>
+            <span className="min-w-0 text-base font-semibold leading-tight">
+              {queVa.nombre}
+              <span className="block text-chica font-normal text-principal/70">{queVa.codigo_corto}</span>
+            </span>
+          </p>
+        )}
+
+        {listo && vista === 'camara' && (
           <>
             <LectorQR activo alLeer={alLeer} />
             <Boton className="mt-3" onClick={() => setVista('manual')} variant="secondary">
@@ -434,8 +591,21 @@ export default function Escanear() {
               </div>
             )}
 
+            {/* A pie: llega alguien cuyo turno todavia no llaman. Puede pasar,
+                pero lo decide quien escanea; no se entrega solo. */}
+            {!previa.pase && !previaEspecial && !citaDeOtroDia && fila === 'a_pie' &&
+              filaDe(previa) === 'a_pie' && turnoAdelantado(previa.turno, turnoQueVa) && (
+              <div className="mb-3 rounded-xl border-2 border-accion bg-accion/15 p-4 text-principal" role="status">
+                <p className="text-xl font-bold">{t('escaneo.turnoAdelantado.titulo')}</p>
+                <p className="mt-1 text-base">
+                  {t('escaneo.turnoAdelantado.texto', { turno: previa.turno, actual: turnoQueVa })}
+                </p>
+              </div>
+            )}
+
             {!previaEspecial && !citaDeOtroDia && (
               <div className="rounded-xl border border-principal/20 p-4">
+                {previa.pase && previa.vip && <SelloVip className="mb-3" />}
                 {previa.pase && (
                   <p className="mb-2 inline-block rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
                     {t('escaneo.pase')}
@@ -445,6 +615,7 @@ export default function Escanear() {
                   <p className="mb-2 inline-flex items-center gap-2 rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
                     <FaPersonWalking aria-hidden="true" className="h-4 w-4" />
                     {t('filas.nombre.a_pie')}
+                    {previa.turno ? ` · ${t('turno.numero', { turno: previa.turno })}` : ''}
                   </p>
                 )}
                 <p className="text-2xl font-bold text-principal">{previa.nombre}</p>
@@ -494,6 +665,15 @@ export default function Escanear() {
               <p className="mt-2 text-base text-principal/80">
                 {t(`escaneo.explicacion.${resultado.resultado}`)}
               </p>
+              {resultado.vip && PUEDE_PASAR.includes(resultado.resultado) && <SelloVip className="mt-3" />}
+              {resultado.adelantado && PUEDE_PASAR.includes(resultado.resultado) && (
+                <p className="mt-3 rounded-lg border-2 border-accion bg-accion/15 px-3 py-2 text-base font-semibold text-principal">
+                  {t('escaneo.turnoAdelantado.paso', {
+                    turno: resultado.adelantado.turno,
+                    actual: resultado.adelantado.va,
+                  })}
+                </p>
+              )}
             </div>
 
             {(puedeDeshacer || deshacerPropia) && PUEDE_PASAR.includes(resultado.resultado) && resultado.codigo_corto && (
@@ -570,9 +750,18 @@ export default function Escanear() {
                           ? `${t('escaneo.resultado.OTRA_FECHA')}: ${fechaLarga(persona.fecha)}`
                           : t(`escaneo.estadoPrevio.${persona.estado}`, { defaultValue: persona.estado })}
                       </p>
-                      <Boton className="mt-2" onClick={() => elegirDeLista(persona)} variant="secondary">
-                        {t('escaneo.verCita')}
-                      </Boton>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        <Boton onClick={() => elegirDeLista(persona)} variant="secondary">
+                          {t('escaneo.verCita')}
+                        </Boton>
+                        {/* De hoy y sin recibir: se entrega aqui mismo. Si es de
+                            la otra fila, la base lo detiene y no se quema. */}
+                        {!deOtroDia && ['reservada', 'llego'].includes(persona.estado) && (
+                          <Boton disabled={ocupado} onClick={() => entregarDeLista(persona)}>
+                            {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
+                          </Boton>
+                        )}
+                      </div>
                     </li>
                   )
                 })}
@@ -580,7 +769,7 @@ export default function Escanear() {
             )}
 
             <Boton className="mt-4" onClick={reiniciar} variant="secondary">
-              {t('escaneo.volverCamara')}
+              {t('escaneo.escanearOtro')}
             </Boton>
           </>
         )}
@@ -590,26 +779,59 @@ export default function Escanear() {
           Se queda a la vista tanto con la camara como buscando por codigo: quien
           no trae QR es justo quien acaba anotandose sin cita, y tener que volver
           a la camara para anotarlo cuesta tiempo con la fila afuera. */}
-      {puedeAnotarSinCita && (vista === 'camara' || vista === 'manual') && (
-        <Tarjeta>
-          <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
-          <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
-          <EntradaSinCita />
-        </Tarjeta>
-      )}
+      {/* El panel de turnos y "sin cita": en el telefono, debajo de la
+          camara; en computadora, en la columna de la derecha. */}
+      <div className="space-y-4">
+        {listo && fila === 'a_pie' && (
+          <Tarjeta className="border-t-8 border-accion">
+            <PanelTurnos
+              alActualizar={alActualizarTurnos}
+              alBuscar={() => {
+                reiniciar()
+                setVista('manual')
+              }}
+              version={versionTurnos}
+            />
+          </Tarjeta>
+        )}
+
+        {listo && puedeAnotarSinCita && (vista === 'camara' || vista === 'manual') && (
+          <Tarjeta>
+            <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
+            <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
+            <EntradaSinCita />
+          </Tarjeta>
+        )}
+      </div>
     </div>
   )
 }
 
-/** "Escaneas en: Fila de carros", con su icono. */
-function FilaActual({ fila }) {
+/** "Escaneas en: Fila de carros", con su icono, y el boton para cambiarse. */
+function FilaActual({ fila, alCambiar }) {
   const { t } = useTranslation()
   const Icono = ICONO_FILA[fila] ?? LuLayers
 
   return (
-    <p className="mb-4 mt-2 inline-flex items-center gap-2 rounded-full bg-principal/5 px-3 py-1.5 text-base font-semibold text-principal ring-1 ring-principal/10">
-      <Icono aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-      {t('escaneo.estasEn', { fila: t(`filas.nombre.${fila}`) })}
-    </p>
+    <div className="mb-4 mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <p
+        className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-semibold text-principal ring-1 ${
+          fila === 'a_pie' ? 'bg-accion/20 ring-accion/40' : 'bg-principal/5 ring-principal/10'
+        }`}
+      >
+        <Icono aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
+        {t('escaneo.estasEn', { fila: t(`filas.nombre.${fila}`) })}
+      </p>
+      {alCambiar && (
+        <button
+          className="inline-flex min-h-12 items-center gap-1.5 text-base font-semibold text-principal underline underline-offset-4"
+          onClick={alCambiar}
+          type="button"
+        >
+          <LuArrowLeftRight aria-hidden="true" className="h-4 w-4" />
+          {t('elegirFila.cambiar')}
+        </button>
+      )}
+    </div>
   )
 }

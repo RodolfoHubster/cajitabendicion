@@ -10,9 +10,11 @@ import ListaAvisos from './ListaAvisos'
  * 5 minutos antes, un registro por dia, una caja por codigo-- es lo que
  * despues causa problemas en la fila si nadie lo leyo.
  *
- * El texto lo edita el pastor desde el panel; aqui solo se muestra.
+ * El texto lo edita el pastor desde el panel; aqui solo se muestra. La fila
+ * a pie tiene sus propias reglas (aPie): ahi no hay horario, ni cajuela, ni
+ * cita que cancelar.
  */
-export default function AceptarReglas({ acepto, alCambiar, error }) {
+export default function AceptarReglas({ acepto, alCambiar, error, aPie = false }) {
   const { t } = useTranslation()
   const idError = error ? 'reglas-error' : undefined
 
@@ -24,13 +26,19 @@ export default function AceptarReglas({ acepto, alCambiar, error }) {
     >
       <p className="flex items-center gap-2 text-base font-bold text-principal">
         <LuTriangleAlert aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-        {t('reglas.titulo')}
+        {aPie ? t('reglas.tituloAPie') : t('reglas.titulo')}
       </p>
 
       <div className="mt-3">
         <ListaAvisos
-          respaldo={[t('reglas.respaldo1'), t('reglas.respaldo2'), t('reglas.respaldo3')]}
-          seccion="registro"
+          //  La key vuelve a pedir las reglas si cambia la fila.
+          key={aPie ? 'a_pie' : 'carro'}
+          respaldo={
+            aPie
+              ? [t('reglas.respaldoAPie1'), t('reglas.respaldo2'), t('reglas.respaldoAPie2')]
+              : [t('reglas.respaldo1'), t('reglas.respaldo2'), t('reglas.respaldo3')]
+          }
+          seccion={aPie ? 'registro_a_pie' : 'registro'}
         />
       </div>
 

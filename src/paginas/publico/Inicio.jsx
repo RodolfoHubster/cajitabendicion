@@ -110,23 +110,25 @@ export default function Inicio() {
               </span>
             </button>
 
-            {/* Fase 2. Deshabilitado de verdad, no solo gris: un boton que
-                se ve apagado pero responde confunde mas que uno que no esta. */}
+            {/* La fila a pie va por turnos, no por horarios: lleva a /a-pie,
+                que dice si hoy hay fila y a que hora abre. Mismo tamano que
+                el de carro, pero sin el naranja lleno: la accion principal
+                sigue siendo una. */}
             <button
-              aria-describedby="proximamente-a-pie"
-              className={`${OPCION} cursor-not-allowed border-2 border-dashed border-white/30 bg-white/[0.06] text-white/75`}
-              disabled
+              className={`${OPCION} group border-2 border-white/40 bg-white/10 text-white transition duration-300 hover:-translate-y-1 hover:bg-white/15 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70`}
+              onClick={() => navegar('/a-pie')}
               type="button"
             >
-              <span className={`${CIRCULO} bg-white/10`}>
+              <span className={`${CIRCULO} bg-white/15 group-hover:scale-110`}>
                 <FaPersonWalking aria-hidden="true" className="h-9 w-9" />
               </span>
               <span className="text-lg font-bold leading-tight">{t('inicio.aPie')}</span>
-              <span
-                className="max-w-full rounded-full bg-white/15 px-2.5 py-0.5 text-chica font-semibold leading-snug text-white/90"
-                id="proximamente-a-pie"
-              >
-                {t('inicio.proximamente')}
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-0.5 text-chica font-bold">
+                {t('inicio.sacarTurno')}
+                <LuArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                />
               </span>
             </button>
           </div>

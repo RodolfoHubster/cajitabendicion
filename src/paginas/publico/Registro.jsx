@@ -7,6 +7,7 @@ import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
 import CamposDomicilio from '../../componentes/CamposDomicilio'
+import ComoVienes from '../../componentes/ComoVienes'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import OtrosHorarios from '../../componentes/OtrosHorarios'
 import Pasos from '../../componentes/Pasos'
@@ -22,6 +23,7 @@ import { leerCodigoAnticipado } from '../../datos/anticipado'
 import { borrarBorrador, guardarBorrador, leerBorrador } from '../../datos/borrador'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
 import { DOMICILIO_VACIO, PAISES_DOMICILIO, validarDomicilio } from '../../datos/domicilio'
+import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import { citasDelDiaGuardadas } from '../../datos/misCitas'
 import { registrarYReservar } from '../../datos/registro'
 import { normalizarTelefono } from '../../datos/telefono'
@@ -38,6 +40,7 @@ const YA_TIENE = ['LIMITE_DISPOSITIVO', 'YA_REGISTRADO_ESE_DIA']
 
 // En este orden se revisan; se enfoca el primero que tenga error.
 const CAMPOS = [
+  'codigoDuenio',
   'nombres',
   'apellidos',
   'telefono',
@@ -58,6 +61,16 @@ export default function Registro() {
 
   const bloqueId = parametros.get('bloque')
   const fecha = parametros.get('fecha')
+  //  La fila a pie (llega de /a-pie): el mismo registro, pero se saca turno
+  //  en vez de escoger horario.
+  const aPie = parametros.get('fila') === 'a_pie'
+  //  De acompanante sin horario escogido (el dia ya no tiene lugares): basta
+  //  la fecha; su hora es la de quien maneja.
+  const soloFecha = !aPie && !bloqueId && Boolean(fecha) && parametros.get('acompanante') === '1'
+  //  En carro: con su carro (aparta un lugar) o en el de alguien que ya tiene cita.
+  const [comoViene, setComoViene] = useState(soloFecha ? 'acompanante' : 'propio')
+  const [codigoDuenio, setCodigoDuenio] = useState('')
+  const deAcompanante = !aPie && comoViene === 'acompanante'
 
   const [bloque, setBloque] = useState(null)
   const [cargando, setCargando] = useState(Boolean(bloqueId && fecha))
@@ -112,7 +125,7 @@ export default function Registro() {
 
     let vigente = true
 
-    consultarBloquesDeFecha(fecha)
+    consultarBloquesDeFecha(fecha, aPie ? 'a_pie' : null)
       .then((bloques) => {
         if (vigente) setBloque(bloques.find((b) => b.bloque_id === bloqueId) ?? null)
       })
@@ -126,15 +139,15 @@ export default function Registro() {
     return () => {
       vigente = false
     }
-  }, [bloqueId, fecha])
+  }, [bloqueId, fecha, aPie])
 
   const volver = (
-    <Boton onClick={() => navegar('/calendario')} variant="secondary">
-      {t('horarios.volverCalendario')}
+    <Boton onClick={() => navegar(aPie ? '/a-pie' : '/calendario')} variant="secondary">
+      {aPie ? t('aPie.volver') : t('horarios.volverCalendario')}
     </Boton>
   )
 
-  if (!bloqueId || !fecha) {
+  if (!fecha || (!bloqueId && !soloFecha)) {
     return (
       <Tarjeta>
         <h1 className="mb-2 text-2xl font-bold">{t('pages.registro')}</h1>
@@ -148,7 +161,7 @@ export default function Registro() {
     return <EsqueletoFormulario texto={t('registro.cargando')} />
   }
 
-  if (!bloque) {
+  if (!bloque && !soloFecha) {
     return (
       <Tarjeta>
         <h1 className="mb-2 text-2xl font-bold">{t('pages.registro')}</h1>
@@ -160,20 +173,29 @@ export default function Registro() {
 
   // Fecha bloqueada: sin codigo de suscriptor no se llega aqui ni escribiendo
   // la direccion. La base de datos lo vuelve a revisar al guardar.
-  if (bloque.abierto === false && !leerCodigoAnticipado(fecha)) {
-    return <Navigate replace to="/calendario" />
+  //  A pie no hay codigo de suscriptores: el turno es por orden de llegada.
+  if (bloque?.abierto === false && (aPie || !leerCodigoAnticipado(fecha))) {
+    return <Navigate replace to={aPie ? '/a-pie' : '/calendario'} />
   }
 
-  const encabezado = `${new Intl.DateTimeFormat(i18n.language, {
+  const dia = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-  }).format(aFechaLocal(bloque.fecha))}, ${formatearHora(bloque.hora)}`
+  }).format(aFechaLocal(bloque?.fecha ?? fecha))
+  const encabezado = aPie
+    ? `${t('filas.nombre.a_pie')} · ${dia}. ${t('aPie.empiezaA', { hora: formatearHora(bloque.hora) })}`
+    : deAcompanante
+      ? `${dia}. ${t('acompanante.horaDeQuienManeja')}`
+      : bloque
+        ? `${dia}, ${formatearHora(bloque.hora)}`
+        : dia
 
   const telefonoRevisado = normalizarTelefono(pais, telefono)
   const erroresDomicilio = validarDomicilio(domicilio, busqueda)
 
   const errores = {
+    codigoDuenio: deAcompanante && !pareceCodigoCorto(codigoDuenio) ? t('acompanante.faltaCodigo') : undefined,
     nombres: mensajeNombre(t, validarNombre(nombres), 'nombres'),
     apellidos: mensajeNombre(t, validarNombre(apellidos), 'apellidos'),
     telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
@@ -240,8 +262,10 @@ export default function Registro() {
         email: email.trim(),
         domicilio,
         aceptoPrivacidad: acepto,
-        bloqueId,
+        //  De acompanante, la base lo pone en el horario de quien maneja.
+        bloqueId: bloqueId ?? null,
         fecha,
+        codigoAcompanante: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
       })
 
       // Se pasa el nombre porque la funcion no lo devuelve y la pantalla de
@@ -250,7 +274,12 @@ export default function Registro() {
       //  Ya quedo registrada: el borrador ya no sirve y no debe quedarse.
       borrarBorrador()
       navegar(`/confirmacion/${cita.token_qr}`, {
-        state: { ...cita, nombre: `${nombresListos} ${apellidosListos}`, yaExistia: cita.ya_existia === true },
+        state: {
+          ...cita,
+          nombre: `${nombresListos} ${apellidosListos}`,
+          fila: aPie ? 'a_pie' : 'carro',
+          yaExistia: cita.ya_existia === true,
+        },
       })
     } catch (e) {
       setError(e.message)
@@ -260,10 +289,16 @@ export default function Registro() {
 
   return (
     <Tarjeta>
-      <EnlaceVolver a={`/horarios/${fecha}`}>{t('navegacion.cambiarHorario')}</EnlaceVolver>
-      <Pasos actual={3} />
+      {aPie ? (
+        <EnlaceVolver a="/a-pie">{t('aPie.volver')}</EnlaceVolver>
+      ) : (
+        <>
+          <EnlaceVolver a={`/horarios/${fecha}`}>{t('navegacion.cambiarHorario')}</EnlaceVolver>
+          <Pasos actual={3} />
+        </>
+      )}
 
-      <h1 className="mb-1 text-2xl font-bold">{t('pages.registro')}</h1>
+      <h1 className="mb-1 text-2xl font-bold">{aPie ? t('aPie.registroTitulo') : t('pages.registro')}</h1>
       <p className="mb-4 text-base text-principal/70">{encabezado}</p>
 
       {/* noValidate: los avisos del navegador salen en ingles y en globitos que
@@ -282,6 +317,32 @@ export default function Registro() {
       )}
 
       <form className="space-y-4" noValidate onSubmit={enviar}>
+        {/* En carro, un lugar es un carro: quien viene en el de alguien mas no ocupa otro. */}
+        {!aPie && (
+          <ComoVienes
+            alCambiar={(opcion) => {
+              setComoViene(opcion)
+              setError(null)
+            }}
+            alCambiarCodigo={setCodigoDuenio}
+            alSalirCodigo={() => codigoDuenio && tocar('codigoDuenio')}
+            codigo={codigoDuenio}
+            error={errorDe('codigoDuenio')}
+            valor={comoViene}
+          />
+        )}
+
+        {/* Llego sin horario (el dia estaba lleno): para traer su carro tiene
+            que escoger uno. */}
+        {soloFecha && !deAcompanante && (
+          <p className="rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
+            {t('acompanante.escogeHorario')}{' '}
+            <Link className="font-semibold underline underline-offset-4" to={`/horarios/${fecha}`}>
+              {t('acompanante.verHorarios')}
+            </Link>
+          </p>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo
             autoComplete="given-name"
@@ -359,6 +420,7 @@ export default function Registro() {
         />
 
         <AceptarReglas
+          aPie={aPie}
           acepto={aceptoReglas}
           alCambiar={setAceptoReglas}
           error={errorDe('acepto-reglas')}
@@ -368,11 +430,14 @@ export default function Registro() {
 
         {error && (
           <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
-            {t(`registro.errores.${error}`, { defaultValue: t('registro.errores.ERROR_DESCONOCIDO') })}
+            {t(`registro.${aPie ? 'erroresAPie' : 'errores'}.${error}`, {
+              defaultValue: t(`registro.errores.${error}`, { defaultValue: t('registro.errores.ERROR_DESCONOCIDO') }),
+            })}
           </p>
         )}
 
-        {error && HORARIO_PERDIDO.includes(error) && (
+        {/* A pie no hay otros horarios: hay una sola fila por dia. */}
+        {error && !aPie && !deAcompanante && bloqueId && HORARIO_PERDIDO.includes(error) && (
           <div className="rounded-xl border border-principal/20 bg-principal/5 p-3">
             <OtrosHorarios actual={bloqueId} alElegir={elegirOtroHorario} fecha={fecha} />
           </div>
@@ -399,8 +464,8 @@ export default function Registro() {
           </p>
         )}
 
-        <Boton disabled={enviando} id="confirmar-registro" type="submit">
-          {enviando ? t('registro.enviando') : t('registro.confirmar')}
+        <Boton disabled={enviando || (soloFecha && !deAcompanante)} id="confirmar-registro" type="submit">
+          {enviando ? t('registro.enviando') : aPie ? t('aPie.confirmar') : t('registro.confirmar')}
         </Boton>
       </form>
     </Tarjeta>

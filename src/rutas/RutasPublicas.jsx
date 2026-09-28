@@ -1,4 +1,5 @@
 import { Route } from 'react-router-dom'
+import APie from '../paginas/publico/APie'
 import Calendario from '../paginas/publico/Calendario'
 import CambiarHorario from '../paginas/publico/CambiarHorario'
 import Confirmacion from '../paginas/publico/Confirmacion'
@@ -14,6 +15,7 @@ export default function RutasPublicas() {
     <>
       <Route element={<Inicio />} path="/" />
       <Route element={<Calendario />} path="/calendario" />
+      <Route element={<APie />} path="/a-pie" />
       <Route element={<Horarios />} path="/horarios/:fecha" />
       <Route element={<Registro />} path="/registro" />
       <Route element={<Confirmacion />} path="/confirmacion/:id" />

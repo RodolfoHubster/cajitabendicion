@@ -1,4 +1,5 @@
 import QRCode from 'qrcode'
+import { dibujarQRConSello } from './qrPase'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -31,11 +32,16 @@ export async function consultarCita(token) {
  * siempre: mantener apretado sobre la imagen y "Guardar imagen". Un SVG
  * no se guarda asi en la galeria.
  *
- * Nivel de correccion M: aguanta que el codigo salga algo sucio o
- * arrugado, que es exactamente lo que va a pasar con papeles doblados
- * y pantallas rayadas en la fila de carros.
+ * Con la fila ('carro' o 'a_pie') lleva su sello en medio: un carrito o
+ * una persona caminando, para que se distinga antes de escanear (ver
+ * datos/qrPase.js, con correccion alta para aguantar el sello).
+ *
+ * Sin fila (el QR de adorno del panel), nivel de correccion M: aguanta que
+ * el codigo salga algo sucio o arrugado.
  */
-export function dibujarQR(token) {
+export function dibujarQR(token, fila = null) {
+  if (fila === 'carro' || fila === 'a_pie') return dibujarQRConSello(token, { sello: fila })
+
   return QRCode.toDataURL(token, {
     errorCorrectionLevel: 'M',
     margin: 2,

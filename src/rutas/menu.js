@@ -19,6 +19,7 @@ export const SECCIONES = [
   { a: '/admin/personas', clave: 'personas', permiso: 'ver_personas' },
   { a: '/admin/reportes', clave: 'reportes', permiso: 'ver_reportes' },
   { a: '/admin/avisos', clave: 'avisos', permiso: 'editar_textos' },
+  { a: '/admin/qr', clave: 'codigosQr', roles: ['admin'] },
   { a: '/admin/equipo', clave: 'equipo', roles: ['admin'] },
   { a: '/admin/permisos', clave: 'permisos', roles: ['admin'] },
   { a: '/escanear', clave: 'escanear', roles: ['admin', 'voluntario'] },

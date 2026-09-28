@@ -50,6 +50,7 @@ export async function registrarYReservar({
   aceptoPrivacidad,
   bloqueId,
   fecha,
+  codigoAcompanante = null,
 }) {
   //  Con mala senal no se espera para siempre: a los 25 segundos se dice
   //  "no hay conexion" y la persona puede volver a tocar Confirmar. Si la
@@ -64,6 +65,9 @@ export async function registrarYReservar({
     p_acepto_privacidad: Boolean(aceptoPrivacidad),
     p_dispositivo: obtenerDispositivo(),
     p_codigo_anticipado: (fecha && leerCodigoAnticipado(fecha)) || null,
+    //  Viene en el carro de alguien que ya tiene cita: el codigo de quien
+    //  maneja y el dia. Solo se manda cuando aplica.
+    ...(codigoAcompanante ? { p_codigo_acompanante: codigoAcompanante, p_fecha: fecha } : {}),
   }))
 
   if (error) {
@@ -104,6 +108,8 @@ export const CODIGOS = [
   'DIA_CERRADO',
   'YA_REGISTRADO_ESE_DIA',
   'A_PIE_CERRADO',
+  'ACOMPANANTE_SIN_CITA',
+  'CARRO_LLENO',
   ...CODIGOS_DOMICILIO,
 ]
 

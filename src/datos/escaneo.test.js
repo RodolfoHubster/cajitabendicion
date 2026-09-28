@@ -156,6 +156,14 @@ describe('entregaDirecta (escanear = entregar, en el caso de todos los días)', 
     expect(entregaDirecta(cita({ fila: 'a_pie' }), { hoy: HOY, fila: 'carro' })).toBe(false)
   })
 
+  it('a pie, escanear también es entregar, llegue antes o después de su turno', () => {
+    const aPie = (turno) => cita({ fila: 'a_pie', turno })
+    expect(entregaDirecta(aPie(9), { hoy: HOY, fila: 'a_pie' })).toBe(true)
+    expect(entregaDirecta(aPie(3), { hoy: HOY, fila: 'a_pie' })).toBe(true)
+    //  Pero un código de carros, no: es de la otra fila.
+    expect(entregaDirecta(cita({ fila: 'carro' }), { hoy: HOY, fila: 'a_pie' })).toBe(false)
+  })
+
   it('la búsqueda a mano nunca entrega sola (la María equivocada)', () => {
     expect(entregaDirecta(cita({ porCodigo: true }), { hoy: HOY, fila: 'carro' })).toBe(false)
   })

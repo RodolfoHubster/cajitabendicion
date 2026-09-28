@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Pasos from '../../componentes/Pasos'
@@ -197,6 +197,15 @@ export default function Horarios() {
           </div>
         </>
       )}
+
+      {/* Quien viene en el carro de alguien que ya tiene cita no escoge
+          horario ni ocupa lugar: sirve aunque el dia ya este lleno. */}
+      <Link
+        className="mt-4 flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-principal/30 px-4 text-center text-base font-semibold text-principal transition hover:border-principal hover:bg-principal/5"
+        to={`/registro?fecha=${fecha}&acompanante=1`}
+      >
+        {t('acompanante.enlace')}
+      </Link>
     </Tarjeta>
   )
 }
