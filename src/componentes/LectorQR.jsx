@@ -9,14 +9,23 @@ import { clasificarErrorCamara, leerQR, zonaVisible } from '../datos/escaneo'
  * Llama a `alLeer` con el texto del codigo la primera vez que lo
  * reconoce, y deja de buscar hasta que el padre lo reactive. Sin eso
  * dispararia decenas de veces por segundo sobre el mismo codigo.
+ *
+ * `ignorar`: un codigo que no cuenta y se sigue buscando. Es el que se acaba
+ * de entregar: la persona todavia no baja su telefono y la camara ya esta
+ * lista para el siguiente carro.
  */
-export default function LectorQR({ activo, alLeer }) {
+export default function LectorQR({ activo, alLeer, ignorar = null }) {
   const { t } = useTranslation()
   const videoRef = useRef(null)
   const lienzoRef = useRef(null)
   const [error, setError] = useState(null)
   //  Sube con "Intentar de nuevo": vuelve a pedir la camara sin recargar.
   const [intento, setIntento] = useState(0)
+  //  En una referencia para no reiniciar la camara cuando cambia.
+  const ignorarRef = useRef(ignorar)
+  useEffect(() => {
+    ignorarRef.current = ignorar
+  }, [ignorar])
 
   useEffect(() => {
     if (!activo) return
@@ -63,7 +72,7 @@ export default function LectorQR({ activo, alLeer }) {
         const { x, y, lado } = zonaVisible(lienzo.width, lienzo.height)
         const texto = leerQR(ctx.getImageData(x, y, lado, lado))
 
-        if (texto) {
+        if (texto && texto !== ignorarRef.current) {
           alLeer(texto)
           return
         }

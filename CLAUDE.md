@@ -23,7 +23,7 @@ iglesia: Pastor David Villalobos.
 | Corte real de cupo | Al llenarse un bloque se bloquea de verdad. Este es el bug que se está arreglando. |
 | QR de un solo uso | La cita se invalida al escanearse. Sin datos personales dentro del código. |
 | Código corto | ID estable tipo matrícula (`CB-4871`), respaldo cuando el QR no se deja leer. Buscar por nombre no basta: se repiten. |
-| Entró sin cita | Solo panel, nunca público. Pide nombre, da comprobante `SC-1234`, guarda quién y a qué hora. Un error se **anula**, no se borra. |
+| Entró sin cita | Solo panel, nunca público. Pide nombre y teléfono (opcional; decisión del pastor, 24 sep 2026), da comprobante `SC-1234`, guarda quién y a qué hora. Avisa si el nombre o el teléfono ya se anotaron hoy. Un error se **anula**, no se borra. |
 | Donaciones | Enlaces opcionales (PayPal, GoFundMe, suscripción de Facebook). **Nunca condicionan la cita**: cada invitación dice primero que los alimentos son gratuitos. |
 
 ### Lunes y jueves: se puede ir a los dos
@@ -75,6 +75,22 @@ papel: el pastor le da a ciertas personas un pase que no vence.
 - Solo un admin da y quita pases. Revocar **no borra**: queda quién lo quitó,
   cuándo y por qué. Deja de servir al momento.
 
+### Escanear es entregar (desde el 25 de septiembre de 2026)
+
+El 24 de septiembre los voluntarios escaneaban y no tocaban "Registrar
+entrega": horas de cajas sin contar y QR que seguían sirviendo. Decisión del
+pastor: con el QR, el caso de todos los días (cita de hoy, de su fila, o
+pase vigente) **se entrega al escanear** y la cámara queda lista para el
+siguiente (`entregaDirecta` en `src/datos/escaneo.js`). Otra fecha, otra
+fila, código que no existe y la **búsqueda a mano** siguen pidiendo
+confirmar. No regreses el paso de confirmar.
+
+- Quien escaneó deshace **su** entrega durante el primer minuto sin la
+  palomita (`FUERA_DE_PLAZO` después). Con la palomita, cualquiera de hoy.
+- Lo que se entregó sin quedar registrado lo marca el admin en Citas de hoy
+  ("Marcar entregada", `marcar_entregada_panel`): cuenta el día de su cita
+  y queda quién, cuándo y por qué.
+
 ### Permisos del voluntario
 
 Decisión del Pastor David, 23 de septiembre de 2026. El rol decidía todo y el
@@ -113,9 +129,10 @@ check-in/out de voluntarios.
 con Google), modo sin conexión (el personal usa datos móviles).
 
 **En evaluación, ya no descartado**: avisos por SMS (se están cotizando) y un
-canal de WhatsApp. Ligado a eso, se está viendo si "entró sin cita" debería
-pedir también el teléfono para poder mandar el mensaje. Ninguna de las tres
-está decidida: no las programes como si lo estuvieran.
+canal de WhatsApp. "Entró sin cita" ya pide el teléfono, y su comprobante
+tiene los botones de WhatsApp y mensaje **apagados, con "Próximamente"**:
+falta que el pastor diga el canal, el texto y quién paga. No los prendas
+hasta que lo decida.
 
 ---
 

@@ -8,8 +8,9 @@ import Paginacion from './Paginacion'
 import PanelFiltros from './PanelFiltros'
 import Selector from './Selector'
 import Tarjeta from './Tarjeta'
-import { cancelarCitaPanel } from '../datos/citas'
+import { cancelarCitaPanel, marcarEntregadaPanel } from '../datos/citas'
 import { formatearHora, horaSanDiego } from '../datos/disponibilidad'
+import { sePuedeMarcarEntregada } from '../datos/panel'
 import {
   FILTROS_CITAS,
   SIN_VALOR,
@@ -51,7 +52,7 @@ function momento(marca, idioma) {
  * y por que.
  */
 export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
-  const { permisos = [] } = useOutletContext() ?? {}
+  const { permisos = [], rol } = useOutletContext() ?? {}
 
   // La ficha trae el domicilio y el historial de la persona; cancelar le
   // quita el lugar a alguien. Cada una va por su lado.
@@ -76,6 +77,13 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   // Deshacer una entrega: la fila abierta y a quien se le deshizo.
   const [deshaciendo, setDeshaciendo] = useState(null)
   const [deshecha, setDeshecha] = useState(null)
+  // Marcar entregada una que no se escaneo (solo admin): la fila abierta, su
+  // motivo, y a quien se le marco.
+  const [marcando, setMarcando] = useState(null)
+  const [motivoMarcar, setMotivoMarcar] = useState('')
+  const [enviandoMarcar, setEnviandoMarcar] = useState(false)
+  const [errorMarcar, setErrorMarcar] = useState(null)
+  const [marcada, setMarcada] = useState(null)
 
   const activas = citas.filter((cita) => cita.estado !== 'cancelada')
   const canceladas = citas.length - activas.length
@@ -97,6 +105,23 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   function limpiar() {
     setFiltros(FILTROS_CITAS)
     setPagina(1)
+  }
+
+  async function confirmarMarcar(cita) {
+    setEnviandoMarcar(true)
+    setErrorMarcar(null)
+
+    try {
+      await marcarEntregadaPanel({ codigo: cita.codigo_corto, fecha, hora: cita.hora, motivo: motivoMarcar })
+      setMarcada(cita.nombre)
+      setMarcando(null)
+      setMotivoMarcar('')
+      alCambiar()
+    } catch (e) {
+      setErrorMarcar(e.message)
+    } finally {
+      setEnviandoMarcar(false)
+    }
   }
 
   async function confirmarCancelacion(cita) {
@@ -127,6 +152,12 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
             role="status"
           >
             {t('cancelarPanel.listo', { nombre: cancelada })}
+          </p>
+        )}
+
+        {marcada && (
+          <p className="mb-3 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
+            {t('marcarPanel.listo', { nombre: marcada })}
           </p>
         )}
 
@@ -297,6 +328,9 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                               </td>
                               <td className="whitespace-nowrap py-2 pr-3 text-principal/70">
                                 {cita.usado_en ? horaSanDiego(cita.usado_en) : '—'}
+                                {cita.marcada_por && (
+                                  <span className="block text-chica">{t('marcarPanel.aMano', { quien: cita.marcada_por })}</span>
+                                )}
                               </td>
                               <td className="py-2 pr-3 text-principal/70">{cita.ciudad ?? '—'}</td>
                               <td className="py-2 text-right">
@@ -320,6 +354,20 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                       type="button"
                                     >
                                       {t('deshacer.botonLista')}
+                                    </button>
+                                  )}
+                                  {sePuedeMarcarEntregada(rol, cita, fecha, hoy) && marcando !== llave && (
+                                    <button
+                                      className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-puede-pasar underline underline-offset-4"
+                                      onClick={() => {
+                                        setMarcando(llave)
+                                        setMotivoMarcar('')
+                                        setErrorMarcar(null)
+                                        setMarcada(null)
+                                      }}
+                                      type="button"
+                                    >
+                                      {t('marcarPanel.boton')}
                                     </button>
                                   )}
                                   {puedeCancelar && cancelando !== llave && (
@@ -354,6 +402,50 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                     codigo={cita.codigo_corto}
                                     nombre={cita.nombre}
                                   />
+                                </td>
+                              </tr>
+                            )}
+
+                            {marcando === llave && (
+                              <tr>
+                                <td className="pb-3" colSpan={7}>
+                                  <div className="space-y-3 rounded-xl border border-puede-pasar/40 bg-puede-pasar/5 p-3">
+                                    <p className="text-base font-semibold text-principal">
+                                      {t('marcarPanel.titulo', { nombre: cita.nombre, hora: formatearHora(cita.hora) })}
+                                    </p>
+                                    <p className="text-base text-principal/80">{t('marcarPanel.ayuda')}</p>
+                                    <Campo
+                                      etiqueta={t('marcarPanel.motivo')}
+                                      id={`motivo-marcar-${llave}`}
+                                      onChange={(e) => setMotivoMarcar(e.target.value)}
+                                      placeholder={t('marcarPanel.motivoEjemplo')}
+                                      value={motivoMarcar}
+                                    />
+                                    {errorMarcar && (
+                                      <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+                                        {t(`citas.errores.${errorMarcar}`, {
+                                          defaultValue: t('citas.errores.ERROR_DESCONOCIDO'),
+                                        })}
+                                      </p>
+                                    )}
+                                    <div className="flex flex-wrap gap-2">
+                                      <button
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                                        disabled={enviandoMarcar}
+                                        onClick={() => confirmarMarcar(cita)}
+                                        type="button"
+                                      >
+                                        {enviandoMarcar ? t('marcarPanel.marcando') : t('marcarPanel.confirmar')}
+                                      </button>
+                                      <button
+                                        className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal transition hover:border-principal"
+                                        onClick={() => setMarcando(null)}
+                                        type="button"
+                                      >
+                                        {t('marcarPanel.volver')}
+                                      </button>
+                                    </div>
+                                  </div>
                                 </td>
                               </tr>
                             )}

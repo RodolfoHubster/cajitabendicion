@@ -202,6 +202,23 @@ CC BY 4.0). Sin API de mapas: las direcciones no salen de la base.
 código exacto no existe devuelve los de hoy que se le parecen
 (`parecido = true`).
 
+## Entregas a mano (sección 35)
+
+| Objeto | Qué hace |
+|---|---|
+| `marcar_entregada_panel(codigo, fecha, hora, motivo)` | Solo admin. Marca entregada una cita de hoy o pasada que no se escaneó. `usado_en` = la hora de su cita, para que cuente ese día. |
+| `entregas_marcadas` | Quién la marcó, cuándo y por qué. |
+| `anular_entrega` | Sin la palomita, quien escaneó deshace SU entrega el primer minuto; si no, `FUERA_DE_PLAZO`. |
+
+`citas_del_dia` devuelve `marcada_por`.
+
+## "Entró sin cita" con teléfono
+
+`registrar_entrada_sin_cita(nombre, fila, confirmar_repetido, telefono)`:
+el teléfono es opcional (+lada y número). Avisa `NOMBRE_YA_ANOTADO_HOY:SC-…`
+o `TELEFONO_YA_ANOTADO_HOY:SC-…`; con `confirmar_repetido` pasa.
+`entradas_sin_cita_del_dia` devuelve el teléfono.
+
 ## Ver el QR desde el panel (sección 34)
 
 | Objeto | Qué hace |

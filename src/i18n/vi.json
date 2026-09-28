@@ -131,7 +131,8 @@
     "estasEn": "Bạn quét ở: {{fila}}",
     "deOtraFila": "Mã này thuộc hàng kia ({{fila}}). Hãy mời họ sang đó để nhận thùng.",
     "parecido": "Có phải người này? Mã gần giống",
-    "volverARevisar": "Kiểm tra lại"
+    "volverARevisar": "Kiểm tra lại",
+    "siguiente": "Quét người tiếp theo"
   },
   "pase": {
     "etiqueta": "Thẻ vào vĩnh viễn",
@@ -704,7 +705,9 @@
       "YA_TIENE_CITA_ESTA_SEMANA": "Bạn đã có một cuộc hẹn trong tuần đó. Mỗi tuần chỉ được một lần.",
       "AUN_NO_ABRE": "Ngày đó chưa mở.",
       "PASE_NO_EXISTE": "Người này không có thẻ.",
-      "PASE_YA_REVOCADO": "Thẻ đó đã bị thu hồi rồi."
+      "PASE_YA_REVOCADO": "Thẻ đó đã bị thu hồi rồi.",
+      "TELEFONO_INVALIDO": "Số điện thoại không hợp lệ. Hãy kiểm tra mã quốc gia và số.",
+      "FECHA_FUTURA": "Ngày đó vẫn chưa đến."
     }
   },
   "sinCita": {
@@ -712,6 +715,8 @@
     "registrando": "Đang ghi…",
     "ayuda": "Ghi lại người được vào mà không có lịch hẹn. Chỉ hỏi tên; người đó nhận một mã biên nhận, và hệ thống lưu ai đã ghi và lúc nào.",
     "nombre": "Tên của người đó",
+    "telefono": "Số điện thoại (không bắt buộc)",
+    "telefonoAyuda": "Để gửi biên nhận cho họ sau này. Nếu họ không có hoặc không muốn cho, hãy để trống.",
     "anotado": "Đã ghi. Hôm nay có {{total}} người không có lịch hẹn.",
     "comprobante": "Mã biên nhận",
     "darCodigo": "Hãy đưa mã này cho người đó hoặc nhờ họ chụp ảnh, phòng khi cần làm rõ sau này.",
@@ -727,6 +732,7 @@
     "col": {
       "hora": "Giờ",
       "nombre": "Tên",
+      "telefono": "Điện thoại",
       "codigo": "Mã",
       "anoto": "Người ghi",
       "estado": "Trạng thái"
@@ -740,7 +746,15 @@
       "titulo": "{{nombre}} đã được ghi hôm nay (biên nhận {{codigo}}).",
       "ayuda": "Nếu là cùng một người, đừng ghi lại: sẽ tính dư một thùng.",
       "esLaMisma": "Cùng một người, không ghi",
-      "esOtra": "Người khác, ghi lại"
+      "esOtra": "Người khác, ghi lại",
+      "tituloTelefono": "Số điện thoại {{telefono}} đã được ghi hôm nay (biên nhận {{codigo}})."
+    },
+    "enviar": {
+      "titulo": "Gửi biên nhận cho họ",
+      "whatsapp": "WhatsApp",
+      "mensaje": "Tin nhắn văn bản",
+      "proximamente": "Sắp có",
+      "ayuda": "Sắp tới có thể gửi từ đây."
     }
   },
   "cancelarPanel": {
@@ -752,6 +766,18 @@
     "cancelando": "Đang hủy…",
     "volver": "Không, giữ lại",
     "listo": "Đã hủy lịch hẹn của {{nombre}}. Chỗ đã được trả lại."
+  },
+  "marcarPanel": {
+    "boton": "Đánh dấu đã phát",
+    "titulo": "Đánh dấu thùng của {{nombre}} ({{hora}}) là đã phát?",
+    "ayuda": "Dùng khi họ đã nhận thùng nhưng lúc quét không được ghi lại. Được tính vào báo cáo của ngày đó và ghi lại ai đã đánh dấu.",
+    "motivo": "Lý do (không bắt buộc)",
+    "motivoEjemplo": "Ví dụ: Lúc quét không được ghi lại",
+    "confirmar": "Có, đánh dấu đã phát",
+    "marcando": "Đang đánh dấu…",
+    "volver": "Không, quay lại",
+    "listo": "Xong: thùng của {{nombre}} đã được đánh dấu là đã phát.",
+    "aMano": "Bằng tay · {{quien}}"
   },
   "excepcion": {
     "titulo": "Lịch hẹn thứ hai trong cùng tuần",
@@ -830,7 +856,7 @@
   "filtros": {
     "buscar": "Tìm theo tên hoặc mã",
     "buscarEjemplo": "Ví dụ: María López hoặc CB-4871",
-    "buscarEjemploSinCita": "Ví dụ: Pedro Ruiz hoặc SC-0012",
+    "buscarEjemploSinCita": "Ví dụ: Pedro Ruiz, SC-0012 hoặc 619555",
     "masFiltros": "Thêm bộ lọc",
     "ocultarFiltros": "Ẩn bộ lọc",
     "horario": "Giờ hẹn",
@@ -1181,7 +1207,8 @@
       "SIN_PERMISO": "Tài khoản của bạn không được hoàn tác lần phát. Hãy hỏi quản trị viên.",
       "SIN_CONEXION": "Không có kết nối. Hãy kiểm tra dữ liệu di động và thử lại.",
       "FUNCION_NO_INSTALADA": "Thiếu một bản cập nhật cơ sở dữ liệu.",
-      "ERROR_DESCONOCIDO": "Chúng tôi không hoàn tác được. Vui lòng thử lại sau giây lát."
+      "ERROR_DESCONOCIDO": "Chúng tôi không hoàn tác được. Vui lòng thử lại sau giây lát.",
+      "FUERA_DE_PLAZO": "Không thể hoàn tác từ đây nữa: đã quá một phút hoặc người khác đã phát. Hãy nhờ quản trị viên."
     },
     "botonLista": "Hoàn tác lần phát",
     "listoLista": "Đã hoàn tác lần phát cho {{nombre}}. Mã của họ dùng lại được hôm nay."

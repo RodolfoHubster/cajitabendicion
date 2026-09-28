@@ -194,6 +194,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
                       <tr className="border-b border-principal/15 text-principal/70">
                         <th className="py-2 pr-3 font-medium">{t('sinCita.col.hora')}</th>
                         <th className="py-2 pr-3 font-medium">{t('sinCita.col.nombre')}</th>
+                        <th className="py-2 pr-3 font-medium">{t('sinCita.col.telefono')}</th>
                         <th className="py-2 pr-3 font-medium">{t('sinCita.col.codigo')}</th>
                         <th className="py-2 pr-3 font-medium">{t('sinCita.col.anoto')}</th>
                         <th className="py-2 font-medium">{t('sinCita.col.estado')}</th>
@@ -213,6 +214,15 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
                               <td className="whitespace-nowrap py-2 pr-3">{horaSanDiego(fila.registrado_en)}</td>
                               <td className={`py-2 pr-3 ${fila.anulada ? 'line-through' : ''}`}>
                                 {fila.nombre ?? t('sinCita.sinNombre')}
+                              </td>
+                              <td className="whitespace-nowrap py-2 pr-3">
+                                {fila.telefono ? (
+                                  <a className="underline underline-offset-4" href={`tel:${fila.telefono}`}>
+                                    {fila.telefono}
+                                  </a>
+                                ) : (
+                                  '—'
+                                )}
                               </td>
                               <td className="whitespace-nowrap py-2 pr-3 font-semibold">{fila.codigo ?? '—'}</td>
                               <td className="py-2 pr-3">{fila.anotado_por ?? '—'}</td>
@@ -252,7 +262,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
 
                             {anulando === llave && (
                               <tr>
-                                <td className="pb-3" colSpan={5}>
+                                <td className="pb-3" colSpan={6}>
                                   <div className="space-y-2 rounded-xl border border-ya-recibio/30 bg-ya-recibio/5 p-3">
                                     <p className="text-base font-semibold text-principal">
                                       {t('sinCita.preguntaAnular', { nombre: fila.nombre ?? fila.codigo })}

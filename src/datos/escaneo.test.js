@@ -12,6 +12,8 @@ import {
   anularEntrega,
   buscarParaEscaneo,
   clasificarErrorCamara,
+  MS_DESHACER_PROPIA,
+  entregaDirecta,
   esRecienEntregado,
   zonaVisible,
   previaPorError,
@@ -129,5 +131,53 @@ describe('zonaVisible (se lee solo lo que se ve en pantalla)', () => {
       expect(x + lado).toBeLessThanOrEqual(ancho)
       expect(y + lado).toBeLessThanOrEqual(alto)
     }
+  })
+})
+
+describe('entregaDirecta (escanear = entregar, en el caso de todos los días)', () => {
+  const HOY = '2026-09-25'
+  const cita = (extra = {}) => ({ nombre: 'Ana', codigo_corto: 'CB-1', fecha: HOY, fila: 'carro', estado: 'reservada', ...extra })
+
+  it('una cita de hoy, de mi fila: se entrega al escanear', () => {
+    expect(entregaDirecta(cita(), { hoy: HOY, fila: 'carro' })).toBe(true)
+    expect(entregaDirecta(cita(), { hoy: HOY, fila: 'ambas' })).toBe(true)
+  })
+
+  it('ya entregada o cancelada también va directo: la base contesta "ya recibió" y cuenta el intento', () => {
+    expect(entregaDirecta(cita({ estado: 'entregada' }), { hoy: HOY, fila: 'carro' })).toBe(true)
+    expect(entregaDirecta(cita({ estado: 'cancelada' }), { hoy: HOY, fila: 'carro' })).toBe(true)
+  })
+
+  it('de otro día no: necesita autorización', () => {
+    expect(entregaDirecta(cita({ fecha: '2026-09-28' }), { hoy: HOY, fila: 'carro' })).toBe(false)
+  })
+
+  it('de la otra fila no: se le dice a dónde ir y el código no se quema', () => {
+    expect(entregaDirecta(cita({ fila: 'a_pie' }), { hoy: HOY, fila: 'carro' })).toBe(false)
+  })
+
+  it('la búsqueda a mano nunca entrega sola (la María equivocada)', () => {
+    expect(entregaDirecta(cita({ porCodigo: true }), { hoy: HOY, fila: 'carro' })).toBe(false)
+  })
+
+  it('pase vigente sí; pase revocado no', () => {
+    expect(entregaDirecta({ pase: true, activo: true, nombre: 'Ana' }, { hoy: HOY, fila: 'carro' })).toBe(true)
+    expect(entregaDirecta({ pase: true, activo: false, nombre: 'Ana' }, { hoy: HOY, fila: 'carro' })).toBe(false)
+  })
+
+  it('código que no existe o sin señal: no', () => {
+    expect(entregaDirecta({ resultado: 'NO_EXISTE' }, { hoy: HOY, fila: 'carro' })).toBe(false)
+    expect(entregaDirecta({ resultado: 'SIN_CONEXION' }, { hoy: HOY, fila: 'carro' })).toBe(false)
+    expect(entregaDirecta(null, { hoy: HOY, fila: 'carro' })).toBe(false)
+  })
+
+  it('"Deshacer" se quita antes del minuto que da la base', () => {
+    expect(MS_DESHACER_PROPIA).toBeLessThan(60_000)
+    expect(MS_DESHACER_PROPIA).toBeGreaterThanOrEqual(30_000)
+  })
+
+  it('pasado el minuto, FUERA_DE_PLAZO llega tal cual', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: FUERA_DE_PLAZO' } })
+    await expect(anularEntrega('CB-1', 'Era otro')).rejects.toThrow(/^FUERA_DE_PLAZO$/)
   })
 })

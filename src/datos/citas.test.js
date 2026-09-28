@@ -13,6 +13,7 @@ import {
   entradasSinCitaDelDia,
   moverCitaPanel,
   moverMiCita,
+  marcarEntregadaPanel,
   registrarEntradaSinCita,
   reservarConExcepcion,
 } from './citas'
@@ -218,5 +219,69 @@ describe('la misma persona anotada dos veces hoy', () => {
     supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0501', total: 5 }], error: null })
     await registrarEntradaSinCita('Ana')
     expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', { p_nombre: 'Ana' })
+  })
+})
+
+describe('registrarEntradaSinCita con teléfono', () => {
+  it('con teléfono lo manda tal cual (ya viene en formato internacional)', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0101', total: 1 }], error: null })
+    await registrarEntradaSinCita('Ana López', { telefono: '+16195550101' })
+    expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', {
+      p_nombre: 'Ana López',
+      p_telefono: '+16195550101',
+    })
+  })
+
+  it('sin teléfono no manda el parámetro: funciona aunque la base no tenga la migración', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0102', total: 1 }], error: null })
+    await registrarEntradaSinCita('Ana López', { telefono: '' })
+    expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', { p_nombre: 'Ana López' })
+  })
+
+  it('el teléfono repetido hoy trae el comprobante que ya tiene', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'TELEFONO_YA_ANOTADO_HOY:SC-0427' } })
+    const error = await registrarEntradaSinCita('Otra Persona', { telefono: '+16195550101' }).catch((e) => e)
+    expect(error.message).toBe('TELEFONO_YA_ANOTADO_HOY')
+    expect(error.codigoPrevio).toBe('SC-0427')
+  })
+
+  it('confirmar a otra persona de la familia manda las dos cosas', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo: 'SC-0103', total: 2 }], error: null })
+    await registrarEntradaSinCita('Otra Persona', { telefono: '+16195550101', confirmarRepetido: true })
+    expect(supabase.rpc).toHaveBeenCalledWith('registrar_entrada_sin_cita', {
+      p_nombre: 'Otra Persona',
+      p_confirmar_repetido: true,
+      p_telefono: '+16195550101',
+    })
+  })
+
+  it('un teléfono que la base no acepta: TELEFONO_INVALIDO', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: TELEFONO_INVALIDO' } })
+    await expect(registrarEntradaSinCita('Ana', { telefono: '+1' })).rejects.toThrow(/^TELEFONO_INVALIDO$/)
+  })
+})
+
+describe('marcarEntregadaPanel', () => {
+  it('manda la cita por código, fecha y hora, y el motivo sin espacios de más (o null)', async () => {
+    supabase.rpc.mockResolvedValue({ data: 'MARCADA', error: null })
+    await expect(
+      marcarEntregadaPanel({ codigo: 'CB-4871', fecha: '2026-09-24', hora: '14:45:00', motivo: '  No se escaneó ' }),
+    ).resolves.toBe('MARCADA')
+    expect(supabase.rpc).toHaveBeenCalledWith('marcar_entregada_panel', {
+      p_codigo: 'CB-4871',
+      p_fecha: '2026-09-24',
+      p_hora: '14:45:00',
+      p_motivo: 'No se escaneó',
+    })
+
+    await marcarEntregadaPanel({ codigo: 'CB-4871', fecha: '2026-09-24', hora: '14:45:00', motivo: '   ' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('marcar_entregada_panel', expect.objectContaining({ p_motivo: null }))
+  })
+
+  it.each(['CITA_YA_ENTREGADA', 'CITA_NO_EXISTE', 'FECHA_FUTURA'])('%s llega tal cual', async (codigo) => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: `P0001: ${codigo}` } })
+    await expect(marcarEntregadaPanel({ codigo: 'CB-1', fecha: '2026-09-24', hora: '14:45:00' })).rejects.toThrow(
+      new RegExp(`^${codigo}$`),
+    )
   })
 })

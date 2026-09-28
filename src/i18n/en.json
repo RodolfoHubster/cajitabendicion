@@ -126,7 +126,8 @@
     "estasEn": "You scan in: {{fila}}",
     "deOtraFila": "This code belongs to the other line ({{fila}}). Send them there: they get their box in that line.",
     "parecido": "Is it this one? The code is similar",
-    "volverARevisar": "Check again"
+    "volverARevisar": "Check again",
+    "siguiente": "Scan the next one"
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -707,7 +708,9 @@
       "YA_TIENE_CITA_ESTA_SEMANA": "You already have an appointment that week. Only one per week is allowed.",
       "AUN_NO_ABRE": "That day is not open yet.",
       "PASE_NO_EXISTE": "This person does not have a pass.",
-      "PASE_YA_REVOCADO": "That pass was already removed."
+      "PASE_YA_REVOCADO": "That pass was already removed.",
+      "TELEFONO_INVALIDO": "The phone number is not valid. Check the country code and the number.",
+      "FECHA_FUTURA": "That date has not arrived yet."
     }
   },
   "sinCita": {
@@ -715,6 +718,8 @@
     "registrando": "Recording…",
     "ayuda": "Record someone who came through without an appointment. Only their name is asked; they get a receipt code, and who recorded it and when is saved.",
     "nombre": "Person's name",
+    "telefono": "Phone (optional)",
+    "telefonoAyuda": "To send them their receipt later. If they don't have one or prefer not to give it, leave it empty.",
     "anotado": "Recorded. {{total}} without an appointment today.",
     "comprobante": "Receipt code",
     "darCodigo": "Give this code to the person or ask them to take a photo of it, in case something needs to be cleared up later.",
@@ -730,6 +735,7 @@
     "col": {
       "hora": "Time",
       "nombre": "Name",
+      "telefono": "Phone",
       "codigo": "Code",
       "anoto": "Recorded by",
       "estado": "Status"
@@ -743,7 +749,15 @@
       "titulo": "{{nombre}} was already recorded today (receipt {{codigo}}).",
       "ayuda": "If it is the same person, do not record them again: it would count one extra box.",
       "esLaMisma": "Same person, do not record",
-      "esOtra": "Different person, record them"
+      "esOtra": "Different person, record them",
+      "tituloTelefono": "The phone {{telefono}} was already recorded today (receipt {{codigo}})."
+    },
+    "enviar": {
+      "titulo": "Send them their receipt",
+      "whatsapp": "WhatsApp",
+      "mensaje": "Text message",
+      "proximamente": "Coming soon",
+      "ayuda": "Soon you will be able to send it from here."
     }
   },
   "cancelarPanel": {
@@ -755,6 +769,18 @@
     "cancelando": "Cancelling…",
     "volver": "No, keep it",
     "listo": "The appointment for {{nombre}} was cancelled. The spot is free."
+  },
+  "marcarPanel": {
+    "boton": "Mark as delivered",
+    "titulo": "Mark the box for {{nombre}} ({{hora}}) as delivered?",
+    "ayuda": "For when they did receive their box but it was not recorded when scanning. It counts in the report for their day and records who marked it.",
+    "motivo": "Reason (optional)",
+    "motivoEjemplo": "E.g. It was not recorded when scanning",
+    "confirmar": "Yes, mark as delivered",
+    "marcando": "Marking…",
+    "volver": "No, go back",
+    "listo": "Done: the box for {{nombre}} is now marked as delivered.",
+    "aMano": "By hand · {{quien}}"
   },
   "excepcion": {
     "titulo": "Second appointment in the same week",
@@ -833,7 +859,7 @@
   "filtros": {
     "buscar": "Search by name or code",
     "buscarEjemplo": "E.g. María López or CB-4871",
-    "buscarEjemploSinCita": "E.g. Pedro Ruiz or SC-0012",
+    "buscarEjemploSinCita": "E.g. Pedro Ruiz, SC-0012 or 619555",
     "masFiltros": "More filters",
     "ocultarFiltros": "Hide filters",
     "horario": "Appointment time",
@@ -1184,7 +1210,8 @@
       "SIN_PERMISO": "Your account is not allowed to undo deliveries. Ask the administrator.",
       "SIN_CONEXION": "No connection. Check your mobile data and try again.",
       "FUNCION_NO_INSTALADA": "A database update is missing.",
-      "ERROR_DESCONOCIDO": "We could not undo it. Please try again in a moment."
+      "ERROR_DESCONOCIDO": "We could not undo it. Please try again in a moment.",
+      "FUERA_DE_PLAZO": "It can no longer be undone from here: more than a minute has passed or someone else delivered it. Ask an administrator."
     },
     "botonLista": "Undo delivery",
     "listoLista": "The delivery for {{nombre}} was undone. Their code works again today."

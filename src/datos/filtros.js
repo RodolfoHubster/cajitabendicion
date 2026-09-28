@@ -122,13 +122,13 @@ export function filtrarCitas(citas, filtros = FILTROS_CITAS) {
   )
 }
 
-/** Las entradas sin cita: nombre o codigo, hora en que se anoto, quien la anoto y si cuenta. */
+/** Las entradas sin cita: nombre, codigo o telefono, hora en que se anoto, quien la anoto y si cuenta. */
 export function filtrarSinCita(filas, filtros = FILTROS_SIN_CITA) {
   const { texto = '', desde = '', hasta = '', anotadoPor = '', estado = '' } = filtros
 
   return (filas ?? []).filter(
     (fila) =>
-      coincideTexto([fila.nombre, fila.codigo], texto) &&
+      coincideTexto([fila.nombre, fila.codigo, fila.telefono], texto) &&
       enRango(horaLocal(fila.registrado_en), desde, hasta) &&
       coincideValor(fila.anotado_por, anotadoPor) &&
       (!estado || (estado === 'anuladas' ? fila.anulada : !fila.anulada)),

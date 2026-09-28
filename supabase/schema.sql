@@ -1054,7 +1054,9 @@ returns table (
   cancelada_en       timestamptz,
   cancelada_por      text,
   motivo_cancelacion text,
-  fila               text
+  fila               text,
+  --  Quien la marco entregada a mano (seccion 35); null si se escaneo.
+  marcada_por        text
 )
 language plpgsql
 stable
@@ -1080,7 +1082,13 @@ begin
          c.cancelada_en,
          u.email::text,
          c.motivo_cancelacion,
-         b.fila
+         b.fila,
+         (select um.email::text
+            from entregas_marcadas m
+            left join auth.users um on um.id = m.marcada_por
+           where m.cita_id = c.id
+           order by m.marcada_en desc
+           limit 1)
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -1091,7 +1099,7 @@ end;
 $$;
 
 
-revoke execute on function citas_del_dia(date) from public;
+revoke execute on function citas_del_dia(date) from public, anon;
 grant  execute on function citas_del_dia(date) to authenticated;
 
 
@@ -2429,13 +2437,19 @@ revoke execute on function cancelar_cita_panel(text, date, time, text) from publ
 grant  execute on function cancelar_cita_panel(text, date, time, text) to authenticated;
 
 
---  "Entro sin cita" guarda el nombre (sin telefono) y un codigo de
+--  "Entro sin cita" guarda el nombre (y el telefono, ver abajo) y un codigo de
 --  comprobante que se le da a la persona, por si hay que aclarar un error
 --  despues. No se borra: se anula, y queda quien lo anulo y cuando.
 alter table entradas_sin_cita add column if not exists nombre      text;
 alter table entradas_sin_cita add column if not exists codigo      text;
 alter table entradas_sin_cita add column if not exists anulada_en  timestamptz;
 alter table entradas_sin_cita add column if not exists anulada_por uuid;
+
+--  El telefono de quien paso sin cita (decision del pastor, 24 de septiembre
+--  de 2026): para mandarle despues su comprobante o avisos, cuando se decida
+--  el canal (WhatsApp o mensaje). Opcional: quien no lo tiene o no lo quiere
+--  dar, pasa igual.
+alter table entradas_sin_cita add column if not exists telefono text;
 
 --  El codigo SC-1234 no se repite en un mismo dia.
 create unique index if not exists entradas_sin_cita_codigo_por_dia
@@ -2446,16 +2460,20 @@ create unique index if not exists entradas_sin_cita_codigo_por_dia
 --  "Entro sin cita": anota a una persona que paso sin cita. Devuelve su
 --  codigo de comprobante y cuantas van hoy.
 --
---  Solo admin: CLAUDE.md pide que nunca este al alcance del publico ni de los
---  voluntarios. Solo el nombre, sin telefono.
+--  Nunca al alcance del publico: pide la palomita anotar_sin_cita (el admin
+--  siempre puede). El nombre, y el telefono si lo da (en formato
+--  internacional, +lada y numero).
 drop function if exists registrar_entrada_sin_cita(text);
 
 drop function if exists registrar_entrada_sin_cita(text, text);
 
+drop function if exists registrar_entrada_sin_cita(text, text, boolean);
+
 create or replace function registrar_entrada_sin_cita(
   p_nombre             text,
   p_fila               text    default null,
-  p_confirmar_repetido boolean default false
+  p_confirmar_repetido boolean default false,
+  p_telefono           text    default null
 )
 returns table (
   codigo text,
@@ -2469,6 +2487,8 @@ as $$
 declare
   v_usuario  uuid := auth.uid();
   v_nombre   text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
+  --  Sin espacios: "+1 619 555 0123" se guarda "+16195550123". Vacio = sin telefono.
+  v_telefono text := nullif(regexp_replace(coalesce(p_telefono, ''), '\s', '', 'g'), '');
   v_codigo   text;
   v_intentos int := 0;
   --  Sin fila, la de quien la anota (seccion 32).
@@ -2493,16 +2513,26 @@ begin
     raise exception 'NOMBRE_INVALIDO';
   end if;
 
+  --  El mismo formato que el registro: la pantalla ya lo convierte asi.
+  if v_telefono is not null and v_telefono !~ '^\+[1-9][0-9]{6,14}$' then
+    raise exception 'TELEFONO_INVALIDO';
+  end if;
+
   --  La misma persona anotada dos veces hoy (seccion 33): dos voluntarios
   --  en la puerta, o el mismo que toco dos veces. Cada anotacion es una caja
   --  que se reporta al banco de alimentos; una de mas descuadra la cuenta.
   --  Se avisa con el comprobante que ya tiene, y si de verdad es otra
-  --  persona con el mismo nombre, se confirma y pasa.
+  --  persona (mismo nombre, o una familia que comparte telefono), se
+  --  confirma y pasa.
   --
-  --  El candado hace que dos anotaciones iguales al mismo tiempo esperen
-  --  su turno: la segunda ya ve la primera.
+  --  Los candados hacen que dos anotaciones iguales al mismo tiempo esperen
+  --  su turno: la segunda ya ve la primera. Siempre en el mismo orden
+  --  (nombre, luego telefono) para que dos no se esperen entre si.
   if not coalesce(p_confirmar_repetido, false) then
     perform pg_advisory_xact_lock(hashtext('sin-cita:' || current_date::text || ':' || normalizar_texto(v_nombre)));
+    if v_telefono is not null then
+      perform pg_advisory_xact_lock(hashtext('sin-cita-tel:' || current_date::text || ':' || v_telefono));
+    end if;
 
     select s.codigo into v_repetido
       from entradas_sin_cita s
@@ -2515,6 +2545,20 @@ begin
     if v_repetido is not null then
       raise exception 'NOMBRE_YA_ANOTADO_HOY:%', v_repetido;
     end if;
+
+    if v_telefono is not null then
+      select s.codigo into v_repetido
+        from entradas_sin_cita s
+       where s.fecha = current_date
+         and s.anulada_en is null
+         and s.telefono = v_telefono
+       order by s.registrado_en desc
+       limit 1;
+
+      if v_repetido is not null then
+        raise exception 'TELEFONO_YA_ANOTADO_HOY:%', v_repetido;
+      end if;
+    end if;
   end if;
 
   --  Se reintenta si dos anotaciones del mismo dia sacan el mismo numero.
@@ -2522,8 +2566,8 @@ begin
     v_codigo := 'SC-' || lpad((floor(random() * 10000))::int::text, 4, '0');
 
     begin
-      insert into entradas_sin_cita (fecha, nombre, codigo, registrado_por, fila)
-      values (current_date, v_nombre, v_codigo, v_usuario, v_fila);
+      insert into entradas_sin_cita (fecha, nombre, telefono, codigo, registrado_por, fila)
+      values (current_date, v_nombre, v_telefono, v_codigo, v_usuario, v_fila);
       exit;
     exception when unique_violation then
       v_intentos := v_intentos + 1;
@@ -2541,8 +2585,8 @@ end;
 $$;
 
 
-revoke execute on function registrar_entrada_sin_cita(text, text, boolean) from public;
-grant  execute on function registrar_entrada_sin_cita(text, text, boolean) to authenticated;
+revoke execute on function registrar_entrada_sin_cita(text, text, boolean, text) from public, anon;
+grant  execute on function registrar_entrada_sin_cita(text, text, boolean, text) to authenticated;
 
 
 --  Anula una entrada sin cita anotada por error. No la borra: deja de contar
@@ -2590,15 +2634,16 @@ revoke execute on function anular_entrada_sin_cita(text, date) from public;
 grant  execute on function anular_entrada_sin_cita(text, date) to authenticated;
 
 
---  La lista del dia: quien paso sin cita, quien lo anoto y a que hora.
---  De quien anoto se muestra su correo, que es como el pastor reconoce
---  a su equipo. Solo admin.
+--  La lista del dia: quien paso sin cita, su telefono si lo dio, quien lo
+--  anoto y a que hora. De quien anoto se muestra su correo, que es como el
+--  pastor reconoce a su equipo. Con la palomita anotar_sin_cita.
 drop function if exists entradas_sin_cita_del_dia(date);
 
 create or replace function entradas_sin_cita_del_dia(p_fecha date default null)
 returns table (
   codigo        text,
   nombre        text,
+  telefono      text,
   registrado_en timestamptz,
   anotado_por   text,
   anulada       boolean,
@@ -2618,6 +2663,7 @@ begin
   return query
   select s.codigo,
          s.nombre,
+         s.telefono,
          s.registrado_en,
          u.email::text,
          s.anulada_en is not null,
@@ -2633,7 +2679,7 @@ end;
 $$;
 
 
-revoke execute on function entradas_sin_cita_del_dia(date) from public;
+revoke execute on function entradas_sin_cita_del_dia(date) from public, anon;
 grant  execute on function entradas_sin_cita_del_dia(date) to authenticated;
 
 
@@ -5111,13 +5157,25 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 declare
-  v_usuario uuid := auth.uid();
-  v_codigo  text := normalizar_codigo_corto(p_codigo);
-  v_motivo  text := regexp_replace(trim(coalesce(p_motivo, '')), '\s+', ' ', 'g');
-  v_cita    citas;
-  v_pase    entregas_pase;
+  v_usuario      uuid := auth.uid();
+  v_codigo       text := normalizar_codigo_corto(p_codigo);
+  v_motivo       text := regexp_replace(trim(coalesce(p_motivo, '')), '\s+', ' ', 'g');
+  v_cita         citas;
+  v_pase         entregas_pase;
+  v_con_palomita boolean;
 begin
-  perform exigir_permiso('anular_entregas');
+  --  Con la palomita anular_entregas (el admin siempre), cualquier entrega
+  --  de hoy. Sin ella, quien escaneo deshace SU entrega durante el primer
+  --  minuto (seccion 35): escanear ya entrega de una vez, y equivocarse de
+  --  telefono se arregla ahi mismo, no una hora despues.
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  begin
+    perform exigir_permiso('anular_entregas');
+    v_con_palomita := true;
+  exception when insufficient_privilege then
+    v_con_palomita := false;
+  end;
 
   if v_motivo = '' then
     raise exception 'MOTIVO_REQUERIDO';
@@ -5136,6 +5194,16 @@ begin
      for update of c;
 
   if found then
+    if not v_con_palomita and not exists (
+         select 1
+           from escaneos e
+          where e.cita_id = v_cita.id
+            and e.usuario_id = v_usuario
+            and e.resultado in ('VALIDO', 'VALIDO_AUTORIZADO')
+            and e.escaneado_en > now() - interval '1 minute') then
+      raise exception 'FUERA_DE_PLAZO';
+    end if;
+
     update citas
        set estado   = 'reservada',
            usado_en = null
@@ -5161,6 +5229,11 @@ begin
      for update of e;
 
   if found then
+    if not v_con_palomita
+       and not (v_pase.usuario_id = v_usuario and v_pase.entregada_en > now() - interval '1 minute') then
+      raise exception 'FUERA_DE_PLAZO';
+    end if;
+
     insert into anulaciones_entrega (pase_id, fecha, entregada_en, anulada_por, motivo)
     values (v_pase.pase_id, v_pase.fecha, v_pase.entregada_en, v_usuario, v_motivo);
 
@@ -5173,7 +5246,7 @@ begin
 end;
 $$;
 
-revoke execute on function anular_entrega(text, text) from public;
+revoke execute on function anular_entrega(text, text) from public, anon;
 grant  execute on function anular_entrega(text, text) to authenticated;
 
 
@@ -5247,6 +5320,99 @@ $$;
 
 revoke execute on function qr_de_cita(text, date, time) from public, anon;
 grant  execute on function qr_de_cita(text, date, time) to authenticated;
+
+
+-- ============================================================
+--  35. ENTREGAS: MARCARLAS A MANO
+-- ============================================================
+--  El 24 de septiembre de 2026 los voluntarios escaneaban y no tocaban
+--  "Registrar entrega": dos o tres horas de cajas entregadas que el sistema
+--  no conto. Desde entonces escanear entrega de una vez (la pantalla), y
+--  aqui el administrador marca las que se entregaron sin quedar
+--  registradas.
+--
+--  Queda quien la marco, cuando y por que (entregas_marcadas). La fecha de
+--  entrega es la de su cita: reporte_por_dias cuenta por usado_en, y la caja
+--  se dio ese dia, no el dia en que se marco.
+
+create table if not exists entregas_marcadas (
+  id          uuid primary key default gen_random_uuid(),
+  cita_id     uuid not null references citas(id) on delete cascade,
+  marcada_por uuid not null,
+  marcada_en  timestamptz not null default now(),
+  motivo      text
+);
+
+alter table entregas_marcadas enable row level security;
+revoke all on entregas_marcadas from anon, authenticated;
+
+create index if not exists idx_entregas_marcadas_cita on entregas_marcadas (cita_id);
+
+--  Solo el administrador: cuenta una caja en el reporte al banco de
+--  alimentos sin que nadie haya escaneado. Ninguna palomita lo abre.
+create or replace function marcar_entregada_panel(
+  p_codigo text,
+  p_fecha  date,
+  p_hora   time,
+  p_motivo text default null
+)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_usuario uuid := auth.uid();
+  v_cita    citas;
+  v_bloque  bloques;
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_fecha > current_date then
+    raise exception 'FECHA_FUTURA';
+  end if;
+
+  --  El mismo candado que registrar_entrega(): si justo la estan
+  --  escaneando, una espera a la otra y ya la ve entregada. Una sola caja.
+  select c.* into v_cita
+    from citas c
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
+     and b.fecha = p_fecha
+     and b.hora  = p_hora
+     and c.estado <> 'cancelada'
+   order by c.creada_en desc
+   limit 1
+     for update of c;
+
+  if not found then
+    raise exception 'CITA_NO_EXISTE';
+  end if;
+
+  if v_cita.estado = 'entregada' then
+    raise exception 'CITA_YA_ENTREGADA';
+  end if;
+
+  select * into v_bloque from bloques where id = v_cita.bloque_id;
+
+  --  La hora exacta no se sabe: va la de su cita (o ahora, si su hora
+  --  todavia no llega). entregas_marcadas dice que fue a mano.
+  update citas
+     set estado   = 'entregada',
+         usado_en = least(now(), (v_bloque.fecha + v_bloque.hora) at time zone 'America/Los_Angeles')
+   where id = v_cita.id;
+
+  insert into entregas_marcadas (cita_id, marcada_por, motivo)
+  values (v_cita.id, v_usuario, nullif(regexp_replace(trim(coalesce(p_motivo, '')), '\s+', ' ', 'g'), ''));
+
+  return 'MARCADA';
+end;
+$$;
+
+revoke execute on function marcar_entregada_panel(text, date, time, text) from public, anon;
+grant  execute on function marcar_entregada_panel(text, date, time, text) to authenticated;
 
 
 -- ============================================================

@@ -14,6 +14,7 @@ import {
   qrDeCita,
   registrarDesdePanel,
   resumenDelDia,
+  sePuedeMarcarEntregada,
   sePuedeVerQr,
 } from './panel'
 
@@ -267,5 +268,27 @@ describe('faltaParaRegistrar (Registrar a una persona, en el panel)', () => {
     const pantalla = readFileSync(new URL('../paginas/admin/RegistrarPersona.jsx', import.meta.url), 'utf8')
     const boton = pantalla.match(/<Boton disabled=\{([^}]*)\} type="submit">/)
     expect(boton?.[1]).toBe('enviando')
+  })
+})
+
+describe('sePuedeMarcarEntregada', () => {
+  const HOY = '2026-09-25'
+
+  it('el admin marca una de ayer que quedó como "no asistió", o una de hoy sin escanear', () => {
+    expect(sePuedeMarcarEntregada('admin', { estado: 'no_asistio' }, '2026-09-24', HOY)).toBe(true)
+    expect(sePuedeMarcarEntregada('admin', { estado: 'reservada' }, HOY, HOY)).toBe(true)
+  })
+
+  it('no una ya entregada ni una cancelada', () => {
+    expect(sePuedeMarcarEntregada('admin', { estado: 'entregada' }, HOY, HOY)).toBe(false)
+    expect(sePuedeMarcarEntregada('admin', { estado: 'cancelada' }, HOY, HOY)).toBe(false)
+  })
+
+  it('no una fecha que no ha llegado', () => {
+    expect(sePuedeMarcarEntregada('admin', { estado: 'reservada' }, '2026-09-28', HOY)).toBe(false)
+  })
+
+  it('un voluntario nunca, tenga las palomitas que tenga', () => {
+    expect(sePuedeMarcarEntregada('voluntario', { estado: 'no_asistio' }, '2026-09-24', HOY)).toBe(false)
   })
 })

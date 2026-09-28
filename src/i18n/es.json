@@ -126,7 +126,8 @@
     "estasEn": "Escaneas en: {{fila}}",
     "deOtraFila": "Este código es de la otra fila ({{fila}}). Mándalo allá: ahí le entregan su caja.",
     "parecido": "¿Es este? El código se parece",
-    "volverARevisar": "Volver a revisar"
+    "volverARevisar": "Volver a revisar",
+    "siguiente": "Escanea el siguiente"
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -707,7 +708,9 @@
       "YA_TIENE_CITA_ESTA_SEMANA": "Ya tienes una cita esa semana. Solo se puede una por semana.",
       "AUN_NO_ABRE": "Ese día todavía no abre.",
       "PASE_NO_EXISTE": "Esta persona no tiene pase.",
-      "PASE_YA_REVOCADO": "Ese pase ya estaba retirado."
+      "PASE_YA_REVOCADO": "Ese pase ya estaba retirado.",
+      "TELEFONO_INVALIDO": "El teléfono no es válido. Revisa la lada y el número.",
+      "FECHA_FUTURA": "Esa fecha todavía no llega."
     }
   },
   "sinCita": {
@@ -715,6 +718,8 @@
     "registrando": "Anotando…",
     "ayuda": "Anota a una persona que pasó sin cita. Solo se pide su nombre; se le da un código de comprobante y queda quién la anotó y a qué hora.",
     "nombre": "Nombre de la persona",
+    "telefono": "Teléfono (opcional)",
+    "telefonoAyuda": "Para mandarle su comprobante más adelante. Si no tiene o no lo quiere dar, déjalo vacío.",
     "anotado": "Anotado. Hoy van {{total}} sin cita.",
     "comprobante": "Código de comprobante",
     "darCodigo": "Dale este código a la persona o pídele que le tome foto, por si hay que aclarar algo después.",
@@ -730,6 +735,7 @@
     "col": {
       "hora": "Hora",
       "nombre": "Nombre",
+      "telefono": "Teléfono",
       "codigo": "Código",
       "anoto": "Anotó",
       "estado": "Estado"
@@ -743,7 +749,15 @@
       "titulo": "{{nombre}} ya se anotó hoy (comprobante {{codigo}}).",
       "ayuda": "Si es la misma persona, no la anotes otra vez: contaría una caja de más.",
       "esLaMisma": "Es la misma, no anotar",
-      "esOtra": "Es otra persona, anotarla"
+      "esOtra": "Es otra persona, anotarla",
+      "tituloTelefono": "El teléfono {{telefono}} ya se anotó hoy (comprobante {{codigo}})."
+    },
+    "enviar": {
+      "titulo": "Mandarle su comprobante",
+      "whatsapp": "WhatsApp",
+      "mensaje": "Mensaje de texto",
+      "proximamente": "Próximamente",
+      "ayuda": "Muy pronto se podrá mandar desde aquí."
     }
   },
   "cancelarPanel": {
@@ -755,6 +769,18 @@
     "cancelando": "Cancelando…",
     "volver": "No, dejarla",
     "listo": "Se canceló la cita de {{nombre}}. El lugar quedó libre."
+  },
+  "marcarPanel": {
+    "boton": "Marcar entregada",
+    "titulo": "¿Marcar como entregada la caja de {{nombre}} ({{hora}})?",
+    "ayuda": "Para cuando sí recibió su caja pero no se registró al escanear. Cuenta en el reporte de su día y queda quién la marcó.",
+    "motivo": "Motivo (opcional)",
+    "motivoEjemplo": "Ej. No se registró al escanear",
+    "confirmar": "Sí, marcar entregada",
+    "marcando": "Marcando…",
+    "volver": "No, volver",
+    "listo": "Listo: la caja de {{nombre}} quedó como entregada.",
+    "aMano": "A mano · {{quien}}"
   },
   "excepcion": {
     "titulo": "Segunda cita en la misma semana",
@@ -833,7 +859,7 @@
   "filtros": {
     "buscar": "Buscar por nombre o código",
     "buscarEjemplo": "Ej. María López o CB-4871",
-    "buscarEjemploSinCita": "Ej. Pedro Ruiz o SC-0012",
+    "buscarEjemploSinCita": "Ej. Pedro Ruiz, SC-0012 o 619555",
     "masFiltros": "Más filtros",
     "ocultarFiltros": "Ocultar filtros",
     "horario": "Horario de la cita",
@@ -1184,7 +1210,8 @@
       "SIN_PERMISO": "Tu cuenta no tiene permiso para deshacer entregas. Pídeselo al administrador.",
       "SIN_CONEXION": "No hay conexión. Revisa tus datos móviles y vuelve a intentar.",
       "FUNCION_NO_INSTALADA": "Falta aplicar una actualización en la base de datos.",
-      "ERROR_DESCONOCIDO": "No pudimos deshacerla. Vuelve a intentar en un momento."
+      "ERROR_DESCONOCIDO": "No pudimos deshacerla. Vuelve a intentar en un momento.",
+      "FUERA_DE_PLAZO": "Ya no se puede deshacer desde aquí: pasó más de un minuto o la entregó otra persona. Pídeselo a un administrador."
     },
     "botonLista": "Deshacer entrega",
     "listoLista": "Se deshizo la entrega de {{nombre}}. Su código vuelve a servir hoy."

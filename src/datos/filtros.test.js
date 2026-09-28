@@ -340,3 +340,18 @@ describe('paginasVisibles', () => {
     expect(paginasVisibles(pagina, total)).toEqual(esperado)
   })
 })
+
+describe('filtrarSinCita por teléfono', () => {
+  const filas = [
+    { nombre: 'Ana López', codigo: 'SC-0001', telefono: '+16195550101', registrado_en: '2026-09-24T21:00:00Z' },
+    { nombre: 'Luis Pérez', codigo: 'SC-0002', telefono: null, registrado_en: '2026-09-24T21:05:00Z' },
+  ]
+
+  it('se busca por un pedazo del número', () => {
+    expect(filtrarSinCita(filas, { ...FILTROS_SIN_CITA, texto: '5550101' }).map((f) => f.codigo)).toEqual(['SC-0001'])
+  })
+
+  it('quien no dio teléfono se sigue encontrando por nombre', () => {
+    expect(filtrarSinCita(filas, { ...FILTROS_SIN_CITA, texto: 'luis' }).map((f) => f.codigo)).toEqual(['SC-0002'])
+  })
+})

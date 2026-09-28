@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-24-ver-qr-desde-el-panel.sql.
+--  Requiere todas las migraciones, hasta 2026-09-25-entregas-a-mano.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -43,6 +43,8 @@ declare
   v_b_hoy        uuid;
   v_b_nuevo      uuid;
   v_b_pie        uuid;
+  v_b_marcar     uuid;
+  v_marcar       date := current_date - 407;
 
   v_admin        uuid;
   v_persona      uuid;
@@ -56,6 +58,7 @@ declare
   v_codigo2      text;
   v_codigo3      text;
   v_texto        text;
+  v_texto2       text;
   v_nombre       text;
   v_nombres      text;
   v_apellidos    text;
@@ -942,6 +945,49 @@ begin
     perform pg_temp.esperar_error('Ver QR: el de una cita cancelada no se da', format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-PRQ2', v_hoy, '23:58'), 'CITA_NO_EXISTE');
     perform pg_temp.esperar_error('Ver QR: un código que no existe', format('select * from qr_de_cita(%L, %L::date, %L::time)', 'CB-NOEXISTE', v_hoy, '23:58'), 'CITA_NO_EXISTE');
 
+    -- ---------- Marcar entregada a mano (sección 35) ----------
+    --  Su propio día pasado: los días pasados de los reportes no se tocan.
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values (v_marcar, now() - interval '500 days', 'MARCAR');
+    insert into bloques (fecha, hora, capacidad) values (v_marcar, '14:00', 5) returning id into v_b_marcar;
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRE1', 'Prueba Marcar Mano', 'Prueba', 'Marcar Mano', '+16195550701') returning id into v_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr)
+    values (v_persona, v_b_marcar, date_trunc('week', v_marcar)::date, 'token-prueba-marcar-mano') returning id into v_cita;
+
+    v_texto := pg_temp.valor(format('select marcar_entregada_panel(%L, %L::date, %L::time, %L)',
+      'cb-pre1', v_marcar, '14:00', 'No se registró al escanear'));
+    perform pg_temp.comprobar('Marcar a mano: el admin marca una cita de un día pasado', v_texto = 'MARCADA', v_texto);
+
+    select c.estado, c.usado_en::date::text into v_texto, v_texto2 from citas c where c.id = v_cita;
+    perform pg_temp.comprobar('Marcar a mano: queda entregada, con la fecha de su cita (cuenta ese día)',
+      v_texto = 'entregada' and v_texto2 = v_marcar::text, v_texto || ' ' || v_texto2);
+
+    select count(*) into v_numero from entregas_marcadas m
+     where m.cita_id = v_cita and m.marcada_por = v_admin and m.motivo = 'No se registró al escanear';
+    perform pg_temp.comprobar('Marcar a mano: queda quién, cuándo y por qué', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Marcar a mano: no se marca dos veces (una sola caja)',
+      format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-PRE1', v_marcar, '14:00'), 'CITA_YA_ENTREGADA');
+    perform pg_temp.esperar_error('Marcar a mano: una fecha que no ha llegado',
+      format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-PRE1', v_hoy + 3, '14:00'), 'FECHA_FUTURA');
+    perform pg_temp.esperar_error('Marcar a mano: un código que no existe',
+      format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-NOEXISTE', v_marcar, '14:00'), 'CITA_NO_EXISTE');
+
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRE2', 'Prueba Marcar Cancelada', 'Prueba', 'Marcar Cancelada', '+16195550702') returning id into v_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado, cancelada_en)
+    values (v_persona, v_b_marcar, date_trunc('week', v_marcar)::date, 'token-prueba-marcar-cancelada', 'cancelada', now());
+    perform pg_temp.esperar_error('Marcar a mano: una cancelada no se marca',
+      format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-PRE2', v_marcar, '14:00'), 'CITA_NO_EXISTE');
+
+    select count(*) into v_numero from citas_del_dia(v_marcar) d
+     where d.codigo_corto = 'CB-PRE1' and d.estado = 'entregada' and d.marcada_por is not null;
+    perform pg_temp.comprobar('Marcar a mano: la lista del día dice quién la marcó', v_numero = 1, v_numero::text);
+
+    select resultado into v_texto from registrar_entrega('token-prueba-marcar-mano');
+    perform pg_temp.comprobar('Marcar a mano: ese QR ya no da otra caja', v_texto in ('YA_USADO', 'OTRA_FECHA'), v_texto);
+
     perform pg_temp.comprobar('Ver QR: la lista del día sigue sin traer los QR',
       pg_get_function_result('citas_del_dia(date)'::regprocedure) not like '%token%',
       pg_get_function_result('citas_del_dia(date)'::regprocedure));
@@ -1027,6 +1073,36 @@ begin
     perform anular_entrada_sin_cita(v_codigo2);
     perform pg_temp.esperar_ok('Sin cita repetida: si la primera se anuló por error, se vuelve a anotar sin aviso',
       'select * from registrar_entrada_sin_cita(''Prueba Anulada'')');
+
+    -- ---------- Sin cita con teléfono ----------
+    v_texto := pg_temp.valor('select r.codigo from registrar_entrada_sin_cita(''Prueba Telefono'', null, false, '' +1 619 555 0601 '') r');
+    perform pg_temp.comprobar('Sin cita con teléfono: se anota', v_texto ~ '^SC-[0-9]{4}$', v_texto);
+
+    select e.telefono into v_texto2
+      from entradas_sin_cita_del_dia(null) e
+     where e.codigo = v_texto;
+    perform pg_temp.comprobar('Sin cita con teléfono: la lista del día lo enseña, sin espacios',
+      v_texto2 = '+16195550601', v_texto2);
+
+    perform pg_temp.esperar_error('Sin cita con teléfono: sin la lada (+) no se acepta',
+      'select * from registrar_entrada_sin_cita(''Prueba Sin Lada'', null, false, ''6195550602'')', 'TELEFONO_INVALIDO');
+    perform pg_temp.esperar_error('Sin cita con teléfono: con letras no se acepta',
+      'select * from registrar_entrada_sin_cita(''Prueba Con Letras'', null, false, ''+1619555abcd'')', 'TELEFONO_INVALIDO');
+
+    perform pg_temp.esperar_ok('Sin cita con teléfono: vacío es como no darlo',
+      'select * from registrar_entrada_sin_cita(''Prueba Sin Telefono'', null, false, ''  '')');
+    select count(*) into v_numero2 from entradas_sin_cita s
+     where s.fecha = v_hoy and s.nombre = 'Prueba Sin Telefono' and s.telefono is null;
+    perform pg_temp.comprobar('Sin cita con teléfono: vacío se guarda como sin teléfono', v_numero2 = 1, v_numero2::text);
+
+    perform pg_temp.esperar_error('Sin cita con teléfono: el mismo teléfono otra vez hoy se avisa, con su comprobante',
+      'select * from registrar_entrada_sin_cita(''Otra Persona Telefono'', null, false, ''+16195550601'')',
+      'TELEFONO_YA_ANOTADO_HOY:' || v_texto);
+    perform pg_temp.esperar_ok('Sin cita con teléfono: si es otra persona de la familia, se confirma y pasa',
+      'select * from registrar_entrada_sin_cita(''Otra Persona Telefono'', null, true, ''+16195550601'')');
+    select count(*) into v_numero2 from entradas_sin_cita s
+     where s.fecha = v_hoy and s.telefono = '+16195550601' and s.anulada_en is null;
+    perform pg_temp.comprobar('Sin cita con teléfono: quedan las dos, cada una su caja', v_numero2 = 2, v_numero2::text);
 
     -- ---------- Excepción: segunda cita en la semana ----------
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
@@ -1431,8 +1507,36 @@ begin
       format('select cancelar_cita_panel(%L, %L::date, %L::time, null)', 'CB-PRB8', v_lunes, '14:00'), 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no mueve citas de horario',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_lunes), 'SIN_PERMISO');
-    perform pg_temp.esperar_error('Roles: un voluntario no deshace entregas sin su palomita',
-      'select anular_entrega(''CB-PRB2'', ''Prueba'')', 'SIN_PERMISO');
+    --  Una entrega de hoy que hizo OTRA persona del equipo.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRE4', 'Prueba Entrega Ajena', 'Prueba', 'Entrega Ajena', '+16195550704') returning id into v_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado, usado_en)
+    values (v_persona, v_b_hoy, date_trunc('week', v_hoy)::date, 'token-prueba-entrega-ajena', 'entregada', now()) returning id into v_cita;
+    insert into escaneos (cita_id, usuario_id, resultado) values (v_cita, gen_random_uuid(), 'VALIDO');
+    perform pg_temp.esperar_error('Roles: un voluntario no deshace entregas ajenas sin su palomita',
+      'select anular_entrega(''CB-PRE4'', ''Prueba'')', 'FUERA_DE_PLAZO');
+    perform pg_temp.esperar_error('Roles: un voluntario no marca entregas a mano',
+      format('select marcar_entregada_panel(%L, %L::date, %L::time)', 'CB-PRE1', v_marcar, '14:00'), 'SIN_PERMISO');
+
+    -- ---------- Deshacer la propia entrega, el primer minuto (sección 35) ----------
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-PRE3', 'Prueba Deshacer Propia', 'Prueba', 'Deshacer Propia', '+16195550703') returning id into v_persona;
+    select (reservar_cita(v_persona, v_b_hoy)).token_qr into v_token;
+    select resultado into v_texto from registrar_entrega(v_token);
+    perform pg_temp.comprobar('Deshacer propia: el voluntario escanea y entrega', v_texto = 'VALIDO', v_texto);
+
+    v_texto := pg_temp.valor('select anular_entrega(''CB-PRE3'', ''Era otro teléfono'')');
+    perform pg_temp.comprobar('Deshacer propia: en el primer minuto la deshace sin la palomita', v_texto = 'ANULADA', v_texto);
+    select c.estado into v_texto from citas c where c.token_qr = v_token;
+    perform pg_temp.comprobar('Deshacer propia: el código vuelve a servir', v_texto = 'reservada', v_texto);
+
+    select resultado into v_texto from registrar_entrega(v_token);
+    update escaneos set escaneado_en = now() - interval '2 minutes'
+     where cita_id = (select id from citas where token_qr = v_token);
+    perform pg_temp.esperar_error('Deshacer propia: pasado el minuto ya no, sin la palomita',
+      'select anular_entrega(''CB-PRE3'', ''Tarde'')', 'FUERA_DE_PLAZO');
+    select c.estado into v_texto from citas c where c.token_qr = v_token;
+    perform pg_temp.comprobar('Deshacer propia: fuera de plazo la entrega se queda', v_texto = 'entregada', v_texto);
 
     insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
     values ('CB-PRB4', 'Prueba Voluntario', 'Prueba', 'Voluntario', '+16195550003') returning id into v_persona;

@@ -182,3 +182,12 @@ export function citaParaQr(citas, hoy) {
 export function faltaParaRegistrar({ tipo, bloqueId }) {
   return tipo === 'cita' && !bloqueId ? 'FALTA_HORARIO' : null
 }
+
+/**
+ * Si en la lista va "Marcar entregada": solo el admin (cuenta una caja en el
+ * reporte sin que nadie escaneara), en una cita que no se entrego ni se
+ * cancelo, de hoy o de dias pasados.
+ */
+export function sePuedeMarcarEntregada(rol, cita, fecha, hoy) {
+  return rol === 'admin' && ['reservada', 'llego', 'no_asistio'].includes(cita?.estado) && fecha <= hoy
+}

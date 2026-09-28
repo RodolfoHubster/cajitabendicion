@@ -12,7 +12,9 @@ import Tarjeta from '../../componentes/Tarjeta'
 import { textoParaBuscar } from '../../datos/codigoCorto'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import {
+  MS_DESHACER_PROPIA,
   buscarParaEscaneo,
+  entregaDirecta,
   esRecienEntregado,
   previaPorError,
   registrarEntrega,
@@ -64,6 +66,11 @@ export default function Escanear() {
 
   // "Me equivoque de persona": deshacer una entrega de hoy.
   const puedeDeshacer = permisos.includes('anular_entregas')
+  // Sin la palomita, quien escaneo deshace la SUYA el primer minuto.
+  const [deshacerPropia, setDeshacerPropia] = useState(false)
+  // El QR que se acaba de entregar: la camara del siguiente no lo cuenta.
+  const [tokenEntregado, setTokenEntregado] = useState(null)
+  const plazoDeshacer = useRef(null)
 
   const [vista, setVista] = useState('camara')
   // La cita que se esta revisando. Llega del QR (trae `token`) o de la
@@ -99,6 +106,8 @@ export default function Escanear() {
 
   //  El ultimo codigo entregado con la camara: { token, nombre, momento }.
   const ultimaEntrega = useRef(null)
+  //  La fila de esta cuenta, para decidir la entrega directa sin reiniciar la camara.
+  const filaRef = useRef('ambas')
 
   function recordarEntrega(respuesta, token) {
     if (token && PUEDE_PASAR.includes(respuesta?.resultado)) {
@@ -109,12 +118,29 @@ export default function Escanear() {
   useEffect(() => {
     let vigente = true
     miFila().then((suya) => {
-      if (vigente) setFila(suya)
+      if (!vigente) return
+      setFila(suya)
+      filaRef.current = suya
     })
     return () => {
       vigente = false
+      clearTimeout(plazoDeshacer.current)
     }
   }, [])
+
+  //  La respuesta de la base, con su tono. Si puede pasar, "Deshacer" queda a
+  //  la mano el primer minuto (la base revisa que sea quien escaneo).
+  function mostrarResultado(respuesta, token) {
+    setResultado(respuesta)
+    setVista('resultado')
+    recordarEntrega(respuesta, token)
+    avisoDelResultado(respuesta?.resultado)
+    clearTimeout(plazoDeshacer.current)
+    const puedePasar = PUEDE_PASAR.includes(respuesta?.resultado)
+    setDeshacerPropia(puedePasar)
+    setTokenEntregado(puedePasar ? (token ?? null) : null)
+    if (puedePasar) plazoDeshacer.current = setTimeout(() => setDeshacerPropia(false), MS_DESHACER_PROPIA)
+  }
 
   //  Ni el iPhone ni Chrome dejan que una pagina suene antes de que
   //  alguien la haya tocado. Se prepara con el primer toque, sea cual sea:
@@ -145,15 +171,29 @@ export default function Escanear() {
 
     try {
       const cita = await verCita(token)
+      // No es una cita: puede ser un pase permanente, que no se quema.
+      const pase = cita ? null : await verPase(token)
+      const vistaPrevia = cita
+        ? { ...cita, token }
+        : pase
+          ? { ...pase, token, pase: true }
+          : { resultado: 'NO_EXISTE', token }
 
-      if (cita) {
-        setPrevia({ ...cita, token })
+      //  El caso de todos los dias: escanear ya es entregar (ver
+      //  entregaDirecta). Lo demas se sigue revisando antes.
+      if (entregaDirecta(vistaPrevia, { hoy: hoyLocal(), fila: filaRef.current })) {
+        try {
+          mostrarResultado(await registrarEntrega(token), token)
+        } catch (e) {
+          //  Sin senal a medio camino: queda la vista previa con su boton
+          //  para volver a intentar. La base no entrega dos veces.
+          setPrevia(vistaPrevia)
+          setError(e.message)
+        }
         return
       }
 
-      // No es una cita: puede ser un pase permanente, que no se quema.
-      const pase = await verPase(token)
-      setPrevia(pase ? { ...pase, token, pase: true } : { resultado: 'NO_EXISTE', token })
+      setPrevia(vistaPrevia)
     } catch (e) {
       //  Sin senal NO es "codigo no reconocido": el codigo puede estar bien.
       //  Decir "no existe" hacia que se rechazara a alguien con cita.
@@ -191,12 +231,7 @@ export default function Escanear() {
       const respuesta = previa.porCodigo
         ? await registrarEntregaPorCodigo(previa.codigo_corto)
         : await registrarEntrega(previa.token)
-      setResultado(respuesta)
-      setVista('resultado')
-      recordarEntrega(respuesta, previa.token)
-      //  El tono de "puede pasar" o "detente". Antes solo sonaba en la
-      //  entrega autorizada, y esta es la de todos los dias.
-      avisoDelResultado(respuesta?.resultado)
+      mostrarResultado(respuesta, previa.token)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -222,12 +257,7 @@ export default function Escanear() {
         // Se borra para que el siguiente intento no reuse un codigo errado.
         setCodigoAutorizacion('')
       } else {
-        setResultado(respuesta)
-        setVista('resultado')
-        recordarEntrega(respuesta, previa.token)
-        //  Tono distinto para "puede pasar" y para "detente": en la fila se
-        //  distingue sin mirar la pantalla.
-        avisoDelResultado(respuesta?.resultado)
+        mostrarResultado(respuesta, previa.token)
       }
     } catch (e) {
       setError(e.message)
@@ -466,11 +496,25 @@ export default function Escanear() {
               </p>
             </div>
 
-            {puedeDeshacer && PUEDE_PASAR.includes(resultado.resultado) && resultado.codigo_corto && (
+            {(puedeDeshacer || deshacerPropia) && PUEDE_PASAR.includes(resultado.resultado) && resultado.codigo_corto && (
               <DeshacerEntrega codigo={resultado.codigo_corto} nombre={resultado.nombre} />
             )}
 
-            <Boton className="mt-4" onClick={reiniciar}>
+            {/* Puede pasar: la camara ya esta lista para el siguiente carro.
+                El codigo que se acaba de entregar no cuenta: la persona
+                todavia no baja su telefono. */}
+            {PUEDE_PASAR.includes(resultado.resultado) && (
+              <div className="mt-4">
+                <p className="mb-2 text-lg font-bold text-principal">{t('escaneo.siguiente')}</p>
+                <LectorQR activo alLeer={alLeer} ignorar={tokenEntregado} />
+              </div>
+            )}
+
+            <Boton
+              className="mt-4"
+              onClick={reiniciar}
+              variant={PUEDE_PASAR.includes(resultado.resultado) ? 'secondary' : undefined}
+            >
               {t('escaneo.escanearOtro')}
             </Boton>
           </>

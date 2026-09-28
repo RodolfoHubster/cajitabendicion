@@ -1,5 +1,6 @@
 import jsQR from 'jsqr'
 import { clasificarError } from './errores'
+import { esDeOtraFila } from './filas'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -122,7 +123,7 @@ export async function buscarParaEscaneo(texto) {
   return (await llamar('buscar_para_escaneo', { p_texto: texto })) ?? []
 }
 
-export const CODIGOS_ANULAR = ['MOTIVO_REQUERIDO', 'ENTREGA_NO_EXISTE']
+export const CODIGOS_ANULAR = ['MOTIVO_REQUERIDO', 'ENTREGA_NO_EXISTE', 'FUERA_DE_PLAZO']
 
 /**
  * Deshace una entrega de HOY marcada por error (la Maria equivocada). El
@@ -185,3 +186,31 @@ export function esRecienEntregado(ultima, token, ahora = Date.now()) {
 export function previaPorError(mensaje) {
   return mensaje === 'SIN_CONEXION' ? 'SIN_CONEXION' : 'NO_EXISTE'
 }
+
+/**
+ * Si al escanear se entrega de una vez, sin tocar "Registrar entrega".
+ *
+ * El 24 de septiembre de 2026 los voluntarios escaneaban y no tocaban el
+ * boton: horas de cajas que no se contaron y QR que seguian sirviendo. Desde
+ * entonces el caso de todos los dias entrega al escanear: una cita de HOY de
+ * la fila de quien escanea, o un pase vigente. Si esa cita ya se entrego o
+ * se cancelo, la base contesta "ya recibio" o "cancelada" (y cuenta el
+ * intento, como debe).
+ *
+ * Lo que necesita que alguien decida se sigue viendo antes: otra fecha (pide
+ * autorizacion), otra fila, un codigo que no existe, sin senal, un pase
+ * revocado. Y la busqueda a mano nunca entrega sola: ahi es facil tocar a la
+ * Maria equivocada.
+ */
+export function entregaDirecta(previa, { hoy, fila }) {
+  if (!previa || previa.resultado || previa.porCodigo) return false
+  if (previa.pase) return Boolean(previa.activo)
+  return Boolean(previa.fecha) && previa.fecha === hoy && !esDeOtraFila(fila, previa.fila)
+}
+
+/**
+ * Cuanto tiempo ve "Deshacer" quien acaba de escanear, aunque no tenga la
+ * palomita. La base da un minuto; la pantalla lo quita un poco antes para
+ * que nadie lo toque justo cuando ya no sirve.
+ */
+export const MS_DESHACER_PROPIA = 55_000
