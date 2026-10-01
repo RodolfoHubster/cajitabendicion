@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
+import ElegirDiaEntrega from '../../componentes/ElegirDiaEntrega'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import ListaCitas from '../../componentes/ListaCitas'
 import ListaSinCita from '../../componentes/ListaSinCita'
 import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
-import { aFechaLocal, consultarDisponibilidad, formatearHora } from '../../datos/disponibilidad'
+import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import { esSinLimite } from '../../datos/filaAPie'
+import { fechaPorDefecto, fechasDeEntrega } from '../../datos/fechasEntrega'
 import { filaDe, filtrarPorFila } from '../../datos/filas'
 import { bloquesDelDia, citasDelDia, hoyLocal, resumenDelDia } from '../../datos/panel'
 import { EsqueletoLista, EsqueletoNumeros } from '../../componentes/Esqueleto'
@@ -23,11 +25,12 @@ export default function CitasDeHoy() {
 
   const [parametros] = useSearchParams()
   // Desde Reportes se llega con ?fecha=AAAA-MM-DD para ver ese dia.
-  const [fecha, setFecha] = useState(() => {
+  const [fechaElegida, setFecha] = useState(() => {
     const pedida = parametros.get('fecha') ?? ''
-    return /^\d{4}-\d{2}-\d{2}$/.test(pedida) ? pedida : hoy
+    return /^\d{4}-\d{2}-\d{2}$/.test(pedida) ? pedida : null
   })
-  const [proxima, setProxima] = useState(null)
+  // Los dias de entrega, para escoger de una lista en vez de un calendario.
+  const [fechas, setFechas] = useState(null)
   const [recarga, setRecarga] = useState(0)
   // Juntas, en carro o a pie. Juntas es la suma y es lo que se reporta.
   const [vistaFila, setVistaFila] = useState('juntas')
@@ -38,6 +41,10 @@ export default function CitasDeHoy() {
   const [datos, setDatos] = useState(null)
   const [fallo, setFallo] = useState(null)
 
+  // Sin escoger: hoy si hay entrega; si no, el dia de entrega mas cercano.
+  // Cinco de cada siete dias no hay entrega, y un dia vacio parece roto.
+  const fecha = fechaElegida ?? (fechas === null ? null : fechaPorDefecto(fechas.map((dia) => dia.fecha), hoy))
+
   const clave = `${fecha}|${vistaFila}`
   const cargando = datos?.clave !== clave && fallo?.clave !== clave
   const error = fallo?.clave === clave ? fallo.codigo : null
@@ -47,16 +54,17 @@ export default function CitasDeHoy() {
 
   const recargar = () => setRecarga((n) => n + 1)
 
-  // El proximo dia con horarios abiertos. Cinco de cada siete dias no hay
-  // entrega, y sin esto el panel parece roto en vez de vacio.
+  // Sin la lista (la base aun no tiene la actualizacion) sale el calendario.
   useEffect(() => {
     let vigente = true
 
-    consultarDisponibilidad()
-      .then((futuros) => {
-        if (vigente) setProxima(futuros[0]?.fecha ?? null)
+    fechasDeEntrega()
+      .then((lista) => {
+        if (vigente) setFechas(lista)
       })
-      .catch(() => {})
+      .catch(() => {
+        if (vigente) setFechas([])
+      })
 
     return () => {
       vigente = false
@@ -64,6 +72,8 @@ export default function CitasDeHoy() {
   }, [])
 
   useEffect(() => {
+    if (!fecha) return undefined
+
     let vigente = true
 
     const pedida = `${fecha}|${vistaFila}`
@@ -92,11 +102,13 @@ export default function CitasDeHoy() {
     )
   }
 
-  const fechaLarga = new Intl.DateTimeFormat(i18n.language, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  }).format(aFechaLocal(fecha))
+  const fechaLarga = fecha
+    ? new Intl.DateTimeFormat(i18n.language, {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      }).format(aFechaLocal(fecha))
+    : t('panel.cargando')
 
   const resumen = datos?.resumen
   // La lista y el cupo se filtran aqui; los numeros ya llegan por fila.
@@ -125,37 +137,16 @@ export default function CitasDeHoy() {
             <p className="text-base text-principal/70">{esHoy ? t('panel.subtitulo') : t('panel.otroDia')}</p>
           </div>
 
-          <div className="flex flex-wrap items-end gap-2">
-            <label className="flex flex-col gap-2" htmlFor="fecha">
-              <span className="text-base font-medium text-principal">{t('panel.verDia')}</span>
-              <input
-                className="min-h-14 rounded-xl border border-principal/20 px-3 text-base outline-none focus:border-principal"
-                id="fecha"
-                onChange={(e) => setFecha(e.target.value || hoy)}
-                type="date"
-                value={fecha}
-              />
-            </label>
-
-            {!esHoy && (
-              <button
-                className="min-h-14 rounded-xl border border-principal px-4 text-base font-semibold text-principal"
-                onClick={() => setFecha(hoy)}
-                type="button"
-              >
-                {t('panel.volverHoy')}
-              </button>
-            )}
-
-            {proxima && fecha !== proxima && (
-              <button
-                className="min-h-14 rounded-xl border border-principal px-4 text-base font-semibold text-principal"
-                onClick={() => setFecha(proxima)}
-                type="button"
-              >
-                {t('panel.irProxima')}
-              </button>
-            )}
+          {/* Solo los dias de entrega (lunes, jueves...), con flechas al de antes y al de despues. */}
+          <div className="w-full md:max-w-md">
+            <ElegirDiaEntrega
+              alCambiar={setFecha}
+              etiqueta={t('panel.verDia')}
+              fechas={fechas}
+              hoy={hoy}
+              id="fecha"
+              valor={fecha}
+            />
           </div>
         </div>
 

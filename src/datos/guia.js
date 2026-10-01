@@ -26,6 +26,7 @@ export const PASOS_GUIA = [
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
   { clave: 'registrar', desde: 1, seccion: 'registrar' },
+  { clave: 'personas', desde: 3, seccion: 'personas' },
   { clave: 'horarios', desde: 1, seccion: 'horarios' },
   { clave: 'filaAPie', desde: 2, seccion: 'horarios' },
   { clave: 'reportes', desde: 1, seccion: 'reportes' },

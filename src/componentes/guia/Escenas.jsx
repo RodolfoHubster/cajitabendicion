@@ -6,6 +6,7 @@ import {
   LuCircleCheck,
   LuCircleX,
   LuClock,
+  LuCrown,
   LuMenu,
   LuPencilLine,
   LuQrCode,
@@ -250,6 +251,33 @@ function Buscar() {
         </span>
         <span className="guia-anim guia-toque rounded-lg bg-marca px-2.5 py-1.5 text-xs font-bold text-white">
           {t('guia.escena.entregar')}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function PersonasEscena() {
+  const { t } = useTranslation()
+  const busqueda = 'maria lopez'
+
+  return (
+    <div className={CAJA}>
+      <div className="flex w-full max-w-[16rem] items-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-3 py-2">
+        <LuSearch className="h-4 w-4 shrink-0 text-principal/70" />
+        <span className="guia-anim guia-escribe font-mono text-sm font-semibold text-principal" style={{ '--letras': String(busqueda.length) }}>
+          {busqueda}
+        </span>
+        <span className="guia-anim guia-cursor h-4 w-0.5 bg-marca" />
+      </div>
+      {/* Sus registros de varias semanas, juntos, y el boton dorado. */}
+      <div className={`guia-anim guia-fase-2 ${TARJETA} px-3 py-2`}>
+        <p className="text-sm font-bold text-principal">María López</p>
+        <p className="text-xs text-principal/70">{t('personas.telefonoFinal', { numeros: '0101' })} · San Diego</p>
+        <p className="font-titulo text-sm font-bold tracking-wide text-principal">CB-4871 · CB-2306</p>
+        <span className="guia-anim guia-toque mt-1 inline-flex items-center gap-1 rounded-lg border-2 border-[#B8860B] bg-[#F2C94C]/25 px-2 py-1 text-xs font-bold text-principal">
+          <LuCrown className="h-3.5 w-3.5 text-[#B8860B]" />
+          {t('personas.hacerVip')}
         </span>
       </div>
     </div>
@@ -633,6 +661,7 @@ const ESCENAS = {
   sinCita: SinCita,
   citasHoy: CitasHoy,
   registrar: Registrar,
+  personas: PersonasEscena,
   horarios: Horarios,
   filaAPie: FilaAPieEscena,
   reportes: Reportes,

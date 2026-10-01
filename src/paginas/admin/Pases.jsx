@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCrown, LuPlus, LuRefreshCw, LuStar, LuTrash2 } from 'react-icons/lu'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import { BORDE_ORO, FONDO_ORO } from '../../componentes/SelloVip'
 import Tarjeta from '../../componentes/Tarjeta'
+import VentanaPase from '../../componentes/VentanaPase'
 import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import { aFechaLocal } from '../../datos/disponibilidad'
 import { crearPase, listarPases, marcarPaseVip, renovarPase, revocarPase } from '../../datos/pases'
@@ -25,8 +26,10 @@ const BOTON_TEXTO =
 export default function Pases() {
   const { t, i18n } = useTranslation()
   //  Lo VIP solo lo pone o lo quita el administrador (la base lo revisa).
-  const { rol } = useOutletContext() ?? {}
+  const { rol, permisos = [] } = useOutletContext() ?? {}
   const esAdmin = rol === 'admin'
+  //  Quien no sabe el codigo CB lo busca por nombre en Personas.
+  const puedeBuscarPersonas = esAdmin || permisos.includes('ver_personas')
 
   //  Dar un pase a alguien que ya esta registrado, por su codigo CB.
   const [nuevo, setNuevo] = useState({ codigo: '', motivo: '', vip: false })
@@ -41,6 +44,8 @@ export default function Pases() {
   const [motivo, setMotivo] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [aviso, setAviso] = useState(null)
+  // El QR se ve en una ventana del panel, no en otra pagina.
+  const [verPase, setVerPase] = useState(null)
 
   // Se vuelve a pedir la lista despues de cada cambio.
   const [recarga, setRecarga] = useState(0)
@@ -184,6 +189,14 @@ export default function Pases() {
           />
         </div>
 
+        {puedeBuscarPersonas && (
+          <p className="text-base">
+            <Link className="font-semibold text-principal underline underline-offset-4" to="/admin/personas">
+              {t('pases.buscarEnPersonas')}
+            </Link>
+          </p>
+        )}
+
         {/* Lo VIP, enmarcado en dorado para que no pase desapercibido. */}
         {esAdmin && (
           <label
@@ -223,14 +236,13 @@ export default function Pases() {
         <div className="mb-4 rounded-xl bg-puede-pasar/10 p-3 text-base text-principal" role="status">
           <p className="font-semibold">{aviso.texto}</p>
           {aviso.token && (
-            <a
-              className="mt-1 inline-block font-semibold text-principal underline underline-offset-4"
-              href={`/pase/${aviso.token}`}
-              rel="noopener noreferrer"
-              target="_blank"
+            <button
+              className="mt-1 min-h-12 font-semibold text-principal underline underline-offset-4"
+              onClick={() => setVerPase(aviso.token)}
+              type="button"
             >
               {t('pases.verQR')}
-            </a>
+            </button>
           )}
         </div>
       )}
@@ -300,14 +312,13 @@ export default function Pases() {
                       <div className="flex items-center justify-end gap-3">
                         {pase.activo ? (
                           <>
-                            <a
+                            <button
                               className={`${BOTON_TEXTO} text-principal`}
-                              href={`/pase/${pase.token}`}
-                              rel="noopener noreferrer"
-                              target="_blank"
+                              onClick={() => setVerPase(pase.token)}
+                              type="button"
                             >
                               {t('pases.verQR')}
-                            </a>
+                            </button>
                             {esAdmin && (
                               <button
                                 className={`${BOTON_TEXTO} text-principal`}
@@ -392,6 +403,7 @@ export default function Pases() {
           </div>
         </div>
       )}
+      {verPase && <VentanaPase alCerrar={() => setVerPase(null)} token={verPase} />}
     </Tarjeta>
   )
 }

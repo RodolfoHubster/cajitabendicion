@@ -5,9 +5,11 @@ import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
+import ComoVienes from '../../componentes/ComoVienes'
 import CamposDomicilio from '../../componentes/CamposDomicilio'
 import ExcepcionSemana from '../../componentes/ExcepcionSemana'
 import Tarjeta from '../../componentes/Tarjeta'
+import VentanaPase from '../../componentes/VentanaPase'
 import {
   mensajeCorreo,
   mensajeNombre,
@@ -15,6 +17,7 @@ import {
   mensajesDomicilio,
 } from '../../componentes/mensajesValidacion'
 import useCodigoPostal from '../../componentes/useCodigoPostal'
+import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import {
   aFechaLocal,
   agruparPorFecha,
@@ -31,6 +34,7 @@ const VACIO = { nombres: '', apellidos: '', telefono: '', email: '' }
 
 // En este orden se revisan; se enfoca el primero que tenga error.
 const CAMPOS = [
+  'codigoDuenio',
   'nombres',
   'apellidos',
   'telefono',
@@ -55,6 +59,10 @@ const ESTILO_SELECT =
  * confirmacion de privacidad se piden igual que en el registro publico. El
  * cupo y la regla de una cita por semana si aplican: los revisa la base.
  *
+ * Como en el registro publico, se pregunta como viene: con su carro (aparta
+ * un lugar) o en el carro de alguien que ya tiene cita (el codigo CB de
+ * quien maneja; va a su hora y no ocupa otro lugar).
+ *
  * Abajo, la excepcion para una segunda cita en la misma semana.
  */
 export default function RegistrarPersona() {
@@ -68,6 +76,11 @@ export default function RegistrarPersona() {
   const [tipo, setTipo] = useState('cita')
   const [motivoPase, setMotivoPase] = useState('')
 
+  // En carro: 'propio' aparta un lugar; 'acompanante' va en el de quien maneja.
+  const [comoViene, setComoViene] = useState('propio')
+  const [codigoDuenio, setCodigoDuenio] = useState('')
+  const deAcompanante = tipo === 'cita' && comoViene === 'acompanante'
+
   const [fecha, setFecha] = useState('')
   const [bloqueId, setBloqueId] = useState('')
   const [datos, setDatos] = useState(VACIO)
@@ -79,6 +92,7 @@ export default function RegistrarPersona() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
   const [registrada, setRegistrada] = useState(null)
+  const [verPase, setVerPase] = useState(false)
 
   const busqueda = useCodigoPostal(domicilio.pais, domicilio.codigoPostal)
 
@@ -115,6 +129,7 @@ export default function RegistrarPersona() {
   const erroresDomicilio = validarDomicilio(domicilio, busqueda)
 
   const errores = {
+    codigoDuenio: deAcompanante && !pareceCodigoCorto(codigoDuenio) ? t('acompanante.faltaCodigo') : undefined,
     nombres: mensajeNombre(t, validarNombre(datos.nombres), 'nombres'),
     apellidos: mensajeNombre(t, validarNombre(datos.apellidos), 'apellidos'),
     telefono: mensajeTelefono(t, telefonoRevisado, i18n.language),
@@ -144,7 +159,7 @@ export default function RegistrarPersona() {
     evento.preventDefault()
     setError(null)
 
-    const falta = faltaParaRegistrar({ tipo, bloqueId })
+    const falta = faltaParaRegistrar({ tipo, bloqueId, fecha, acompanante: deAcompanante })
     if (falta) {
       setIntento(true)
       setError(falta)
@@ -174,14 +189,24 @@ export default function RegistrarPersona() {
         email: datos.email.trim(),
         domicilio,
         aceptoPrivacidad: acepto,
-        // El pase no aparta lugar: se da de alta a la persona y ya.
-        bloqueId: esPase ? null : bloqueId,
+        // El pase no aparta lugar: se da de alta a la persona y ya. El
+        // acompanante va al horario de quien maneja: basta la fecha.
+        bloqueId: esPase || deAcompanante ? null : bloqueId,
+        fecha: deAcompanante ? fecha : null,
+        codigoAcompanante: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
       })
 
       const pase = esPase ? await crearPase(alta.codigo_corto, motivoPase) : null
 
-      setRegistrada({ ...alta, pase, nombre: `${nombres} ${apellidos}` })
+      setRegistrada({
+        ...alta,
+        pase,
+        nombre: `${nombres} ${apellidos}`,
+        enCarroDe: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
+      })
       setMotivoPase('')
+      setComoViene('propio')
+      setCodigoDuenio('')
       setDatos(VACIO)
       setDomicilio(DOMICILIO_VACIO)
       setAcepto(false)
@@ -221,6 +246,11 @@ export default function RegistrarPersona() {
             ? t('pases.permanente')
             : `${fechaLarga(registrada.fecha)}, ${formatearHora(registrada.hora)}`}
         </p>
+        {registrada.enCarroDe && (
+          <p className="mt-1 text-base text-principal/80">
+            {t('registrarPanel.enCarroDe', { codigo: registrada.enCarroDe })}
+          </p>
+        )}
         <p className="mt-3 text-base text-principal/70">
           {t('confirmacion.aNombreDe')} <span className="font-semibold">{registrada.nombre}</span>
         </p>
@@ -229,17 +259,32 @@ export default function RegistrarPersona() {
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {/* En otra pestana: para ensenar o imprimir el QR sin perder el panel. */}
-          <a
-            className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
-            href={registrada.pase ? `/pase/${registrada.pase.token}` : `/confirmacion/${registrada.token_qr}`}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {t('registrarPanel.verQR')}
-          </a>
+          {/* El pase, en una ventana del panel. La cita, en otra pestana:
+              es la misma pagina que ve la persona, con su horario. */}
+          {registrada.pase ? (
+            <button
+              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
+              onClick={() => setVerPase(true)}
+              type="button"
+            >
+              {t('registrarPanel.verQR')}
+            </button>
+          ) : (
+            <a
+              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
+              href={`/confirmacion/${registrada.token_qr}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {t('registrarPanel.verQR')}
+            </a>
+          )}
           <Boton onClick={() => setRegistrada(null)}>{t('registrarPanel.otra')}</Boton>
         </div>
+
+        {verPase && registrada.pase && (
+          <VentanaPase alCerrar={() => setVerPase(false)} token={registrada.pase.token} />
+        )}
       </Tarjeta>
     )
   }
@@ -310,6 +355,22 @@ export default function RegistrarPersona() {
             </>
           )}
 
+          {/* Un lugar es un carro: quien viene en el de alguien mas no ocupa otro. */}
+          {tipo === 'cita' && (
+            <ComoVienes
+              alCambiar={(opcion) => {
+                setComoViene(opcion)
+                setError(null)
+              }}
+              alCambiarCodigo={setCodigoDuenio}
+              alSalirCodigo={() => codigoDuenio && tocar('codigoDuenio')}
+              codigo={codigoDuenio}
+              error={errorDe('codigoDuenio')}
+              panel
+              valor={comoViene}
+            />
+          )}
+
           <div className={`grid gap-4 sm:grid-cols-2 ${tipo === 'pase' ? 'hidden' : ''}`}>
             <label className="flex flex-col gap-2" htmlFor="fecha">
               <span className="text-base font-semibold text-principal">{t('registrarPanel.fecha')}</span>
@@ -324,7 +385,8 @@ export default function RegistrarPersona() {
               >
                 <option value="">{t('registrarPanel.elegirFecha')}</option>
                 {dias.map((dia) => (
-                  <option disabled={dia.libres === 0} key={dia.fecha} value={dia.fecha}>
+                  // El acompanante no ocupa lugar: entra aunque la fecha este llena.
+                  <option disabled={!deAcompanante && dia.libres === 0} key={dia.fecha} value={dia.fecha}>
                     {fechaLarga(dia.fecha)} ·{' '}
                     {dia.libres > 0
                       ? t('registrarPanel.lugares', { count: dia.libres })
@@ -334,26 +396,32 @@ export default function RegistrarPersona() {
               </select>
             </label>
 
-            <label className="flex flex-col gap-2" htmlFor="horario">
-              <span className="text-base font-semibold text-principal">{t('registrarPanel.horario')}</span>
-              <select
-                className={ESTILO_SELECT}
-                disabled={!fecha}
-                id="horario"
-                onChange={(e) => setBloqueId(e.target.value)}
-                value={bloqueId}
-              >
-                <option value="">{t('registrarPanel.elegirHorario')}</option>
-                {horarios.map((bloque) => (
-                  <option disabled={bloque.libres === 0} key={bloque.bloque_id} value={bloque.bloque_id}>
-                    {formatearHora(bloque.hora)} ·{' '}
-                    {bloque.libres > 0
-                      ? t('registrarPanel.lugares', { count: bloque.libres })
-                      : t('registrarPanel.lleno')}
-                  </option>
-                ))}
-              </select>
-            </label>
+            {deAcompanante ? (
+              <p className="self-end rounded-xl bg-principal/5 p-3 text-base text-principal">
+                {t('registrarPanel.horaDeQuienManeja')}
+              </p>
+            ) : (
+              <label className="flex flex-col gap-2" htmlFor="horario">
+                <span className="text-base font-semibold text-principal">{t('registrarPanel.horario')}</span>
+                <select
+                  className={ESTILO_SELECT}
+                  disabled={!fecha}
+                  id="horario"
+                  onChange={(e) => setBloqueId(e.target.value)}
+                  value={bloqueId}
+                >
+                  <option value="">{t('registrarPanel.elegirHorario')}</option>
+                  {horarios.map((bloque) => (
+                    <option disabled={bloque.libres === 0} key={bloque.bloque_id} value={bloque.bloque_id}>
+                      {formatearHora(bloque.hora)} ·{' '}
+                      {bloque.libres > 0
+                        ? t('registrarPanel.lugares', { count: bloque.libres })
+                        : t('registrarPanel.lleno')}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

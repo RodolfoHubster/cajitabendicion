@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { LuDownload } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
-import Campo from '../../componentes/Campo'
+import ElegirDiaEntrega from '../../componentes/ElegirDiaEntrega'
 import Paginacion from '../../componentes/Paginacion'
 import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
 import { aFechaLocal } from '../../datos/disponibilidad'
+import { fechasDeEntrega, rangoEnFechas } from '../../datos/fechasEntrega'
 import { TAMANOS_PAGINA, paginar } from '../../datos/filtros'
 import { hoyLocal } from '../../datos/panel'
 import { EsqueletoLista } from '../../componentes/Esqueleto'
@@ -54,6 +55,25 @@ export default function Reportes() {
   const [pagina, setPagina] = useState(1)
   const [porPagina, setPorPagina] = useState(TAMANOS_PAGINA[0])
 
+  // Los dias de entrega, para escoger "desde" y "hasta" de una lista.
+  const [fechas, setFechas] = useState(null)
+
+  useEffect(() => {
+    let vigente = true
+
+    fechasDeEntrega()
+      .then((lista) => {
+        if (vigente) setFechas(lista)
+      })
+      .catch(() => {
+        if (vigente) setFechas([])
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [])
+
   // Los datos guardan de que fechas son: asi no se muestran los de otro periodo.
   const [datos, setDatos] = useState(null)
   const [fallo, setFallo] = useState(null)
@@ -91,6 +111,10 @@ export default function Reportes() {
   const columnas = COLUMNAS_TABLA.filter((columna) => columna !== 'pendientes' || totales.pendientes > 0)
   const resultado = paginar(filas, pagina, porPagina)
   const activo = periodoActivo(desde, hasta, hoy)
+  // "Este mes" va del 1 al 30: en la lista se ve el primer y el ultimo dia
+  // de entrega del periodo. La cuenta es la misma.
+  const conLista = Boolean(fechas?.length)
+  const enLista = rangoEnFechas(rango, (fechas ?? []).map((dia) => dia.fecha))
 
   function cambiarRango(cambio) {
     setRango((antes) => ({ ...antes, ...cambio }))
@@ -170,20 +194,24 @@ export default function Reportes() {
           ))}
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:max-w-md">
-          <Campo
+        <div className="mt-3 grid gap-3 sm:max-w-xl sm:grid-cols-2">
+          <ElegirDiaEntrega
+            alCambiar={(dia) => cambiarRango({ desde: dia })}
             etiqueta={t('reportes.desde')}
+            fechas={fechas}
+            flechas={false}
+            hoy={hoy}
             id="reporte-desde"
-            onChange={(e) => cambiarRango({ desde: e.target.value })}
-            type="date"
-            value={desde}
+            valor={conLista ? enLista.desde : desde}
           />
-          <Campo
+          <ElegirDiaEntrega
+            alCambiar={(dia) => cambiarRango({ hasta: dia })}
             etiqueta={t('reportes.hasta')}
+            fechas={fechas}
+            flechas={false}
+            hoy={hoy}
             id="reporte-hasta"
-            onChange={(e) => cambiarRango({ hasta: e.target.value })}
-            type="date"
-            value={hasta}
+            valor={conLista ? enLista.hasta : hasta}
           />
         </div>
 
