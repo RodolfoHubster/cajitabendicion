@@ -11,7 +11,7 @@ vi.mock('../lib/supabase', () => ({
 }))
 
 import { supabase } from '../lib/supabase'
-import { iniciarSesion, iniciarSesionConGoogle, obtenerRol } from './sesion'
+import { LIMITE_ENTRAR_MS, iniciarSesion, iniciarSesionConGoogle, obtenerRol } from './sesion'
 
 beforeEach(() => {
   vi.stubGlobal('window', { location: { origin: 'https://citas.casadealabanzasd.com' } })
@@ -22,6 +22,31 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('entrar con correo y contraseña', () => {
+  it('con la contraseña equivocada avisa sin decir si el correo existe', async () => {
+    supabase.auth.signInWithPassword.mockResolvedValue({
+      data: null,
+      error: { message: 'Invalid login credentials', status: 400 },
+    })
+    await expect(iniciarSesion('a@b.com', 'mal')).rejects.toThrow('CREDENCIALES_INVALIDAS')
+  })
+
+  it('sin señal en iPhone ("Load failed") dice que no hay conexión', async () => {
+    supabase.auth.signInWithPassword.mockResolvedValue({ data: null, error: { message: 'Load failed' } })
+    await expect(iniciarSesion('a@b.com', 'x')).rejects.toThrow('SIN_CONEXION')
+  })
+
+  it('si la llamada se queda colgada, no espera para siempre: dice que no hay conexión', async () => {
+    vi.useFakeTimers()
+    supabase.auth.signInWithPassword.mockReturnValue(new Promise(() => {}))
+
+    const intento = expect(iniciarSesion('a@b.com', 'x')).rejects.toThrow('SIN_CONEXION')
+    await vi.advanceTimersByTimeAsync(LIMITE_ENTRAR_MS)
+    await intento
+    vi.useRealTimers()
+  })
 })
 
 describe('entrar con Google', () => {

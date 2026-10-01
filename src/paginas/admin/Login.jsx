@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FcGoogle } from 'react-icons/fc'
+import { LuEye, LuEyeOff } from 'react-icons/lu'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
@@ -23,6 +24,8 @@ export default function Login() {
   const [contrasena, setContrasena] = useState('')
   const [entrando, setEntrando] = useState(false)
   const [error, setError] = useState(null)
+  // Escribir a ciegas en el telefono es como se equivoca uno: se puede ver.
+  const [verContrasena, setVerContrasena] = useState(false)
 
   const destinoPedido = state?.destino
 
@@ -40,6 +43,17 @@ export default function Login() {
       vigente = false
     }
   }, [destinoPedido, navegar])
+
+  // Al tocar Google y regresar con "atras", el navegador devuelve la pagina
+  // tal como estaba: con el boton en "Entrando..." y apagado para siempre.
+  useEffect(() => {
+    const alVolver = (evento) => {
+      if (evento.persisted) setEntrando(false)
+    }
+
+    window.addEventListener('pageshow', alVolver)
+    return () => window.removeEventListener('pageshow', alVolver)
+  }, [])
 
   async function enviar(evento) {
     evento.preventDefault()
@@ -102,15 +116,35 @@ export default function Login() {
           value={correo}
         />
 
-        <Campo
-          autoComplete="current-password"
-          etiqueta={t('admin.contrasena')}
-          id="contrasena"
-          onChange={(e) => setContrasena(e.target.value)}
-          required
-          type="password"
-          value={contrasena}
-        />
+        <div className="relative">
+          <Campo
+            autoCapitalize="none"
+            autoComplete="current-password"
+            autoCorrect="off"
+            className="pr-32"
+            etiqueta={t('admin.contrasena')}
+            id="contrasena"
+            onChange={(e) => setContrasena(e.target.value)}
+            required
+            spellCheck={false}
+            type={verContrasena ? 'text' : 'password'}
+            value={contrasena}
+          />
+          <button
+            aria-controls="contrasena"
+            aria-pressed={verContrasena}
+            className="absolute bottom-1 right-1 inline-flex h-12 items-center gap-2 rounded-lg px-3 text-base font-semibold text-principal transition hover:bg-principal/10"
+            onClick={() => setVerContrasena((antes) => !antes)}
+            type="button"
+          >
+            {verContrasena ? (
+              <LuEyeOff aria-hidden="true" className="h-5 w-5" />
+            ) : (
+              <LuEye aria-hidden="true" className="h-5 w-5" />
+            )}
+            {verContrasena ? t('admin.ocultarContrasena') : t('admin.mostrarContrasena')}
+          </button>
+        </div>
 
         {error && (
           <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">

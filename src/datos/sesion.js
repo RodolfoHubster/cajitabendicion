@@ -1,4 +1,4 @@
-import { clasificarError } from './errores'
+import { clasificarError, conLimiteDeTiempo, esErrorDeConexion } from './errores'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -8,11 +8,18 @@ import { supabase } from '../lib/supabase'
  * El login de Google para el publico es V2; el personal ya puede usarlo.
  */
 
+//  Con mala senal la llamada se puede quedar colgada y el boton se quedaba
+//  en "Entrando..." para siempre. Pasado esto se avisa que no hay conexion.
+export const LIMITE_ENTRAR_MS = 20000
+
 export async function iniciarSesion(correo, contrasena) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: correo,
-    password: contrasena,
-  })
+  const { data, error } = await conLimiteDeTiempo(
+    supabase.auth.signInWithPassword({
+      email: correo,
+      password: contrasena,
+    }),
+    LIMITE_ENTRAR_MS,
+  )
 
   if (error) {
     throw new Error(traducirError(error))
@@ -61,7 +68,7 @@ export async function obtenerSesion() {
  * de todos modos fallaria.
  */
 export async function obtenerRol() {
-  const { data, error } = await supabase.rpc('mi_rol')
+  const { data, error } = await conLimiteDeTiempo(supabase.rpc('mi_rol'), LIMITE_ENTRAR_MS)
 
   if (error) throw new Error(clasificarError(error))
 
@@ -88,7 +95,8 @@ function traducirError(error) {
   if (mensaje.includes('invalid login credentials')) return 'CREDENCIALES_INVALIDAS'
   if (mensaje.includes('email not confirmed')) return 'CORREO_SIN_CONFIRMAR'
   if (mensaje.includes('too many requests') || error.status === 429) return 'DEMASIADOS_INTENTOS'
-  if (mensaje.includes('failed to fetch')) return 'SIN_CONEXION'
+  //  "Failed to fetch" en Chrome, "Load failed" en iPhone, o el tiempo agotado.
+  if (esErrorDeConexion(error.message)) return 'SIN_CONEXION'
 
   return 'ERROR_DESCONOCIDO'
 }
