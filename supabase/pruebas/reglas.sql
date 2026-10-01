@@ -208,14 +208,18 @@ begin
       p_colonia   text    default 'Zona Centro',
       p_calle     text    default 'Av. Revolución',
       p_numero    text    default '1234',
-      p_acepto    boolean default true
+      p_acepto    boolean default true,
+      p_acompanante text  default null,
+      p_fecha     date    default null
     )
     returns text language sql as $b$
       select format(
         'select * from registrar_desde_panel(p_nombre => %L, p_apellidos => %L, p_telefono => %L, '
         'p_bloque_id => %L::uuid, p_email => %L, p_pais => %L, p_codigo_postal => %L, p_colonia => %L, '
-        'p_calle => %L, p_numero => %L, p_acepto_privacidad => %L::boolean)',
-        p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_pais, p_cp, p_colonia, p_calle, p_numero, p_acepto);
+        'p_calle => %L, p_numero => %L, p_acepto_privacidad => %L::boolean, '
+        'p_codigo_acompanante => %L, p_fecha => %L::date)',
+        p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_pais, p_cp, p_colonia, p_calle, p_numero, p_acepto,
+        p_acompanante, p_fecha);
     $b$
   $f$;
 
@@ -840,6 +844,14 @@ begin
 
     select b.ocupados into v_numero from bloques_del_dia(v_jueves) b where b.bloque_id = v_b_acomp2;
     perform pg_temp.comprobar('Acompañantes: el panel cuenta carros (5), no personas (8)', v_numero = 5, v_numero::text);
+    select count(*) into v_numero from citas_del_dia(v_jueves) c
+     where c.en_carro_de = v_duenio and c.en_carro_de_nombre = 'Carlos Maneja';
+    perform pg_temp.comprobar('Citas del día: cada acompañante dice en el carro de quién va', v_numero = 3, v_numero::text);
+    select c.acompanantes into v_numero from citas_del_dia(v_jueves) c where c.codigo_corto = v_duenio;
+    perform pg_temp.comprobar('Citas del día: quien maneja dice cuántos acompañantes trae', v_numero = 3, v_numero::text);
+    select count(*) into v_numero from citas_del_dia(v_jueves) c
+     where c.en_carro_de is null and c.acompanantes = 0 and c.hora = '15:45';
+    perform pg_temp.comprobar('Citas del día: los carros sin acompañantes no dicen nada (4)', v_numero = 4, v_numero::text);
 
     -- ---------- Crear y editar fechas ----------
     perform pg_temp.esperar_error('Panel: no crea fechas que ya pasaron',
@@ -928,6 +940,52 @@ begin
       pg_temp.panel(v_b_lunes, p_acepto => false), 'CONSENTIMIENTO_REQUERIDO');
     perform pg_temp.esperar_error('Panel: también revisa el código postal contra el catálogo',
       pg_temp.panel(v_b_lunes, p_cp => '00000'), 'CODIGO_POSTAL_NO_EXISTE');
+
+    -- ---------- Acompañantes desde el panel (sección 39) ----------
+    --  El horario de las 3:30 del jueves (1 lugar) quedó libre cuando su
+    --  carro se cambió de horario en 10b.
+    v_duenio := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+      pg_temp.panel(v_b_acomp, p_nombre => 'Pedro', p_apellidos => 'Maneja', p_telefono => '+526641117001')));
+    perform pg_temp.comprobar('Panel: registra a quien trae su carro', v_duenio like 'CB-%', v_duenio);
+    perform pg_temp.esperar_error('Panel: con ese lugar tomado, otro carro ya no cabe',
+      pg_temp.panel(v_b_acomp, p_nombre => 'Otro', p_apellidos => 'Carro', p_telefono => '+526641117002'),
+      'BLOQUE_LLENO');
+
+    v_texto := pg_temp.valor(format('select r.hora::text from (%s) r',
+      pg_temp.panel(null, p_nombre => 'Lucía', p_apellidos => 'Acompaña', p_telefono => '+526641117003',
+                    p_acompanante => lower(v_duenio), p_fecha => v_jueves)));
+    perform pg_temp.comprobar('Panel: el acompañante queda a la hora de quien maneja, sin escoger horario',
+      v_texto = '15:30:00', v_texto);
+    select count(*) into v_numero
+      from citas c join personas p on p.id = c.persona_id
+     where p.nombres = 'Lucía' and p.apellidos = 'Acompaña' and c.bloque_id = v_b_acomp
+       and c.acompana_a = (select c2.id from citas c2 join personas p2 on p2.id = c2.persona_id
+                            where p2.codigo_corto = v_duenio);
+    perform pg_temp.comprobar('Panel: el acompañante va en el carro de quien maneja', v_numero = 1, v_numero::text);
+    select b.ocupados into v_numero from bloques_del_dia(v_jueves) b where b.bloque_id = v_b_acomp;
+    perform pg_temp.comprobar('Panel: el horario sigue contando un carro, no dos personas', v_numero = 1, v_numero::text);
+
+    perform pg_temp.esperar_error('Panel: un código de quien maneja que no existe',
+      pg_temp.panel(null, p_nombre => 'Ana', p_apellidos => 'Inventa', p_telefono => '+526641117004',
+                    p_acompanante => 'CB-0000', p_fecha => v_jueves), 'ACOMPANANTE_SIN_CITA');
+    perform pg_temp.esperar_error('Panel: quien maneja tiene que tener cita ese mismo día',
+      pg_temp.panel(v_b_lunes, p_nombre => 'Ana', p_apellidos => 'Inventa', p_telefono => '+526641117004',
+                    p_acompanante => v_duenio), 'ACOMPANANTE_SIN_CITA');
+
+    perform pg_temp.esperar_ok('Panel: segundo acompañante',
+      pg_temp.panel(null, p_nombre => 'Beto', p_apellidos => 'Acompaña', p_telefono => '+526641117005',
+                    p_acompanante => v_duenio, p_fecha => v_jueves));
+    perform pg_temp.esperar_ok('Panel: tercer acompañante',
+      pg_temp.panel(null, p_nombre => 'Chuy', p_apellidos => 'Acompaña', p_telefono => '+526641117006',
+                    p_acompanante => v_duenio, p_fecha => v_jueves));
+    perform pg_temp.esperar_error('Panel: el tope por carro también vale desde el panel',
+      pg_temp.panel(null, p_nombre => 'Dani', p_apellidos => 'Sobra', p_telefono => '+526641117007',
+                    p_acompanante => v_duenio, p_fecha => v_jueves), 'CARRO_LLENO');
+
+    perform pg_temp.comprobar('Panel: nadie sin sesión registra desde el panel',
+      not has_function_privilege('anon',
+        'registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, date)',
+        'execute'));
 
     v_codigo := pg_temp.valor(format('select r.codigo_corto from (%s) r',
       pg_temp.panel(v_b_lunes, p_nombre => 'Ignacio', p_telefono => '+526641110000')));
@@ -1718,6 +1776,68 @@ begin
     perform pg_temp.comprobar('Ficha: una cita de un día que ya pasó y nunca se escaneó sale como no asistió',
       v_numero = 1, v_numero::text);
 
+    -- ---------- Buscar personas (sección 41) ----------
+    --  La misma persona registrada dos veces (mismo nombre y teléfono) y
+    --  otra con el mismo nombre y otro teléfono.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, ciudad, creado_en) values
+      ('CB-BP01', 'Óscar Búsqueda Prueba', 'Óscar', 'Búsqueda Prueba', '+16195558801', 'San Diego', now() - interval '20 days'),
+      ('CB-BP02', 'oscar busqueda  prueba', 'oscar', 'busqueda prueba', '+16195558801', 'San Diego', now() - interval '2 days'),
+      ('CB-BP03', 'Oscar Busqueda Prueba', 'Oscar', 'Busqueda Prueba', '+16195558802', 'Chula Vista', now() - interval '5 days');
+
+    select count(*) into v_numero from buscar_personas('busqueda OSCAR');
+    perform pg_temp.comprobar('Personas: por nombre, sin acentos y en cualquier orden', v_numero = 3, v_numero::text);
+    select count(distinct grupo) into v_numero from buscar_personas('oscar busqueda prueba');
+    perform pg_temp.comprobar('Personas: mismo nombre y teléfono se juntan; con otro teléfono va aparte',
+      v_numero = 2, v_numero::text);
+    perform pg_temp.comprobar('Personas: los dos registros de la misma persona quedan en el mismo grupo',
+      (select count(distinct grupo) from buscar_personas('oscar busqueda') where codigo_corto in ('CB-BP01', 'CB-BP02')) = 1);
+    perform pg_temp.comprobar('Personas: dos grupos con el mismo nombre se reconocen',
+      (select count(distinct nombre_clave) from buscar_personas('oscar busqueda')) = 1);
+    select b.telefono_final || ' ' || b.ciudad into v_texto from buscar_personas('CB-BP03') b;
+    perform pg_temp.comprobar('Personas: del teléfono solo los últimos 4 dígitos, y la ciudad', v_texto = '8802 Chula Vista', v_texto);
+    select string_agg(b.codigo_corto, ',') into v_texto from buscar_personas('619 555 8802') b;
+    perform pg_temp.comprobar('Personas: por teléfono, con espacios', v_texto = 'CB-BP03', v_texto);
+    select string_agg(b.codigo_corto, ',') into v_texto from buscar_personas('cb-bp02') b;
+    perform pg_temp.comprobar('Personas: por código CB, en minúsculas', v_texto = 'CB-BP02', v_texto);
+    select count(*) into v_numero from buscar_personas('o');
+    perform pg_temp.comprobar('Personas: con una sola letra no busca', v_numero = 0, v_numero::text);
+    select string_agg(b.codigo_corto, ',' order by b.registrada_en desc) into v_texto from buscar_personas('oscar busqueda') b;
+    perform pg_temp.comprobar('Personas: los registros más recientes primero', v_texto = 'CB-BP02,CB-BP03,CB-BP01', v_texto);
+
+    --  Una cita entregada y una cancelada de CB-BP03: cuenta la entregada.
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado)
+      select p.id, v_b_programada, date_trunc('week', v_programada)::date, 'token-busqueda-entregada', 'entregada'
+        from personas p where p.codigo_corto = 'CB-BP03';
+    insert into citas (persona_id, bloque_id, semana, token_qr, estado)
+      select p.id, v_b_jueves, date_trunc('week', v_jueves)::date, 'token-busqueda-cancelada', 'cancelada'
+        from personas p where p.codigo_corto = 'CB-BP03';
+    select b.citas || ' ' || b.cajas || ' ' || (b.ultima_fecha = v_programada)::text into v_texto
+      from buscar_personas('CB-BP03') b;
+    perform pg_temp.comprobar('Personas: cuenta sus citas y cajas, sin las canceladas, y su última fecha',
+      v_texto = '1 1 true', v_texto);
+
+    perform crear_pase('CB-BP02', 'Suscriptor');
+    perform marcar_pase_vip('CB-BP02', true);
+    insert into entregas_pase (pase_id, fecha, usuario_id)
+      select pa.id, current_date - 3, v_admin from pases pa join personas p on p.id = pa.persona_id
+       where p.codigo_corto = 'CB-BP02';
+    select b.pase_activo::text || ' ' || b.vip::text || ' ' || b.cajas || ' ' || (b.ultima_fecha = current_date - 3)::text
+      into v_texto from buscar_personas('CB-BP02') b;
+    perform pg_temp.comprobar('Personas: dice si tiene pase y si es VIP, y cuenta las cajas con pase',
+      v_texto = 'true true 1 true', v_texto);
+    select b.pase_activo::text || ' ' || b.vip::text into v_texto from buscar_personas('CB-BP01') b;
+    perform pg_temp.comprobar('Personas: el otro registro de la misma persona no trae pase', v_texto = 'false false', v_texto);
+
+    -- ---------- Días de entrega (sección 41) ----------
+    select count(*) into v_numero from fechas_de_entrega() f where f.fecha in (v_lunes, v_jueves);
+    perform pg_temp.comprobar('Días de entrega: salen las fechas con entrega', v_numero = 2, v_numero::text);
+    perform pg_temp.comprobar('Días de entrega: de la más reciente para atrás',
+      (select array_agg(f.fecha) from fechas_de_entrega() f)
+        = (select array_agg(f.fecha order by f.fecha desc) from fechas_de_entrega() f));
+    select count(*) into v_numero from fechas_de_entrega() f where extract(dow from f.fecha) not in (1, 4)
+      and f.fecha not in (select fecha from bloques union select fecha from dias_entrega);
+    perform pg_temp.comprobar('Días de entrega: no se inventa días sin entrega', v_numero = 0, v_numero::text);
+
     -- ---------- Mover una cita desde el panel ----------
     select id into v_cita from citas where token_qr = 'token-prueba-mover-panel';
 
@@ -1746,6 +1866,10 @@ begin
       'select * from citas_del_dia(null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no ve la ficha de una persona',
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_error('Roles: un voluntario sin la palomita no busca personas',
+      'select * from buscar_personas(''oscar'')', 'SIN_PERMISO');
+    perform pg_temp.esperar_ok('Roles: un voluntario sí ve los días de entrega (solo son fechas)',
+      'select * from fechas_de_entrega()');
     perform pg_temp.esperar_error('Roles: un voluntario no da pases permanentes',
       'select * from crear_pase(''CB-PRP1'', null)', 'SIN_PERMISO');
     perform pg_temp.esperar_error('Roles: un voluntario no hace VIP a nadie',
@@ -2275,6 +2399,13 @@ begin
       'select * from crear_pase(''CB-PRP1'', null)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se ve la ficha de una persona',
       'select * from detalle_de_persona(''CB-PRB2'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se buscan personas',
+      'select * from buscar_personas(''oscar'')', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ven los días de entrega',
+      'select * from fechas_de_entrega()', 'SIN_SESION');
+    perform pg_temp.comprobar('Roles: desde el navegador sin cuenta no se llama a buscar personas',
+      not has_function_privilege('anon', 'buscar_personas(text)', 'execute')
+      and not has_function_privilege('anon', 'fechas_de_entrega()', 'execute'));
     perform pg_temp.esperar_error('Roles: sin sesión no se ven los permisos',
       'select * from listar_permisos()', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se cambian los permisos',

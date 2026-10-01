@@ -17,6 +17,10 @@
 --      turno en vivo en /confirmacion.
 --    * Una fila a pie VACIA de 30 lugares en otra fecha, para
 --      scripts/prueba-turnos.mjs.
+--    * Acompanantes HOY a las 3:00 PM: CB-9012 trae su carro con dos
+--      acompanantes (CB-9013 y CB-9014), y CB-9015 viene sola en su carro.
+--      En Citas de hoy se ven con "Va en el carro de..." y "Trae 2
+--      acompanantes", y el horario cuenta 2 carros, no 4 personas.
 --
 --  Se puede correr cuantas veces quieras: borra lo de prueba anterior y lo
 --  vuelve a crear. Al final muestra una tabla con los codigos y los tokens.
@@ -34,7 +38,10 @@ declare
   v_marcada   boolean := exists (select 1 from configuracion where clave = 'es_base_de_pruebas');
   v_personas  int     := (select count(*) from personas);
   v_codigos   text[]  := array['CB-9001', 'CB-9002', 'CB-9003', 'CB-9004', 'CB-9005', 'CB-9006', 'CB-9007',
-                               'CB-9008', 'CB-9009', 'CB-9010', 'CB-9011'];
+                               'CB-9008', 'CB-9009', 'CB-9010', 'CB-9011',
+                               'CB-9012', 'CB-9013', 'CB-9014', 'CB-9015'];
+  v_carro     citas;
+  v_acomp     uuid;
   v_pie       uuid;
   v_hoy       date    := current_date;
   v_fechas    date[];
@@ -164,6 +171,32 @@ begin
     returning id into v_persona;
 
     perform reservar_cita(v_persona, v_pie);
+  end loop;
+
+  -- ----------------------------------------------------------
+  --  Un carro con dos acompanantes y otro sin, hoy a las 3:00 PM
+  -- ----------------------------------------------------------
+  select id into v_acomp from bloques where fecha = v_hoy and hora = '15:00' and fila = 'carro';
+
+  for i in 12 .. 15 loop
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, ciudad, acepto_privacidad_en)
+    values (v_codigos[i],
+            (array['Rosa Prueba Maneja', 'Luis Prueba Acompaña', 'Ana Prueba Acompaña', 'Elena Prueba Sola'])[i - 11],
+            (array['Rosa', 'Luis', 'Ana', 'Elena'])[i - 11],
+            (array['Prueba Maneja', 'Prueba Acompaña', 'Prueba Acompaña', 'Prueba Sola'])[i - 11],
+            '+1619555' || lpad((9000 + i)::text, 4, '0'),
+            (array['San Diego', 'San Diego', 'Chula Vista', 'National City'])[i - 11],
+            now())
+    returning id into v_persona;
+
+    if i = 12 then
+      v_carro := reservar_cita(v_persona, v_acomp);
+    elsif i in (13, 14) then
+      --  En el carro de Rosa: su propio QR y su caja, sin ocupar otro lugar.
+      perform reservar_cita(v_persona, v_acomp, v_carro.id);
+    else
+      perform reservar_cita(v_persona, v_acomp);
+    end if;
   end loop;
 
   -- ----------------------------------------------------------

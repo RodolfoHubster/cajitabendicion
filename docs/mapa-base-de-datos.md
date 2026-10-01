@@ -208,6 +208,13 @@ código exacto no existe devuelve los de hoy que se le parecen
 | `pases.vip`, `vip_por`, `vip_desde` | Pase de suscriptor VIP: QR dorado y pasa directo, sin fila. |
 | `marcar_pase_vip(codigo, vip)` | Lo pone o lo quita. Solo admin. `PASE_NO_EXISTE` si esa persona no tiene pase. |
 
+## Buscar personas y días de entrega (sección 41)
+
+| Función | Qué hace |
+|---|---|
+| `buscar_personas(texto)` | "Personas" en el panel: por nombre (sin acentos, en cualquier orden), teléfono (4 dígitos o más) o código CB, en todos los registros. `grupo` junta los de mismo nombre y mismo teléfono. Del teléfono solo devuelve los últimos 4 dígitos. Permiso `ver_personas`. |
+| `fechas_de_entrega()` | Los días que hubo o habrá entrega, del más reciente para atrás, para escoger el día sin calendario en Citas de hoy y Reportes. Admin y voluntario. |
+
 ## La fila a pie por turnos (sección 38)
 
 | Objeto | Qué hace |

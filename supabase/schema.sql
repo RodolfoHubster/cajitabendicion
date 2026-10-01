@@ -1160,7 +1160,12 @@ returns table (
   motivo_cancelacion text,
   fila               text,
   --  Quien la marco entregada a mano (seccion 35); null si se escaneo.
-  marcada_por        text
+  marcada_por        text,
+  --  Acompanantes (seccion 39): si viene en el carro de alguien, el codigo
+  --  y el nombre de quien maneja; si maneja, cuantos trae.
+  en_carro_de        text,
+  en_carro_de_nombre text,
+  acompanantes       int
 )
 language plpgsql
 stable
@@ -1192,11 +1197,17 @@ begin
             left join auth.users um on um.id = m.marcada_por
            where m.cita_id = c.id
            order by m.marcada_en desc
-           limit 1)
+           limit 1),
+         pd.codigo_corto,
+         pd.nombre,
+         (select count(*)::int from citas a
+           where a.acompana_a = c.id and a.estado <> 'cancelada')
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
     left join auth.users u on u.id = c.cancelada_por
+    left join citas    cd on cd.id = c.acompana_a
+    left join personas pd on pd.id = cd.persona_id
    where b.fecha = coalesce(p_fecha, current_date)
    order by b.hora, p.nombre;
 end;
@@ -1832,6 +1843,10 @@ drop function if exists registrar_desde_panel(text, text, text, uuid, text, text
 
 drop function if exists registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean);
 
+--  Le crecieron p_codigo_acompanante y p_fecha, como al registro publico
+--  (seccion 39).
+drop function if exists registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, date);
+
 create or replace function registrar_desde_panel(
   p_nombre            text,
   p_apellidos         text,
@@ -1845,7 +1860,11 @@ create or replace function registrar_desde_panel(
   p_numero            text    default null,
   p_numero_interior   text    default null,
   p_sin_domicilio     boolean default false,
-  p_acepto_privacidad boolean default false
+  p_acepto_privacidad boolean default false,
+  --  Viene en el carro de alguien que ya tiene cita (seccion 39): el codigo
+  --  CB de quien maneja. Va a su horario; con p_fecha basta.
+  p_codigo_acompanante text   default null,
+  p_fecha             date    default null
 )
 returns table (
   codigo_corto text,
@@ -1862,6 +1881,9 @@ set timezone    = 'America/Los_Angeles'
 as $$
 declare
   v_usuario   uuid := auth.uid();
+  v_bloque_id uuid := p_bloque_id;
+  v_dia       date;
+  v_duenio    citas;
   v_nombres   text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
   v_apellidos text := regexp_replace(trim(coalesce(p_apellidos, '')), '\s+', ' ', 'g');
   v_telefono  text := trim(coalesce(p_telefono, ''));
@@ -1908,10 +1930,36 @@ begin
     raise exception 'CONSENTIMIENTO_REQUERIDO';
   end if;
 
+  --  Acompanante: la cita de carro propio de ese codigo ese dia, igual que
+  --  en el registro publico. Queda en ese horario y no ocupa otro lugar; el
+  --  tope por carro lo revisa reservar_cita().
+  if nullif(trim(coalesce(p_codigo_acompanante, '')), '') is not null then
+    select b.fecha into v_dia from bloques b where b.id = p_bloque_id;
+    v_dia := coalesce(v_dia, p_fecha);
+
+    select c.* into v_duenio
+      from citas c
+      join personas p on p.id = c.persona_id
+      join bloques  b on b.id = c.bloque_id
+     where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo_acompanante)
+       and b.fecha = v_dia
+       and b.fila = 'carro'
+       and c.estado in ('reservada', 'llego')
+       and c.acompana_a is null
+     order by c.creada_en
+     limit 1;
+
+    if v_duenio.id is null then
+      raise exception 'ACOMPANANTE_SIN_CITA';
+    end if;
+
+    v_bloque_id := v_duenio.bloque_id;
+  end if;
+
   --  Sin horario se da de alta a la persona y ya: es lo que hace falta
   --  para darle un pase permanente (seccion 29), que no aparta lugar.
-  if p_bloque_id is not null then
-    select * into v_bloque from bloques where id = p_bloque_id;
+  if v_bloque_id is not null then
+    select * into v_bloque from bloques where id = v_bloque_id;
     if not found then
       raise exception 'BLOQUE_NO_EXISTE';
     end if;
@@ -1983,12 +2031,12 @@ begin
     end;
   end loop;
 
-  if p_bloque_id is null then
+  if v_bloque_id is null then
     return query select v_persona.codigo_corto, null::text, null::date, null::time, false;
     return;
   end if;
 
-  v_cita := reservar_cita(v_persona.id, p_bloque_id);
+  v_cita := reservar_cita(v_persona.id, v_bloque_id, v_duenio.id);
 
   update citas set registrado_por = v_usuario where id = v_cita.id;
 
@@ -1998,8 +2046,8 @@ end;
 $$;
 
 
-revoke execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean) from public;
-grant  execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean) to authenticated;
+revoke execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, date) from public, anon;
+grant  execute on function registrar_desde_panel(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, date) to authenticated;
 
 
 -- ============================================================
@@ -6739,6 +6787,165 @@ $$;
 
 revoke execute on function marcar_pase_vip(text, boolean) from public, anon;
 grant  execute on function marcar_pase_vip(text, boolean) to authenticated;
+
+
+-- ============================================================
+--  41. BUSCAR PERSONAS Y LOS DIAS DE ENTREGA
+-- ============================================================
+--  Pedido del 30 de septiembre de 2026. El pastor da nombres para hacerlos
+--  VIP, y para encontrar su codigo CB habia que revisar dia por dia en
+--  Reportes y Citas de hoy. Ahora "Personas" busca en todos los registros
+--  por nombre, telefono o codigo CB.
+--
+--  Cada registro publico crea un codigo CB nuevo, asi que la misma persona
+--  sale varias veces. La pantalla junta los registros con el MISMO nombre
+--  (sin acentos ni mayusculas) y el MISMO telefono (columna "grupo"). El
+--  mismo nombre con otro telefono va aparte: puede ser otra persona.
+--
+--  Para distinguirlas basta lo minimo: los ultimos 4 digitos del telefono,
+--  la ciudad y cuando se registro. El domicilio exacto sigue en la ficha
+--  (detalle_de_persona), con el mismo permiso.
+
+--  Las citas de una persona: para buscar personas (y su ficha) sin revisar
+--  todas las citas una por una.
+create index if not exists idx_citas_persona on citas (persona_id);
+
+create or replace function buscar_personas(p_texto text)
+returns table (
+  codigo_corto   text,
+  nombre         text,
+  --  El nombre sin acentos ni mayusculas: dos grupos con el mismo son
+  --  "mismo nombre, otro telefono".
+  nombre_clave   text,
+  --  Mismo nombre y mismo telefono = mismo grupo. Va cifrado: no expone
+  --  el telefono completo.
+  grupo          text,
+  telefono_final text,
+  ciudad         text,
+  registrada_en  timestamptz,
+  citas          int,
+  --  Con cita y con pase permanente.
+  cajas          int,
+  ultima_fecha   date,
+  pase_activo    boolean,
+  vip            boolean
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_texto    text   := trim(coalesce(p_texto, ''));
+  --  "cb 4871" o "4871" se buscan como CB-4871 (seccion 33).
+  v_codigo   text   := normalizar_codigo_corto(p_texto);
+  --  Sin acentos y en cualquier orden: "chavez oscar" encuentra a
+  --  "Óscar A. Chávez".
+  v_palabras text[] := array_remove(string_to_array(normalizar_texto(p_texto), ' '), '');
+  --  Solo numeros (y espacios o guiones): se busca por telefono.
+  v_digitos  text   := regexp_replace(coalesce(p_texto, ''), '[^0-9]', '', 'g');
+  v_es_telefono boolean;
+begin
+  perform exigir_permiso('ver_personas');
+
+  if char_length(v_texto) < 2 then
+    return;
+  end if;
+
+  v_es_telefono := v_texto !~ '[[:alpha:]]' and char_length(v_digitos) >= 4;
+
+  --  Las citas y las cajas con pase se cuentan de una vez para todas las
+  --  encontradas (con el indice de citas por persona), no persona por
+  --  persona: asi tardaba en cuanto habia cientos de registros.
+  return query
+  with encontradas as (
+    select p.*
+      from personas p
+     where upper(p.codigo_corto) = v_codigo
+        or (v_es_telefono
+            and regexp_replace(coalesce(p.telefono, ''), '[^0-9]', '', 'g') like '%' || v_digitos || '%')
+        or (not v_es_telefono
+            and cardinality(v_palabras) > 0
+            and not exists (select 1 from unnest(v_palabras) w
+                             where normalizar_texto(p.nombre) not like '%' || w || '%'))
+     order by p.creado_en desc
+     limit 150
+  ),
+  de_citas as (
+    select c.persona_id,
+           count(*) filter (where c.estado <> 'cancelada')::int as n_citas,
+           count(*) filter (where c.estado = 'entregada')::int  as n_entregadas,
+           max(b.fecha) filter (where c.estado <> 'cancelada')  as ultima
+      from citas c
+      join bloques b on b.id = c.bloque_id
+     where c.persona_id in (select e2.id from encontradas e2)
+     group by c.persona_id
+  ),
+  de_pases as (
+    select pa2.persona_id,
+           pa2.activo,
+           pa2.vip,
+           (select count(*)::int from entregas_pase ep where ep.pase_id = pa2.id) as n_cajas,
+           (select max(ep.fecha) from entregas_pase ep where ep.pase_id = pa2.id) as ultima
+      from pases pa2
+     where pa2.persona_id in (select e3.id from encontradas e3)
+  )
+  select e.codigo_corto,
+         e.nombre,
+         normalizar_texto(e.nombre),
+         md5(normalizar_texto(e.nombre) || '|' || coalesce(e.telefono, '')),
+         right(regexp_replace(coalesce(e.telefono, ''), '[^0-9]', '', 'g'), 4),
+         coalesce(nullif(trim(e.ciudad), ''), nullif(trim(e.municipio), '')),
+         e.creado_en,
+         coalesce(dc.n_citas, 0),
+         coalesce(dc.n_entregadas, 0) + coalesce(dp.n_cajas, 0),
+         greatest(dc.ultima, dp.ultima),
+         coalesce(dp.activo, false),
+         coalesce(dp.activo and dp.vip, false)
+    from encontradas e
+    left join de_citas dc on dc.persona_id = e.id
+    left join de_pases dp on dp.persona_id = e.id
+   order by normalizar_texto(e.nombre), e.creado_en desc;
+end;
+$$;
+
+revoke execute on function buscar_personas(text) from public, anon;
+grant  execute on function buscar_personas(text) to authenticated;
+
+
+--  Los dias de entrega, de la mas reciente para atras (las que vienen
+--  primero). Para escoger el dia en Citas de hoy y en Reportes sin un
+--  calendario: solo salen los lunes y jueves que de verdad hubo o habra.
+--  Son solo fechas: cualquiera del equipo las puede ver.
+create or replace function fechas_de_entrega()
+returns table (
+  fecha   date,
+  --  Dia cancelado o cerrado: se ve, pero se marca.
+  cerrado boolean
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  return query
+  select f.dia, coalesce(d.cerrado, false)
+    from (select d2.fecha as dia from dias_entrega d2
+           union
+          select b.fecha from bloques b) f
+    left join dias_entrega d on d.fecha = f.dia
+   order by f.dia desc
+   limit 400;
+end;
+$$;
+
+revoke execute on function fechas_de_entrega() from public, anon;
+grant  execute on function fechas_de_entrega() to authenticated;
 
 
 -- ============================================================

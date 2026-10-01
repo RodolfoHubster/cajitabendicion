@@ -19,7 +19,7 @@ iglesia: Pastor David Villalobos.
 |---|---|
 | Unidad de registro | La **persona** (18+), no la familia. Tres personas de una casa = tres registros, tres QR, tres cajas. |
 | 1 QR = 1 caja | Una cita se entrega una sola vez. Los escaneos deben cuadrar con las cajas reportadas al banco de alimentos. Única excepción: el pase permanente, abajo. |
-| Bloques de 15 min | ~2:45 PM – 6:30 PM. Capacidad por bloque configurable (hoy 15–28). |
+| Bloques de 15 min | ~2:45 PM – 6:30 PM. Capacidad por bloque configurable (hoy 15–28). **Un lugar es un carro**, no una persona (ver "Acompañantes"). |
 | Corte real de cupo | Al llenarse un bloque se bloquea de verdad. Este es el bug que se está arreglando. |
 | QR de un solo uso | La cita se invalida al escanearse. Sin datos personales dentro del código. |
 | Código corto | ID estable tipo matrícula (`CB-4871`), respaldo cuando el QR no se deja leer. Buscar por nombre no basta: se repiten. |
@@ -74,6 +74,43 @@ papel: el pastor le da a ciertas personas un pase que no vence.
   aparte, igual que "entró sin cita", para que el total al banco cuadre.
 - Solo un admin da y quita pases. Revocar **no borra**: queda quién lo quitó,
   cuándo y por qué. Deja de servir al momento.
+
+**Pase VIP** (pedido del pastor, 28 de septiembre de 2026): los suscriptores
+VIP de Facebook no hacen fila, pasan directo. Es un pase permanente marcado
+VIP (`marcar_pase_vip`, solo admin, queda quién y desde cuándo): el QR sale
+**dorado con corona** y el escáner dice "VIP · pasa directo". Todo lo demás es
+igual que cualquier pase. Lo más fácil es **Personas**: se busca por nombre
+(el pastor da nombres, no códigos) y se toca "Hacer VIP". También desde
+**Pases → "Dar pase permanente"** con el código CB. Va en el pase y no en la
+cita porque cada registro público crea un código CB nuevo.
+
+**Personas** (desde el 30 de septiembre de 2026) busca en todos los registros
+por nombre, teléfono o código CB (`buscar_personas`). Junta los registros con
+el mismo nombre **y** el mismo teléfono; el mismo nombre con otro teléfono sale
+aparte con un aviso, porque puede ser otra persona. Citas de hoy y Reportes
+escogen el día de una lista de días de entrega (`fechas_de_entrega`), no de un
+calendario.
+
+### Acompañantes: un lugar es un carro (desde el 28 de septiembre de 2026)
+
+El cupo de cada horario es de **carros**, no de personas. Quien trae su carro
+aparta un lugar. Quien viene en el carro de alguien que ya tiene cita escoge
+"Vengo en el carro de alguien" y pone el **código CB de quien maneja**: tiene
+su propio QR y su propia caja (1 QR = 1 caja sigue igual), pero no ocupa otro
+lugar. Lo mismo desde el panel, en "Registrar persona".
+
+- Lo cuida `reservar_cita()` con el **mismo candado** sobre el bloque:
+  cuenta solo citas con `acompana_a is null` y, para acompañantes, el tope
+  por carro (`configuracion.acompanantes_por_carro`, 3). Sin tope,
+  cualquiera se diría acompañante y el cupo dejaría de existir: el bug del
+  Google Form otra vez.
+- El acompañante va a la hora de quien maneja; no cambia de horario por su
+  cuenta (`ACOMPANANTE_SIN_CAMBIO`). Si quien maneja cambia el suyo, se
+  mueven juntos. Un acompañante no lleva acompañantes.
+- Está exento del tope por teléfono: la familia se registra desde el celular
+  de quien maneja.
+- Consecuencia a tener presente: **llega más gente que lugares**. El día de
+  la entrega, el conteo de carros y el de cajas ya no son el mismo número.
 
 ### La guía del panel (desde el 27 de septiembre de 2026)
 
@@ -137,17 +174,25 @@ textos. **Arrancan todas apagadas.**
 ### Dos filas: carro y a pie
 
 La fila vive en el **horario** (`bloques.fila`), no en la cita: así el candado
-de `reservar_cita()` sigue decidiendo el cupo igual en las dos. Cada quien del
-equipo escanea en su fila (`personal.fila`); un código de la otra fila
-responde `OTRA_FILA` y **no se quema**. En las cuentas, **juntas = carro + a
-pie**, siempre: es el número que se reporta al banco. Mientras
-`a_pie_abierto` diga `no`, nadie aparta lugar a pie (`A_PIE_CERRADO`).
+de `reservar_cita()` sigue decidiendo el cupo igual en las dos. Un código de
+la otra fila responde `OTRA_FILA` y **no se quema**. En las cuentas, **juntas
+= carro + a pie**, siempre: es el número que se reporta al banco.
+
+**A pie no hay horarios: hay turnos** (desde el 28 de septiembre de 2026).
+Cada día tiene a lo más una fila a pie (un solo bloque `a_pie`), con su cupo
+o sin límite y su hora de apertura (`dias_entrega.a_pie_abre_en`). Sin esa
+hora, nadie saca turno (`A_PIE_CERRADO`). El turno lo pone el disparador
+`dar_turno` bajo el mismo candado del bloque. Cada quien del equipo escoge
+**al abrir el escáner** en qué fila está hoy (`elegir_fila`), y eso manda
+sobre la fila de Equipo. El interruptor `a_pie_abierto` ya no existe.
+Detalle en `docs/fila-a-pie.md`.
 
 ### Alcance
 
-**Fase 1: fila de carros** (en uso). **Fase 2: fila a pie, empezada**: la base
-y el panel ya saben de filas, el público sigue viendo "Próximamente". Plan,
-lo hecho y lo que decide el pastor en `docs/fila-a-pie.md`. Fase 3:
+**Fase 1: fila de carros** (en uso). **Fase 2: fila a pie por turnos**, lista
+y publicada pero **sin abrir**: ninguna fecha tiene fila a pie, y "A pie" en
+el inicio dice que por ahora no hay. No se crea una en Horarios hasta que el
+pastor decida el cupo; lo pendiente está en `docs/fila-a-pie.md`. Fase 3:
 check-in/out de voluntarios.
 
 **Fuera de la V1**: login de Google para el público (V2; el personal ya entra
@@ -208,23 +253,25 @@ base porque el sistema sigue operando después de que termine el proyecto.
 ## Mapa del repositorio
 
 ```
-src/paginas/publico/   Inicio, Calendario, Horarios, Registro, Confirmacion, CambiarHorario, Pase
-src/paginas/admin/     CitasDeHoy, Personas, Horarios, Pases, Reportes, Equipo, RegistrarPersona, Login
+src/paginas/publico/   Inicio, Calendario, Horarios, APie, Registro, Confirmacion, CambiarHorario, Pase, Preguntas, QuienesSomos
+src/paginas/admin/     CitasDeHoy, Personas, Horarios, Pases, Reportes, Equipo, Permisos, Avisos, CodigosQr, RegistrarPersona, Login
 src/paginas/escaneo/   Escanear
 src/componentes/       UI compartida (Boton, Campo, LectorQR, ListaCitas, ...)
 src/datos/             capa de datos: una función por RPC de Supabase, con su .test.js al lado
 src/i18n/              config.js + es.json / en.json / vi.json
 src/rutas/             AppRouter, RutasPublicas, RutasAdmin, RutaProtegida, SoloRol
-supabase/schema.sql    receta completa (3900+ líneas) — ver docs/mapa-base-de-datos.md
+supabase/schema.sql    receta completa (6000+ líneas) — ver docs/mapa-base-de-datos.md
 supabase/migraciones/  cambios sobre la base que ya existe — ver su LEEME.md
 supabase/pruebas/      reglas.sql, se pega completo en el SQL Editor
-scripts/               prueba-concurrencia.mjs, prueba-escaneo.mjs (contra la base real)
+scripts/               prueba-concurrencia, prueba-escaneo, prueba-turnos, prueba-general (.mjs;
+                       base de pruebas con --pruebas, ver scripts/entorno.mjs)
 ```
 
-Rutas públicas: `/` · `/calendario` · `/horarios/:fecha` · `/registro` ·
-`/confirmacion/:id` · `/cambiar/:id` · `/pase/:id`.
+Rutas públicas: `/` · `/calendario` · `/a-pie` · `/horarios/:fecha` ·
+`/registro` · `/confirmacion/:id` · `/cambiar/:id` · `/pase/:id` ·
+`/preguntas` · `/quienes-somos`.
 Personal: `/escanear` · `/admin/*` (citas-hoy, registrar, horarios, pases,
-personas, reportes, equipo). Requieren sesión.
+personas, reportes, avisos, equipo, permisos, qr). Requieren sesión.
 
 ---
 
@@ -299,7 +346,7 @@ Estos archivos **no** se cargan solos. Ábrelos cuando el trabajo los toque:
 - `docs/mapa-base-de-datos.md` — qué hace cada función y en qué línea está,
   para no leer `schema.sql` entero
 - `docs/estado.md` — qué está hecho y qué falta
-- `docs/fila-a-pie.md` — la Fase 2: qué quedó hecho y qué falta decidir
+- `docs/fila-a-pie.md` — la fila a pie por turnos: cómo funciona, cómo se abre y qué decide el pastor
 - `docs/base-de-pruebas.md` — la base de pruebas: cómo se arma y qué se prueba dónde
 - `docs/infraestructura.md` — dominio, DNS, hosting, correo
 - `docs/logos.md` — archivos de marca
