@@ -255,7 +255,10 @@
     "motivo": "Reason: {{motivo}}",
     "enCarroDe": "Riding with {{nombre}} ({{codigo}})",
     "traeAcompanantes_one": "Brings {{count}} passenger",
-    "traeAcompanantes_other": "Brings {{count}} passengers"
+    "traeAcompanantes_other": "Brings {{count}} passengers",
+    "carros": "Cars",
+    "carrosNota_one": "plus {{count}} passenger in them",
+    "carrosNota_other": "plus {{count}} passengers in them"
   },
   "detalle": {
     "ver": "View",

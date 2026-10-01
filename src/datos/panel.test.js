@@ -8,6 +8,7 @@ import {
   citaParaQr,
   citasDePersona,
   citasDelDia,
+  contarCarros,
   detalleDePersona,
   faltaParaRegistrar,
   hoyLocal,
@@ -277,6 +278,31 @@ describe('citaParaQr (qué QR va en el cuadro de la ficha)', () => {
   it('sin citas, nada', () => {
     expect(citaParaQr([], HOY)).toBeNull()
     expect(citaParaQr(undefined, HOY)).toBeNull()
+  })
+})
+
+describe('contarCarros (Citas de hoy)', () => {
+  const cita = (cambios) => ({ estado: 'reservada', fila: 'carro', en_carro_de: null, ...cambios })
+
+  it('cuenta carros, no personas: los acompañantes van en el carro de otro', () => {
+    const citas = [
+      cita({}),
+      cita({ en_carro_de: 'CB-0001' }),
+      cita({ en_carro_de: 'CB-0001' }),
+      cita({ estado: 'entregada' }),
+      cita({ estado: 'no_asistio' }),
+    ]
+    expect(contarCarros(citas)).toEqual({ carros: 3, acompanantes: 2 })
+  })
+
+  it('las canceladas y la fila a pie no son carros', () => {
+    const citas = [cita({}), cita({ estado: 'cancelada' }), cita({ fila: 'a_pie' }), cita({ estado: 'cancelada', en_carro_de: 'CB-1' })]
+    expect(contarCarros(citas)).toEqual({ carros: 1, acompanantes: 0 })
+  })
+
+  it('sin los datos de acompañantes, cada cita es su carro; sin lista, cero', () => {
+    expect(contarCarros([{ estado: 'reservada', fila: 'carro' }, { estado: 'reservada' }])).toEqual({ carros: 2, acompanantes: 0 })
+    expect(contarCarros(null)).toEqual({ carros: 0, acompanantes: 0 })
   })
 })
 

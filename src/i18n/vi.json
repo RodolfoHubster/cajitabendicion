@@ -257,7 +257,9 @@
     "canceladaPorPersona": "Người đó tự hủy qua đường dẫn lúc {{cuando}}",
     "motivo": "Lý do: {{motivo}}",
     "enCarroDe": "Đi chung xe với {{nombre}} ({{codigo}})",
-    "traeAcompanantes_other": "Chở {{count}} người đi chung"
+    "traeAcompanantes_other": "Chở {{count}} người đi chung",
+    "carros": "Xe",
+    "carrosNota_other": "và {{count}} người đi chung"
   },
   "detalle": {
     "ver": "Xem",

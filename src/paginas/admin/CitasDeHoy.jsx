@@ -11,7 +11,7 @@ import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import { esSinLimite } from '../../datos/filaAPie'
 import { fechaPorDefecto, fechasDeEntrega } from '../../datos/fechasEntrega'
 import { filaDe, filtrarPorFila } from '../../datos/filas'
-import { bloquesDelDia, citasDelDia, hoyLocal, resumenDelDia } from '../../datos/panel'
+import { bloquesDelDia, citasDelDia, contarCarros, hoyLocal, resumenDelDia } from '../../datos/panel'
 import { EsqueletoLista, EsqueletoNumeros } from '../../componentes/Esqueleto'
 
 export default function CitasDeHoy() {
@@ -115,8 +115,18 @@ export default function CitasDeHoy() {
   const bloques = filtrarPorFila(datos?.bloques, vistaFila)
   const citas = filtrarPorFila(datos?.citas, vistaFila)
 
+  // Las citas son personas (una caja cada una); los lugares son carros.
+  const { carros, acompanantes } = contarCarros(citas)
+
   const numeros = [
     { clave: esHoy ? 'conCita' : 'conCitaDia', valor: resumen?.con_cita ?? 0, color: 'text-principal' },
+    // A pie no hay carros: con esa vista no se muestra.
+    vistaFila !== 'a_pie' && {
+      clave: 'carros',
+      valor: carros,
+      color: 'text-principal',
+      nota: acompanantes > 0 ? t('panel.carrosNota', { count: acompanantes }) : null,
+    },
     { clave: 'yaRecibieron', valor: resumen?.ya_recibieron ?? 0, color: 'text-puede-pasar' },
     // Un dia que ya paso no tiene "faltan": quien no llego, no asistio.
     esPasado
@@ -125,7 +135,7 @@ export default function CitasDeHoy() {
     { clave: 'sinCita', valor: resumen?.sin_cita ?? 0, color: 'text-principal' },
     { clave: 'canceladas', valor: resumen?.canceladas ?? 0, color: 'text-principal/70' },
     { clave: 'repetidos', valor: resumen?.intentos_repetidos ?? 0, color: 'text-ya-recibio' },
-  ]
+  ].filter(Boolean)
 
   return (
     <div className="space-y-4">
@@ -155,11 +165,12 @@ export default function CitasDeHoy() {
         {cargando ? (
           <EsqueletoNumeros texto={t('panel.cargando')} />
         ) : (
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-            {numeros.map(({ clave, valor, color }) => (
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7">
+            {numeros.map(({ clave, valor, color, nota }) => (
               <div className="rounded-xl bg-principal/5 p-3" key={clave}>
                 <dd className={`text-3xl font-bold ${color}`}>{valor}</dd>
                 <dt className="text-base text-principal/70">{t(`panel.${clave}`)}</dt>
+                {nota && <dd className="text-chica font-semibold text-principal/80">{nota}</dd>}
               </div>
             ))}
           </dl>

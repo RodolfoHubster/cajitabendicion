@@ -1,6 +1,6 @@
 import { CODIGOS_DOMICILIO, parametrosDomicilio } from './domicilio'
 import { clasificarError } from './errores'
-import { conFila } from './filas'
+import { conFila, filaDe } from './filas'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -120,6 +120,19 @@ export async function registrarDesdePanel({
   }
 
   return (Array.isArray(data) ? data[0] : data) ?? null
+}
+
+/**
+ * Cuantos carros vienen ese dia: las citas de carro que no se cancelaron,
+ * sin contar a los acompanantes (van en el carro de otro). Un lugar es un
+ * carro (seccion 39 de la base); las citas son personas, una caja cada una.
+ * Sin los datos de acompanantes (base sin actualizar), cada cita cuenta
+ * como su carro.
+ */
+export function contarCarros(citas) {
+  const vigentes = (citas ?? []).filter((cita) => cita.estado !== 'cancelada' && filaDe(cita) === 'carro')
+  const acompanantes = vigentes.filter((cita) => cita.en_carro_de).length
+  return { carros: vigentes.length - acompanantes, acompanantes }
 }
 
 /** Hoy en San Diego, en formato AAAA-MM-DD. */

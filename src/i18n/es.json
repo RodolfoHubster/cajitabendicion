@@ -255,7 +255,10 @@
     "motivo": "Motivo: {{motivo}}",
     "enCarroDe": "Va en el carro de {{nombre}} ({{codigo}})",
     "traeAcompanantes_one": "Trae {{count}} acompañante",
-    "traeAcompanantes_other": "Trae {{count}} acompañantes"
+    "traeAcompanantes_other": "Trae {{count}} acompañantes",
+    "carros": "Carros",
+    "carrosNota_one": "y {{count}} acompañante en ellos",
+    "carrosNota_other": "y {{count}} acompañantes en ellos"
   },
   "detalle": {
     "ver": "Ver",
