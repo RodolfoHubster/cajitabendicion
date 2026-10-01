@@ -12,6 +12,8 @@ export default function App() {
   // Lo publico va angosto; el panel, ancho (ver rutas/anchoPagina.js).
   const ancho = useAnchoPagina()
   const { pathname } = useLocation()
+  // En el panel se anima solo la pagina, no el menu (DisenoAdmin.jsx).
+  const enPanel = (pathname.startsWith('/admin') && pathname !== '/admin/login') || pathname === '/escanear'
 
   return (
     <div className="min-h-screen bg-fondo text-principal">
@@ -29,7 +31,9 @@ export default function App() {
         {/* Si una pantalla falla, un aviso con que hacer, no una pagina en
             blanco. Con key: al cambiar de pagina se reinicia. */}
         <RedDeSeguridad key={pathname}>
-          <AppRouter />
+          <div className={enPanel ? undefined : 'entrar-pagina'}>
+            <AppRouter />
+          </div>
         </RedDeSeguridad>
       </main>
       <Pie />

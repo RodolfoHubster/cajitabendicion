@@ -25,7 +25,9 @@
       "ERROR_DESCONOCIDO": "We could not sign you in. Please try again."
     },
     "google": "Continue with Google",
-    "oCorreo": "or with email and password"
+    "oCorreo": "or with email and password",
+    "mostrarContrasena": "Show",
+    "ocultarContrasena": "Hide"
   },
   "nav": {
     "citasHoy": "Today",
@@ -137,7 +139,8 @@
       "titulo": "It is not their turn yet",
       "texto": "They have number {{turno}} and we are on {{actual}}. They can go ahead if you decide so.",
       "paso": "Went ahead of their turn: they have {{turno}} and we are on {{actual}}. If they should not have, undo it with the button below."
-    }
+    },
+    "revisaNombre": "Ask their name: it must match the screen. If it does not, undo the delivery and tell the coordinator."
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -200,7 +203,8 @@
     "hacerVip": "Make VIP",
     "quitarVip": "Remove VIP",
     "vipPuesto": "{{codigo}} is now VIP: their pass is gold.",
-    "vipQuitado": "{{codigo}} is no longer VIP."
+    "vipQuitado": "{{codigo}} is no longer VIP.",
+    "buscarEnPersonas": "Don't know their code? Search by name in People"
   },
   "panel": {
     "cargando": "Loading today…",
@@ -248,7 +252,10 @@
     "canceladas": "Canceled",
     "canceladaPor": "Canceled by {{quien}} on {{cuando}}",
     "canceladaPorPersona": "Canceled by the person from their link on {{cuando}}",
-    "motivo": "Reason: {{motivo}}"
+    "motivo": "Reason: {{motivo}}",
+    "enCarroDe": "Riding with {{nombre}} ({{codigo}})",
+    "traeAcompanantes_one": "Brings {{count}} passenger",
+    "traeAcompanantes_other": "Brings {{count}} passengers"
   },
   "detalle": {
     "ver": "View",
@@ -361,7 +368,8 @@
       "A_PIE_CERRADO": "There is no walk-up line for that day right now.",
       "SIN_CONEXION": "The connection dropped. Check your signal and tap “Confirm” again.",
       "ACOMPANANTE_SIN_CITA": "We could not find a car appointment with that code for this day. Check the code with the driver.",
-      "CARRO_LLENO": "That car already has the maximum number of passengers."
+      "CARRO_LLENO": "That car already has the maximum number of passengers.",
+      "FALTA_FECHA": "Choose the date."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
@@ -531,7 +539,9 @@
     "avisoPase": "The pass works Mondays and Thursdays, with no set time, until it is removed. One box per delivery day. It does not take a spot from the quota.",
     "motivoPase": "Why are they getting it? (optional)",
     "yaTenia": "This person already had an appointment that day",
-    "yaTeniaAyuda": "No new one was made. This is the one they already had, with their code."
+    "yaTeniaAyuda": "No new one was made. This is the one they already had, with their code.",
+    "horaDeQuienManeja": "They get the driver's time.",
+    "enCarroDe": "Riding in the car of {{codigo}}."
   },
   "diasAdmin": {
     "titulo": "Slots & capacity",
@@ -813,6 +823,10 @@
       "filaAPie": {
         "titulo": "Setting up the walk-up line",
         "texto": "When you create a date, choose whether it is cars only, walk-up only or both. For the walk-up line, set the time the delivery starts and how many numbers (or no limit). Numbers open one hour before; if you choose earlier, you get a warning. You can also change it later, inside each day."
+      },
+      "personas": {
+        "titulo": "People",
+        "texto": "Find someone by name, phone or CB code, even if they registered several times. From there you give them a pass or make them VIP."
       }
     },
     "escena": {
@@ -1135,7 +1149,13 @@
     "irPagina": "Go to page {{pagina}}",
     "paginacion": "List pages",
     "sinCanceladas": "All, without canceled",
-    "canceladas": "Canceled"
+    "canceladas": "Canceled",
+    "comoViene": "How they come",
+    "carro": {
+      "propio": "Own car",
+      "acompanante": "Passengers",
+      "con_acompanantes": "Cars with passengers"
+    }
   },
   "reportes": {
     "titulo": "Reports",
@@ -1691,11 +1711,72 @@
     "horaDeQuienManeja": "Your time is the driver's time.",
     "enlace": "Coming in the car of someone who already has an appointment? Register here",
     "escogeHorario": "To bring your car, first choose a time slot with space.",
-    "verHorarios": "See time slots"
+    "verHorarios": "See time slots",
+    "panel": {
+      "titulo": "How are they coming?",
+      "explicacion": "Each spot is a car. Someone riding in the car of a person who already has an appointment gets their own code and their own box, but does not take another spot. Their time is the driver's time.",
+      "propio": "Bringing their own car",
+      "propioAyuda": "Takes a spot for their car.",
+      "acompanante": "Riding in the car of someone who already has an appointment",
+      "acompananteAyuda": "Does not take another spot.",
+      "codigoAyuda": "It is on the driver's appointment page, below their QR (for example CB-4871)."
+    }
   },
   "vip": {
     "voluntario": "Goes straight in, no line",
     "persona": "You go straight in, no line",
     "etiqueta": "VIP pass"
+  },
+  "personas": {
+    "titulo": "People",
+    "ayuda": "Find someone across all registrations. If they registered several times with the same name and phone, it shows together.",
+    "buscar": "Name, phone or CB code",
+    "ejemplo": "For example: María López",
+    "buscando": "Searching…",
+    "sinResultados": "We did not find anyone with “{{texto}}”. Check the spelling, or search by phone.",
+    "encontradas_one": "{{count}} person",
+    "encontradas_other": "{{count}} people",
+    "conPase": "Pass",
+    "telefonoFinal": "Phone ends in {{numeros}}",
+    "registros_one": "{{count}} registration",
+    "registros_other": "{{count}} registrations",
+    "cajas_one": "{{count}} box",
+    "cajas_other": "{{count}} boxes",
+    "ultimaVez": "last time: {{fecha}}",
+    "mismoNombre": "Someone else has this name with a different phone. Check the city before giving them anything.",
+    "paseAqui": "has the pass",
+    "paseVipAqui": "has the VIP pass",
+    "registrado": "Registered on {{fecha}}",
+    "verFicha": "View details",
+    "hacerVip": "Make VIP",
+    "darPase": "Give permanent pass",
+    "quitarVip": "Remove VIP",
+    "verEnPases": "See in Passes",
+    "pregunta": {
+      "vip": "Give {{nombre}} ({{codigo}}) a VIP pass? Their QR is gold and they go straight in, no line.",
+      "pase": "Give {{nombre}} ({{codigo}}) a permanent pass? It works Mondays and Thursdays, one box per day.",
+      "quitarVip": "Remove VIP from {{nombre}} ({{codigo}})? Their pass still works, but they wait in line like everyone."
+    },
+    "si": "Yes",
+    "no": "Cancel",
+    "guardando": "Saving…",
+    "listo": {
+      "vip": "Done: {{nombre}} ({{codigo}}) is now VIP.",
+      "pase": "Done: {{nombre}} ({{codigo}}) now has a permanent pass.",
+      "quitarVip": "Done: {{nombre}} ({{codigo}}) is no longer VIP."
+    },
+    "verPase": "See their pass",
+    "copiar": "Copy link to send it",
+    "copiado": "Link copied"
+  },
+  "diaEntrega": {
+    "elegir": "Choose a day",
+    "hoy": "today",
+    "cerrado": "canceled",
+    "anterior": "Previous distribution day",
+    "siguiente": "Next distribution day"
+  },
+  "ventanaPase": {
+    "cuidado": "This link opens their pass: send it only to that person. If you think someone else has it, tap “New code” in Passes and the old one stops working."
   }
 }

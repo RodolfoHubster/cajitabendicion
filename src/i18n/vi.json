@@ -30,7 +30,9 @@
       "ERROR_DESCONOCIDO": "Không thể đăng nhập. Vui lòng thử lại."
     },
     "google": "Tiếp tục với Google",
-    "oCorreo": "hoặc bằng email và mật khẩu"
+    "oCorreo": "hoặc bằng email và mật khẩu",
+    "mostrarContrasena": "Hiện",
+    "ocultarContrasena": "Ẩn"
   },
   "nav": {
     "citasHoy": "Lịch hẹn hôm nay",
@@ -142,7 +144,8 @@
       "titulo": "Chưa đến lượt người này",
       "texto": "Người này có số {{turno}} và đang gọi số {{actual}}. Có thể cho qua nếu bạn quyết định.",
       "paso": "Đã qua trước lượt: có số {{turno}}, đang gọi số {{actual}}. Nếu không nên cho qua, hãy hoàn tác bằng nút bên dưới."
-    }
+    },
+    "revisaNombre": "Hỏi tên của họ: phải giống tên trên màn hình. Nếu không giống, hãy hủy lần phát và báo cho người điều phối."
   },
   "pase": {
     "etiqueta": "Thẻ vào vĩnh viễn",
@@ -204,7 +207,8 @@
     "hacerVip": "Chuyển thành VIP",
     "quitarVip": "Bỏ VIP",
     "vipPuesto": "{{codigo}} giờ là VIP: thẻ có màu vàng.",
-    "vipQuitado": "{{codigo}} không còn là VIP."
+    "vipQuitado": "{{codigo}} không còn là VIP.",
+    "buscarEnPersonas": "Không biết mã? Tìm theo tên trong Mọi người"
   },
   "panel": {
     "cargando": "Đang tải dữ liệu trong ngày…",
@@ -251,7 +255,9 @@
     "canceladas": "Đã hủy",
     "canceladaPor": "{{quien}} đã hủy lúc {{cuando}}",
     "canceladaPorPersona": "Người đó tự hủy qua đường dẫn lúc {{cuando}}",
-    "motivo": "Lý do: {{motivo}}"
+    "motivo": "Lý do: {{motivo}}",
+    "enCarroDe": "Đi chung xe với {{nombre}} ({{codigo}})",
+    "traeAcompanantes_other": "Chở {{count}} người đi chung"
   },
   "detalle": {
     "ver": "Xem",
@@ -364,7 +370,8 @@
       "A_PIE_CERRADO": "Hiện chưa có hàng đi bộ cho ngày đó.",
       "SIN_CONEXION": "Mất kết nối. Hãy kiểm tra sóng và bấm «Xác nhận» lại.",
       "ACOMPANANTE_SIN_CITA": "Không tìm thấy lịch hẹn đi xe với mã này trong ngày này. Hãy kiểm tra lại mã với người lái xe.",
-      "CARRO_LLENO": "Xe đó đã đủ số người đi chung."
+      "CARRO_LLENO": "Xe đó đã đủ số người đi chung.",
+      "FALTA_FECHA": "Hãy chọn ngày."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
@@ -531,7 +538,9 @@
     "avisoPase": "Thẻ dùng được thứ Hai và thứ Năm, không cần giờ cố định, cho đến khi bị thu hồi. Mỗi ngày phát một phần. Không chiếm chỗ của lịch hẹn.",
     "motivoPase": "Vì sao được cấp? (không bắt buộc)",
     "yaTenia": "Người này đã có lịch hẹn trong ngày đó",
-    "yaTeniaAyuda": "Không tạo lịch mới. Đây là lịch họ đã có, với mã của họ."
+    "yaTeniaAyuda": "Không tạo lịch mới. Đây là lịch họ đã có, với mã của họ.",
+    "horaDeQuienManeja": "Họ theo giờ của người lái xe.",
+    "enCarroDe": "Đi chung xe của {{codigo}}."
   },
   "diasAdmin": {
     "titulo": "Khung giờ và số chỗ",
@@ -811,6 +820,10 @@
       "filaAPie": {
         "titulo": "Tạo hàng đi bộ",
         "texto": "Khi tạo một ngày, hãy chọn chỉ xe hơi, chỉ đi bộ hay cả hai. Với hàng đi bộ, hãy đặt giờ bắt đầu phát và bao nhiêu số (hoặc không giới hạn). Mở lấy số một giờ trước; nếu chọn sớm hơn, sẽ có cảnh báo. Sau đó vẫn có thể đổi, trong từng ngày."
+      },
+      "personas": {
+        "titulo": "Mọi người",
+        "texto": "Tìm một người theo tên, số điện thoại hoặc mã CB, kể cả khi họ đăng ký nhiều lần. Từ đó bạn cấp thẻ hoặc chuyển họ thành VIP."
       }
     },
     "escena": {
@@ -1131,7 +1144,13 @@
     "irPagina": "Đến trang {{pagina}}",
     "paginacion": "Các trang của danh sách",
     "sinCanceladas": "Tất cả, trừ lịch đã hủy",
-    "canceladas": "Đã hủy"
+    "canceladas": "Đã hủy",
+    "comoViene": "Cách đến",
+    "carro": {
+      "propio": "Tự lái xe",
+      "acompanante": "Đi chung xe",
+      "con_acompanantes": "Xe có người đi chung"
+    }
   },
   "reportes": {
     "titulo": "Báo cáo",
@@ -1683,11 +1702,69 @@
     "horaDeQuienManeja": "Giờ của bạn là giờ của người lái xe.",
     "enlace": "Đi chung xe với người đã có lịch hẹn? Đăng ký tại đây",
     "escogeHorario": "Để tự lái xe, hãy chọn khung giờ còn chỗ trước.",
-    "verHorarios": "Xem khung giờ"
+    "verHorarios": "Xem khung giờ",
+    "panel": {
+      "titulo": "Người này đến bằng cách nào?",
+      "explicacion": "Mỗi chỗ là một xe. Người đi chung xe với người đã có lịch hẹn có mã và thùng riêng, nhưng không chiếm thêm chỗ. Giờ của họ là giờ của người lái xe.",
+      "propio": "Tự lái xe",
+      "propioAyuda": "Giữ một chỗ cho xe của họ.",
+      "acompanante": "Đi chung xe với người đã có lịch hẹn",
+      "acompananteAyuda": "Không chiếm thêm chỗ.",
+      "codigoAyuda": "Mã nằm trên trang lịch hẹn của người lái xe, bên dưới mã QR (ví dụ CB-4871)."
+    }
   },
   "vip": {
     "voluntario": "Vào thẳng, không cần xếp hàng",
     "persona": "Bạn vào thẳng, không cần xếp hàng",
     "etiqueta": "Thẻ VIP"
+  },
+  "personas": {
+    "titulo": "Mọi người",
+    "ayuda": "Tìm một người trong tất cả các lần đăng ký. Nếu họ đăng ký nhiều lần cùng tên và số điện thoại, sẽ hiện chung.",
+    "buscar": "Tên, số điện thoại hoặc mã CB",
+    "ejemplo": "Ví dụ: María López",
+    "buscando": "Đang tìm…",
+    "sinResultados": "Không tìm thấy ai với “{{texto}}”. Hãy kiểm tra cách viết, hoặc tìm theo số điện thoại.",
+    "encontradas_other": "{{count}} người",
+    "conPase": "Thẻ",
+    "telefonoFinal": "Số điện thoại tận cùng {{numeros}}",
+    "registros_other": "{{count}} lần đăng ký",
+    "cajas_other": "{{count}} thùng",
+    "ultimaVez": "lần gần nhất: {{fecha}}",
+    "mismoNombre": "Có người khác cùng tên nhưng khác số điện thoại. Hãy xem thành phố trước khi cấp gì.",
+    "paseAqui": "có thẻ",
+    "paseVipAqui": "có thẻ VIP",
+    "registrado": "Đăng ký ngày {{fecha}}",
+    "verFicha": "Xem hồ sơ",
+    "hacerVip": "Chuyển thành VIP",
+    "darPase": "Cấp thẻ vĩnh viễn",
+    "quitarVip": "Bỏ VIP",
+    "verEnPases": "Xem trong Thẻ",
+    "pregunta": {
+      "vip": "Cấp thẻ VIP cho {{nombre}} ({{codigo}})? Mã QR màu vàng và vào thẳng, không cần xếp hàng.",
+      "pase": "Cấp thẻ vĩnh viễn cho {{nombre}} ({{codigo}})? Dùng được thứ Hai và thứ Năm, mỗi ngày một thùng.",
+      "quitarVip": "Bỏ VIP của {{nombre}} ({{codigo}})? Thẻ vẫn dùng được, nhưng xếp hàng như mọi người."
+    },
+    "si": "Có",
+    "no": "Hủy",
+    "guardando": "Đang lưu…",
+    "listo": {
+      "vip": "Xong: {{nombre}} ({{codigo}}) đã là VIP.",
+      "pase": "Xong: {{nombre}} ({{codigo}}) đã có thẻ vĩnh viễn.",
+      "quitarVip": "Xong: {{nombre}} ({{codigo}}) không còn là VIP."
+    },
+    "verPase": "Xem thẻ của họ",
+    "copiar": "Sao chép liên kết để gửi",
+    "copiado": "Đã sao chép liên kết"
+  },
+  "diaEntrega": {
+    "elegir": "Chọn một ngày",
+    "hoy": "hôm nay",
+    "cerrado": "đã hủy",
+    "anterior": "Ngày phát trước",
+    "siguiente": "Ngày phát sau"
+  },
+  "ventanaPase": {
+    "cuidado": "Liên kết này mở thẻ của họ: chỉ gửi cho đúng người đó. Nếu nghĩ người khác cũng có, hãy bấm «Cấp mã mới» trong Thẻ vào và mã cũ sẽ không dùng được nữa."
   }
 }

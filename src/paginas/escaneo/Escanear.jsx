@@ -656,7 +656,14 @@ export default function Escanear() {
               <p className="text-2xl font-bold">{t(`escaneo.resultado.${resultado.resultado}`)}</p>
               {resultado.nombre && (
                 <p className="mt-2 text-lg text-principal">
-                  {resultado.nombre} · {resultado.codigo_corto}
+                  <span className="font-bold">{resultado.nombre}</span> · {resultado.codigo_corto}
+                </p>
+              )}
+              {/* Un QR se puede pasar a otra persona. El nombre es la forma de
+                  saber que es de quien lo trae. */}
+              {resultado.nombre && PUEDE_PASAR.includes(resultado.resultado) && (
+                <p className="mt-2 rounded-lg bg-principal/5 px-3 py-2 text-base font-semibold text-principal">
+                  {t('escaneo.revisaNombre')}
                 </p>
               )}
               {resultado.hora && (

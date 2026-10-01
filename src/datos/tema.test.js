@@ -161,6 +161,7 @@ describe('los colores respetan el modo oscuro', () => {
   //  Lo unico que debe seguir blanco de verdad: donde va un QR (lo lee otro
   //  telefono) y el circulo del logo (una foto con fondo blanco).
   const BLANCO_PERMITIDO = {
+    'componentes/VentanaPase.jsx': 1,
     'paginas/publico/Confirmacion.jsx': 1,
     'paginas/publico/Pase.jsx': 1,
     'paginas/publico/Inicio.jsx': 1,

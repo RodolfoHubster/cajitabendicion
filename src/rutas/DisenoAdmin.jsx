@@ -145,7 +145,10 @@ export default function DisenoAdmin() {
       </nav>
 
       <div className="min-w-0 flex-1">
-        <Outlet context={contexto} />
+        {/* Cada pantalla entra con un movimiento corto; el menu se queda quieto. */}
+        <div className="entrar-pagina" key={pathname}>
+          <Outlet context={contexto} />
+        </div>
 
         <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden">{cuenta}</div>
       </div>

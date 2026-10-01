@@ -25,7 +25,9 @@
       "ERROR_DESCONOCIDO": "No pudimos iniciar sesión. Intenta de nuevo."
     },
     "google": "Continuar con Google",
-    "oCorreo": "o con correo y contraseña"
+    "oCorreo": "o con correo y contraseña",
+    "mostrarContrasena": "Mostrar",
+    "ocultarContrasena": "Ocultar"
   },
   "nav": {
     "citasHoy": "Citas de hoy",
@@ -137,7 +139,8 @@
       "titulo": "Todavía no es su turno",
       "texto": "Tiene el turno {{turno}} y va el {{actual}}. Puede pasar si tú lo decides.",
       "paso": "Pasó antes de su turno: tiene el {{turno}} y va el {{actual}}. Si no debía pasar, deshaz la entrega con el botón de abajo."
-    }
+    },
+    "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina."
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -200,7 +203,8 @@
     "hacerVip": "Hacer VIP",
     "quitarVip": "Quitar VIP",
     "vipPuesto": "{{codigo}} ahora es VIP: su pase sale dorado.",
-    "vipQuitado": "{{codigo}} ya no es VIP."
+    "vipQuitado": "{{codigo}} ya no es VIP.",
+    "buscarEnPersonas": "¿No sabes su código? Búscalo por nombre en Personas"
   },
   "panel": {
     "cargando": "Cargando el día…",
@@ -248,7 +252,10 @@
     "canceladas": "Canceladas",
     "canceladaPor": "La canceló {{quien}} el {{cuando}}",
     "canceladaPorPersona": "La canceló la persona desde su enlace el {{cuando}}",
-    "motivo": "Motivo: {{motivo}}"
+    "motivo": "Motivo: {{motivo}}",
+    "enCarroDe": "Va en el carro de {{nombre}} ({{codigo}})",
+    "traeAcompanantes_one": "Trae {{count}} acompañante",
+    "traeAcompanantes_other": "Trae {{count}} acompañantes"
   },
   "detalle": {
     "ver": "Ver",
@@ -361,7 +368,8 @@
       "A_PIE_CERRADO": "Por ahora no hay fila a pie para ese día.",
       "SIN_CONEXION": "Se cortó la conexión. Revisa tu señal y vuelve a tocar «Confirmar».",
       "ACOMPANANTE_SIN_CITA": "No encontramos una cita de carro con ese código para este día. Revisa el código con quien maneja.",
-      "CARRO_LLENO": "Ese carro ya tiene el máximo de acompañantes."
+      "CARRO_LLENO": "Ese carro ya tiene el máximo de acompañantes.",
+      "FALTA_FECHA": "Elige la fecha."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
@@ -531,7 +539,9 @@
     "avisoPase": "El pase sirve lunes y jueves, sin horario, hasta que se lo quiten. Una caja por día de entrega. No aparta lugar del cupo.",
     "motivoPase": "¿Por qué se le da? (opcional)",
     "yaTenia": "Esta persona ya tenía cita ese día",
-    "yaTeniaAyuda": "No se le hizo otra. Esta es la que ya tenía, con su código."
+    "yaTeniaAyuda": "No se le hizo otra. Esta es la que ya tenía, con su código.",
+    "horaDeQuienManeja": "Queda a la hora de quien maneja.",
+    "enCarroDe": "Va en el carro de {{codigo}}."
   },
   "diasAdmin": {
     "titulo": "Horarios y cupos",
@@ -813,6 +823,10 @@
       "filaAPie": {
         "titulo": "Armar la fila a pie",
         "texto": "Al crear una fecha, escoge si es solo de carros, solo a pie o de las dos. De la fila a pie pones a qué hora empieza la entrega y cuántos turnos (o sin límite). Los turnos se abren una hora antes; si eliges más temprano, te avisa. También se cambia después, dentro de cada día."
+      },
+      "personas": {
+        "titulo": "Personas",
+        "texto": "Busca a alguien por nombre, teléfono o código CB, aunque se haya registrado varias veces. Desde ahí mismo le das su pase o lo haces VIP."
       }
     },
     "escena": {
@@ -1135,7 +1149,13 @@
     "irPagina": "Ir a la página {{pagina}}",
     "paginacion": "Páginas de la lista",
     "sinCanceladas": "Todos, sin canceladas",
-    "canceladas": "Canceladas"
+    "canceladas": "Canceladas",
+    "comoViene": "Cómo viene",
+    "carro": {
+      "propio": "Con su carro",
+      "acompanante": "Acompañantes",
+      "con_acompanantes": "Carros con acompañantes"
+    }
   },
   "reportes": {
     "titulo": "Reportes",
@@ -1691,11 +1711,72 @@
     "horaDeQuienManeja": "Tu hora es la de quien maneja.",
     "enlace": "¿Vienes en el carro de alguien que ya tiene cita? Regístrate aquí",
     "escogeHorario": "Para traer tu carro, primero escoge un horario con lugar.",
-    "verHorarios": "Ver horarios"
+    "verHorarios": "Ver horarios",
+    "panel": {
+      "titulo": "¿Cómo viene?",
+      "explicacion": "Cada lugar es un carro. Quien viene en el carro de alguien que ya tiene cita tiene su propio código y su propia caja, pero no ocupa otro lugar. Su hora es la de quien maneja.",
+      "propio": "Trae su carro",
+      "propioAyuda": "Aparta un lugar para su carro.",
+      "acompanante": "Viene en el carro de alguien que ya tiene cita",
+      "acompananteAyuda": "No ocupa otro lugar.",
+      "codigoAyuda": "Está en la página de la cita de quien maneja, debajo de su QR (por ejemplo CB-4871)."
+    }
   },
   "vip": {
     "voluntario": "Pasa directo, sin hacer fila",
     "persona": "Pasas directo, sin hacer fila",
     "etiqueta": "Pase VIP"
+  },
+  "personas": {
+    "titulo": "Personas",
+    "ayuda": "Busca a alguien en todos los registros. Si se registró varias veces con el mismo nombre y teléfono, sale junto.",
+    "buscar": "Nombre, teléfono o código CB",
+    "ejemplo": "Por ejemplo: María López",
+    "buscando": "Buscando…",
+    "sinResultados": "No encontramos a nadie con «{{texto}}». Revisa cómo se escribe, o busca por su teléfono.",
+    "encontradas_one": "{{count}} persona",
+    "encontradas_other": "{{count}} personas",
+    "conPase": "Pase",
+    "telefonoFinal": "Tel. termina en {{numeros}}",
+    "registros_one": "{{count}} registro",
+    "registros_other": "{{count}} registros",
+    "cajas_one": "{{count}} caja",
+    "cajas_other": "{{count}} cajas",
+    "ultimaVez": "última vez: {{fecha}}",
+    "mismoNombre": "Hay otra persona con este nombre y otro teléfono. Revisa la ciudad antes de darle algo.",
+    "paseAqui": "tiene el pase",
+    "paseVipAqui": "tiene el pase VIP",
+    "registrado": "Se registró el {{fecha}}",
+    "verFicha": "Ver ficha",
+    "hacerVip": "Hacer VIP",
+    "darPase": "Dar pase permanente",
+    "quitarVip": "Quitar VIP",
+    "verEnPases": "Ver en Pases",
+    "pregunta": {
+      "vip": "¿Darle pase VIP a {{nombre}} ({{codigo}})? Su QR sale dorado y pasa directo, sin hacer fila.",
+      "pase": "¿Darle pase permanente a {{nombre}} ({{codigo}})? Sirve lunes y jueves, una caja por día.",
+      "quitarVip": "¿Quitarle lo VIP a {{nombre}} ({{codigo}})? Su pase sigue sirviendo, pero hace fila como todos."
+    },
+    "si": "Sí",
+    "no": "Cancelar",
+    "guardando": "Guardando…",
+    "listo": {
+      "vip": "Listo: {{nombre}} ({{codigo}}) ya es VIP.",
+      "pase": "Listo: {{nombre}} ({{codigo}}) ya tiene su pase permanente.",
+      "quitarVip": "Listo: {{nombre}} ({{codigo}}) ya no es VIP."
+    },
+    "verPase": "Ver su pase",
+    "copiar": "Copiar enlace para mandárselo",
+    "copiado": "Enlace copiado"
+  },
+  "diaEntrega": {
+    "elegir": "Elige un día",
+    "hoy": "hoy",
+    "cerrado": "cancelado",
+    "anterior": "Día de entrega anterior",
+    "siguiente": "Día de entrega siguiente"
+  },
+  "ventanaPase": {
+    "cuidado": "Este enlace abre su pase: mándalo solo a esa persona. Si crees que alguien más lo tiene, toca «Renovar código» en Pases y el anterior deja de servir."
   }
 }

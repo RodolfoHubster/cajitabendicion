@@ -74,9 +74,13 @@
       color 0.3s ease !important;
   }
 
-  /* Quien pidio menos movimiento en su telefono no ve animaciones. */
+  /* Quien pidio menos movimiento (en su telefono, o con los efectos de
+     animacion apagados en Windows) no ve cosas que se desplazan ni que se
+     repiten. Los movimientos suaves de abajo si se quedan, pero solo como
+     fundido: sin nada, cada toque cambiaba la pantalla de golpe y parecia
+     que no habia pasado nada. */
   @media (prefers-reduced-motion: reduce) {
-    *,
+    *:not(.entrar-pagina, .aparecer, .ventana-sube, .desplegable, .girar-suave),
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
@@ -84,6 +88,83 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/*
+  Movimiento de las pantallas: corto y suave, para que se note que algo
+  cambio sin hacer esperar. Sin libreria: con CSS pesa nada, y quien pidio
+  menos movimiento en su telefono no lo ve (prefers-reduced-motion, arriba).
+
+  "backwards" y no "both": al terminar no queda ningun transform puesto, que
+  descompondria las ventanas fijas (la ficha, el pase) abiertas adentro.
+*/
+@keyframes entrar-pagina {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.entrar-pagina {
+  animation: entrar-pagina 0.35s ease-out backwards;
+}
+
+/* Lo que llega (resultados, avisos) aparece en vez de brincar. */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.aparecer {
+  animation: aparecer 0.4s ease-out backwards;
+}
+
+/* Las ventanas (la ficha, el pase) suben desde abajo. */
+@keyframes ventana-sube {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+.ventana-sube {
+  animation: ventana-sube 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+/* La flechita de lo que se despliega. */
+.girar-suave {
+  transition: transform 0.3s ease;
+}
+
+/* Con "reducir movimiento": lo mismo, pero sin desplazarse; solo un fundido. */
+@keyframes fundido {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entrar-pagina,
+  .aparecer,
+  .ventana-sube {
+    animation-name: fundido;
+  }
+}
+
+/* Desplegar: la altura crece suave, de cero a lo que mida (Desplegable.jsx). */
+.desplegable {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.35s ease;
+}
+.desplegable[data-abierto='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.desplegable > * {
+  min-height: 0;
+  overflow: hidden;
 }
 
 /*
