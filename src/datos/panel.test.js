@@ -58,7 +58,34 @@ describe('registrarDesdePanel', () => {
     })
   })
 
-  it.each(['APELLIDOS_REQUERIDOS', 'TELEFONO_INVALIDO', 'NOMBRE_INVALIDO', 'DIA_CERRADO', 'BLOQUE_LLENO'])(
+  it('de acompañante manda el código de quien maneja y la fecha, sin horario', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-2', token_qr: 't2' }], error: null })
+
+    await registrarDesdePanel({ ...PERSONA, bloqueId: null, fecha: '2026-10-01', codigoAcompanante: 'CB-4871' })
+    expect(supabase.rpc).toHaveBeenCalledWith(
+      'registrar_desde_panel',
+      expect.objectContaining({ p_bloque_id: null, p_codigo_acompanante: 'CB-4871', p_fecha: '2026-10-01' }),
+    )
+  })
+
+  it('con carro propio no manda los datos de acompañante', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-1', token_qr: 't' }], error: null })
+
+    await registrarDesdePanel({ ...PERSONA, fecha: '2026-10-01' })
+    const parametros = supabase.rpc.mock.calls[0][1]
+    expect(parametros).not.toHaveProperty('p_codigo_acompanante')
+    expect(parametros).not.toHaveProperty('p_fecha')
+  })
+
+  it.each([
+    'APELLIDOS_REQUERIDOS',
+    'TELEFONO_INVALIDO',
+    'NOMBRE_INVALIDO',
+    'DIA_CERRADO',
+    'BLOQUE_LLENO',
+    'ACOMPANANTE_SIN_CITA',
+    'CARRO_LLENO',
+  ])(
     'error de negocio %s pasa tal cual',
     async (codigo) => {
       supabase.rpc.mockResolvedValue({ data: null, error: { message: `P0001: ${codigo}` } })
@@ -262,6 +289,15 @@ describe('faltaParaRegistrar (Registrar a una persona, en el panel)', () => {
   it('la cita necesita su horario', () => {
     expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: '' })).toBe('FALTA_HORARIO')
     expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: 'bloque-1' })).toBeNull()
+  })
+
+  it('el acompañante no escoge horario (va a la hora de quien maneja), pero sí la fecha', () => {
+    expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: '', fecha: '2026-10-01', acompanante: true })).toBeNull()
+    expect(faltaParaRegistrar({ tipo: 'cita', bloqueId: '', fecha: '', acompanante: true })).toBe('FALTA_FECHA')
+  })
+
+  it('en modo pase no importa si antes había marcado acompañante', () => {
+    expect(faltaParaRegistrar({ tipo: 'pase', bloqueId: '', fecha: '', acompanante: true })).toBeNull()
   })
 
   it('el botón no se apaga por falta de horario (en modo pase se quedaba apagado para siempre)', () => {

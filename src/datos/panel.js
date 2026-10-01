@@ -77,6 +77,8 @@ const CODIGOS_REGISTRO = [
   'EMAIL_INVALIDO',
   'SIN_CODIGOS_DISPONIBLES',
   'DIA_CERRADO',
+  'ACOMPANANTE_SIN_CITA',
+  'CARRO_LLENO',
   ...CODIGOS_DOMICILIO,
 ]
 
@@ -85,6 +87,10 @@ const CODIGOS_REGISTRO = [
  * dispositivo y con correo opcional. telefono llega en formato
  * internacional (+526641234567). El domicilio y la confirmacion de
  * privacidad se piden igual que en el registro publico.
+ *
+ * De acompanante (viene en el carro de alguien que ya tiene cita) va sin
+ * horario: con la fecha y el codigo CB de quien maneja, la base lo pone en
+ * su horario y no ocupa otro lugar (seccion 39).
  */
 export async function registrarDesdePanel({
   nombres,
@@ -94,6 +100,8 @@ export async function registrarDesdePanel({
   domicilio,
   aceptoPrivacidad,
   bloqueId,
+  fecha = null,
+  codigoAcompanante = null,
 }) {
   const { data, error } = await supabase.rpc('registrar_desde_panel', {
     p_nombre: nombres,
@@ -103,6 +111,7 @@ export async function registrarDesdePanel({
     p_email: email || null,
     ...parametrosDomicilio(domicilio),
     p_acepto_privacidad: Boolean(aceptoPrivacidad),
+    ...(codigoAcompanante ? { p_codigo_acompanante: codigoAcompanante, p_fecha: fecha } : {}),
   })
 
   if (error) {
@@ -173,14 +182,17 @@ export function citaParaQr(citas, hoy) {
 
 /**
  * Lo que falta para registrar desde el panel, o null si se puede enviar.
- * El pase permanente no lleva horario; la cita si.
+ * El pase permanente no lleva horario; la cita si. El acompanante solo
+ * lleva la fecha: su hora es la de quien maneja.
  *
  * El boton "Registrar" no se apaga por esto: se apagaba y, en modo pase,
  * nunca se volvia a prender (no hay horario que elegir). Mejor que al
  * tocarlo diga que falta.
  */
-export function faltaParaRegistrar({ tipo, bloqueId }) {
-  return tipo === 'cita' && !bloqueId ? 'FALTA_HORARIO' : null
+export function faltaParaRegistrar({ tipo, bloqueId, fecha, acompanante = false }) {
+  if (tipo !== 'cita') return null
+  if (acompanante) return fecha ? null : 'FALTA_FECHA'
+  return bloqueId ? null : 'FALTA_HORARIO'
 }
 
 /**

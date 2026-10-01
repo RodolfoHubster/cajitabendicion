@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaUserGroup } from 'react-icons/fa6'
 import { useOutletContext } from 'react-router-dom'
 import Campo from './Campo'
 import DeshacerEntrega from './DeshacerEntrega'
@@ -12,9 +13,11 @@ import { cancelarCitaPanel, marcarEntregadaPanel } from '../datos/citas'
 import { formatearHora, horaSanDiego } from '../datos/disponibilidad'
 import { sePuedeMarcarEntregada } from '../datos/panel'
 import {
+  COMO_VIENE,
   FILTROS_CITAS,
   SIN_VALOR,
   TAMANOS_PAGINA,
+  comoViene,
   contarPor,
   cuantosFiltros,
   filtrarCitas,
@@ -95,6 +98,11 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
   const porHora = contarPor(activas, 'hora')
   const porEstado = contarPor(activas, 'estado')
   const porCiudad = contarPor(activas, 'ciudad')
+  const porComoViene = Object.fromEntries(
+    COMO_VIENE.map((opcion) => [opcion, activas.filter((cita) => comoViene(cita, opcion)).length]),
+  )
+  // Sin acompanantes ese dia no hace falta el filtro.
+  const hayAcompanantes = porComoViene.acompanante > 0
 
   function filtrar(campo, valor) {
     setFiltros((actuales) => ({ ...actuales, [campo]: valor }))
@@ -184,7 +192,7 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                   value={filtros.texto}
                 />
               }
-              columnas="sm:grid-cols-3 xl:grid-cols-5"
+              columnas="sm:grid-cols-3 xl:grid-cols-6"
               hayFiltros={hayFiltros(filtros)}
               id="filtros-citas"
               ocultos={cuantosFiltros(filtros, ['texto'])}
@@ -237,6 +245,23 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                 ))}
                 {hayVacios(citas, 'ciudad') && <option value={SIN_VALOR}>{t('filtros.sinCiudad')}</option>}
               </Selector>
+
+              {(hayAcompanantes || filtros.carro !== '') && (
+                <Selector
+                  activo={filtros.carro !== ''}
+                  etiqueta={t('filtros.comoViene')}
+                  id="filtro-como-viene"
+                  onChange={(e) => filtrar('carro', e.target.value)}
+                  value={filtros.carro}
+                >
+                  <option value="">{t('filtros.todos')}</option>
+                  {COMO_VIENE.map((opcion) => (
+                    <option key={opcion} value={opcion}>
+                      {`${t(`filtros.carro.${opcion}`)} · ${porComoViene[opcion]}`}
+                    </option>
+                  ))}
+                </Selector>
+              )}
 
               {/* La hora en que pasaron (se escaneo su codigo), no la de su cita. */}
               <div className="grid grid-cols-2 gap-3 sm:col-span-2">
@@ -301,6 +326,19 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                 <span className={esCancelada ? 'text-principal/70 line-through' : ''}>
                                   {cita.nombre}
                                 </span>
+                                {/* Acompanantes: en el carro de quien va, o cuantos trae. */}
+                                {cita.en_carro_de && (
+                                  <span className="flex items-center gap-1.5 text-base text-principal/80">
+                                    <FaUserGroup aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
+                                    {t('panel.enCarroDe', { nombre: cita.en_carro_de_nombre, codigo: cita.en_carro_de })}
+                                  </span>
+                                )}
+                                {cita.acompanantes > 0 && (
+                                  <span className="flex items-center gap-1.5 text-base font-semibold text-principal">
+                                    <FaUserGroup aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
+                                    {t('panel.traeAcompanantes', { count: cita.acompanantes })}
+                                  </span>
+                                )}
                                 {esCancelada && cita.cancelada_en && (
                                   <span className="block text-base text-principal/70">
                                     {cita.cancelada_por

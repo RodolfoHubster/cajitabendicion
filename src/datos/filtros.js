@@ -12,7 +12,22 @@ export const TAMANOS_PAGINA = [25, 50, 100]
 /** Valor de filtro para "las que no tienen ese dato" (sin ciudad, etc.). */
 export const SIN_VALOR = '__sin__'
 
-export const FILTROS_CITAS = Object.freeze({ texto: '', hora: '', estado: '', ciudad: '', desde: '', hasta: '' })
+export const FILTROS_CITAS = Object.freeze({ texto: '', hora: '', estado: '', ciudad: '', desde: '', hasta: '', carro: '' })
+
+/**
+ * Como viene cada quien (acompanantes, seccion 39 de la base):
+ *   propio           -> trae su carro (o viene a pie)
+ *   acompanante      -> viene en el carro de alguien que ya tiene cita
+ *   con_acompanantes -> trae su carro y alguien viene con el
+ */
+export const COMO_VIENE = ['propio', 'acompanante', 'con_acompanantes']
+
+export function comoViene(cita, opcion) {
+  if (opcion === 'acompanante') return Boolean(cita.en_carro_de)
+  if (opcion === 'con_acompanantes') return (cita.acompanantes ?? 0) > 0
+  if (opcion === 'propio') return !cita.en_carro_de
+  return true
+}
 
 export const FILTROS_SIN_CITA = Object.freeze({ texto: '', desde: '', hasta: '', anotadoPor: '', estado: '' })
 
@@ -106,15 +121,18 @@ function coincideValor(valor, filtro) {
 }
 
 /**
- * Las citas del dia: nombre o codigo, horario, estado, ciudad y a que hora
- * pasaron. Sin estado elegido no salen las canceladas: se ven solo si se piden.
+ * Las citas del dia: nombre o codigo, horario, estado, ciudad, como viene y
+ * a que hora pasaron. Sin estado elegido no salen las canceladas: se ven
+ * solo si se piden. Buscar el codigo de quien maneja trae tambien a sus
+ * acompanantes: el carro completo.
  */
 export function filtrarCitas(citas, filtros = FILTROS_CITAS) {
-  const { texto = '', hora = '', estado = '', ciudad = '', desde = '', hasta = '' } = filtros
+  const { texto = '', hora = '', estado = '', ciudad = '', desde = '', hasta = '', carro = '' } = filtros
 
   return (citas ?? []).filter(
     (cita) =>
-      coincideTexto([cita.nombre, cita.codigo_corto], texto) &&
+      coincideTexto([cita.nombre, cita.codigo_corto, cita.en_carro_de], texto) &&
+      comoViene(cita, carro) &&
       (!hora || minutosDeHora(cita.hora) === minutosDeHora(hora)) &&
       (estado ? coincideValor(cita.estado, estado) : cita.estado !== 'cancelada') &&
       coincideValor(cita.ciudad, ciudad) &&

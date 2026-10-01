@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  COMO_VIENE,
   FILTROS_CITAS,
   FILTROS_SIN_CITA,
   SIN_VALOR,
@@ -146,6 +147,35 @@ describe('enRango', () => {
     ['14:30', 'basura', '', true],
   ])('%j entre %j y %j -> %s', (hora, desde, hasta, esperado) => {
     expect(enRango(hora, desde, hasta)).toBe(esperado)
+  })
+})
+
+describe('filtrarCitas: acompañantes', () => {
+  const CARRO = [
+    { nombre: 'Rosa Maneja', codigo_corto: 'CB-9012', hora: '15:00:00', estado: 'reservada', acompanantes: 2, en_carro_de: null },
+    { nombre: 'Luis Acompaña', codigo_corto: 'CB-9013', hora: '15:00:00', estado: 'reservada', acompanantes: 0, en_carro_de: 'CB-9012' },
+    { nombre: 'Ana Acompaña', codigo_corto: 'CB-9014', hora: '15:00:00', estado: 'reservada', acompanantes: 0, en_carro_de: 'CB-9012' },
+    { nombre: 'Elena Sola', codigo_corto: 'CB-9015', hora: '15:00:00', estado: 'reservada', acompanantes: 0, en_carro_de: null },
+  ]
+
+  it('cómo viene: con su carro, acompañantes o carros que traen acompañantes', () => {
+    expect(nombres(filtrarCitas(CARRO, { ...FILTROS_CITAS, carro: 'acompanante' }))).toEqual(['Luis Acompaña', 'Ana Acompaña'])
+    expect(nombres(filtrarCitas(CARRO, { ...FILTROS_CITAS, carro: 'con_acompanantes' }))).toEqual(['Rosa Maneja'])
+    expect(nombres(filtrarCitas(CARRO, { ...FILTROS_CITAS, carro: 'propio' }))).toEqual(['Rosa Maneja', 'Elena Sola'])
+    expect(COMO_VIENE).toEqual(['propio', 'acompanante', 'con_acompanantes'])
+  })
+
+  it('buscar el código de quien maneja trae el carro completo', () => {
+    expect(nombres(filtrarCitas(CARRO, { ...FILTROS_CITAS, texto: '9012' }))).toEqual([
+      'Rosa Maneja',
+      'Luis Acompaña',
+      'Ana Acompaña',
+    ])
+  })
+
+  it('una lista vieja, sin los datos de acompañantes, cuenta a todos con su carro', () => {
+    expect(filtrarCitas(CITAS, { ...FILTROS_CITAS, carro: 'propio' })).toHaveLength(4)
+    expect(filtrarCitas(CITAS, { ...FILTROS_CITAS, carro: 'acompanante' })).toHaveLength(0)
   })
 })
 

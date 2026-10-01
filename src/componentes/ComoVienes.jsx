@@ -15,15 +15,19 @@ const OPCIONES = [
  * el codigo de quien maneja). Un lugar es un carro (seccion 39 de la base).
  *
  * El "?" explica para que sirve, sin llenar la pantalla de texto.
+ *
+ * En el panel (panel) lo lee el personal, que registra a otra persona: los
+ * textos hablan de ella ("Trae su carro") y no de quien lee.
  */
-export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, alSalirCodigo, error }) {
+export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, alSalirCodigo, error, panel = false }) {
   const { t } = useTranslation()
   const [explicando, setExplicando] = useState(false)
+  const texto = (clave) => t(panel ? `acompanante.panel.${clave}` : `acompanante.${clave}`)
 
   return (
     <fieldset className="rounded-2xl border border-principal/20 p-4">
       <legend className="flex items-center gap-2 px-1 text-base font-bold text-principal">
-        {t('acompanante.titulo')}
+        {texto('titulo')}
         <button
           aria-expanded={explicando}
           aria-label={t('acompanante.queEs')}
@@ -37,7 +41,7 @@ export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, 
       </legend>
 
       {explicando && (
-        <p className="mb-3 rounded-xl bg-accion/10 p-3 text-base text-principal">{t('acompanante.explicacion')}</p>
+        <p className="mb-3 rounded-xl bg-accion/10 p-3 text-base text-principal">{texto('explicacion')}</p>
       )}
 
       <div className="grid gap-2 sm:grid-cols-2">
@@ -57,8 +61,8 @@ export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, 
             />
             <Icono aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
             <span>
-              <span className="block text-base font-semibold text-principal">{t(`acompanante.${opcion}`)}</span>
-              <span className="block text-chica text-principal/70">{t(`acompanante.${opcion}Ayuda`)}</span>
+              <span className="block text-base font-semibold text-principal">{texto(opcion)}</span>
+              <span className="block text-chica text-principal/70">{texto(`${opcion}Ayuda`)}</span>
             </span>
           </label>
         ))}
@@ -76,7 +80,7 @@ export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, 
             placeholder="CB-4871"
             value={codigo}
           />
-          <p className="mt-1 text-chica text-principal/70">{t('acompanante.codigoAyuda')}</p>
+          <p className="mt-1 text-chica text-principal/70">{texto('codigoAyuda')}</p>
         </div>
       )}
     </fieldset>
