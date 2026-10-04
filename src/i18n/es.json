@@ -1781,5 +1781,9 @@
   },
   "ventanaPase": {
     "cuidado": "Este enlace abre su pase: mándalo solo a esa persona. Si crees que alguien más lo tiene, toca «Renovar código» en Pases y el anterior deja de servir."
+  },
+  "demo": {
+    "aviso": "Ejemplo para el video: nada de lo que hagas aquí se guarda y el código que salga no sirve.",
+    "salir": "Salir del ejemplo"
   }
 }

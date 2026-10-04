@@ -1768,5 +1768,9 @@
   },
   "ventanaPase": {
     "cuidado": "Liên kết này mở thẻ của họ: chỉ gửi cho đúng người đó. Nếu nghĩ người khác cũng có, hãy bấm «Cấp mã mới» trong Thẻ vào và mã cũ sẽ không dùng được nữa."
+  },
+  "demo": {
+    "aviso": "Ví dụ để quay video: không có gì ở đây được lưu và mã nhận được sẽ không dùng được.",
+    "salir": "Thoát ví dụ"
   }
 }

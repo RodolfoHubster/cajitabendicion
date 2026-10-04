@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { instalarDemo } from '../datos/demo'
 import { conRetraso, retrasoDePrueba } from '../datos/retraso'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -26,11 +27,13 @@ if (faltantes.length > 0) {
 //  de carga (src/datos/retraso.js). En la app real vale 0.
 export const RETRASO_MS = retrasoDePrueba(import.meta.env)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+//  Con ?demo=1 la parte publica no escribe nada en la base: es para grabar
+//  el video de como hacer la cita (datos/demo.js).
+export const supabase = instalarDemo(createClient(supabaseUrl, supabaseAnonKey, {
   ...(RETRASO_MS > 0 && { global: { fetch: conRetraso(RETRASO_MS) } }),
   auth: {
     // PKCE: al volver de Google, la sesion llega como un codigo de un solo
     // uso en vez de viajar los tokens en la direccion de la pagina.
     flowType: 'pkce',
   },
-})
+}))

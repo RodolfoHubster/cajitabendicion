@@ -1781,5 +1781,9 @@
   },
   "ventanaPase": {
     "cuidado": "This link opens their pass: send it only to that person. If you think someone else has it, tap “New code” in Passes and the old one stops working."
+  },
+  "demo": {
+    "aviso": "Video example: nothing you do here is saved and the code you get will not work.",
+    "salir": "Leave the example"
   }
 }

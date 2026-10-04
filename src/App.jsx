@@ -1,3 +1,4 @@
+import AvisoDemo from './componentes/AvisoDemo'
 import AvisoIdioma from './componentes/AvisoIdioma'
 import AvisoPruebas from './componentes/AvisoPruebas'
 import Encabezado from './componentes/Encabezado'
@@ -23,6 +24,8 @@ export default function App() {
 
       {/* Solo con la base de pruebas: que nunca se confundan. */}
       <AvisoPruebas />
+      {/* Solo con ?demo=1, para grabar el video: nada se guarda. */}
+      <AvisoDemo />
       <Encabezado />
       {/* Fuera del encabezado fijo: se va con el scroll en vez de robarle
           altura a la pantalla todo el tiempo. */}

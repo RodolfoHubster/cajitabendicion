@@ -91,6 +91,20 @@ aparte con un aviso, porque puede ser otra persona. Citas de hoy y Reportes
 escogen el día de una lista de días de entrega (`fechas_de_entrega`), no de un
 calendario.
 
+### Modo de ejemplo para videos (`?demo=1`, desde el 3 de octubre de 2026)
+
+Para grabar el video de cómo hacer la cita en la página oficial sin que nada
+se guarde: `citas.casadealabanzasd.com/?demo=1` lo prende en esa pestaña y
+`?demo=0` lo apaga (`src/datos/demo.js`). La parte pública no escribe nada:
+solo pasan a la base `avisos_publicos` y `buscar_codigo_postal`; lo demás lo
+contesta la página con fechas, horarios, fila a pie y una cita de ejemplo
+(`CB-1234`). Lo que no conoce responde con error y **nunca sale**. El panel y
+el escáner no se enteran. Sale una franja que lo dice.
+
+**Si una pantalla pública empieza a llamar a una función nueva**, agrégale su
+respuesta en `respuestaDemo()`: si no, en el modo de ejemplo esa parte falla
+(a propósito: es lo seguro).
+
 ### Acompañantes: un lugar es un carro (desde el 28 de septiembre de 2026)
 
 El cupo de cada horario es de **carros**, no de personas. Quien trae su carro

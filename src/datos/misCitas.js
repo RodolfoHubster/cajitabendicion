@@ -12,7 +12,12 @@
  *
  * Si el navegador no deja guardar (ventana privada, datos bloqueados), todo
  * sigue funcionando: simplemente no hay lista.
+ *
+ * En el modo de ejemplo (?demo=1, para grabar el video) no se lee ni se
+ * guarda nada: ni sale la cita de quien graba ni se queda la de mentira.
  */
+
+import { enDemo } from './demo'
 
 export const LLAVE_MIS_CITAS = 'cajita-mis-citas'
 export const MAXIMO_MIS_CITAS = 8
@@ -48,6 +53,7 @@ function valida(cita) {
 
 /** La lista guardada, ya limpia. Lo que no se entiende se ignora. */
 export function leerMisCitas(almacen = globalThis.localStorage) {
+  if (enDemo()) return []
   try {
     const crudo = almacen?.getItem(LLAVE_MIS_CITAS)
     if (!crudo) return []
@@ -59,6 +65,7 @@ export function leerMisCitas(almacen = globalThis.localStorage) {
 }
 
 function escribir(lista, almacen) {
+  if (enDemo()) return false
   try {
     almacen?.setItem(LLAVE_MIS_CITAS, JSON.stringify(lista))
     return true
