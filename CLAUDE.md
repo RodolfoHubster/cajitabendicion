@@ -212,11 +212,21 @@ check-in/out de voluntarios.
 **Fuera de la V1**: login de Google para el público (V2; el personal ya entra
 con Google), modo sin conexión (el personal usa datos móviles).
 
-**En evaluación, ya no descartado**: avisos por SMS (se están cotizando) y un
-canal de WhatsApp. "Entró sin cita" ya pide el teléfono, y su comprobante
-tiene los botones de WhatsApp y mensaje **apagados, con "Próximamente"**:
-falta que el pastor diga el canal, el texto y quién paga. No los prendas
-hasta que lo decida.
+**En evaluación, ya no descartado**: avisos por SMS (se están cotizando) y el
+envío automático por WhatsApp (la API de WhatsApp Business, con costo). Falta
+que el pastor diga el canal y quién paga.
+
+**Invitar a sacar cita a quien entró sin cita: aprobado** por el pastor el 4
+de octubre de 2026. Se invita **en el momento** (el comprobante de "Entró sin cita"
+ofrece "Mandar invitación por WhatsApp": se le pregunta en persona), desde cada
+renglón de la lista, o a todos con "Invitar por WhatsApp a sacar cita". Queda
+marcado "Invitado" para no mandarlo dos veces (en ese teléfono). Se manda **uno por uno** desde el teléfono de quien
+lo hace (la página abre WhatsApp con el mensaje listo y la persona toca
+Enviar), en español e inglés, con su nombre y cómo dejar de recibirlos. **No**
+se manda en automático ni "despacio para que no lo detecten": desde un número
+personal va contra las reglas de WhatsApp y bloquean el número. El envío
+automático de verdad sería la API de WhatsApp Business (con costo), y eso
+sigue en evaluación (`src/datos/invitarSinCita.js`).
 
 ---
 

@@ -1,13 +1,17 @@
 import { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaWhatsapp } from 'react-icons/fa6'
+import { LuCircleCheck } from 'react-icons/lu'
 import Campo from './Campo'
 import Paginacion from './Paginacion'
 import PanelFiltros from './PanelFiltros'
 import Selector from './Selector'
 import Tarjeta from './Tarjeta'
+import VentanaInvitar from './VentanaInvitar'
 import { anularEntradaSinCita, entradasSinCitaDelDia } from '../datos/citas'
 import { horaSanDiego } from '../datos/disponibilidad'
 import { filtrarPorFila } from '../datos/filas'
+import { enlaceInvitacion, envioDe, leerInvitadas, marcarInvitada, prepararInvitaciones } from '../datos/invitarSinCita'
 import { EsqueletoLista } from './Esqueleto'
 import {
   FILTROS_SIN_CITA,
@@ -36,6 +40,10 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
   const [anulando, setAnulando] = useState(null)
   const [ocupado, setOcupado] = useState(false)
   const [errorAnular, setErrorAnular] = useState(null)
+  // Invitar por WhatsApp a sacar cita, uno por uno (aprobado el 4 oct 2026).
+  const [invitando, setInvitando] = useState(false)
+  // Para volver a leer quien ya fue invitado despues de invitar a alguien.
+  const [, setVersionInvitadas] = useState(0)
 
   const [filtros, setFiltros] = useState(FILTROS_SIN_CITA)
   const [pagina, setPagina] = useState(1)
@@ -65,6 +73,15 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
   const filtradas = filtrarSinCita(todas, filtros)
   const resultado = paginar(filtradas, pagina, porPagina)
   const porAnotador = contarPor(todas, 'anotado_por')
+  const aInvitar = prepararInvitaciones(todas).envios.length
+  // Quien ya recibio la invitacion (desde la fila, el renglon o el comprobante).
+  const invitadas = leerInvitadas(fecha)
+  const sitio = globalThis.location?.origin ?? ''
+
+  function invitarUna(envio) {
+    marcarInvitada(fecha, envio.clave)
+    setVersionInvitadas((n) => n + 1)
+  }
 
   function filtrar(campo, valor) {
     setFiltros((actuales) => ({ ...actuales, [campo]: valor }))
@@ -99,6 +116,17 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
           {t('sinCita.lista')} {filas && `(${cuentan})`}
         </h2>
         <p className="mb-3 text-base text-principal/70">{t('sinCita.listaAyuda')}</p>
+
+        {aInvitar > 0 && (
+          <button
+            className="mb-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-[#1F7A47] px-4 text-base font-bold text-principal transition hover:bg-[#1F7A47]/10 sm:w-auto"
+            onClick={() => setInvitando(true)}
+            type="button"
+          >
+            <FaWhatsapp aria-hidden="true" className="h-6 w-6 text-[#1F7A47]" />
+            {t('invitar.boton', { count: aInvitar })}
+          </button>
+        )}
 
         {error && (
           <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
@@ -217,9 +245,37 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
                               </td>
                               <td className="whitespace-nowrap py-2 pr-3">
                                 {fila.telefono ? (
-                                  <a className="underline underline-offset-4" href={`tel:${fila.telefono}`}>
-                                    {fila.telefono}
-                                  </a>
+                                  <span className="inline-flex flex-wrap items-center gap-x-2">
+                                    <a className="underline underline-offset-4" href={`tel:${fila.telefono}`}>
+                                      {fila.telefono}
+                                    </a>
+                                    {(() => {
+                                      const envio = !fila.anulada && envioDe(fila)
+                                      if (!envio) return null
+                                      const ya = invitadas.has(envio.clave)
+                                      return (
+                                        <>
+                                          <a
+                                            aria-label={t('sinCita.invitar.renglon', { nombre: fila.nombre ?? fila.codigo })}
+                                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-[#1F7A47] transition hover:bg-principal/10"
+                                            href={enlaceInvitacion(envio, fecha, sitio)}
+                                            onClick={() => invitarUna(envio)}
+                                            rel="noopener noreferrer"
+                                            target="_blank"
+                                            title={t('sinCita.invitar.renglon', { nombre: fila.nombre ?? fila.codigo })}
+                                          >
+                                            <FaWhatsapp aria-hidden="true" className="h-6 w-6" />
+                                          </a>
+                                          {ya && (
+                                            <span className="inline-flex items-center gap-1 rounded-lg bg-puede-pasar/15 px-2 text-chica font-semibold text-puede-pasar">
+                                              <LuCircleCheck aria-hidden="true" className="h-4 w-4" />
+                                              {t('sinCita.invitar.invitado')}
+                                            </span>
+                                          )}
+                                        </>
+                                      )
+                                    })()}
+                                  </span>
                                 ) : (
                                   '—'
                                 )}
@@ -325,6 +381,8 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
           </>
         )}
       </div>
+
+      {invitando && <VentanaInvitar alCerrar={() => setInvitando(false)} fecha={fecha} filas={todas} />}
     </Tarjeta>
   )
 }

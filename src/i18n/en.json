@@ -984,7 +984,7 @@
     "ayuda": "Record someone who came through without an appointment. Only their name is asked; they get a receipt code, and who recorded it and when is saved.",
     "nombre": "Person's name",
     "telefono": "Phone (optional)",
-    "telefonoAyuda": "To send them their receipt later. If they don't have one or prefer not to give it, leave it empty.",
+    "telefonoAyuda": "To send them a WhatsApp invitation to book next time. If they don't have one or prefer not to give it, leave it empty.",
     "anotado": "Recorded. {{total}} without an appointment today.",
     "comprobante": "Receipt code",
     "darCodigo": "Give this code to the person or ask them to take a photo of it, in case something needs to be cleared up later.",
@@ -1017,12 +1017,14 @@
       "esOtra": "Different person, record them",
       "tituloTelefono": "The phone {{telefono}} was already recorded today (receipt {{codigo}})."
     },
-    "enviar": {
-      "titulo": "Send them their receipt",
-      "whatsapp": "WhatsApp",
-      "mensaje": "Text message",
-      "proximamente": "Coming soon",
-      "ayuda": "Soon you will be able to send it from here."
+    "invitar": {
+      "pregunta": "Would they like us to send the link to book next time? Ask them.",
+      "boton": "Send invitation by WhatsApp",
+      "siNoQuiere": "If they say no, do not tap anything.",
+      "abierto": "WhatsApp opened with their invitation: tap Send there.",
+      "sinTelefono": "No phone left: the invitation cannot be sent.",
+      "renglon": "Invite {{nombre}} by WhatsApp",
+      "invitado": "Invited"
     }
   },
   "cancelarPanel": {
@@ -1785,5 +1787,34 @@
   "demo": {
     "aviso": "Video example: nothing you do here is saved and the code you get will not work.",
     "salir": "Leave the example"
+  },
+  "invitar": {
+    "boton_one": "Invite by WhatsApp to book ({{count}})",
+    "boton_other": "Invite by WhatsApp to book ({{count}})",
+    "titulo": "Invite them to book",
+    "quienes": "People who came without an appointment on {{fecha}}",
+    "avance": "{{enviadas}} of {{total}} sent",
+    "comoFunciona": "One at a time: tap “Open WhatsApp”, send the message, come back here and tap “I sent it”. You can close this and continue later: it remembers who you already messaged. If someone replies “NO”, do not message them again.",
+    "sinTelefono_one": "{{count}} without a phone",
+    "sinTelefono_other": "{{count}} without a phone",
+    "repetidos_one": "{{count}} shares a phone with someone else (they get one message)",
+    "repetidos_other": "{{count}} share a phone with someone else (they get one message)",
+    "nadie": "Nobody that day left a phone number.",
+    "sigue": "Next",
+    "abrir": "Open WhatsApp",
+    "abrirOtraVez": "Open again",
+    "yaLoEnvie": "I sent it · next",
+    "saltar": "Skip for now",
+    "listo_one": "Done! {{count}} invitation was sent.",
+    "listo_other": "Done! {{count}} invitations were sent.",
+    "terminoConSaltados_one": "You reached the end. {{count}} is left: see “See everyone”.",
+    "terminoConSaltados_other": "You reached the end. {{count}} are left: see “See everyone”.",
+    "verTodos_one": "See everyone ({{count}})",
+    "verTodos_other": "See everyone ({{count}})",
+    "ocultarTodos": "Hide the list",
+    "enviado": "sent",
+    "pendiente": "pending",
+    "marcarEnviado": "Mark as sent",
+    "marcarPendiente": "Mark as pending"
   }
 }

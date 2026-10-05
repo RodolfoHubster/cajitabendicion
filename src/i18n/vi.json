@@ -978,7 +978,7 @@
     "ayuda": "Ghi lại người được vào mà không có lịch hẹn. Chỉ hỏi tên; người đó nhận một mã biên nhận, và hệ thống lưu ai đã ghi và lúc nào.",
     "nombre": "Tên của người đó",
     "telefono": "Số điện thoại (không bắt buộc)",
-    "telefonoAyuda": "Để gửi biên nhận cho họ sau này. Nếu họ không có hoặc không muốn cho, hãy để trống.",
+    "telefonoAyuda": "Để gửi lời mời đặt lịch lần sau qua WhatsApp. Nếu họ không có hoặc không muốn cho, hãy để trống.",
     "anotado": "Đã ghi. Hôm nay có {{total}} người không có lịch hẹn.",
     "comprobante": "Mã biên nhận",
     "darCodigo": "Hãy đưa mã này cho người đó hoặc nhờ họ chụp ảnh, phòng khi cần làm rõ sau này.",
@@ -1011,12 +1011,14 @@
       "esOtra": "Người khác, ghi lại",
       "tituloTelefono": "Số điện thoại {{telefono}} đã được ghi hôm nay (biên nhận {{codigo}})."
     },
-    "enviar": {
-      "titulo": "Gửi biên nhận cho họ",
-      "whatsapp": "WhatsApp",
-      "mensaje": "Tin nhắn văn bản",
-      "proximamente": "Sắp có",
-      "ayuda": "Sắp tới có thể gửi từ đây."
+    "invitar": {
+      "pregunta": "Họ có muốn nhận đường dẫn để đặt lịch lần sau không? Hãy hỏi họ.",
+      "boton": "Gửi lời mời qua WhatsApp",
+      "siNoQuiere": "Nếu họ nói không, đừng bấm gì cả.",
+      "abierto": "WhatsApp đã mở với lời mời: bấm Gửi ở đó.",
+      "sinTelefono": "Không để lại số điện thoại: không gửi được lời mời.",
+      "renglon": "Mời {{nombre}} qua WhatsApp",
+      "invitado": "Đã mời"
     }
   },
   "cancelarPanel": {
@@ -1772,5 +1774,28 @@
   "demo": {
     "aviso": "Ví dụ để quay video: không có gì ở đây được lưu và mã nhận được sẽ không dùng được.",
     "salir": "Thoát ví dụ"
+  },
+  "invitar": {
+    "boton_other": "Mời đặt lịch qua WhatsApp ({{count}})",
+    "titulo": "Mời đặt lịch hẹn",
+    "quienes": "Những người đến không có lịch hẹn ngày {{fecha}}",
+    "avance": "Đã gửi {{enviadas}} / {{total}}",
+    "comoFunciona": "Từng người một: bấm «Mở WhatsApp», gửi tin nhắn, quay lại đây và bấm «Đã gửi». Bạn có thể đóng và tiếp tục sau: hệ thống nhớ ai đã được gửi. Nếu ai trả lời «NO», đừng nhắn cho họ nữa.",
+    "sinTelefono_other": "{{count}} không có số điện thoại",
+    "repetidos_other": "{{count}} dùng chung số điện thoại với người khác (chỉ nhận một tin)",
+    "nadie": "Không ai trong ngày này để lại số điện thoại.",
+    "sigue": "Tiếp theo",
+    "abrir": "Mở WhatsApp",
+    "abrirOtraVez": "Mở lại",
+    "yaLoEnvie": "Đã gửi · tiếp theo",
+    "saltar": "Bỏ qua lúc này",
+    "listo_other": "Xong! Đã gửi {{count}} lời mời.",
+    "terminoConSaltados_other": "Đã hết danh sách. Còn {{count}}: xem trong «Xem tất cả».",
+    "verTodos_other": "Xem tất cả ({{count}})",
+    "ocultarTodos": "Ẩn danh sách",
+    "enviado": "đã gửi",
+    "pendiente": "chưa gửi",
+    "marcarEnviado": "Đánh dấu đã gửi",
+    "marcarPendiente": "Đánh dấu chưa gửi"
   }
 }

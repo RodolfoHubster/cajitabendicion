@@ -984,7 +984,7 @@
     "ayuda": "Anota a una persona que pasó sin cita. Solo se pide su nombre; se le da un código de comprobante y queda quién la anotó y a qué hora.",
     "nombre": "Nombre de la persona",
     "telefono": "Teléfono (opcional)",
-    "telefonoAyuda": "Para mandarle su comprobante más adelante. Si no tiene o no lo quiere dar, déjalo vacío.",
+    "telefonoAyuda": "Para mandarle por WhatsApp la invitación a sacar cita la próxima vez. Si no tiene o no lo quiere dar, déjalo vacío.",
     "anotado": "Anotado. Hoy van {{total}} sin cita.",
     "comprobante": "Código de comprobante",
     "darCodigo": "Dale este código a la persona o pídele que le tome foto, por si hay que aclarar algo después.",
@@ -1017,12 +1017,14 @@
       "esOtra": "Es otra persona, anotarla",
       "tituloTelefono": "El teléfono {{telefono}} ya se anotó hoy (comprobante {{codigo}})."
     },
-    "enviar": {
-      "titulo": "Mandarle su comprobante",
-      "whatsapp": "WhatsApp",
-      "mensaje": "Mensaje de texto",
-      "proximamente": "Próximamente",
-      "ayuda": "Muy pronto se podrá mandar desde aquí."
+    "invitar": {
+      "pregunta": "¿Quiere que le mandemos el enlace para sacar su cita la próxima vez? Pregúntale.",
+      "boton": "Mandar invitación por WhatsApp",
+      "siNoQuiere": "Si dice que no, no toques nada.",
+      "abierto": "Se abrió WhatsApp con su invitación: toca Enviar allá.",
+      "sinTelefono": "No dejó teléfono: no se le puede mandar la invitación.",
+      "renglon": "Invitar por WhatsApp a {{nombre}}",
+      "invitado": "Invitado"
     }
   },
   "cancelarPanel": {
@@ -1785,5 +1787,34 @@
   "demo": {
     "aviso": "Ejemplo para el video: nada de lo que hagas aquí se guarda y el código que salga no sirve.",
     "salir": "Salir del ejemplo"
+  },
+  "invitar": {
+    "boton_one": "Invitar por WhatsApp a sacar cita ({{count}})",
+    "boton_other": "Invitar por WhatsApp a sacar cita ({{count}})",
+    "titulo": "Invitar a sacar cita",
+    "quienes": "A quienes entraron sin cita el {{fecha}}",
+    "avance": "{{enviadas}} de {{total}} enviados",
+    "comoFunciona": "Uno por uno: toca «Abrir WhatsApp», envía el mensaje, regresa aquí y toca «Ya lo envié». Puedes cerrar y seguir después: se acuerda de a quién ya le mandaste. Si alguien contesta «NO», ya no le escribas.",
+    "sinTelefono_one": "{{count}} sin teléfono",
+    "sinTelefono_other": "{{count}} sin teléfono",
+    "repetidos_one": "{{count}} con el mismo teléfono que otra persona (les llega un solo mensaje)",
+    "repetidos_other": "{{count}} con el mismo teléfono que otra persona (les llega un solo mensaje)",
+    "nadie": "Nadie de este día dejó un teléfono.",
+    "sigue": "Sigue",
+    "abrir": "Abrir WhatsApp",
+    "abrirOtraVez": "Abrir otra vez",
+    "yaLoEnvie": "Ya lo envié · siguiente",
+    "saltar": "Saltar por ahora",
+    "listo_one": "¡Listo! Se mandó {{count}} invitación.",
+    "listo_other": "¡Listo! Se mandaron {{count}} invitaciones.",
+    "terminoConSaltados_one": "Terminaste la fila. Falta {{count}}: está en «Ver a todos».",
+    "terminoConSaltados_other": "Terminaste la fila. Faltan {{count}}: están en «Ver a todos».",
+    "verTodos_one": "Ver a todos ({{count}})",
+    "verTodos_other": "Ver a todos ({{count}})",
+    "ocultarTodos": "Ocultar la lista",
+    "enviado": "enviado",
+    "pendiente": "falta",
+    "marcarEnviado": "Marcar enviado",
+    "marcarPendiente": "Marcar que falta"
   }
 }

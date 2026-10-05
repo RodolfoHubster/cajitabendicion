@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaWhatsapp } from 'react-icons/fa6'
-import { LuMessageCircle, LuPlus } from 'react-icons/lu'
+import { LuCircleCheck, LuPlus } from 'react-icons/lu'
 import Campo from './Campo'
 import CampoTelefono from './CampoTelefono'
 import { mensajeNombre, mensajeTelefono } from './mensajesValidacion'
 import { anularEntradaSinCita, registrarEntradaSinCita } from '../datos/citas'
+import { enlaceInvitacion, envioDe, marcarInvitada } from '../datos/invitarSinCita'
+import { hoyLocal } from '../datos/panel'
 import { normalizarTelefono } from '../datos/telefono'
 import { formatearNombre, validarNombre } from '../datos/validaciones'
 
@@ -17,9 +19,11 @@ import { formatearNombre, validarNombre } from '../datos/validaciones'
  * 2026), y da un codigo de comprobante (SC-1234). Si fue un error, se anula:
  * deja de contar pero queda registrado.
  *
- * Mandarle el comprobante por WhatsApp o mensaje todavia no existe: falta
- * que el pastor decida el canal. Los botones estan, apagados, con
- * "Proximamente".
+ * Con telefono, el comprobante ofrece mandarle por WhatsApp la invitacion
+ * a sacar cita la proxima vez (aprobado por el pastor, 4 de octubre de
+ * 2026). Se le pregunta en persona: si no quiere, no se toca. La persona que
+ * anota la manda desde su telefono; queda marcada para no mandarla dos veces
+ * (datos/invitarSinCita.js).
  */
 export default function EntradaSinCita({ alCambiar, className = '' }) {
   const { t, i18n } = useTranslation()
@@ -68,7 +72,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
 
     try {
       const { codigo, total } = await registrarEntradaSinCita(nombreListo, { confirmarRepetido, telefono: telefonoListo })
-      setComprobante({ codigo, nombre: nombreListo, telefono: telefonoListo, total, anulada: false })
+      setComprobante({ codigo, nombre: nombreListo, telefono: telefonoListo, total, anulada: false, invitado: false })
       setPreguntando(false)
       limpiar()
       alCambiar?.()
@@ -86,6 +90,13 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
     } finally {
       setOcupado(false)
     }
+  }
+
+  //  Se abrio WhatsApp con la invitacion: queda marcada (la tabla lo muestra).
+  function invitado() {
+    marcarInvitada(hoyLocal(), envioDe(comprobante).clave)
+    setComprobante((actual) => ({ ...actual, invitado: true }))
+    alCambiar?.()
   }
 
   async function anular() {
@@ -192,33 +203,34 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
           {comprobante.telefono && <p className="text-base text-principal/80">{comprobante.telefono}</p>}
           <p className="mt-2 text-base text-principal/70">{t('sinCita.darCodigo')}</p>
 
-          {/* Pendiente con el pastor: el canal y el texto del mensaje. */}
-          <div className="mt-3 rounded-xl bg-principal/5 p-3">
-            <p className="text-base font-semibold text-principal">{t('sinCita.enviar.titulo')}</p>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {[
-                { clave: 'whatsapp', Icono: FaWhatsapp },
-                { clave: 'mensaje', Icono: LuMessageCircle },
-              ].map(({ clave, Icono }) => (
-                <button
-                  aria-describedby="sin-cita-proximamente"
-                  className="inline-flex min-h-12 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-principal/30 px-3 text-base font-semibold text-principal/70"
-                  disabled
-                  key={clave}
-                  type="button"
-                >
-                  <Icono aria-hidden="true" className="h-5 w-5 shrink-0" />
-                  {t(`sinCita.enviar.${clave}`)}
-                </button>
-              ))}
+          {/* La invitacion a sacar cita, en el momento: se le pregunta en persona. */}
+          {envioDe(comprobante) ? (
+            <div className="mt-3 rounded-xl bg-principal/5 p-3 text-left">
+              {comprobante.invitado ? (
+                <p className="flex items-center gap-2 text-base font-semibold text-puede-pasar" role="status">
+                  <LuCircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
+                  {t('sinCita.invitar.abierto')}
+                </p>
+              ) : (
+                <>
+                  <p className="text-base font-semibold text-principal">{t('sinCita.invitar.pregunta')}</p>
+                  <a
+                    className="mt-2 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#1F7A47] px-4 text-base font-bold text-white transition hover:brightness-110"
+                    href={enlaceInvitacion(envioDe(comprobante), hoyLocal(), globalThis.location?.origin ?? '')}
+                    onClick={invitado}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <FaWhatsapp aria-hidden="true" className="h-6 w-6" />
+                    {t('sinCita.invitar.boton')}
+                  </a>
+                  <p className="mt-1 text-chica text-principal/70">{t('sinCita.invitar.siNoQuiere')}</p>
+                </>
+              )}
             </div>
-            <p className="mt-2 text-chica text-principal/70" id="sin-cita-proximamente">
-              <span className="mr-1 rounded-full bg-accion/20 px-2 py-0.5 font-bold text-principal">
-                {t('sinCita.enviar.proximamente')}
-              </span>
-              {t('sinCita.enviar.ayuda')}
-            </p>
-          </div>
+          ) : (
+            <p className="mt-3 text-chica text-principal/70">{t('sinCita.invitar.sinTelefono')}</p>
+          )}
 
           {!preguntando ? (
             <button
