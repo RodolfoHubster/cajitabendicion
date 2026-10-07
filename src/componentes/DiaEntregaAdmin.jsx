@@ -375,7 +375,11 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
   }
 
   return (
-    <li>
+    <li
+      className={`rounded-2xl border bg-superficie p-1 transition ${
+        abierta ? 'border-principal/40 shadow-tarjeta' : 'border-principal/15'
+      }`}
+    >
       <button
         aria-expanded={abierta}
         className="flex min-h-16 w-full items-center gap-3 rounded-xl px-2 py-3 text-left transition hover:bg-principal/5"

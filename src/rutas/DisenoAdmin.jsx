@@ -12,7 +12,7 @@ import {
   versionVista,
 } from '../datos/guia'
 import { cerrarSesion } from '../datos/sesion'
-import { seccionActual, seccionesVisibles } from './menu'
+import { menuPorGrupos, seccionActual, seccionesVisibles } from './menu'
 
 export default function DisenoAdmin() {
   const { t } = useTranslation()
@@ -27,6 +27,9 @@ export default function DisenoAdmin() {
 
   const secciones = seccionesVisibles(rol, permisos)
   const actual = seccionActual(secciones, pathname)
+  //  Agrupado: el dia de la entrega, personas y pases, preparar, numeros,
+  //  administracion. Con un solo grupo (el voluntario) no hace falta titulo.
+  const grupos = menuPorGrupos(secciones)
 
   // La guia paso a paso: { pasos, novedades } mientras esta abierta.
   const [guia, setGuia] = useState(null)
@@ -114,32 +117,45 @@ export default function DisenoAdmin() {
           />
         </button>
 
-        <ul
+        <div
           className={`${
             abierto ? 'mt-2' : 'hidden'
-          } space-y-1 rounded-xl border border-principal/15 bg-superficie p-2 shadow-lg lg:mt-0 lg:block lg:space-y-2 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}
+          } space-y-3 rounded-xl border border-principal/15 bg-superficie p-2 shadow-lg lg:mt-0 lg:block lg:space-y-4 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}
           id="menu-panel"
         >
-          {secciones.map(({ a, clave, exacta }) => (
-            <li key={a}>
-              {/* Se cierra al escoger: en movil, si no, tapa la pantalla. */}
-              <NavLink className={estilo} end={exacta} onClick={() => setAbierto(false)} to={a}>
-                {t(`nav.${clave}`)}
-              </NavLink>
-            </li>
+          {grupos.map(({ grupo, secciones: delGrupo }) => (
+            <section aria-labelledby={grupos.length > 1 ? `menu-grupo-${grupo}` : undefined} key={grupo}>
+              {grupos.length > 1 && (
+                <h2
+                  className="px-4 pb-1 text-chica font-bold uppercase tracking-wide text-principal/70"
+                  id={`menu-grupo-${grupo}`}
+                >
+                  {t(`nav.grupos.${grupo}`)}
+                </h2>
+              )}
+              <ul className="space-y-1">
+                {delGrupo.map(({ a, clave, exacta }) => (
+                  <li key={a}>
+                    {/* Se cierra al escoger: en movil, si no, tapa la pantalla. */}
+                    <NavLink className={estilo} end={exacta} onClick={() => setAbierto(false)} to={a}>
+                      {t(`nav.${clave}`)}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-          <li>
-            {/* La guia paso a paso, para volver a verla cuando se quiera. */}
-            <button
-              className="flex min-h-14 w-full items-center gap-2 whitespace-nowrap rounded-xl px-4 text-left text-base font-semibold text-principal transition hover:bg-principal/10"
-              onClick={abrirGuia}
-              type="button"
-            >
-              <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-              {t('guia.abrir')}
-            </button>
-          </li>
-        </ul>
+
+          {/* La guia paso a paso, para volver a verla cuando se quiera (en cualquier telefono). */}
+          <button
+            className="flex min-h-14 w-full items-center gap-2 whitespace-nowrap rounded-xl px-4 text-left text-base font-semibold text-principal transition hover:bg-principal/10"
+            onClick={abrirGuia}
+            type="button"
+          >
+            <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+            {t('guia.abrir')}
+          </button>
+        </div>
 
         <div className="mt-3 hidden rounded-xl bg-principal/5 p-3 lg:block">{cuenta}</div>
       </nav>

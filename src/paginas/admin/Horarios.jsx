@@ -318,7 +318,8 @@ export default function HorariosAdmin() {
         if (!vigente) return
         setDias(resultado)
         setError(null)
-        setAbierta((actual) => (actual === undefined ? (resultado[0]?.fecha ?? null) : actual))
+        //  Al entrar no se abre ninguna: se ve la lista y se escoge.
+        setAbierta((actual) => (actual === undefined ? null : actual))
       })
       .catch((e) => {
         if (vigente) setError(e.message)
@@ -388,7 +389,7 @@ export default function HorariosAdmin() {
         {dias && dias.length === 0 && <p className="text-base">{t('diasAdmin.sinDias')}</p>}
 
         {dias && dias.length > 0 && (
-          <ul className="divide-y divide-principal/10">
+          <ul className="space-y-3">
             {dias.map((dia) => (
               <DiaEntregaAdmin
                 abierta={abierta === dia.fecha}

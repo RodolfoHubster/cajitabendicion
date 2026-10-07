@@ -8,26 +8,35 @@ import { puedeEntrar } from '../datos/permisos'
  * asi se quedan Horarios y cupos, Equipo y accesos, y Permisos, que no se
  * le abren a un voluntario por ningun lado.
  *
- * El orden es el de la pantalla: de lo que se usa el dia de la entrega a
- * lo que se toca una vez al mes.
+ * El orden es el de la pantalla, agrupado: arriba lo del dia de la
+ * entrega (Escanear primero), abajo lo que se toca una vez al mes.
  */
+export const GRUPOS = ['dia', 'personas', 'preparar', 'numeros', 'administracion']
+
 export const SECCIONES = [
-  { a: '/admin', clave: 'citasHoy', exacta: true, permiso: 'ver_citas_del_dia' },
-  { a: '/admin/registrar', clave: 'registrar', permiso: 'registrar_personas' },
-  { a: '/admin/horarios', clave: 'horarios', roles: ['admin'] },
-  { a: '/admin/pases', clave: 'pases', permiso: 'dar_pases' },
-  { a: '/admin/personas', clave: 'personas', permiso: 'ver_personas' },
-  { a: '/admin/reportes', clave: 'reportes', permiso: 'ver_reportes' },
-  { a: '/admin/avisos', clave: 'avisos', permiso: 'editar_textos' },
-  { a: '/admin/qr', clave: 'codigosQr', roles: ['admin'] },
-  { a: '/admin/equipo', clave: 'equipo', roles: ['admin'] },
-  { a: '/admin/permisos', clave: 'permisos', roles: ['admin'] },
-  { a: '/escanear', clave: 'escanear', roles: ['admin', 'voluntario'] },
+  { a: '/escanear', clave: 'escanear', grupo: 'dia', roles: ['admin', 'voluntario'] },
+  { a: '/admin', clave: 'citasHoy', grupo: 'dia', exacta: true, permiso: 'ver_citas_del_dia' },
+  { a: '/admin/registrar', clave: 'registrar', grupo: 'dia', permiso: 'registrar_personas' },
+  { a: '/admin/personas', clave: 'personas', grupo: 'personas', permiso: 'ver_personas' },
+  { a: '/admin/pases', clave: 'pases', grupo: 'personas', permiso: 'dar_pases' },
+  { a: '/admin/horarios', clave: 'horarios', grupo: 'preparar', roles: ['admin'] },
+  { a: '/admin/avisos', clave: 'avisos', grupo: 'preparar', permiso: 'editar_textos' },
+  { a: '/admin/qr', clave: 'codigosQr', grupo: 'preparar', roles: ['admin'] },
+  { a: '/admin/reportes', clave: 'reportes', grupo: 'numeros', permiso: 'ver_reportes' },
+  { a: '/admin/equipo', clave: 'equipo', grupo: 'administracion', roles: ['admin'] },
+  { a: '/admin/permisos', clave: 'permisos', grupo: 'administracion', roles: ['admin'] },
 ]
 
 /** Las que le tocan a quien entro. */
 export function seccionesVisibles(rol, permisos) {
   return SECCIONES.filter((seccion) => puedeEntrar(seccion, rol, permisos))
+}
+
+/** Las secciones por grupo, en el orden del menu. Un grupo sin secciones no sale. */
+export function menuPorGrupos(secciones) {
+  return GRUPOS.map((grupo) => ({ grupo, secciones: secciones.filter((s) => s.grupo === grupo) })).filter(
+    (g) => g.secciones.length > 0,
+  )
 }
 
 /**

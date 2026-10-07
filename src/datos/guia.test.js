@@ -55,21 +55,27 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
     ])
   })
 
-  it('quien ya vio la primera guía solo ve lo nuevo de la fila a pie', () => {
+  it('quien ya vio la primera guía solo ve lo que cambió después', () => {
     const voluntario = pasosDeGuia({ rol: 'voluntario', permisos: [], secciones: ['escanear'] })
-    expect(claves(pasosPendientes(voluntario, 1))).toEqual(['elegirFila', 'dosQr', 'turnos'])
+    expect(claves(pasosPendientes(voluntario, 1))).toEqual(['buscar', 'elegirFila', 'dosQr', 'turnos'])
 
     const admin = pasosDeGuia({ rol: 'admin', permisos: [], secciones: ['escanear', 'horarios'] })
-    expect(claves(pasosPendientes(admin, 1))).toEqual(['elegirFila', 'dosQr', 'turnos', 'filaAPie'])
-    expect(VERSION_GUIA).toBe(3)
+    expect(claves(pasosPendientes(admin, 1))).toEqual(['menu', 'buscar', 'elegirFila', 'dosQr', 'turnos', 'filaAPie'])
+    expect(VERSION_GUIA).toBe(5)
   })
 
-  it('quien ya vio la guía de la fila a pie solo ve lo nuevo de Personas, si puede entrar ahí', () => {
-    const admin = pasosDeGuia({ rol: 'admin', permisos: [], secciones: ['escanear', 'horarios', 'personas'] })
-    expect(claves(pasosPendientes(admin, 2))).toEqual(['personas'])
+  it('quien ya vio la versión 4 solo ve lo del 6 de octubre, si puede entrar ahí', () => {
+    const admin = pasosDeGuia({
+      rol: 'admin',
+      permisos: [],
+      secciones: ['escanear', 'horarios', 'personas', 'pases', 'reportes'],
+    })
+    expect(claves(pasosPendientes(admin, 4))).toEqual(['menu', 'buscar', 'turnos', 'pases', 'filaAPie', 'reportes'])
 
+    //  Un voluntario que solo escanea: lo de su pantalla, y sin el paso del menú (tiene una sola).
     const voluntario = pasosDeGuia({ rol: 'voluntario', permisos: [], secciones: ['escanear'] })
-    expect(pasosPendientes(voluntario, 2)).toEqual([])
+    expect(claves(pasosPendientes(voluntario, 4))).toEqual(['buscar', 'turnos'])
+    expect(claves(pasosPendientes(voluntario, 5))).toEqual([])
   })
 
   it('con sus palomitas: el menú, anotar sin cita y citas de hoy', () => {

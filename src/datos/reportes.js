@@ -14,7 +14,8 @@ export const CODIGOS = ['RANGO_INVALIDO', 'RANGO_MUY_LARGO', 'FILA_INVALIDA']
 /** Mas de un año por consulta no se pide (la base tampoco lo deja). */
 export const MAXIMO_DIAS = 366
 
-export const PERIODOS = ['esteMes', 'mesPasado', 'ultimos30', 'esteAnio']
+//  Lo que mas se pide es el del dia: por eso va primero (y es el de entrada).
+export const PERIODOS = ['ultimoDia', 'estaSemana', 'esteMes', 'mesPasado', 'esteAnio']
 
 /** Columnas del reporte en el orden del CSV. */
 export const COLUMNAS = [
@@ -27,8 +28,10 @@ export const COLUMNAS = [
   'canceladas',
   'con_excepcion',
   'sin_cita',
+  'con_pase',
   'cajas',
   'intentos_repetidos',
+  'cambios_a_pie',
 ]
 
 const NUMERICAS = COLUMNAS.filter((columna) => columna !== 'fecha')
@@ -59,12 +62,36 @@ export function validarRango(desde, hasta) {
 /** Ultimo dia de un mes (1 a 12). */
 const ultimoDia = (anio, mes) => new Date(Date.UTC(anio, mes, 0)).getUTCDate()
 
+/** El ultimo dia de entrega hasta hoy (hoy, si hay entrega). null si no hubo ninguno. */
+export function ultimoDiaDeEntrega(fechas, hoy) {
+  return [...(fechas ?? [])].filter((fecha) => fecha <= hoy).sort().at(-1) ?? null
+}
+
+/** El lunes de la semana de esa fecha. */
+function lunesDe(fecha) {
+  const [anio, mes, dia] = fecha.split('-').map(Number)
+  const diaSemana = new Date(Date.UTC(anio, mes - 1, dia)).getUTCDay()
+  return sumarDias(fecha, -((diaSemana + 6) % 7))
+}
+
 /**
- * Las fechas de un periodo rapido, a partir de hoy en San Diego. Los meses y
- * el año van completos (incluyen lo que viene); "ultimos30" termina hoy.
+ * Las fechas de un periodo rapido, a partir de hoy en San Diego.
+ * "ultimoDia": el ultimo dia de entrega (de `fechas`, los dias de entrega);
+ * sin ninguno, hoy. "estaSemana": de lunes a domingo. Los meses y el año
+ * van completos (incluyen lo que viene).
  */
-export function rangoDePeriodo(periodo, hoy) {
+export function rangoDePeriodo(periodo, hoy, fechas = []) {
   const [anio, mes] = hoy.split('-').map(Number)
+
+  if (periodo === 'ultimoDia') {
+    const dia = ultimoDiaDeEntrega(fechas, hoy) ?? hoy
+    return { desde: dia, hasta: dia }
+  }
+
+  if (periodo === 'estaSemana') {
+    const lunes = lunesDe(hoy)
+    return { desde: lunes, hasta: sumarDias(lunes, 6) }
+  }
 
   if (periodo === 'mesPasado') {
     const anioPasado = mes === 1 ? anio - 1 : anio
@@ -75,17 +102,16 @@ export function rangoDePeriodo(periodo, hoy) {
     }
   }
 
-  if (periodo === 'ultimos30') return { desde: sumarDias(hoy, -29), hasta: hoy }
   if (periodo === 'esteAnio') return { desde: `${anio}-01-01`, hasta: `${anio}-12-31` }
 
   return { desde: `${anio}-${dos(mes)}-01`, hasta: `${anio}-${dos(mes)}-${dos(ultimoDia(anio, mes))}` }
 }
 
 /** Que periodo rapido corresponde a esas fechas, para marcar su boton; null si ninguno. */
-export function periodoActivo(desde, hasta, hoy) {
+export function periodoActivo(desde, hasta, hoy, fechas = []) {
   return (
     PERIODOS.find((periodo) => {
-      const rango = rangoDePeriodo(periodo, hoy)
+      const rango = rangoDePeriodo(periodo, hoy, fechas)
       return rango.desde === desde && rango.hasta === hasta
     }) ?? null
   )
@@ -101,6 +127,18 @@ export async function reportePorDias(desde, hasta, vistaFila = 'juntas') {
   }
 
   return data ?? []
+}
+
+/**
+ * Un dia, con la fila de carros y la de a pie por separado: { carro, aPie },
+ * cada una con sus cuentas (o null si ese dia no tuvo esa fila).
+ */
+export async function detalleDelDia(fecha) {
+  const [carro, aPie] = await Promise.all([
+    reportePorDias(fecha, fecha, 'carro'),
+    reportePorDias(fecha, fecha, 'a_pie'),
+  ])
+  return { carro: carro[0] ?? null, aPie: aPie[0] ?? null }
 }
 
 /** La suma de cada columna, y cuantos dias con entrega hubo. */

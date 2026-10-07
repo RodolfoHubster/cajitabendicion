@@ -10,6 +10,7 @@ import {
   MAXIMO_DIAS,
   PERIODOS,
   aCsv,
+  detalleDelDia,
   diasEntre,
   nombreArchivoReporte,
   periodoActivo,
@@ -17,6 +18,7 @@ import {
   rangoDePeriodo,
   reportePorDias,
   totalesReporte,
+  ultimoDiaDeEntrega,
   validarRango,
 } from './reportes'
 
@@ -65,8 +67,10 @@ describe('rangoDePeriodo', () => {
     ['mesPasado', '2026-09-15', '2026-08-01', '2026-08-31'],
     ['mesPasado', '2026-01-05', '2025-12-01', '2025-12-31'],
     ['mesPasado', '2026-03-31', '2026-02-01', '2026-02-28'],
-    ['ultimos30', '2026-09-15', '2026-08-17', '2026-09-15'],
-    ['ultimos30', '2026-03-10', '2026-02-09', '2026-03-10'],
+    ['estaSemana', '2026-10-06', '2026-10-05', '2026-10-11'],
+    ['estaSemana', '2026-10-05', '2026-10-05', '2026-10-11'],
+    ['estaSemana', '2026-10-11', '2026-10-05', '2026-10-11'],
+    ['estaSemana', '2026-12-31', '2026-12-28', '2027-01-03'],
     ['esteAnio', '2026-09-15', '2026-01-01', '2026-12-31'],
     ['otro', '2026-09-15', '2026-09-01', '2026-09-30'],
   ])('%s con hoy %s -> %s a %s', (periodo, hoy, desde, hasta) => {
@@ -80,10 +84,33 @@ describe('rangoDePeriodo', () => {
     }
   })
 
+  it('el último día de entrega: el más reciente que ya llegó (hoy, si hay)', () => {
+    const fechas = ['2026-09-28', '2026-10-01', '2026-10-05', '2026-10-08']
+    expect(rangoDePeriodo('ultimoDia', '2026-10-06', fechas)).toEqual({ desde: '2026-10-05', hasta: '2026-10-05' })
+    expect(rangoDePeriodo('ultimoDia', '2026-10-08', fechas)).toEqual({ desde: '2026-10-08', hasta: '2026-10-08' })
+    expect(ultimoDiaDeEntrega(fechas, '2026-09-01')).toBeNull()
+    //  Sin dias de entrega, hoy.
+    expect(rangoDePeriodo('ultimoDia', '2026-10-06')).toEqual({ desde: '2026-10-06', hasta: '2026-10-06' })
+    expect(periodoActivo('2026-10-05', '2026-10-05', '2026-10-06', fechas)).toBe('ultimoDia')
+  })
+
   it('periodoActivo reconoce el boton que corresponde', () => {
     expect(periodoActivo('2026-09-01', '2026-09-30', '2026-09-15')).toBe('esteMes')
     expect(periodoActivo('2026-01-01', '2026-12-31', '2026-09-15')).toBe('esteAnio')
     expect(periodoActivo('2026-09-02', '2026-09-30', '2026-09-15')).toBeNull()
+  })
+})
+
+describe('el detalle de un día', () => {
+  it('trae la fila de carros y la de a pie por separado', async () => {
+    supabase.rpc.mockImplementation((_, parametros) =>
+      Promise.resolve({
+        data: parametros.p_fila === 'carro' ? [{ fecha: '2026-10-05', cajas: 200 }] : [],
+        error: null,
+      }),
+    )
+    await expect(detalleDelDia('2026-10-05')).resolves.toEqual({ carro: { fecha: '2026-10-05', cajas: 200 }, aPie: null })
+    expect(supabase.rpc).toHaveBeenCalledWith('reporte_por_dias', { p_desde: '2026-10-05', p_hasta: '2026-10-05', p_fila: 'a_pie' })
   })
 })
 
@@ -103,8 +130,10 @@ describe('totalesReporte y porcentaje', () => {
       canceladas: 4,
       con_excepcion: 1,
       sin_cita: 13,
+      con_pase: 0,
       cajas: 93,
       intentos_repetidos: 2,
+      cambios_a_pie: 0,
       dias: 2,
     })
   })

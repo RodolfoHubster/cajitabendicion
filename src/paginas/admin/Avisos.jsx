@@ -4,6 +4,7 @@ import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import {
   LuCheck,
   LuCircleHelp,
+  LuExternalLink,
   LuEye,
   LuEyeOff,
   LuGripVertical,
@@ -20,13 +21,21 @@ import { EsqueletoTexto } from '../../componentes/Esqueleto'
 import { eliminarAviso, guardarAviso, listarAvisos, moverAviso } from '../../datos/avisos'
 import { desplazamiento, indiceDestino, moverEnLista, pasosParaMover } from '../../datos/ordenar'
 
-//  Las pestanas. "Reglas" tiene dos listas: la de carros y la de a pie.
-const PESTANAS = [
-  { clave: 'reglas', Icono: LuListChecks },
-  { clave: 'inicio', Icono: LuHouse },
-  { clave: 'preguntas', Icono: LuCircleHelp },
-  { clave: 'quienes', Icono: LuHeart },
+//  Las pestanas, agrupadas por cuando las lee la gente: lo primero que ve,
+//  lo que lee antes de registrarse y la informacion. "Reglas" tiene dos
+//  listas: la de carros y la de a pie. `pagina`: donde verla como la gente.
+const GRUPOS_TEXTOS = [
+  { grupo: 'primero', pestanas: [{ clave: 'inicio', Icono: LuHouse, pagina: '/' }] },
+  { grupo: 'antes', pestanas: [{ clave: 'reglas', Icono: LuListChecks, pagina: '/calendario' }] },
+  {
+    grupo: 'informacion',
+    pestanas: [
+      { clave: 'preguntas', Icono: LuCircleHelp, pagina: '/preguntas' },
+      { clave: 'quienes', Icono: LuHeart, pagina: '/quienes-somos' },
+    ],
+  },
 ]
+const PESTANAS = GRUPOS_TEXTOS.flatMap((g) => g.pestanas)
 
 //  Donde el titulo es la pregunta y sin el no se entiende nada.
 const CON_TITULO = ['preguntas', 'quienes']
@@ -69,7 +78,7 @@ export default function Avisos() {
   const [avisos, setAvisos] = useState(null)
   const [error, setError] = useState(null)
   const [recarga, setRecarga] = useState(0)
-  const [pestana, setPestana] = useState('reglas')
+  const [pestana, setPestana] = useState('inicio')
   const [fila, setFila] = useState('carro')
 
   useEffect(() => {
@@ -118,29 +127,53 @@ export default function Avisos() {
   }
 
   const seccion = pestana === 'reglas' ? (fila === 'a_pie' ? 'registro_a_pie' : 'registro') : pestana
+  const actual = PESTANAS.find((p) => p.clave === pestana)
 
   return (
     <Tarjeta>
       <h1 className="text-2xl font-bold">{t('avisos.titulo')}</h1>
       <p className="mb-4 text-base text-principal/70">{t('avisos.ayuda')}</p>
 
-      <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-principal/5 p-1" role="tablist">
-        {PESTANAS.map(({ clave, Icono }) => (
-          <button
-            aria-selected={pestana === clave}
-            className={`flex min-h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-base font-semibold transition ${
-              pestana === clave ? 'bg-superficie text-principal shadow-tarjeta' : 'text-principal/70 hover:text-principal'
-            }`}
-            key={clave}
-            onClick={() => setPestana(clave)}
-            role="tab"
-            type="button"
-          >
-            <Icono aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t(`avisos.pestana.${clave}`)}
-          </button>
+      {/* Por cuando lo lee la gente: lo primero, antes de registrarse, informacion. */}
+      <div className="mb-3 grid gap-3 sm:grid-cols-[auto_auto_1fr]">
+        {GRUPOS_TEXTOS.map(({ grupo, pestanas }) => (
+          <div aria-labelledby={`textos-${grupo}`} key={grupo} role="group">
+            <p className="mb-1 px-1 text-chica font-bold uppercase tracking-wide text-principal/70" id={`textos-${grupo}`}>
+              {t(`avisos.grupo.${grupo}`)}
+            </p>
+            <div className="flex flex-wrap gap-1 rounded-xl bg-principal/5 p-1">
+              {pestanas.map(({ clave, Icono }) => (
+                <button
+                  aria-pressed={pestana === clave}
+                  className={`flex min-h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-base font-semibold transition ${
+                    pestana === clave ? 'bg-superficie text-principal shadow-tarjeta' : 'text-principal/70 hover:text-principal'
+                  }`}
+                  key={clave}
+                  onClick={() => setPestana(clave)}
+                  type="button"
+                >
+                  <Icono aria-hidden="true" className="h-5 w-5 text-accion" />
+                  {t(`avisos.pestana.${clave}`)}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
+
+      {/* Donde lo ve la gente, y verlo ahi mismo. */}
+      <p className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-accion/10 px-3 py-2 text-base text-principal">
+        <span>{t(`avisos.dondeAparece.${pestana}`)}</span>
+        <a
+          className="inline-flex min-h-12 items-center gap-1.5 font-semibold underline underline-offset-4"
+          href={actual?.pagina ?? '/'}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <LuExternalLink aria-hidden="true" className="h-4 w-4" />
+          {t('avisos.verComoLaGente')}
+        </a>
+      </p>
 
       {pestana === 'reglas' && (
         <div className="mb-3 grid grid-cols-2 gap-2">

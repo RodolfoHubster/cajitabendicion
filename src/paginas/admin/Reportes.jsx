@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import { LuDownload } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
@@ -16,6 +17,7 @@ import {
   COLUMNAS,
   PERIODOS,
   aCsv,
+  detalleDelDia,
   nombreArchivoReporte,
   periodoActivo,
   porcentaje,
@@ -40,16 +42,29 @@ function descargarCsv(nombre, texto) {
   setTimeout(() => URL.revokeObjectURL(url), 0)
 }
 
+//  En el detalle de un dia, a pie se dice distinto: son turnos.
+const CUENTAS_DETALLE = ['con_cita', 'recibieron', 'no_asistieron', 'sin_cita', 'con_pase', 'cajas']
+const ETIQUETA_A_PIE = { con_cita: 'reportes.detalle.turnos', no_asistieron: 'reportes.detalle.perdieron' }
+const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking }
+
 /**
  * Reportes: cajas entregadas y asistencia por dia, en el periodo que se
  * elija. Es lo que se reporta al banco de alimentos. Solo admin.
+ *
+ * Lo que mas se pide es el del dia: al entrar se ve el ultimo dia de
+ * entrega, con carros y a pie por separado. Cada dia de la tabla tiene su
+ * detalle.
  */
 export default function Reportes() {
   const { t, i18n } = useTranslation()
   const navegar = useNavigate()
   const hoy = hoyLocal()
 
-  const [rango, setRango] = useState(() => rangoDePeriodo('esteMes', hoy))
+  //  Hasta que se escoja otro periodo, el ultimo dia de entrega.
+  const [rango, setRango] = useState(() => rangoDePeriodo('ultimoDia', hoy))
+  const tocado = useRef(false)
+  //  El dia de la tabla con su detalle abierto.
+  const [abierto, setAbierto] = useState(null)
   // Juntas es la suma de las dos filas: lo que se reporta al banco.
   const [vistaFila, setVistaFila] = useState('juntas')
   const [pagina, setPagina] = useState(1)
@@ -63,7 +78,9 @@ export default function Reportes() {
 
     fechasDeEntrega()
       .then((lista) => {
-        if (vigente) setFechas(lista)
+        if (!vigente) return
+        setFechas(lista)
+        if (!tocado.current) setRango(rangoDePeriodo('ultimoDia', hoy, lista.map((dia) => dia.fecha)))
       })
       .catch(() => {
         if (vigente) setFechas([])
@@ -72,7 +89,7 @@ export default function Reportes() {
     return () => {
       vigente = false
     }
-  }, [])
+  }, [hoy])
 
   // Los datos guardan de que fechas son: asi no se muestran los de otro periodo.
   const [datos, setDatos] = useState(null)
@@ -81,9 +98,11 @@ export default function Reportes() {
   const { desde, hasta } = rango
   const clave = `${desde}|${hasta}|${vistaFila}`
   const errorRango = validarRango(desde, hasta)
+  //  Se espera a saber cual fue el ultimo dia de entrega.
+  const fechasListas = fechas !== null
 
   useEffect(() => {
-    if (validarRango(desde, hasta)) return
+    if (!fechasListas || validarRango(desde, hasta)) return
 
     let vigente = true
     const pedida = `${desde}|${hasta}|${vistaFila}`
@@ -99,7 +118,7 @@ export default function Reportes() {
     return () => {
       vigente = false
     }
-  }, [desde, hasta, vistaFila])
+  }, [desde, hasta, vistaFila, fechasListas])
 
   const filas = !errorRango && datos?.clave === clave ? datos.filas : null
   const error = errorRango ?? (fallo?.clave === clave ? fallo.codigo : null)
@@ -110,13 +129,15 @@ export default function Reportes() {
   // "Por venir" solo si el periodo llega a fechas que todavia no pasan.
   const columnas = COLUMNAS_TABLA.filter((columna) => columna !== 'pendientes' || totales.pendientes > 0)
   const resultado = paginar(filas, pagina, porPagina)
-  const activo = periodoActivo(desde, hasta, hoy)
+  const listaFechas = (fechas ?? []).map((dia) => dia.fecha)
+  const activo = periodoActivo(desde, hasta, hoy, listaFechas)
   // "Este mes" va del 1 al 30: en la lista se ve el primer y el ultimo dia
   // de entrega del periodo. La cuenta es la misma.
   const conLista = Boolean(fechas?.length)
   const enLista = rangoEnFechas(rango, (fechas ?? []).map((dia) => dia.fecha))
 
   function cambiarRango(cambio) {
+    tocado.current = true
     setRango((antes) => ({ ...antes, ...cambio }))
     setPagina(1)
   }
@@ -184,7 +205,8 @@ export default function Reportes() {
               }`}
               key={periodo}
               onClick={() => {
-                setRango(rangoDePeriodo(periodo, hoy))
+                tocado.current = true
+                setRango(rangoDePeriodo(periodo, hoy, listaFechas))
                 setPagina(1)
               }}
               type="button"
@@ -246,6 +268,19 @@ export default function Reportes() {
             ))}
           </dl>
 
+          {/* Cuantos dejaron la fila de carros por la de a pie (seccion 42). De
+              un solo dia lo dice su detalle, abajo. */}
+          {totales.cambios_a_pie > 0 && desde !== hasta && (
+            <p className="rounded-xl bg-accion/15 p-3 text-base font-semibold text-principal">
+              {t('reportes.cambiosAPie', { count: totales.cambios_a_pie })}
+            </p>
+          )}
+
+          {/* Un solo dia (el ultimo de entrega, casi siempre): su detalle a la vista. */}
+          {desde === hasta && filas.length > 0 && (
+            <DetalleDelDia fecha={desde} key={desde} titulo={t('reportes.detalle.titulo', { fecha: fechaCorta(desde) })} />
+          )}
+
           <Tarjeta>
             <div className="scroll-mt-24" id="lista-reporte">
               <h2 className="text-lg font-bold">{t('reportes.porDia')}</h2>
@@ -272,30 +307,49 @@ export default function Reportes() {
                       </thead>
                       <tbody>
                         {resultado.filas.map((fila) => (
-                          <tr className="border-b border-principal/10 last:border-0" key={fila.fecha}>
-                            <td className="whitespace-nowrap py-2 pr-3 first-letter:uppercase">
-                              {fechaCorta(fila.fecha)}
-                            </td>
-                            {columnas.map((columna) => (
-                              <td
-                                className={`py-2 pr-3 text-right tabular-nums ${
-                                  columna === 'cajas' ? 'font-bold text-principal' : ''
-                                }`}
-                                key={columna}
-                              >
-                                {fila[columna]}
+                          <Fragment key={fila.fecha}>
+                            <tr className="border-b border-principal/10 last:border-0">
+                              <td className="whitespace-nowrap py-2 pr-3 first-letter:uppercase">
+                                {fechaCorta(fila.fecha)}
                               </td>
-                            ))}
-                            <td className="py-2 text-right">
-                              <button
-                                className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
-                                onClick={() => navegar(`/admin?fecha=${fila.fecha}`)}
-                                type="button"
-                              >
-                                {t('reportes.verDia')}
-                              </button>
-                            </td>
-                          </tr>
+                              {columnas.map((columna) => (
+                                <td
+                                  className={`py-2 pr-3 text-right tabular-nums ${
+                                    columna === 'cajas' ? 'font-bold text-principal' : ''
+                                  }`}
+                                  key={columna}
+                                >
+                                  {fila[columna]}
+                                </td>
+                              ))}
+                              <td className="py-2 text-right">
+                                <span className="inline-flex">
+                                  <button
+                                    aria-expanded={abierto === fila.fecha}
+                                    className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
+                                    onClick={() => setAbierto((antes) => (antes === fila.fecha ? null : fila.fecha))}
+                                    type="button"
+                                  >
+                                    {t('reportes.detalle.ver')}
+                                  </button>
+                                  <button
+                                    className="min-h-10 whitespace-nowrap px-2 text-base font-semibold text-principal underline underline-offset-4"
+                                    onClick={() => navegar(`/admin?fecha=${fila.fecha}`)}
+                                    type="button"
+                                  >
+                                    {t('reportes.verDia')}
+                                  </button>
+                                </span>
+                              </td>
+                            </tr>
+                            {abierto === fila.fecha && (
+                              <tr>
+                                <td className="pb-3" colSpan={columnas.length + 2}>
+                                  <DetalleDelDia fecha={fila.fecha} />
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
                         ))}
                       </tbody>
                       <tfoot>
@@ -330,5 +384,80 @@ export default function Reportes() {
         </>
       )}
     </div>
+  )
+}
+
+/**
+ * Un dia con la fila de carros y la de a pie por separado: con cita (o
+ * turnos), recibieron, sin cita, con pase y cajas. Lo que se reporta del dia.
+ */
+function DetalleDelDia({ fecha, titulo = null }) {
+  const { t } = useTranslation()
+  const [detalle, setDetalle] = useState(undefined)
+
+  useEffect(() => {
+    let vigente = true
+    detalleDelDia(fecha)
+      .then((datos) => {
+        if (vigente) setDetalle(datos)
+      })
+      .catch(() => {
+        if (vigente) setDetalle(null)
+      })
+    return () => {
+      vigente = false
+    }
+  }, [fecha])
+
+  if (detalle === undefined) return <EsqueletoLista filas={2} texto={t('reportes.detalle.cargando')} />
+
+  if (detalle === null) {
+    return (
+      <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+        {t('reportes.detalle.error')}
+      </p>
+    )
+  }
+
+  const filasDelDia = [
+    ['carro', detalle.carro],
+    ['a_pie', detalle.aPie],
+  ].filter(([, datos]) => datos)
+  const cajas = filasDelDia.reduce((suma, [, datos]) => suma + (Number(datos.cajas) || 0), 0)
+  const cambios = Number(detalle.carro?.cambios_a_pie) || 0
+  const etiqueta = (fila, cuenta) =>
+    fila === 'a_pie' && ETIQUETA_A_PIE[cuenta] ? t(ETIQUETA_A_PIE[cuenta]) : t(`reportes.col.${cuenta}`)
+
+  return (
+    <section className="aparecer rounded-2xl bg-principal/5 p-3 ring-1 ring-principal/10">
+      {titulo && <h2 className="mb-2 text-lg font-bold first-letter:uppercase">{titulo}</h2>}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {filasDelDia.map(([fila, datos]) => {
+          const Icono = ICONO_FILA[fila]
+          return (
+            <div className="rounded-xl bg-superficie p-3 ring-1 ring-principal/10" key={fila}>
+              <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-principal">
+                <Icono aria-hidden="true" className="h-4 w-4 text-accion" />
+                {t(`filas.nombre.${fila}`)}
+              </h3>
+              <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-base">
+                {CUENTAS_DETALLE.map((cuenta) => (
+                  <Fragment key={cuenta}>
+                    <dt className="text-principal/70">{etiqueta(fila, cuenta)}</dt>
+                    <dd className={`text-right tabular-nums ${cuenta === 'cajas' ? 'font-bold text-principal' : ''}`}>
+                      {Number(datos[cuenta]) || 0}
+                    </dd>
+                  </Fragment>
+                ))}
+              </dl>
+            </div>
+          )
+        })}
+      </div>
+      <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-base font-semibold text-principal">
+        <span>{t('reportes.detalle.cajasDelDia', { cajas })}</span>
+        {cambios > 0 && <span>{t('reportes.detalle.cambios', { cambios })}</span>}
+      </p>
+    </section>
   )
 }

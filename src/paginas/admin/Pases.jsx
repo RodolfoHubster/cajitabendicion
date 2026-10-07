@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCrown, LuPlus, LuRefreshCw, LuStar, LuTrash2 } from 'react-icons/lu'
+import { LuCrown, LuPlus, LuRefreshCw, LuStar, LuTrash2, LuUserPlus } from 'react-icons/lu'
 import { Link, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
-import { BORDE_ORO, FONDO_ORO } from '../../componentes/SelloVip'
+import CasillaVip from '../../componentes/CasillaVip'
 import Tarjeta from '../../componentes/Tarjeta'
 import VentanaPase from '../../componentes/VentanaPase'
 import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import { aFechaLocal } from '../../datos/disponibilidad'
 import { crearPase, listarPases, marcarPaseVip, renovarPase, revocarPase } from '../../datos/pases'
 import { EsqueletoLista } from '../../componentes/Esqueleto'
+import RegistrarPersona from './RegistrarPersona'
 
 const BOTON_TEXTO =
   'min-h-10 whitespace-nowrap px-2 text-base font-semibold underline underline-offset-4'
@@ -22,6 +23,11 @@ const BOTON_TEXTO =
  * Es el permiso mas delicado del sistema, por eso las dos acciones que
  * cambian algo preguntan antes: renovar deja sin servir el codigo que la
  * persona ya trae, y quitar le cierra la puerta.
+ *
+ * Dar un pase pregunta primero "¿Ya tiene codigo CB?": si si, se escribe;
+ * si no, se registra aqui mismo (los datos de Registrar persona, sin fecha
+ * ni horario). En los dos caminos, la casilla VIP en dorado. El pase sirve
+ * en la fila de carros y en la de a pie.
  */
 export default function Pases() {
   const { t, i18n } = useTranslation()
@@ -30,6 +36,11 @@ export default function Pases() {
   const esAdmin = rol === 'admin'
   //  Quien no sabe el codigo CB lo busca por nombre en Personas.
   const puedeBuscarPersonas = esAdmin || permisos.includes('ver_personas')
+  //  Registrarla aqui mismo pide la palomita de registrar personas.
+  const puedeRegistrar = esAdmin || permisos.includes('registrar_personas')
+  //  "¿Ya tiene codigo CB?": null sin contestar, 'si' o 'no'.
+  const [tieneCodigo, setTieneCodigo] = useState(null)
+  const camino = puedeRegistrar ? tieneCodigo : 'si'
 
   //  Dar un pase a alguien que ya esta registrado, por su codigo CB.
   const [nuevo, setNuevo] = useState({ codigo: '', motivo: '', vip: false })
@@ -136,6 +147,18 @@ export default function Pases() {
     }
   }
 
+  //  Se registro aqui mismo y ya tiene su pase.
+  function alRegistrarConPase({ codigo, token, vip }) {
+    setError(null)
+    setAviso({
+      codigo,
+      texto: vip ? t('pases.dadoVip', { codigo }) : t('pases.dado', { codigo }),
+      token,
+    })
+    setTieneCodigo(null)
+    setRecarga((n) => n + 1)
+  }
+
   async function cambiarVip(pase) {
     setError(null)
     setAviso(null)
@@ -168,63 +191,86 @@ export default function Pases() {
       </h1>
       <p className="mb-4 text-base text-principal/70">{t('pases.ayuda')}</p>
 
-      {/* Dar el pase a alguien que ya se registro, por su codigo CB. */}
-      <form className="mb-6 space-y-3 rounded-2xl border border-principal/20 p-4" noValidate onSubmit={darPase}>
+      {/* Dar el pase: con su codigo CB, o registrandola aqui mismo. */}
+      <section className="mb-6 space-y-3 rounded-2xl border border-principal/20 p-4">
         <h2 className="text-lg font-bold text-principal">{t('pases.dar')}</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Campo
-            autoCapitalize="characters"
-            error={intentoNuevo && !codigoValido ? t('pases.faltaCodigo') : undefined}
-            etiqueta={t('pases.codigoPersona')}
-            id="pase-codigo"
-            onChange={(e) => setNuevo({ ...nuevo, codigo: e.target.value })}
-            placeholder="CB-4871"
-            value={nuevo.codigo}
-          />
-          <Campo
-            etiqueta={t('pases.motivoOpcional')}
-            id="pase-motivo"
-            onChange={(e) => setNuevo({ ...nuevo, motivo: e.target.value })}
-            value={nuevo.motivo}
-          />
-        </div>
 
-        {puedeBuscarPersonas && (
-          <p className="text-base">
-            <Link className="font-semibold text-principal underline underline-offset-4" to="/admin/personas">
-              {t('pases.buscarEnPersonas')}
-            </Link>
-          </p>
+        {puedeRegistrar && (
+          <fieldset>
+            <legend className="mb-2 text-base font-semibold text-principal">{t('pases.tieneCodigo')}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {['si', 'no'].map((valor) => (
+                <label
+                  className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 ${
+                    tieneCodigo === valor ? 'border-2 border-principal bg-principal/5' : 'border-principal/25'
+                  }`}
+                  key={valor}
+                >
+                  <input
+                    checked={tieneCodigo === valor}
+                    className="h-5 w-5 shrink-0 accent-principal"
+                    name="tiene-codigo"
+                    onChange={() => setTieneCodigo(valor)}
+                    type="radio"
+                    value={valor}
+                  />
+                  <span className="text-base font-semibold text-principal">{t(`pases.tieneCodigoOpciones.${valor}`)}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         )}
 
-        {/* Lo VIP, enmarcado en dorado para que no pase desapercibido. */}
-        {esAdmin && (
-          <label
-            className={`flex min-h-16 cursor-pointer items-start gap-3 rounded-xl border-2 p-3 transition ${
-              nuevo.vip ? `${BORDE_ORO} ${FONDO_ORO}` : 'border-dashed border-[#B8860B]/60 hover:bg-[#F2C94C]/10'
-            }`}
-            htmlFor="pase-vip"
-          >
-            <input
-              checked={nuevo.vip}
-              className="mt-1 h-6 w-6 shrink-0 accent-[#B8860B]"
-              id="pase-vip"
-              onChange={(e) => setNuevo({ ...nuevo, vip: e.target.checked })}
-              type="checkbox"
-            />
-            <LuCrown aria-hidden="true" className="mt-0.5 h-6 w-6 shrink-0 text-[#B8860B]" />
-            <span>
-              <span className="block text-base font-bold text-principal">{t('pases.opcionVip')}</span>
-              <span className="block text-chica text-principal/70">{t('pases.opcionVipAyuda')}</span>
-            </span>
-          </label>
+        {camino === 'no' && (
+          <div className="aparecer rounded-xl bg-principal/5 p-3">
+            <p className="mb-3 flex items-center gap-2 text-base font-semibold text-principal">
+              <LuUserPlus aria-hidden="true" className="h-5 w-5 text-accion" />
+              {t('pases.registrarAqui')}
+            </p>
+            <RegistrarPersona alTerminar={alRegistrarConPase} modo="pase" />
+          </div>
         )}
 
-        <Boton className="sm:w-auto sm:px-6" disabled={ocupado} type="submit">
-          <LuPlus aria-hidden="true" className="h-5 w-5" />
-          {ocupado ? t('pases.guardando') : t('pases.darBoton')}
-        </Boton>
-      </form>
+        {camino === 'si' && (
+          <form className="aparecer space-y-3" noValidate onSubmit={darPase}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Campo
+                autoCapitalize="characters"
+                error={intentoNuevo && !codigoValido ? t('pases.faltaCodigo') : undefined}
+                etiqueta={t('pases.codigoPersona')}
+                id="pase-codigo"
+                onChange={(e) => setNuevo({ ...nuevo, codigo: e.target.value })}
+                placeholder="CB-4871"
+                value={nuevo.codigo}
+              />
+              <Campo
+                etiqueta={t('pases.motivoOpcional')}
+                id="pase-motivo"
+                onChange={(e) => setNuevo({ ...nuevo, motivo: e.target.value })}
+                value={nuevo.motivo}
+              />
+            </div>
+
+            {puedeBuscarPersonas && (
+              <p className="text-base">
+                <Link className="font-semibold text-principal underline underline-offset-4" to="/admin/personas">
+                  {t('pases.buscarEnPersonas')}
+                </Link>
+              </p>
+            )}
+
+            {/* Lo VIP, enmarcado en dorado para que no pase desapercibido. */}
+            {esAdmin && (
+              <CasillaVip alCambiar={(vip) => setNuevo({ ...nuevo, vip })} id="pase-vip" marcada={nuevo.vip} />
+            )}
+
+            <Boton className="sm:w-auto sm:px-6" disabled={ocupado} type="submit">
+              <LuPlus aria-hidden="true" className="h-5 w-5" />
+              {ocupado ? t('pases.guardando') : t('pases.darBoton')}
+            </Boton>
+          </form>
+        )}
+      </section>
 
       {error && (
         <p className="mb-4 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">

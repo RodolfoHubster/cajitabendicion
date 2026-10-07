@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCircleCheck, LuInfo } from 'react-icons/lu'
+import { useOutletContext } from 'react-router-dom'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
+import CasillaVip from '../../componentes/CasillaVip'
 import ComoVienes from '../../componentes/ComoVienes'
 import CamposDomicilio from '../../componentes/CamposDomicilio'
-import ExcepcionSemana from '../../componentes/ExcepcionSemana'
 import Tarjeta from '../../componentes/Tarjeta'
-import VentanaPase from '../../componentes/VentanaPase'
 import {
   mensajeCorreo,
   mensajeNombre,
@@ -63,18 +63,26 @@ const ESTILO_SELECT =
  * un lugar) o en el carro de alguien que ya tiene cita (el codigo CB de
  * quien maneja; va a su hora y no ocupa otro lugar).
  *
- * Abajo, la excepcion para una segunda cita en la misma semana.
+ * Esta pagina es solo para citas. Con modo = 'pase' es el registro de
+ * Pases ("¿Ya tiene codigo CB?" -> "No"): los mismos datos, sin fecha ni
+ * horario, y al terminar se le da su pase permanente (VIP si el
+ * administrador lo marca). alTerminar({ codigo, nombre, token, vip }).
  */
-export default function RegistrarPersona() {
+export default function RegistrarPersona({ modo = 'cita', alTerminar } = {}) {
   const { t, i18n } = useTranslation()
 
   const [bloques, setBloques] = useState(null)
   const [errorCarga, setErrorCarga] = useState(null)
   const [recarga, setRecarga] = useState(0)
 
-  // 'cita' = se le aparta un horario. 'pase' = permanente, sin horario.
-  const [tipo, setTipo] = useState('cita')
+  //  'cita' aparta un horario. 'pase' da de alta a la persona y le da su
+  //  pase permanente, sin horario.
+  const tipo = modo === 'pase' ? 'pase' : 'cita'
+  const esPase = tipo === 'pase'
+  const { rol } = useOutletContext() ?? {}
+  const esAdmin = rol === 'admin'
   const [motivoPase, setMotivoPase] = useState('')
+  const [vip, setVip] = useState(false)
 
   // En carro: 'propio' aparta un lugar; 'acompanante' va en el de quien maneja.
   const [comoViene, setComoViene] = useState('propio')
@@ -92,12 +100,13 @@ export default function RegistrarPersona() {
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
   const [registrada, setRegistrada] = useState(null)
-  const [verPase, setVerPase] = useState(false)
 
   const busqueda = useCodigoPostal(domicilio.pais, domicilio.codigoPostal)
 
   // Se vuelve a consultar despues de cada registro: los lugares cambiaron.
   useEffect(() => {
+    //  El pase no lleva fecha ni horario: no hace falta preguntar los lugares.
+    if (esPase) return undefined
     let vigente = true
 
     consultarDisponibilidad()
@@ -113,7 +122,7 @@ export default function RegistrarPersona() {
     return () => {
       vigente = false
     }
-  }, [recarga])
+  }, [recarga, esPase])
 
   const fechaLarga = (valor) =>
     new Intl.DateTimeFormat(i18n.language, {
@@ -180,8 +189,6 @@ export default function RegistrarPersona() {
     const apellidos = formatearNombre(datos.apellidos)
 
     try {
-      const esPase = tipo === 'pase'
-
       const alta = await registrarDesdePanel({
         nombres,
         apellidos,
@@ -196,15 +203,23 @@ export default function RegistrarPersona() {
         codigoAcompanante: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
       })
 
-      const pase = esPase ? await crearPase(alta.codigo_corto, motivoPase) : null
-
-      setRegistrada({
-        ...alta,
-        pase,
-        nombre: `${nombres} ${apellidos}`,
-        enCarroDe: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
-      })
+      if (esPase) {
+        const pase = await crearPase(alta.codigo_corto, motivoPase, { vip: esAdmin && vip })
+        alTerminar?.({
+          codigo: alta.codigo_corto,
+          nombre: `${nombres} ${apellidos}`,
+          token: pase?.token ?? null,
+          vip: esAdmin && vip,
+        })
+      } else {
+        setRegistrada({
+          ...alta,
+          nombre: `${nombres} ${apellidos}`,
+          enCarroDe: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
+        })
+      }
       setMotivoPase('')
+      setVip(false)
       setComoViene('propio')
       setCodigoDuenio('')
       setDatos(VACIO)
@@ -242,9 +257,7 @@ export default function RegistrarPersona() {
           </p>
         )}
         <p className="mt-2 text-2xl font-bold first-letter:uppercase">
-          {registrada.pase
-            ? t('pases.permanente')
-            : `${fechaLarga(registrada.fecha)}, ${formatearHora(registrada.hora)}`}
+          {`${fechaLarga(registrada.fecha)}, ${formatearHora(registrada.hora)}`}
         </p>
         {registrada.enCarroDe && (
           <p className="mt-1 text-base text-principal/80">
@@ -259,32 +272,17 @@ export default function RegistrarPersona() {
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {/* El pase, en una ventana del panel. La cita, en otra pestana:
-              es la misma pagina que ve la persona, con su horario. */}
-          {registrada.pase ? (
-            <button
-              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
-              onClick={() => setVerPase(true)}
-              type="button"
-            >
-              {t('registrarPanel.verQR')}
-            </button>
-          ) : (
-            <a
-              className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
-              href={`/confirmacion/${registrada.token_qr}`}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {t('registrarPanel.verQR')}
-            </a>
-          )}
+          {/* En otra pestana: es la misma pagina que ve la persona, con su horario. */}
+          <a
+            className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white shadow-sm transition hover:brightness-110"
+            href={`/confirmacion/${registrada.token_qr}`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {t('registrarPanel.verQR')}
+          </a>
           <Boton onClick={() => setRegistrada(null)}>{t('registrarPanel.otra')}</Boton>
         </div>
-
-        {verPase && registrada.pase && (
-          <VentanaPase alCerrar={() => setVerPase(false)} token={registrada.pase.token} />
-        )}
       </Tarjeta>
     )
   }
@@ -292,12 +290,16 @@ export default function RegistrarPersona() {
   const dias = agruparPorFecha(bloques ?? [])
   const horarios = (bloques ?? []).filter((bloque) => bloque.fecha === fecha)
 
-  return (
-    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-      <Tarjeta>
-        <h1 className="mb-1 text-2xl font-bold">{t('registrarPanel.titulo')}</h1>
-        <p className="mb-4 text-base text-principal/70">{t('registrarPanel.ayuda')}</p>
+  //  En Pases va dentro de su tarjeta; aqui, en la suya.
+  const Envoltura = esPase ? Fragment : Tarjeta
 
+  return (
+    <div className={esPase ? undefined : 'max-w-3xl'}>
+      <Envoltura>
+        {!esPase && <h1 className="mb-1 text-2xl font-bold">{t('registrarPanel.titulo')}</h1>}
+        {!esPase && <p className="mb-4 text-base text-principal/70">{t('registrarPanel.ayuda')}</p>}
+
+        {/* En Pases no se preguntan los lugares: estos dos no salen. */}
         {errorCarga && (
           <p className="mb-4 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
             {t('registrarPanel.errorCarga')}
@@ -309,38 +311,8 @@ export default function RegistrarPersona() {
         )}
 
         <form className="space-y-4" noValidate onSubmit={enviar}>
-          {/* Cita para una fecha, o pase permanente. El pase no aparta
-              lugar y no tiene horario: por eso se esconden las dos
-              casillas de arriba. */}
-          <fieldset>
-            <legend className="mb-2 text-base font-semibold text-principal">
-              {t('registrarPanel.tipo')}
-            </legend>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {['cita', 'pase'].map((valor) => (
-                <label
-                  className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-4 ${
-                    tipo === valor ? 'border-2 border-principal bg-principal/5' : 'border-principal/25'
-                  }`}
-                  key={valor}
-                >
-                  <input
-                    checked={tipo === valor}
-                    className="h-5 w-5 shrink-0 accent-principal"
-                    name="tipo-registro"
-                    onChange={() => setTipo(valor)}
-                    type="radio"
-                    value={valor}
-                  />
-                  <span className="text-base font-semibold text-principal">
-                    {t(`registrarPanel.tipos.${valor}`)}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          {tipo === 'pase' && (
+          {/* El pase no aparta lugar y no tiene horario. */}
+          {esPase && (
             <>
               <p className="rounded-xl bg-accion/15 p-3 text-base text-principal">
                 {t('registrarPanel.avisoPase')}
@@ -352,6 +324,7 @@ export default function RegistrarPersona() {
                 type="text"
                 value={motivoPase}
               />
+              {esAdmin && <CasillaVip alCambiar={setVip} id="registro-pase-vip" marcada={vip} />}
             </>
           )}
 
@@ -510,13 +483,14 @@ export default function RegistrarPersona() {
 
           {/* Solo se apaga mientras envia. Si falta el horario, al tocarlo lo dice. */}
           <Boton disabled={enviando} type="submit">
-            {enviando ? t('registrarPanel.registrando') : t('registrarPanel.registrar')}
+            {enviando
+              ? t('registrarPanel.registrando')
+              : esPase
+                ? t('pases.registrarYDar')
+                : t('registrarPanel.registrar')}
           </Boton>
         </form>
-      </Tarjeta>
-
-      {/* Para quien ya tiene su cita de la semana y necesita otra. */}
-      <ExcepcionSemana alAutorizar={() => setRecarga((n) => n + 1)} bloques={bloques} />
+      </Envoltura>
     </div>
   )
 }

@@ -113,7 +113,15 @@ function Bienvenida() {
 
 function Menu() {
   const { t } = useTranslation()
-  const opciones = ['nav.citasHoy', 'nav.escanear', 'nav.horarios', 'guia.abrir']
+  //  Por secciones: el titulo de cada una y sus pantallas (Escanear, primero).
+  const opciones = [
+    ['nav.grupos.dia', 'grupo'],
+    ['nav.escanear', 'activa'],
+    ['nav.citasHoy'],
+    ['nav.grupos.preparar', 'grupo'],
+    ['nav.horarios'],
+    ['guia.abrir'],
+  ]
 
   return (
     <div className="flex h-56 items-center justify-center">
@@ -125,16 +133,22 @@ function Menu() {
         {/* El dedo toca el boton y el menu se abre. */}
         <span className="guia-anim guia-dedo absolute left-3 top-2.5 h-7 w-7 rounded-full border-2 border-accion bg-accion/30 opacity-0" />
         <div className="guia-anim guia-menu absolute inset-x-2 top-11 space-y-1 rounded-lg border border-principal/15 bg-superficie p-1.5 shadow-tarjeta">
-          {opciones.map((clave, i) => (
-            <div
-              className={`truncate rounded-md px-1.5 py-1 text-[0.55rem] font-semibold ${
-                i === 1 ? 'bg-marca text-white' : 'bg-principal/10 text-principal'
-              }`}
-              key={clave}
-            >
-              {t(clave)}
-            </div>
-          ))}
+          {opciones.map(([clave, tipo]) =>
+            tipo === 'grupo' ? (
+              <p className="truncate px-1 pt-0.5 text-[0.45rem] font-bold uppercase tracking-wide text-principal/70" key={clave}>
+                {t(clave)}
+              </p>
+            ) : (
+              <div
+                className={`truncate rounded-md px-1.5 py-1 text-[0.55rem] font-semibold ${
+                  tipo === 'activa' ? 'bg-marca text-white' : 'bg-principal/10 text-principal'
+                }`}
+                key={clave}
+              >
+                {t(clave)}
+              </div>
+            ),
+          )}
         </div>
       </Telefono>
     </div>
@@ -232,27 +246,41 @@ function Deshacer() {
 
 function Buscar() {
   const { t } = useTranslation()
-  const codigo = 'CB-4871'
+  const busqueda = 'javier'
+  //  "Javier" tambien encuentra a "Xavier": la lista de hoy, como suena.
+  const gente = [
+    ['Javier Gómez', 'CB-1002', '2:45 PM'],
+    ['Xavier López', 'CB-4871', '3:00 PM'],
+  ]
 
   return (
     <div className={CAJA}>
       <div className="flex w-full max-w-[16rem] items-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-3 py-2">
         <LuSearch className="h-4 w-4 shrink-0 text-principal/70" />
-        <span className="guia-anim guia-escribe font-mono text-sm font-semibold text-principal" style={{ '--letras': String(codigo.length) }}>
-          {codigo}
+        <span className="guia-anim guia-escribe font-mono text-sm font-semibold text-principal" style={{ '--letras': String(busqueda.length) }}>
+          {busqueda}
         </span>
         <span className="guia-anim guia-cursor h-4 w-0.5 bg-marca" />
       </div>
-      {/* Buscando a mano SI se confirma. */}
-      <div className={`guia-anim guia-fase-2 ${TARJETA} flex items-center justify-between gap-2 px-3 py-2`}>
-        <span>
-          <span className="block text-sm font-bold text-principal">Ana Pérez</span>
-          <span className="block text-xs text-principal/70">{codigo} · 2:45 PM</span>
-        </span>
-        <span className="guia-anim guia-toque rounded-lg bg-marca px-2.5 py-1.5 text-xs font-bold text-white">
-          {t('guia.escena.entregar')}
-        </span>
+      <div className={`guia-anim guia-fase-2 ${TARJETA} divide-y divide-principal/10`}>
+        {gente.map(([nombre, codigo, hora]) => (
+          <div className="flex items-center justify-between gap-2 px-3 py-1.5" key={codigo}>
+            <span>
+              <span className="block text-sm font-bold text-principal">{nombre}</span>
+              <span className="block text-xs text-principal/70">
+                {codigo} · {hora}
+              </span>
+            </span>
+            <span className="rounded-full bg-puede-pasar/15 px-2 py-0.5 text-xs font-bold text-puede-pasar">
+              {t('escaneo.lista.falta')}
+            </span>
+          </div>
+        ))}
       </div>
+      {/* Buscando a mano SI se confirma. */}
+      <span className="guia-anim guia-fase-3 rounded-lg bg-marca px-2.5 py-1.5 text-xs font-bold text-white">
+        {t('guia.escena.entregar')}
+      </span>
     </div>
   )
 }
@@ -367,17 +395,9 @@ function Registrar() {
 
   return (
     <div className={CAJA}>
-      <div className="grid w-full max-w-[16rem] grid-cols-2 gap-1.5">
-        {['cita', 'pase'].map((clave, i) => (
-          <span
-            className="guia-anim guia-alterna rounded-lg border-2 border-principal/20 bg-superficie px-2 py-1.5 text-center text-xs font-bold text-principal"
-            key={clave}
-            style={{ animationDelay: i ? '-2.5s' : '0s' }}
-          >
-            {t(`guia.escena.${clave}`)}
-          </span>
-        ))}
-      </div>
+      <span className="rounded-lg border-2 border-principal/20 bg-superficie px-3 py-1.5 text-center text-xs font-bold text-principal">
+        {t('guia.escena.cita')}
+      </span>
       <div className={`${TARJETA} space-y-1.5 p-2.5`}>
         {['w-4/5', 'w-3/5', 'w-2/3'].map((ancho) => (
           <div className={`h-2.5 rounded-full bg-principal/15 ${ancho}`} key={ancho} />
@@ -386,6 +406,35 @@ function Registrar() {
       <div className="guia-anim guia-fase-3 flex items-center gap-2">
         <QrDibujo className="h-12 w-12 rounded-md shadow-tarjeta" />
         <span className="text-sm font-bold text-puede-pasar">{t('guia.escena.suQr')}</span>
+      </div>
+    </div>
+  )
+}
+
+function PasesEscena() {
+  const { t } = useTranslation()
+
+  return (
+    <div className={CAJA}>
+      <p className="text-sm font-bold text-principal">{t('pases.tieneCodigo')}</p>
+      <div className="grid w-full max-w-[16rem] grid-cols-2 gap-1.5">
+        {['si', 'no'].map((clave, i) => (
+          <span
+            className="guia-anim guia-alterna rounded-lg border-2 border-principal/20 bg-superficie px-2 py-1.5 text-center text-xs font-bold text-principal"
+            key={clave}
+            style={{ animationDelay: i ? '-2.5s' : '0s' }}
+          >
+            {t(`pases.tieneCodigoOpciones.${clave}`)}
+          </span>
+        ))}
+      </div>
+      <span className="guia-anim guia-fase-2 inline-flex items-center gap-1 rounded-lg border-2 border-[#B8860B] bg-[#F2C94C]/25 px-2 py-1 text-xs font-bold text-principal">
+        <LuCrown className="h-3.5 w-3.5 text-[#B8860B]" />
+        {t('pases.opcionVip')}
+      </span>
+      <div className="guia-anim guia-fase-3 flex items-center gap-2">
+        <QrDibujo className="h-12 w-12 rounded-md shadow-tarjeta" />
+        <span className="text-sm font-bold text-puede-pasar">{t('guia.escena.pase')}</span>
       </div>
     </div>
   )
@@ -662,6 +711,7 @@ const ESCENAS = {
   citasHoy: CitasHoy,
   registrar: Registrar,
   personas: PersonasEscena,
+  pases: PasesEscena,
   horarios: Horarios,
   filaAPie: FilaAPieEscena,
   reportes: Reportes,

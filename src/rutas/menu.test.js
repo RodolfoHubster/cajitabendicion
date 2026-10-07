@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SECCIONES, seccionActual, seccionesVisibles } from './menu'
+import { GRUPOS, SECCIONES, menuPorGrupos, seccionActual, seccionesVisibles } from './menu'
 import { CLAVES_PERMISOS } from '../datos/permisos'
 import en from '../i18n/en.json'
 import es from '../i18n/es.json'
@@ -15,7 +15,7 @@ describe('quién ve qué en el menú', () => {
   })
 
   it('con una palomita aparece su sección, y nada más', () => {
-    expect(seccionesVisibles('voluntario', ['ver_reportes']).map((s) => s.clave)).toEqual(['reportes', 'escanear'])
+    expect(seccionesVisibles('voluntario', ['ver_reportes']).map((s) => s.clave)).toEqual(['escanear', 'reportes'])
   })
 
   //  La regla del pastor: aunque se prendan todas.
@@ -29,6 +29,31 @@ describe('quién ve qué en el menú', () => {
 
   it('quien no es del personal no ve nada', () => {
     expect(seccionesVisibles(null, CLAVES_PERMISOS)).toEqual([])
+  })
+})
+
+describe('el menú por secciones', () => {
+  it('cada sección está en un grupo que existe', () => {
+    for (const seccion of SECCIONES) expect(GRUPOS, seccion.a).toContain(seccion.grupo)
+  })
+
+  it('arriba lo del día de la entrega, con Escanear primero', () => {
+    const grupos = menuPorGrupos(seccionesVisibles('admin', CLAVES_PERMISOS))
+    expect(grupos.map((g) => g.grupo)).toEqual(['dia', 'personas', 'preparar', 'numeros', 'administracion'])
+    expect(grupos[0].secciones.map((s) => s.clave)).toEqual(['escanear', 'citasHoy', 'registrar'])
+    expect(grupos[2].secciones.map((s) => s.clave)).toEqual(['horarios', 'avisos', 'codigosQr'])
+    expect(grupos[4].secciones.map((s) => s.clave)).toEqual(['equipo', 'permisos'])
+  })
+
+  it('un grupo sin secciones no sale', () => {
+    const grupos = menuPorGrupos(seccionesVisibles('voluntario', ['ver_reportes']))
+    expect(grupos.map((g) => g.grupo)).toEqual(['dia', 'numeros'])
+  })
+
+  it('cada grupo tiene su nombre en los tres idiomas', () => {
+    for (const grupo of GRUPOS) {
+      for (const textos of [es, en, vi]) expect(textos.nav.grupos?.[grupo], grupo).toBeTruthy()
+    }
   })
 })
 

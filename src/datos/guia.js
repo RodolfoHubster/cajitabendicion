@@ -12,25 +12,29 @@ import { supabase } from '../lib/supabase'
  * entregar de una vez), se agrega o se cambia el paso con `desde` = la version
  * siguiente, y a quien ya vio la guia se le ensenan solo esas novedades.
  */
+//  6 de octubre de 2026 (version 5): el menu por secciones, la lista de
+//  hoy en el escaner, el codigo del dia y terminar la fila a pie, los pases
+//  con "¿Ya tiene codigo CB?" y el reporte del ultimo dia de entrega.
 export const PASOS_GUIA = [
   { clave: 'bienvenida', desde: 1 },
-  { clave: 'menu', desde: 1, conMenu: true },
+  { clave: 'menu', desde: 5, conMenu: true },
   { clave: 'escanear', desde: 1, seccion: 'escanear' },
   { clave: 'colores', desde: 1, seccion: 'escanear' },
   { clave: 'deshacer', desde: 1, seccion: 'escanear' },
-  { clave: 'buscar', desde: 1, seccion: 'escanear' },
+  { clave: 'buscar', desde: 5, seccion: 'escanear' },
   //  28 de septiembre de 2026: la fila a pie por turnos.
   { clave: 'elegirFila', desde: 2, seccion: 'escanear' },
   { clave: 'dosQr', desde: 2, seccion: 'escanear' },
-  { clave: 'turnos', desde: 2, seccion: 'escanear' },
+  { clave: 'turnos', desde: 5, seccion: 'escanear' },
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
-  { clave: 'registrar', desde: 1, seccion: 'registrar' },
+  { clave: 'registrar', desde: 5, seccion: 'registrar' },
   { clave: 'personas', desde: 3, seccion: 'personas' },
+  { clave: 'pases', desde: 5, seccion: 'pases' },
   { clave: 'horarios', desde: 1, seccion: 'horarios' },
-  { clave: 'filaAPie', desde: 2, seccion: 'horarios' },
-  { clave: 'reportes', desde: 1, seccion: 'reportes' },
-  { clave: 'avisos', desde: 1, seccion: 'avisos' },
+  { clave: 'filaAPie', desde: 5, seccion: 'horarios' },
+  { clave: 'reportes', desde: 5, seccion: 'reportes' },
+  { clave: 'avisos', desde: 5, seccion: 'avisos' },
   { clave: 'equipo', desde: 1, seccion: 'equipo' },
   { clave: 'listo', desde: 1 },
 ]
