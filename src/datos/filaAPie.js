@@ -97,7 +97,8 @@ export async function turnoDeCita(token) {
  *
  *   recibida    ya le entregaron
  *   cancelada   la cancelo
- *   teLlamaron  la llamaron y no estaba: que se acerque, su QR sigue sirviendo
+ *   terminada   la fila de hoy ya cerro y no alcanzo a recibir
+ *   teLlamaron  la llamaron y no estaba: perdio el turno
  *   tuTurno     es el turno que va
  *   esperando   faltan `antes` turnos (va en el `actual`)
  */
@@ -105,6 +106,7 @@ export function situacionDelTurno(datos) {
   if (!datos) return null
   if (datos.estado === 'entregada') return { tipo: 'recibida' }
   if (datos.estado === 'cancelada') return { tipo: 'cancelada' }
+  if (datos.cerrada) return { tipo: 'terminada' }
   if (datos.saltado) return { tipo: 'teLlamaron' }
   if (datos.actual === datos.turno) return { tipo: 'tuTurno' }
   return { tipo: 'esperando', antes: datos.antes ?? 0, actual: datos.actual ?? null }
@@ -117,6 +119,24 @@ export function situacionDelTurno(datos) {
 /** La fila en vivo del dia (null si no hay fila a pie). Ver fila_de_turnos(). */
 export async function filaDeTurnos(fecha = null) {
   return (await llamar('fila_de_turnos', { p_fecha: fecha })) ?? null
+}
+
+/**
+ * El codigo del dia de la fila a pie de una fecha (seccion 43). Sin
+ * `activo`, solo lo lee; true lo prende (4 numeros al azar), false lo
+ * apaga; `nuevo` cambia los numeros. Devuelve el codigo, o null si no se pide.
+ */
+export function codigoTurnoAPie(fecha, { activo = null, nuevo = false } = {}) {
+  return llamar('codigo_turno_a_pie', { p_fecha: fecha, p_activo: activo, p_nuevo: Boolean(nuevo) })
+}
+
+/**
+ * Terminar la fila a pie de hoy, al acabar: ya no se dan turnos y quien
+ * todavia espera ve "La fila de hoy ya termino". Con false se deshace.
+ * No es "Cerrar los turnos" (Horarios): ahi quien ya tiene turno lo conserva.
+ */
+export function terminarFilaAPie(terminada = true) {
+  return llamar('terminar_fila_a_pie', { p_terminada: Boolean(terminada) })
 }
 
 /** "No se presento" (o, con saltado = false, regresarlo a la fila). */

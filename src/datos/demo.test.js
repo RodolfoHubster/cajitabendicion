@@ -59,9 +59,9 @@ describe('fechas y horarios de ejemplo', () => {
     expect(leerIdBloque(lunes[0].bloque_id)).toEqual({ fila: 'carro', fecha: '2026-10-05', hora: '14:45:00' })
   })
 
-  it('a pie: una fila abierta por día', () => {
+  it('a pie: una fila abierta por día, y también hoy (para grabar el turno)', () => {
     const filas = disponibilidadDeEjemplo({ p_fila: 'a_pie' }, HOY)
-    expect(filas.map((f) => f.fecha)).toEqual(['2026-10-05', '2026-10-08'])
+    expect(filas.map((f) => f.fecha)).toEqual(['2026-10-03', '2026-10-05', '2026-10-08'])
     expect(filas.every((f) => f.abierto && f.libres > 0)).toBe(true)
   })
 
@@ -106,6 +106,19 @@ describe('una cita de ejemplo, de principio a fin', () => {
     const token = respuestaDemo('registrar_y_reservar', { p_bloque_id: fila.bloque_id, p_nombre: 'Ana', p_apellidos: 'Ejemplo' }, opciones).data[0].token_qr
     expect(respuestaDemo('consultar_cita', { p_token: token }, opciones).data[0]).toMatchObject({ fila: 'a_pie', turno: 13 })
     expect(respuestaDemo('turno_de_cita', { p_token: token }, opciones).data[0]).toMatchObject({ turno: 13, actual: 9, antes: 4 })
+  })
+
+  it('el turno a pie sin datos: el 13, y la fila avanza sola para el video', () => {
+    const opciones = { hoy: HOY, almacen: almacen(), ahora: 1_000_000 }
+    const [turno] = respuestaDemo('sacar_turno_a_pie', { p_dispositivo: 'x' }, opciones).data
+    expect(turno).toMatchObject({ resultado: 'NUEVO', turno: 13, codigo: CODIGO_DEMO })
+    expect(respuestaDemo('turno_de_cita', { p_token: turno.token_qr }, opciones).data[0]).toMatchObject({ actual: 9, antes: 4 })
+    const despues = { ...opciones, ahora: 1_000_000 + 60_000 }
+    expect(respuestaDemo('turno_de_cita', { p_token: turno.token_qr }, despues).data[0]).toMatchObject({ actual: 13, antes: 0 })
+  })
+
+  it('la fila a pie de hoy está abierta y no pide código', () => {
+    expect(respuestaDemo('fila_a_pie_hoy', {}, { almacen: almacen() }).data[0]).toMatchObject({ abierta: true, cerrada: false, pide_codigo: false })
   })
 
   it('un código que no es de ejemplo no se encuentra', () => {

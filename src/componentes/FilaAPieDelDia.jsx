@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FaPersonWalking } from 'react-icons/fa6'
 import { LuCircleCheck, LuLock } from 'react-icons/lu'
 import CamposFilaAPie from './CamposFilaAPie'
+import CodigoDelDia from './CodigoDelDia'
 import { ahoraSanDiego, formatearFechaHora } from '../datos/disponibilidad'
 import {
   camposFilaAPie,
@@ -111,6 +112,9 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
       </form>
 
       {mensaje}
+
+      {/* El codigo del dia y el cartel del QR de turnos. */}
+      {existe && <CodigoDelDia fecha={dia.fecha} />}
 
       {/* Con turnos dados no se quita: se cierra el registro. */}
       {existe &&

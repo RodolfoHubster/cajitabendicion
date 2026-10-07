@@ -1,0 +1,419 @@
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FaPersonWalking } from 'react-icons/fa6'
+import { LuBellRing, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
+import { Hueso } from '../../componentes/Esqueleto'
+import Tarjeta from '../../componentes/Tarjeta'
+import TurnoEnVivo from '../../componentes/TurnoEnVivo'
+import { dibujarQR } from '../../datos/cita'
+import { formatearHora } from '../../datos/disponibilidad'
+import { consultarFilasAPie, estadoFilaAPie, situacionDelTurno } from '../../datos/filaAPie'
+import { hoyLocal } from '../../datos/panel'
+import { prepararSonido } from '../../datos/sonido'
+import {
+  RESULTADOS_DE_CODIGO,
+  filaAPieHoy,
+  guardarMiTurno,
+  leerMiTurno,
+  olvidarMiTurno,
+  relojDeEspera,
+  sacarTurnoAPie,
+  traeTurno,
+} from '../../datos/turnoAPie'
+
+const AVISOS = ['sinDatos', 'soloHoy', 'abierta', 'teLlaman', 'cadaQuien']
+const ICONO_AVISO = { sinDatos: LuShieldCheck, soloHoy: LuTicket, abierta: LuBellRing, teLlaman: LuTriangleAlert, cadaQuien: LuHandHeart }
+
+/** "2026-10-08T09:00:00" (hora de San Diego) -> "9:00 AM". */
+const horaDe = (marca) => (marca ? formatearHora(String(marca).slice(11, 19)) : '')
+
+/** Si no llega cuanto esperar, el freno de la base: 5 minutos. */
+const FRENO_SEGUNDOS = 300
+
+/**
+ * El turno a pie SIN DATOS, desde el QR general de la entrada (seccion 42
+ * de la base). Un boton grande: "Sacar mi turno". No se pide nombre, edad
+ * ni telefono. Despues: el numero en grande, su QR, la fila en vivo, y el
+ * telefono suena y vibra cuando falta poco y cuando le toca.
+ *
+ * Si ese dia se pide el codigo del dia (seccion 43), se escribe antes del
+ * boton: esta en el pizarron de la entrada. Con 5 codigos mal, el telefono
+ * espera 5 minutos (se ve la cuenta regresiva).
+ */
+export default function Turno() {
+  const { t } = useTranslation()
+  const hoy = hoyLocal()
+
+  //  El turno de hoy de este telefono, si ya lo saco.
+  const [miTurno, setMiTurno] = useState(() => leerMiTurno(hoy))
+  const [qr, setQr] = useState(null)
+  const [situacion, setSituacion] = useState(null)
+  const [avisoVisto, setAvisoVisto] = useState(false)
+
+  //  La fila de hoy: si hay, si ya abrio, a que hora y si pide el codigo del dia.
+  const [fila, setFila] = useState(undefined)
+  const [ocupado, setOcupado] = useState(false)
+  const [error, setError] = useState(null)
+  //  Lo que contesto la base al tocar el boton, cuando no fue un turno.
+  const [respuesta, setRespuesta] = useState(null)
+
+  //  El codigo del dia: lo que escribe, si la base lo pidio y que paso.
+  const [codigoDia, setCodigoDia] = useState('')
+  const [pideCodigo, setPideCodigo] = useState(false)
+  const [avisoCodigo, setAvisoCodigo] = useState(null)
+  //  Frenado por intentos fallidos: hasta cuando (y la hora, para la cuenta regresiva).
+  const [frenoHasta, setFrenoHasta] = useState(0)
+  const [ahora, setAhora] = useState(0)
+
+  useEffect(() => {
+    if (miTurno) return undefined
+    let vigente = true
+    //  Si la base todavia no sabe del codigo del dia, la fila se ve igual.
+    Promise.all([consultarFilasAPie(hoy), filaAPieHoy().catch(() => null)])
+      .then(([filas, deHoy]) => {
+        if (!vigente) return
+        const disponible = filas.find((f) => f.fecha === hoy) ?? null
+        if (deHoy?.cerrada) {
+          setFila({ ...(disponible ?? {}), cerrada: true, terminada: Boolean(deHoy.terminada) })
+        } else {
+          setFila(disponible ? { ...disponible, pide_codigo: Boolean(deHoy?.pide_codigo) } : null)
+        }
+      })
+      .catch(() => {
+        if (vigente) setFila(null)
+      })
+    return () => {
+      vigente = false
+    }
+  }, [hoy, miTurno])
+
+  useEffect(() => {
+    if (!miTurno?.token) return undefined
+    let vigente = true
+    dibujarQR(miTurno.token, 'a_pie')
+      .then((imagen) => {
+        if (vigente) setQr(imagen)
+      })
+      .catch(() => {})
+    return () => {
+      vigente = false
+    }
+  }, [miTurno?.token])
+
+  //  La cuenta regresiva del freno: cada segundo, hasta que se puede otra vez.
+  useEffect(() => {
+    if (!frenoHasta) return undefined
+    const reloj = setInterval(() => {
+      const ya = Date.now()
+      setAhora(ya)
+      if (ya >= frenoHasta) {
+        setFrenoHasta(0)
+        setAvisoCodigo(null)
+      }
+    }, 1000)
+    return () => clearInterval(reloj)
+  }, [frenoHasta])
+
+  const segundosFreno = frenoHasta ? Math.max(0, (frenoHasta - ahora) / 1000) : 0
+  const frenado = segundosFreno > 0
+
+  async function sacar(cambiarCarro = false) {
+    //  Dentro del toque: asi el telefono deja sonar cuando le toque.
+    prepararSonido()
+    setOcupado(true)
+    setError(null)
+    try {
+      //  El codigo se queda escrito: si tiene cita de carro, el segundo toque lo vuelve a mandar.
+      const r = await sacarTurnoAPie({ cambiarCarro, codigo: codigoDia })
+      if (traeTurno(r)) {
+        const nuevo = { fecha: hoy, token: r.token_qr, turno: r.turno, codigo: r.codigo }
+        guardarMiTurno(nuevo)
+        setMiTurno(nuevo)
+        setRespuesta(null)
+        setAvisoCodigo(null)
+      } else if (RESULTADOS_DE_CODIGO.includes(r?.resultado)) {
+        setPideCodigo(true)
+        setRespuesta(null)
+        setAvisoCodigo(r.resultado)
+        if (r.resultado === 'CODIGO_INCORRECTO') setCodigoDia('')
+        if (r.resultado === 'DEMASIADOS_INTENTOS') {
+          const ya = Date.now()
+          setAhora(ya)
+          setFrenoHasta(ya + (Number(r.espera) || FRENO_SEGUNDOS) * 1000)
+        }
+      } else {
+        setRespuesta(r)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  //  Perdio su turno (no estaba cuando lo llamaron): puede sacar otro.
+  function sacarOtro() {
+    olvidarMiTurno()
+    setMiTurno(null)
+    setQr(null)
+    setSituacion(null)
+    setAvisoVisto(false)
+    setRespuesta(null)
+  }
+
+  const encabezado = (
+    <div className="mb-4 flex items-center gap-3">
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accion/20">
+        <FaPersonWalking aria-hidden="true" className="h-7 w-7 text-principal" />
+      </span>
+      <div>
+        <h1 className="text-2xl font-bold">{t('turnoAPie.titulo')}</h1>
+        <p className="text-base text-principal/70">{t('turnoAPie.subtitulo')}</p>
+      </div>
+    </div>
+  )
+
+  const avisos = (
+    <ul className="space-y-2">
+      {AVISOS.map((clave) => {
+        const Icono = ICONO_AVISO[clave]
+        return (
+          <li className="flex items-start gap-3 rounded-xl bg-principal/5 p-3 text-base text-principal" key={clave}>
+            <Icono aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+            {t(`turnoAPie.avisos.${clave}`)}
+          </li>
+        )
+      })}
+    </ul>
+  )
+
+  // ---------------- Ya tiene su turno ----------------
+  if (miTurno) {
+    const esTuTurno = situacion?.tipo === 'tuTurno'
+
+    return (
+      <div className="space-y-4">
+        <Tarjeta>
+          {encabezado}
+          <TurnoEnVivo
+            accionPerdido={
+              <button
+                className="mt-3 inline-flex min-h-14 w-full items-center justify-center rounded-xl bg-superficie px-4 text-base font-bold text-principal"
+                onClick={sacarOtro}
+                type="button"
+              >
+                {t('turnoAPie.sacarOtro')}
+              </button>
+            }
+            alCambiar={(datos) => setSituacion(situacionDelTurno(datos))}
+            esHoy
+            token={miTurno.token}
+            turnoInicial={miTurno.turno}
+          />
+
+          <div className="mt-4">
+            {qr ? (
+              <img
+                alt={t('confirmacion.qrAlt')}
+                className="aparecer mx-auto w-full max-w-[16rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
+                src={qr}
+              />
+            ) : (
+              <Hueso className="mx-auto h-64 w-64 max-w-full" />
+            )}
+          </div>
+
+          <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-3 text-center">
+            <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+            <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
+            <p className="mt-1 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
+          </div>
+        </Tarjeta>
+
+        <Tarjeta>{avisos}</Tarjeta>
+
+        {/* Le toca: la pantalla completa en verde, para que se vea desde lejos. */}
+        {esTuTurno && !avisoVisto && (
+          <div
+            aria-live="assertive"
+            className="aparecer fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-[#1F7A47] p-6 text-center text-white"
+            role="alert"
+          >
+            <LuBellRing aria-hidden="true" className="h-16 w-16 animate-bounce" />
+            <p className="font-titulo text-4xl font-bold">{t('turnoAPie.esTuTurno')}</p>
+            <p className="font-titulo text-8xl font-bold leading-none">{miTurno.turno}</p>
+            <p className="max-w-xs text-xl">{t('turnoAPie.acercate')}</p>
+            <button
+              className="mt-2 inline-flex min-h-14 items-center justify-center rounded-xl bg-white px-8 text-lg font-bold text-[#1F7A47]"
+              onClick={() => setAvisoVisto(true)}
+              type="button"
+            >
+              {t('turnoAPie.verMiQr')}
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ---------------- Todavia no tiene turno ----------------
+  const estado =
+    fila === undefined ? 'cargando' : fila?.terminada ? 'terminada' : fila?.cerrada ? 'cerrada' : estadoFilaAPie(fila)
+  const conCodigo = Boolean(fila?.pide_codigo) || pideCodigo
+  const faltaEscribir = conCodigo && codigoDia.length < 4
+
+  return (
+    <div className="space-y-4">
+      <Tarjeta>
+        {encabezado}
+
+        {estado === 'cargando' && (
+          <div className="space-y-3" role="status">
+            <span className="sr-only">{t('turnoAPie.revisando')}</span>
+            <Hueso className="h-28 w-full" />
+            <Hueso className="h-5 w-2/3" />
+          </div>
+        )}
+
+        {estado === 'no_hay' && <p className="text-lg">{t('turnoAPie.noHay')}</p>}
+
+        {estado === 'terminada' && (
+          <p className="rounded-xl bg-principal/10 p-4 text-lg font-semibold text-principal" role="status">
+            {t('turnoAPie.terminada')}
+          </p>
+        )}
+
+        {estado === 'cerrada' && (
+          <p className="rounded-xl bg-accion/15 p-4 text-lg font-semibold text-principal" role="status">
+            {t('turnoAPie.resultado.CERRADA')}
+          </p>
+        )}
+
+        {estado === 'por_abrir' && (
+          <p className="rounded-xl bg-accion/15 p-4 text-lg font-semibold text-principal">
+            {t('turnoAPie.abreA', { hora: horaDe(fila.abre_en) })}
+          </p>
+        )}
+
+        {estado === 'llena' && <p className="text-lg">{t('turnoAPie.llena')}</p>}
+
+        {/* Ya abrio: el codigo del dia (si se pide) y el boton grande. */}
+        {estado === 'abierta' && !respuesta && (
+          <form
+            onSubmit={(evento) => {
+              evento.preventDefault()
+              sacar(false)
+            }}
+          >
+            {conCodigo && (
+              <div className="mb-3 rounded-2xl border-2 border-principal/20 p-4">
+                <label className="block text-lg font-bold text-principal" htmlFor="codigo-del-dia">
+                  {t('turnoAPie.codigo.etiqueta')}
+                </label>
+                <p className="text-base text-principal/80" id="codigo-del-dia-ayuda">
+                  {t('turnoAPie.codigo.ayuda')}
+                </p>
+                <input
+                  aria-describedby="codigo-del-dia-ayuda"
+                  autoComplete="off"
+                  className="mt-2 min-h-16 w-full rounded-xl border-2 border-principal/30 bg-superficie px-4 text-center font-titulo text-4xl font-bold tracking-[0.4em] text-principal focus:border-principal disabled:opacity-60"
+                  disabled={frenado}
+                  enterKeyHint="go"
+                  id="codigo-del-dia"
+                  inputMode="numeric"
+                  maxLength={4}
+                  onChange={(e) => setCodigoDia(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  pattern="[0-9]*"
+                  placeholder="····"
+                  value={codigoDia}
+                />
+                {avisoCodigo && (
+                  <p
+                    className={`mt-2 rounded-xl p-3 text-base font-semibold ${
+                      avisoCodigo === 'FALTA_CODIGO' ? 'bg-accion/15 text-principal' : 'bg-ya-recibio/10 text-ya-recibio'
+                    }`}
+                    role="alert"
+                  >
+                    {t(`turnoAPie.codigo.${avisoCodigo}`, { reloj: relojDeEspera(segundosFreno) })}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <button
+              className="flex min-h-28 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-accion px-4 py-5 text-sobre-accion shadow-md transition hover:brightness-95 disabled:opacity-60"
+              disabled={ocupado || frenado || faltaEscribir}
+              type="submit"
+            >
+              <LuTicket aria-hidden="true" className="h-9 w-9" />
+              <span className="font-titulo text-3xl font-bold">
+                {frenado
+                  ? t('turnoAPie.codigo.esperaBoton', { reloj: relojDeEspera(segundosFreno) })
+                  : ocupado
+                    ? t('turnoAPie.sacando')
+                    : t('turnoAPie.boton')}
+              </span>
+            </button>
+            {fila?.hora && (
+              <p className="mt-2 text-center text-base text-principal/80">
+                {t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}
+              </p>
+            )}
+          </form>
+        )}
+
+        {/* Tiene cita de carro hoy: se le pregunta antes de cancelarla. */}
+        {respuesta?.resultado === 'TIENE_CITA_EN_CARRO' && (
+          <div className="aparecer space-y-3 rounded-2xl border-2 border-accion bg-accion/10 p-4">
+            <p className="flex items-start gap-2 text-lg font-bold text-principal">
+              <LuTriangleAlert aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-accion" />
+              {t('turnoAPie.carro.titulo', { hora: formatearHora(respuesta.hora_carro) })}
+            </p>
+            <p className="text-base text-principal">{t('turnoAPie.carro.texto', { count: respuesta.citas_carro })}</p>
+            {/* Es el dueno del carro: el carro sale de la fila con todo y sus acompanantes. */}
+            {respuesta.acompanantes > 0 && (
+              <p className="rounded-xl border-2 border-ya-recibio bg-ya-recibio/10 p-3 text-base font-bold text-principal">
+                {t('turnoAPie.carro.duenio', { count: respuesta.acompanantes })}
+              </p>
+            )}
+            <p className="text-base font-semibold text-principal">{t('turnoAPie.carro.seguro')}</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                className="inline-flex min-h-14 items-center justify-center rounded-xl bg-marca px-4 text-base font-bold text-white disabled:opacity-60"
+                disabled={ocupado}
+                onClick={() => sacar(true)}
+                type="button"
+              >
+                {respuesta.acompanantes > 0 ? t('turnoAPie.carro.siTodos') : t('turnoAPie.carro.si')}
+              </button>
+              <button
+                className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal px-4 text-base font-semibold text-principal"
+                onClick={() => setRespuesta(null)}
+                type="button"
+              >
+                {t('turnoAPie.carro.no')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {respuesta && respuesta.resultado !== 'TIENE_CITA_EN_CARRO' && (
+          <p className="rounded-xl bg-accion/15 p-4 text-lg font-semibold text-principal" role="status">
+            {t(`turnoAPie.resultado.${respuesta.resultado}`, {
+              hora: horaDe(respuesta.abre_en),
+              defaultValue: t('turnoAPie.resultado.CERRADA'),
+            })}
+          </p>
+        )}
+
+        {error && (
+          <p className="mt-3 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+            {t(`turnoAPie.errores.${error}`, { defaultValue: t('turnoAPie.errores.ERROR_DESCONOCIDO') })}
+          </p>
+        )}
+      </Tarjeta>
+
+      <Tarjeta>{avisos}</Tarjeta>
+    </div>
+  )
+}

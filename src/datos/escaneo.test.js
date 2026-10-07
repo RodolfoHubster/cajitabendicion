@@ -12,6 +12,9 @@ import {
   anularEntrega,
   buscarParaEscaneo,
   clasificarErrorCamara,
+  cuentaDeLista,
+  listaParaEscaneo,
+  yaRecibio,
   MS_DESHACER_PROPIA,
   entregaDirecta,
   esRecienEntregado,
@@ -45,6 +48,26 @@ describe('deshacer una entrega marcada por error', () => {
   it('en el iPhone sin señal, SIN_CONEXION (no "error desconocido")', async () => {
     supabase.rpc.mockResolvedValue({ data: null, error: { message: 'TypeError: Load failed' } })
     await expect(anularEntrega('CB-4871', 'x')).rejects.toThrow('SIN_CONEXION')
+  })
+})
+
+describe('la lista del día (carros)', () => {
+  it('trae la gente de hoy, y si es de la otra fila lo dice', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ nombre: 'Ana', codigo_corto: 'CB-1', estado: 'reservada' }], error: null })
+    await expect(listaParaEscaneo()).resolves.toHaveLength(1)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('lista_para_escaneo', {})
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: OTRA_FILA' } })
+    await expect(listaParaEscaneo()).rejects.toThrow('OTRA_FILA')
+    supabase.rpc.mockResolvedValue({ data: null, error: { code: 'PGRST202', message: 'x' } })
+    await expect(listaParaEscaneo()).rejects.toThrow('FUNCION_NO_INSTALADA')
+  })
+
+  it('cuántos faltan', () => {
+    const lista = [{ estado: 'reservada' }, { estado: 'entregada' }, { estado: 'llego' }]
+    expect(cuentaDeLista(lista)).toEqual({ total: 3, recibieron: 1, faltan: 2 })
+    expect(cuentaDeLista(null)).toEqual({ total: 0, recibieron: 0, faltan: 0 })
+    expect(yaRecibio(lista[1])).toBe(true)
+    expect(yaRecibio(lista[0])).toBe(false)
   })
 })
 

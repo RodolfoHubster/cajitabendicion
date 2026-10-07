@@ -48,6 +48,11 @@ export function nombreArchivoQr(url) {
   return `cajita-qr-${base || 'codigo'}.png`
 }
 
+/** La pagina del turno a pie sin datos, en este mismo sitio (el cartel de la entrada). */
+export function urlDeTurno(origen = globalThis.location?.origin ?? 'https://citas.casadealabanzasd.com') {
+  return `${String(origen).replace(/\/$/, '')}/turno`
+}
+
 const AZUL = '#1B3A6B'
 const NARANJA = '#F5A03C'
 const TITULO = '"Roboto Slab Variable", Georgia, serif'
@@ -77,12 +82,41 @@ function escribir(ctx, texto, y, { tamano, peso = 700, familia = TEXTO, color = 
   return y + actual * 1.15
 }
 
+/** Alto del recuadro para escribir a mano (el codigo del dia). */
+const ALTO_RECUADRO = 170
+
+/**
+ * Donde va cada cosa: el QR es mas chico si hay mensaje, y mas chico aun si
+ * abajo va el recuadro para escribir. Nada se encima: el QR y la direccion
+ * terminan antes del recuadro.
+ */
+export function medidasCartel({ conMensaje = false, finMensaje = 190, conRecuadro = false } = {}) {
+  const lado = conRecuadro ? (conMensaje ? 620 : 680) : conMensaje ? 820 : 880
+  const arriba = conMensaje ? Math.max(finMensaje + 40, 320) : 240
+  return {
+    lado,
+    arriba,
+    direccion: arriba + lado + 70,
+    recuadro: conRecuadro ? ALTO - 24 - 36 - ALTO_RECUADRO : null,
+  }
+}
+
+/** Un rectangulo con esquinas redondas, relleno. */
+function redondeado(ctx, x, y, ancho, alto, radio) {
+  ctx.beginPath()
+  if (ctx.roundRect) ctx.roundRect(x, y, ancho, alto, radio)
+  else ctx.rect(x, y, ancho, alto)
+  ctx.fill()
+}
+
 /**
  * El cartel (1080 x 1350, listo para imprimir o mandar): arriba el nombre del
  * programa, el mensaje si hay, el QR con el logo y abajo la direccion
- * escrita, por si alguien no puede escanear. Devuelve el PNG.
+ * escrita, por si alguien no puede escanear. Con `recuadro` (su etiqueta),
+ * abajo queda un cuadro en blanco para escribir a mano, como el codigo del
+ * dia de la fila a pie. Devuelve el PNG.
  */
-export async function dibujarCartelQr({ url, mensaje = '', programa, iglesia, documento = globalThis.document }) {
+export async function dibujarCartelQr({ url, mensaje = '', programa, iglesia, recuadro = '', documento = globalThis.document }) {
   const qr = await dibujarQRConSello(url, { sello: 'logo', documento, ancho: 1024 })
 
   const lienzo = documento.createElement('canvas')
@@ -115,11 +149,26 @@ export async function dibujarCartelQr({ url, mensaje = '', programa, iglesia, do
   const conMensaje = mensaje.trim() !== ''
   const finMensaje = conMensaje ? escribir(ctx, mensaje.trim(), 280, { tamano: 64, familia: TITULO }) : 190
 
-  const lado = conMensaje ? 820 : 880
-  const arriba = conMensaje ? Math.max(finMensaje + 40, 320) : 240
-  ctx.drawImage(imagen, (ANCHO - lado) / 2, arriba, lado, lado)
+  const medidas = medidasCartel({ conMensaje, finMensaje, conRecuadro: recuadro.trim() !== '' })
+  ctx.drawImage(imagen, (ANCHO - medidas.lado) / 2, medidas.arriba, medidas.lado, medidas.lado)
 
-  escribir(ctx, urlParaMostrar(url), arriba + lado + 70, { tamano: 40, peso: 600, color: '#4A5F85' })
+  escribir(ctx, urlParaMostrar(url), medidas.direccion, { tamano: 40, peso: 600, color: '#4A5F85' })
+
+  //  El recuadro: la etiqueta a la izquierda y el cuadro blanco para escribir.
+  if (medidas.recuadro !== null) {
+    const y = medidas.recuadro
+    ctx.fillStyle = AZUL
+    redondeado(ctx, 60, y, ANCHO - 120, ALTO_RECUADRO, 28)
+    ctx.textAlign = 'left'
+    ctx.font = `700 46px ${TEXTO}`
+    ctx.fillStyle = '#FFFFFF'
+    const etiqueta = recuadro.trim()
+    const anchoEtiqueta = Math.min(ctx.measureText(etiqueta).width, 440)
+    ctx.fillText(etiqueta, 100, y + 102, 440)
+    const x = 100 + anchoEtiqueta + 36
+    redondeado(ctx, x, y + 26, ANCHO - 100 - x, ALTO_RECUADRO - 52, 18)
+    ctx.textAlign = 'center'
+  }
 
   ctx.fillStyle = NARANJA
   ctx.fillRect(0, ALTO - 24, ANCHO, 24)

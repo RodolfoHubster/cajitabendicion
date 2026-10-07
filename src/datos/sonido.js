@@ -93,6 +93,22 @@ export function avisoDetente() {
   return tono({ hz: 320, segundos: 0.45, volumen: 0.18 })
 }
 
+/** La fila a pie: "faltan 3, acercate". Dos tonos medianos. */
+export function avisoCerca() {
+  vibrar([150, 100, 150])
+  const uno = tono({ hz: 660, segundos: 0.15, volumen: 0.2 })
+  const dos = tono({ hz: 880, segundos: 0.15, volumen: 0.2, retraso: 0.2 })
+  return uno && dos
+}
+
+/** La fila a pie: "¡es tu turno!". Largo y que se oiga: tres tonos que suben, y vibra fuerte. */
+export function avisoEsTuTurno() {
+  vibrar([400, 150, 400, 150, 400])
+  return [880, 1100, 1320]
+    .map((hz, i) => tono({ hz, segundos: 0.22, volumen: 0.25, retraso: i * 0.25 }))
+    .every(Boolean)
+}
+
 //  Que resultado del escaneo suena a que.
 export const PUEDE_PASAR = ['VALIDO', 'VALIDO_AUTORIZADO', 'VALIDO_PASE']
 

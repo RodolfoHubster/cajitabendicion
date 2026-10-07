@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaPersonWalking } from 'react-icons/fa6'
-import { LuSearch, LuUndo2, LuUserX, LuVolume2 } from 'react-icons/lu'
+import { LuFlag, LuKeyRound, LuSearch, LuUndo2, LuUserPlus, LuUserX, LuVolume2 } from 'react-icons/lu'
 import { Hueso } from './Esqueleto'
 import useCadaRato from './useCadaRato'
 import { formatearHora } from '../datos/disponibilidad'
-import { CADA_MS_VOLUNTARIA, esSinLimite, filaDeTurnos, saltarTurno } from '../datos/filaAPie'
+import { MAXIMO_SENA, darTurnoSinTelefono } from '../datos/turnoAPie'
+import { CADA_MS_VOLUNTARIA, esSinLimite, filaDeTurnos, saltarTurno, terminarFilaAPie } from '../datos/filaAPie'
 import {
   alCambiarVoces,
   guardarAnuncio,
@@ -24,7 +25,11 @@ import {
  *
  * alActualizar(datos): la pantalla de escaneo guarda el turno que va para
  * avisar cuando alguien llega antes de su turno. alBuscar(): abre la
- * busqueda por nombre o codigo.
+ * busqueda por codigo.
+ *
+ * Los turnos sin datos llegan SIN su codigo (seccion 43 de la base): el
+ * codigo es lo unico que prueba de quien es el turno. Si dos dicen "yo soy
+ * el 50", se les pide su codigo y se busca: el turno es de quien lo sabe.
  */
 export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
   const { t, i18n } = useTranslation()
@@ -38,6 +43,13 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
   //  El ultimo "no se presento", para poder deshacerlo al momento.
   const [saltado, setSaltado] = useState(null)
   const [cambios, setCambios] = useState(0)
+  //  El turno que se le acaba de dar a alguien sin telefono: { turno, codigo, nombre }.
+  const [turnoDado, setTurnoDado] = useState(null)
+  //  Su nombre o una sena, opcional: para reconocerla despues.
+  const [sena, setSena] = useState('')
+  const [preguntandoTerminar, setPreguntandoTerminar] = useState(false)
+  //  Cuando llego la fila: para saber si un "no se presento" tiene menos de 2 minutos.
+  const [ahora, setAhora] = useState(0)
 
   //  Anunciar cada turno en voz alta, solo, con la voz que se escoja. Se
   //  recuerda en este telefono.
@@ -72,6 +84,7 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
     async () => {
       try {
         const nuevos = await filaDeTurnos()
+        setAhora(Date.now())
         setDatos(nuevos)
         const turno = turnoParaAnunciar(anunciado.current, nuevos?.actual?.turno ?? null)
         if (turno !== null) {
@@ -91,6 +104,34 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
     CADA_MS_VOLUNTARIA,
     { clave: `${version}-${cambios}` },
   )
+
+  async function darTurno() {
+    setOcupado(true)
+    setError(null)
+    try {
+      setTurnoDado(await darTurnoSinTelefono(sena))
+      setSena('')
+      setCambios((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  async function terminar(siTerminar = true) {
+    setOcupado(true)
+    setError(null)
+    setPreguntandoTerminar(false)
+    try {
+      await terminarFilaAPie(siTerminar)
+      setCambios((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
 
   async function noSePresento(turno, siSaltado = true) {
     setOcupado(true)
@@ -154,6 +195,36 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
         </p>
       )}
 
+      {/* La fila ya termino: quien esperaba lo ve en su telefono. */}
+      {datos.terminada && (
+        <div className="mt-3 rounded-xl border-2 border-principal/30 bg-principal/5 p-3" role="status">
+          <p className="flex items-center gap-2 text-lg font-bold text-principal">
+            <LuFlag aria-hidden="true" className="h-5 w-5 shrink-0" />
+            {t('filaTurnos.terminar.terminada')}
+          </p>
+          <button
+            className="mt-1 inline-flex min-h-12 items-center gap-1 text-base font-semibold text-principal underline underline-offset-4 disabled:opacity-60"
+            disabled={ocupado}
+            onClick={() => terminar(false)}
+            type="button"
+          >
+            <LuUndo2 aria-hidden="true" className="h-4 w-4" />
+            {t('filaTurnos.terminar.deshacer')}
+          </button>
+        </div>
+      )}
+
+      {/* El codigo del dia, para decirlo en la entrada (o escribirlo en el pizarron). */}
+      {datos.codigo_dia && !datos.terminada && (
+        <p className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-dashed border-accion bg-accion/10 px-3 py-2 text-base font-semibold text-principal">
+          <span className="inline-flex items-center gap-2">
+            <LuKeyRound aria-hidden="true" className="h-5 w-5 text-accion" />
+            {t('filaTurnos.codigoDia')}
+          </span>
+          <span className="font-titulo text-3xl font-bold tracking-[0.3em]">{datos.codigo_dia}</span>
+        </p>
+      )}
+
       {/* El turno que va, en grande: es el que se grita. */}
       <div className="mt-3 rounded-2xl border-4 border-accion bg-accion/10 p-4 text-center" aria-live="polite">
         <p className="text-base font-bold uppercase tracking-wide text-principal/80">{t('filaTurnos.va')}</p>
@@ -161,7 +232,7 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
           <>
             <p className="font-titulo text-7xl font-bold leading-none text-principal">{actual.turno}</p>
             <p className="mt-2 text-xl font-bold text-principal">{actual.nombre}</p>
-            <p className="text-base text-principal/70">{actual.codigo_corto}</p>
+            {actual.codigo_corto && <p className="text-base text-principal/70">{actual.codigo_corto}</p>}
 
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {puedeHablar() && (
@@ -206,6 +277,57 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
       )}
 
       {error && <AvisoError error={error} />}
+
+      {/* Quien no tiene telefono: se le da turno aqui y se le dice su numero y su codigo. */}
+      {turnoDado ? (
+        <div className="aparecer mt-3 rounded-2xl border-4 border-puede-pasar bg-puede-pasar/10 p-4 text-center" role="status">
+          <p className="text-base font-bold uppercase tracking-wide text-principal/80">{t('filaTurnos.sinTelefono.dado')}</p>
+          <p className="font-titulo text-6xl font-bold leading-none text-principal">{turnoDado.turno}</p>
+          <p className="mt-1 font-titulo text-2xl font-bold tracking-wide text-principal">{turnoDado.codigo}</p>
+          {turnoDado.nombre && /·/.test(turnoDado.nombre) && (
+            <p className="mt-1 text-base font-semibold text-principal">{turnoDado.nombre.split('·').slice(1).join('·').trim()}</p>
+          )}
+          <p className="mt-2 text-base text-principal">{t('filaTurnos.sinTelefono.ayuda')}</p>
+          <button
+            className="mt-3 inline-flex min-h-12 items-center justify-center rounded-xl border border-principal px-5 text-base font-semibold text-principal"
+            onClick={() => setTurnoDado(null)}
+            type="button"
+          >
+            {t('filaTurnos.sinTelefono.listo')}
+          </button>
+        </div>
+      ) : (
+        !datos.terminada && (
+          <form
+            className="mt-3 rounded-xl border-2 border-principal/15 p-3"
+            onSubmit={(evento) => {
+              evento.preventDefault()
+              darTurno()
+            }}
+          >
+            <label className="block text-base font-semibold text-principal" htmlFor="sena-sin-telefono">
+              {t('filaTurnos.sinTelefono.sena')}
+            </label>
+            <input
+              autoComplete="off"
+              className="mt-1 min-h-12 w-full rounded-xl border border-principal/30 bg-superficie px-3 text-base text-principal"
+              id="sena-sin-telefono"
+              maxLength={MAXIMO_SENA}
+              onChange={(e) => setSena(e.target.value)}
+              placeholder={t('filaTurnos.sinTelefono.senaEjemplo')}
+              value={sena}
+            />
+            <button
+              className="mt-2 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-3 text-base font-bold text-principal transition hover:border-principal disabled:opacity-60"
+              disabled={ocupado}
+              type="submit"
+            >
+              <LuUserPlus aria-hidden="true" className="h-5 w-5 text-accion" />
+              {t('filaTurnos.sinTelefono.boton')}
+            </button>
+          </form>
+        )
+      )}
 
       {/* La bocina del telefono dice "Turno 12" cada vez que avanza la fila. */}
       {puedeHablar() && (
@@ -262,7 +384,9 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
                 <span className="w-12 shrink-0 font-titulo text-2xl font-bold text-principal">{persona.turno}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-base font-semibold text-principal">{persona.nombre}</span>
-                  <span className="block text-chica text-principal/70">{persona.codigo_corto}</span>
+                  {persona.codigo_corto && (
+                    <span className="block text-chica text-principal/70">{persona.codigo_corto}</span>
+                  )}
                 </span>
               </li>
             ))}
@@ -280,34 +404,85 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar }) {
             {saltados.map((persona) => (
               <li className="flex flex-wrap items-center justify-between gap-2" key={persona.turno}>
                 <span className="text-base text-principal">
-                  <span className="font-bold">{persona.turno}</span> · {persona.nombre} · {persona.codigo_corto}
+                  <span className="font-bold">{persona.turno}</span> · {persona.nombre}
+                  {persona.codigo_corto && ` · ${persona.codigo_corto}`}
                 </span>
-                <button
-                  className="inline-flex min-h-12 items-center text-base font-semibold text-principal underline underline-offset-4"
-                  disabled={ocupado}
-                  onClick={() => noSePresento(persona.turno, false)}
-                  type="button"
-                >
-                  {t('filaTurnos.regresar')}
-                </button>
+                {/* Solo en los 2 minutos siguientes, por si se marco al equivocado. */}
+                {!persona.saltado_en || ahora - Date.parse(persona.saltado_en) < 2 * 60 * 1000 ? (
+                  <button
+                    className="inline-flex min-h-12 items-center text-base font-semibold text-principal underline underline-offset-4"
+                    disabled={ocupado}
+                    onClick={() => noSePresento(persona.turno, false)}
+                    type="button"
+                  >
+                    {t('filaTurnos.regresar')}
+                  </button>
+                ) : (
+                  <span className="text-chica font-semibold text-ya-recibio">{t('filaTurnos.perdio')}</span>
+                )}
               </li>
             ))}
           </ul>
         </details>
       )}
 
+      {/* "Yo soy el 50": el turno es de quien sabe su codigo. */}
       {alBuscar && (
-        <button
-          className="mt-3 inline-flex min-h-12 items-center gap-2 text-base font-semibold text-principal underline underline-offset-4"
-          onClick={alBuscar}
-          type="button"
-        >
-          <LuSearch aria-hidden="true" className="h-4 w-4" />
-          {t('filaTurnos.buscar')}
-        </button>
+        <div className="mt-3 rounded-xl bg-principal/5 p-3">
+          <button
+            className="inline-flex min-h-12 items-center gap-2 text-base font-semibold text-principal underline underline-offset-4"
+            onClick={alBuscar}
+            type="button"
+          >
+            <LuSearch aria-hidden="true" className="h-4 w-4" />
+            {t('filaTurnos.comprobar')}
+          </button>
+          <p className="text-chica text-principal/70">{t('filaTurnos.comprobarAyuda')}</p>
+        </div>
       )}
 
       <p className="mt-2 text-chica text-principal/70">{t('filaTurnos.seActualiza')}</p>
+
+      {/* Al acabar: quien todavia espera ve en su telefono que la fila termino. */}
+      {!datos.terminada &&
+        (preguntandoTerminar ? (
+          <div
+            aria-labelledby="terminar-fila-pregunta"
+            className="mt-4 rounded-xl border-2 border-ya-recibio/40 bg-ya-recibio/5 p-3"
+            role="alertdialog"
+          >
+            <p className="text-base font-semibold text-principal" id="terminar-fila-pregunta">
+              {t('filaTurnos.terminar.pregunta', { cuantos: datos.en_espera ?? 0 })}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                className="inline-flex min-h-12 items-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-50"
+                disabled={ocupado}
+                onClick={() => terminar(true)}
+                type="button"
+              >
+                {t('filaTurnos.terminar.si')}
+              </button>
+              <button
+                className="inline-flex min-h-12 items-center rounded-xl border border-principal px-4 text-base font-semibold text-principal"
+                onClick={() => setPreguntandoTerminar(false)}
+                type="button"
+              >
+                {t('filaTurnos.terminar.no')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="mt-4 inline-flex min-h-12 items-center gap-2 px-1 text-base font-semibold text-ya-recibio underline underline-offset-4 disabled:opacity-50"
+            disabled={ocupado}
+            onClick={() => setPreguntandoTerminar(true)}
+            type="button"
+          >
+            <LuFlag aria-hidden="true" className="h-4 w-4" />
+            {t('filaTurnos.terminar.boton')}
+          </button>
+        ))}
     </div>
   )
 }

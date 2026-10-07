@@ -4,16 +4,40 @@ import {
   agregarQr,
   copiarImagen,
   leerQrs,
+  medidasCartel,
   nombreArchivoQr,
   normalizarUrl,
   quitarQr,
   urlParaMostrar,
+  urlDeTurno,
 } from './cartelQr'
 
 function almacenDePrueba() {
   const datos = new Map()
   return { getItem: (k) => datos.get(k) ?? null, setItem: (k, v) => datos.set(k, v) }
 }
+
+describe('el cartel del QR de turnos', () => {
+  it('lleva a /turno de este mismo sitio', () => {
+    expect(urlDeTurno('https://citas.casadealabanzasd.com')).toBe('https://citas.casadealabanzasd.com/turno')
+    expect(urlDeTurno('http://localhost:5176/')).toBe('http://localhost:5176/turno')
+  })
+
+  it('con el recuadro para el código del día nada se encima', () => {
+    for (const conMensaje of [false, true]) {
+      //  Con el mensaje mas largo (dos renglones) termina como en 354.
+      const m = medidasCartel({ conMensaje, finMensaje: 354, conRecuadro: true })
+      expect(m.recuadro).not.toBeNull()
+      expect(m.direccion + 10).toBeLessThan(m.recuadro)
+      expect(m.recuadro + 170).toBeLessThanOrEqual(1350 - 24)
+    }
+  })
+
+  it('sin recuadro el QR queda como antes', () => {
+    expect(medidasCartel({ conMensaje: false })).toMatchObject({ lado: 880, arriba: 240, recuadro: null })
+    expect(medidasCartel({ conMensaje: true, finMensaje: 280 })).toMatchObject({ lado: 820, arriba: 320 })
+  })
+})
 
 describe('la dirección del QR', () => {
   it('sin "https://" se le pone', () => {

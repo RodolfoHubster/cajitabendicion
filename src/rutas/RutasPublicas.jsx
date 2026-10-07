@@ -1,5 +1,4 @@
-import { Route } from 'react-router-dom'
-import APie from '../paginas/publico/APie'
+import { Navigate, Route } from 'react-router-dom'
 import Calendario from '../paginas/publico/Calendario'
 import CambiarHorario from '../paginas/publico/CambiarHorario'
 import Confirmacion from '../paginas/publico/Confirmacion'
@@ -9,13 +8,16 @@ import Pase from '../paginas/publico/Pase'
 import Preguntas from '../paginas/publico/Preguntas'
 import QuienesSomos from '../paginas/publico/QuienesSomos'
 import Registro from '../paginas/publico/Registro'
+import Turno from '../paginas/publico/Turno'
 
 export default function RutasPublicas() {
   return (
     <>
       <Route element={<Inicio />} path="/" />
       <Route element={<Calendario />} path="/calendario" />
-      <Route element={<APie />} path="/a-pie" />
+      {/* El QR general de la entrada lleva a /turno: turno a pie sin datos. */}
+      <Route element={<Turno />} path="/turno" />
+      <Route element={<Navigate replace to="/turno" />} path="/a-pie" />
       <Route element={<Horarios />} path="/horarios/:fecha" />
       <Route element={<Registro />} path="/registro" />
       <Route element={<Confirmacion />} path="/confirmacion/:id" />

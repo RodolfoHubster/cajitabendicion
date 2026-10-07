@@ -41,7 +41,14 @@
     "avisos": "Textos y reglas",
     "permisos": "Permisos",
     "menu": "Menú",
-    "codigosQr": "Códigos QR"
+    "codigosQr": "Códigos QR",
+    "grupos": {
+      "dia": "El día de la entrega",
+      "personas": "Personas y pases",
+      "preparar": "Preparar la entrega",
+      "numeros": "Números",
+      "administracion": "Administración"
+    }
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
@@ -77,7 +84,8 @@
       "NO_ES_DIA_DE_ENTREGA": "Hoy no hay entrega",
       "OTRA_FILA": "Otra fila",
       "SIN_CONEXION": "Sin señal",
-      "RECIEN_ENTREGADO": "Ya se le entregó hace un momento"
+      "RECIEN_ENTREGADO": "Ya se le entregó hace un momento",
+      "TURNO_PERDIDO": "Perdió su turno"
     },
     "explicacion": {
       "VALIDO": "Cita válida para hoy. Entrégale su caja.",
@@ -91,7 +99,8 @@
       "NO_ES_DIA_DE_ENTREGA": "Hoy no es día de entrega, así que el pase no aplica.",
       "OTRA_FILA": "Este código es de la otra fila. No se usó: mándalo a su fila y ahí le entregan su caja.",
       "SIN_CONEXION": "No se pudo revisar el código porque se cortó la conexión. El código puede estar bien: no rechaces a la persona. Revisa tus datos y vuelve a revisarlo.",
-      "RECIEN_ENTREGADO": "Es el mismo código que acabas de entregar ({{nombre}}). La cámara lo volvió a leer: no hay que hacer nada, ya puede avanzar."
+      "RECIEN_ENTREGADO": "Es el mismo código que acabas de entregar ({{nombre}}). La cámara lo volvió a leer: no hay que hacer nada, ya puede avanzar.",
+      "TURNO_PERDIDO": "Lo llamaron y no estaba. Que vuelva a escanear el código de la entrada para sacar un turno nuevo."
     },
     "camara": {
       "SIN_PERMISO": "No diste permiso para usar la cámara.",
@@ -140,7 +149,26 @@
       "texto": "Tiene el turno {{turno}} y va el {{actual}}. Puede pasar si tú lo decides.",
       "paso": "Pasó antes de su turno: tiene el {{turno}} y va el {{actual}}. Si no debía pasar, deshaz la entrega con el botón de abajo."
     },
-    "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina."
+    "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina.",
+    "aPie": {
+      "buscar": "Buscar por código",
+      "etiqueta": "Código de su turno",
+      "ayuda": "Pídele su código: lo tiene en su teléfono o en su papel. Si dos dicen que son el mismo número, el turno es de quien sabe el código."
+    },
+    "lista": {
+      "cargando": "Cargando la gente de hoy…",
+      "ejemplo": "Nombre o CB-4871",
+      "cuenta": "Hoy: {{total}} con cita · faltan {{faltan}}",
+      "falta": "Falta",
+      "yaRecibio": "Ya recibió",
+      "enCarroDe": "en el carro de {{codigo}}",
+      "noEsta": "No está en la lista de hoy. Si es un código de otro día, toca «Buscar también en otras fechas».",
+      "buscarOtras": "Buscar también en otras fechas",
+      "masDe": "Se ven {{n}} de {{total}}. Escribe un nombre para encontrar más rápido.",
+      "vacia": "Hoy no hay citas en la fila de carros.",
+      "otraFila": "Esta lista es de la fila de carros. Hoy estás en la fila a pie.",
+      "sinConexion": "Sin señal: la lista puede no estar al día."
+    }
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -158,7 +186,7 @@
     "titulo": "Pases permanentes",
     "ayuda": "Quién puede llegar sin cita y recibir su caja los dos días. Una caja por día de entrega.",
     "cargando": "Buscando los pases…",
-    "sinPases": "Todavía no hay pases. Se dan desde “Registrar persona”.",
+    "sinPases": "Todavía no hay pases. Se dan aquí arriba, en «Dar pase permanente».",
     "buscar": "Buscar por nombre, código o teléfono",
     "activos": "Pases activos: {{count}}",
     "permanente": "Pase permanente",
@@ -192,7 +220,7 @@
     "dar": "Dar pase permanente",
     "codigoPersona": "Código CB de la persona",
     "motivoOpcional": "Motivo (opcional)",
-    "faltaCodigo": "Escribe su código, por ejemplo CB-4871. Si todavía no está registrada, regístrala primero en \"Registrar persona\".",
+    "faltaCodigo": "Escribe su código, por ejemplo CB-4871. Si todavía no está registrada, escoge «No, registrarla aquí».",
     "opcionVip": "Pase VIP",
     "opcionVipAyuda": "Para suscriptores VIP: su QR sale dorado y pasa directo, sin hacer fila.",
     "darBoton": "Dar pase",
@@ -204,7 +232,14 @@
     "quitarVip": "Quitar VIP",
     "vipPuesto": "{{codigo}} ahora es VIP: su pase sale dorado.",
     "vipQuitado": "{{codigo}} ya no es VIP.",
-    "buscarEnPersonas": "¿No sabes su código? Búscalo por nombre en Personas"
+    "buscarEnPersonas": "¿No sabes su código? Búscalo por nombre en Personas",
+    "tieneCodigo": "¿Ya tiene código CB?",
+    "tieneCodigoOpciones": {
+      "si": "Sí, ya tiene código",
+      "no": "No, registrarla aquí"
+    },
+    "registrarAqui": "Sus datos, como en Registrar persona. Al terminar, se le da su pase.",
+    "registrarYDar": "Registrar y dar el pase"
   },
   "panel": {
     "cargando": "Cargando el día…",
@@ -534,11 +569,6 @@
     "otra": "Registrar a otra persona",
     "sinFechas": "No hay fechas con horarios abiertos.",
     "errorCarga": "No pudimos cargar los horarios.",
-    "tipo": "¿Qué le vas a dar?",
-    "tipos": {
-      "cita": "Cita para una fecha",
-      "pase": "Pase permanente"
-    },
     "avisoPase": "El pase sirve lunes y jueves, sin horario, hasta que se lo quiten. Una caja por día de entrega. No aparta lugar del cupo.",
     "motivoPase": "¿Por qué se le da? (opcional)",
     "yaTenia": "Esta persona ya tenía cita ese día",
@@ -760,8 +790,8 @@
         "texto": "En un minuto te enseñamos cómo funciona el panel de Cajita de Bendición. Puedes volver a ver esta guía cuando quieras desde el menú, en «Guía de uso»."
       },
       "menu": {
-        "titulo": "Todo está en el menú",
-        "texto": "En el celular, toca el botón de arriba para abrirlo; en la computadora está a un lado. Solo ves las pantallas que te tocan."
+        "titulo": "Todo está en el menú, por secciones",
+        "texto": "Arriba, lo del día de la entrega: Escanear, Citas de hoy y Registrar persona. Abajo, lo que se prepara antes, los números y la administración. En el celular, toca el botón de arriba para abrirlo; en la computadora está a un lado. Esta guía siempre está al final del menú, en «Guía de uso», en cualquier teléfono."
       },
       "escanear": {
         "titulo": "Escanear es entregar",
@@ -777,7 +807,7 @@
       },
       "buscar": {
         "titulo": "Si el QR no se deja leer",
-        "texto": "Toca «Buscar por nombre o código» y escribe su código, por ejemplo CB-4871. También puedes buscar por nombre, pero revisa bien: hay muchos nombres repetidos. Buscando a mano sí hay que confirmar la entrega."
+        "texto": "Toca «Buscar por nombre o código». En la fila de carros ves ahí mismo la gente de hoy: escribe un pedazo del nombre (aunque no sepas cómo se escribe: «Javier» también encuentra a «Xavier») o su código, toca a la persona y luego «Registrar entrega». Revisa bien: hay muchos nombres repetidos. En la fila a pie se busca solo con su código."
       },
       "sinCita": {
         "titulo": "Si llega alguien sin cita",
@@ -789,7 +819,7 @@
       },
       "registrar": {
         "titulo": "Registrar a una persona",
-        "texto": "Para quien no puede registrarse sola, como un adulto mayor sin celular: le das una cita para una fecha o un pase permanente."
+        "texto": "Para quien no puede registrarse sola, como un adulto mayor sin celular: le das una cita para una fecha. Los pases permanentes se dan en «Pases»."
       },
       "horarios": {
         "titulo": "Horarios y cupos",
@@ -797,11 +827,11 @@
       },
       "reportes": {
         "titulo": "Reportes",
-        "texto": "Cuántas cajas se entregaron cada día, con y sin cita: lo que se reporta al banco de alimentos."
+        "texto": "Al entrar ves el último día de entrega, con carros y a pie por separado. También por semana, por mes, por año o entre dos fechas: lo que se reporta al banco de alimentos."
       },
       "avisos": {
         "titulo": "Textos y reglas",
-        "texto": "Lo que la gente lee en la portada y las reglas que acepta antes de sacar su cita. Aquí mismo lo cambias cuando haga falta."
+        "texto": "Lo que la gente lee, agrupado por cuándo lo lee: lo primero que ve, las reglas antes de registrarse y la información. Cada uno dice dónde aparece, y puedes verlo como la gente."
       },
       "equipo": {
         "titulo": "Equipo y permisos",
@@ -821,15 +851,19 @@
       },
       "turnos": {
         "titulo": "La fila a pie va por turnos",
-        "texto": "En la fila a pie ves en grande el turno que va, para llamarlo, y los que siguen. Al escanear, la fila avanza sola. Si no se presenta, toca «No se presentó». Si llega alguien antes de su turno, pasa igual y la pantalla te avisa; si no debía, deshaces la entrega."
+        "texto": "La gente saca su turno sin dar datos, con el QR de la entrada. Ves en grande el turno que va. Si no se presenta, toca «No se presentó». Si dos dicen que son el mismo número, pídeles su código y toca «Comprobar el código de un turno»: el turno es de quien sabe su código. A quien no tiene teléfono, dale turno (puedes anotar su nombre o una seña). Al acabar, toca «Terminar la fila de hoy»."
       },
       "filaAPie": {
         "titulo": "Armar la fila a pie",
-        "texto": "Al crear una fecha, escoge si es solo de carros, solo a pie o de las dos. De la fila a pie pones a qué hora empieza la entrega y cuántos turnos (o sin límite). Los turnos se abren una hora antes; si eliges más temprano, te avisa. También se cambia después, dentro de cada día."
+        "texto": "Al crear una fecha, escoge si es solo de carros, solo a pie o de las dos. De la fila a pie pones a qué hora empieza y cuántos turnos (o sin límite); los turnos se abren una hora antes. Si prendes «Pedir código del día», para sacar turno hay que escribir 4 números que pones en la entrada. Ahí mismo descargas el cartel con el QR."
       },
       "personas": {
         "titulo": "Personas",
         "texto": "Busca a alguien por nombre, teléfono o código CB, aunque se haya registrado varias veces. Desde ahí mismo le das su pase o lo haces VIP."
+      },
+      "pases": {
+        "titulo": "Pases permanentes",
+        "texto": "Al dar un pase, primero dices si la persona ya tiene código CB. Si no, la registras ahí mismo. El pase sirve en carro y a pie, y lo puedes marcar como VIP."
       }
     },
     "escena": {
@@ -1049,18 +1083,6 @@
     "listo": "Listo: la caja de {{nombre}} quedó como entregada.",
     "aMano": "A mano · {{quien}}"
   },
-  "excepcion": {
-    "titulo": "Segunda cita en la misma semana",
-    "ayuda": "Solo por una razón especial, como enfermedad o emergencia. La persona ya debe tener su cita de esa semana; queda guardado el motivo y quién lo autorizó.",
-    "abrir": "Autorizar una excepción",
-    "codigo": "Código de la persona (CB-…)",
-    "motivo": "Motivo",
-    "motivoEjemplo": "Por ejemplo: enfermedad en la familia",
-    "autorizar": "Autorizar y apartar lugar",
-    "autorizando": "Autorizando…",
-    "listo": "Excepción autorizada",
-    "cerrar": "Cancelar"
-  },
   "equipo": {
     "titulo": "Equipo y accesos",
     "ayuda": "Quién puede entrar al panel y qué puede hacer. Los cambios se aplican al momento.",
@@ -1169,8 +1191,9 @@
     "periodos": {
       "esteMes": "Este mes",
       "mesPasado": "Mes pasado",
-      "ultimos30": "Últimos 30 días",
-      "esteAnio": "Este año"
+      "esteAnio": "Este año",
+      "ultimoDia": "Último día de entrega",
+      "estaSemana": "Esta semana"
     },
     "desde": "Desde",
     "hasta": "Hasta",
@@ -1200,7 +1223,9 @@
       "con_excepcion": "Con excepción",
       "sin_cita": "Sin cita",
       "cajas": "Cajas",
-      "intentos_repetidos": "Intentos repetidos"
+      "intentos_repetidos": "Intentos repetidos",
+      "cambios_a_pie": "Se cambiaron a pie",
+      "con_pase": "Con pase"
     },
     "errores": {
       "RANGO_INVALIDO": "La fecha «Desde» debe ser igual o anterior a «Hasta».",
@@ -1210,6 +1235,18 @@
       "SIN_CONEXION": "No hay conexión. Revisa tu internet y vuelve a intentar.",
       "ERROR_DESCONOCIDO": "No se pudo cargar el reporte. Vuelve a intentar.",
       "FILA_INVALIDA": "Esa fila no existe. Escoge Juntas, En carro o A pie."
+    },
+    "cambiosAPie_one": "{{count}} persona dejó la fila de carros y se cambió a pie en este periodo.",
+    "cambiosAPie_other": "{{count}} personas dejaron la fila de carros y se cambiaron a pie en este periodo.",
+    "detalle": {
+      "ver": "Detalle",
+      "titulo": "Detalle del {{fecha}}",
+      "cargando": "Cargando el detalle…",
+      "error": "No se pudo cargar el detalle. Vuelve a intentar.",
+      "cajasDelDia": "Cajas del día: {{cajas}}",
+      "turnos": "Turnos dados",
+      "perdieron": "No se presentaron",
+      "cambios": "Se cambiaron de carro a pie: {{cambios}}"
     }
   },
   "domicilio": {
@@ -1363,7 +1400,19 @@
     "tocarParaEditar": "Toca para editar",
     "oculta": "Oculta: la gente no la ve",
     "quitarPregunta": "¿Quitar este texto?",
-    "traducciones": "Inglés y vietnamita (opcional)"
+    "traducciones": "Inglés y vietnamita (opcional)",
+    "grupo": {
+      "primero": "Lo primero que ven",
+      "antes": "Antes de registrarse",
+      "informacion": "Información"
+    },
+    "dondeAparece": {
+      "inicio": "Se ve en la página de inicio, en «Antes de empezar», debajo de los botones.",
+      "reglas": "Se ven al registrarse, justo antes de la casilla «Leí y acepto estas indicaciones». Cada fila tiene las suyas.",
+      "preguntas": "Se ven en la página «Preguntas frecuentes».",
+      "quienes": "Se ve en la página «Quiénes somos»."
+    },
+    "verComoLaGente": "Ver como la gente"
   },
   "preguntas": {
     "titulo": "Preguntas frecuentes",
@@ -1590,10 +1639,11 @@
     "antes_other": "Faltan {{count}} personas antes de ti",
     "eresElSiguiente": "¡Eres el siguiente! Acércate.",
     "esTuTurno": "¡Es tu turno! Acércate y muestra tu código.",
-    "teLlamaron": "Ya te llamaron. Acércate con tu código: todavía te pueden atender.",
+    "teLlamaron": "Te llamaron y no estabas: perdiste este turno. Vuelve a escanear el código de la entrada para sacar uno nuevo.",
     "recibida": "Ya recibiste tu caja. ¡Gracias por venir!",
     "otroDia": "El día de la entrega, aquí mismo vas a ver qué turno va.",
-    "seActualiza": "Se actualiza solo cada pocos segundos."
+    "seActualiza": "Se actualiza solo cada pocos segundos.",
+    "terminada": "La fila de hoy ya terminó. Gracias por venir; te esperamos en la próxima entrega."
   },
   "elegirFila": {
     "pregunta": "¿En qué fila estás hoy?",
@@ -1628,18 +1678,41 @@
     "siguen": "Siguen",
     "noSePresentaron_one": "{{count}} no se presentó",
     "noSePresentaron_other": "{{count}} no se presentaron",
-    "noSePresentaronAyuda": "Si llegan después, su código sigue sirviendo: escanéalo normal.",
+    "noSePresentaronAyuda": "Perdieron su turno: su código ya no entrega. En los 2 minutos siguientes puedes regresarlo a la fila, por si te equivocaste.",
     "regresar": "Regresar a la fila",
     "buscar": "Buscar por nombre o código",
     "seActualiza": "Se actualiza sola cada pocos segundos.",
     "errores": {
       "TURNO_NO_EXISTE": "Ese turno ya no está esperando: puede que ya haya recibido.",
       "OTRA_FILA": "Para ver los turnos, elige la fila a pie.",
-      "SOLO_HOY": "Solo se puede ver la fila de hoy."
+      "SOLO_HOY": "Solo se puede ver la fila de hoy.",
+      "FILA_A_PIE_NO_EXISTE": "Hoy no hay fila a pie.",
+      "DIA_CERRADO": "El día de hoy está cerrado.",
+      "FUERA_DE_PLAZO": "Ya pasaron 2 minutos: ese turno se perdió. La persona tiene que volver a sacar turno."
     },
     "anunciar": "Anunciar cada turno en voz alta",
     "voz": "Voz",
-    "vozDelTelefono": "La del teléfono"
+    "vozDelTelefono": "La del teléfono",
+    "perdio": "Perdió su turno",
+    "sinTelefono": {
+      "boton": "Dar turno a alguien sin teléfono",
+      "dado": "Su turno",
+      "ayuda": "Dile su número y su código, y que lo apunte (o apúntaselo en un papel). Con el código se comprueba que el turno es suyo.",
+      "listo": "Listo",
+      "sena": "Nombre o seña (opcional)",
+      "senaEjemplo": "Ej.: Rosa, chamarra roja"
+    },
+    "codigoDia": "Código del día",
+    "comprobar": "Comprobar el código de un turno",
+    "comprobarAyuda": "Si dos personas dicen que son el mismo número, pídeles su código: el turno es de quien lo sabe.",
+    "terminar": {
+      "boton": "Terminar la fila de hoy",
+      "pregunta": "¿Terminar la fila de hoy? Ya no se darán más turnos, y quien todavía espera ({{cuantos}}) verá en su teléfono que la fila ya terminó.",
+      "si": "Sí, terminar la fila",
+      "no": "No, todavía no",
+      "terminada": "La fila de hoy ya terminó. Quien esperaba ya lo ve en su teléfono.",
+      "deshacer": "Volver a abrir la fila (si fue un error)"
+    }
   },
   "filaAPieAdmin": {
     "titulo": "Fila a pie",
@@ -1816,5 +1889,76 @@
     "pendiente": "falta",
     "marcarEnviado": "Marcar enviado",
     "marcarPendiente": "Marcar que falta"
+  },
+  "turnoAPie": {
+    "titulo": "Fila a pie",
+    "subtitulo": "Saca tu turno aquí. No necesitas dar tus datos.",
+    "boton": "Sacar mi turno",
+    "sacando": "Sacando tu turno…",
+    "empiezaA": "Empezamos a entregar a las {{hora}}",
+    "revisando": "Revisando la fila…",
+    "noHay": "Hoy no hay fila a pie.",
+    "abreA": "Los turnos se dan a partir de las {{hora}}. Vuelve a abrir esta página a esa hora.",
+    "llena": "Ya no hay turnos por hoy.",
+    "sacarOtro": "Sacar un turno nuevo",
+    "esTuTurno": "¡Es tu turno!",
+    "acercate": "Acércate y muestra tu código QR.",
+    "verMiQr": "Ver mi código",
+    "avisos": {
+      "sinDatos": "No te pedimos nombre, edad ni teléfono. Nada de esto se guarda ni se comparte.",
+      "soloHoy": "Tu turno es solo para hoy y es para una despensa.",
+      "abierta": "Deja esta página abierta: aquí ves qué turno va, y tu teléfono suena cuando falten 3 y cuando te toque.",
+      "teLlaman": "Si te llaman y no estás, pierdes tu turno y tienes que volver a escanear el código de la entrada.",
+      "cadaQuien": "Cada adulto saca su propio turno. Si no tienes teléfono, pídeselo a una voluntaria."
+    },
+    "carro": {
+      "titulo": "Ya tienes cita en carro hoy a las {{hora}}.",
+      "texto_one": "Si te cambias a pie, tu cita en carro se cancela y ya no puedes regresar a la fila de carros.",
+      "texto_other": "Si te cambias a pie, tus citas en carro de hoy se cancelan y ya no puedes regresar a la fila de carros.",
+      "si": "Sí, cambiarme a pie",
+      "no": "No, me quedo en carro",
+      "duenio_one": "Eres el dueño del carro: también se cancela la cita de tu {{count}} acompañante. Tendrá que sacar su propio turno (con su teléfono, o pidiéndoselo a una voluntaria).",
+      "duenio_other": "Eres el dueño del carro: también se cancelan las citas de tus {{count}} acompañantes. Cada uno tendrá que sacar su propio turno (con su teléfono, o pidiéndoselo a una voluntaria).",
+      "seguro": "¿Estás seguro de que quieres cambiarte a pie?",
+      "siTodos": "Sí, cancelar el carro y cambiarme a pie"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "Ya recibiste tu despensa en carro hoy. ¡Gracias por venir!",
+      "AUN_NO_ABRE": "Los turnos se dan a partir de las {{hora}}.",
+      "NO_HAY_FILA": "Hoy no hay fila a pie.",
+      "CERRADA": "Ya no se dan más turnos hoy."
+    },
+    "errores": {
+      "SIN_CONEXION": "No hay conexión. Revisa tu señal y vuelve a tocar el botón.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está lista. Avísale a una voluntaria.",
+      "DISPOSITIVO_INVALIDO": "No pudimos darte turno desde este teléfono. Pide ayuda a una voluntaria.",
+      "ERROR_DESCONOCIDO": "No pudimos darte turno. Vuelve a tocar el botón o pide ayuda a una voluntaria."
+    },
+    "terminada": "La fila de hoy ya terminó. ¡Gracias por venir! Te esperamos en la próxima entrega.",
+    "codigoEsTuyo": "Este código es solo tuyo: no se lo enseñes a nadie. Con él se comprueba que el turno es tuyo.",
+    "codigo": {
+      "etiqueta": "Código del día",
+      "ayuda": "Son 4 números. Están escritos en la entrada; si no los ves, pregúntale a una voluntaria.",
+      "FALTA_CODIGO": "Escribe el código del día para sacar tu turno.",
+      "CODIGO_INCORRECTO": "Ese no es el código de hoy. Revísalo y vuelve a intentar.",
+      "DEMASIADOS_INTENTOS": "Demasiados intentos. Podrás volver a intentar en {{reloj}}.",
+      "esperaBoton": "Espera {{reloj}}"
+    }
+  },
+  "codigoDelDia": {
+    "casilla": "Pedir código del día",
+    "ayuda": "Para sacar turno hay que escribir 4 números que solo se ven en la entrada (en el pizarrón, o los dice la voluntaria). Así nadie saca turno desde su casa. Los turnos que da la voluntaria no lo piden.",
+    "esteDia": "Código de este día",
+    "otro": "Cambiar por otro",
+    "error": "No se pudo cambiar el código. Vuelve a intentar.",
+    "cartel": {
+      "boton": "Descargar cartel",
+      "dibujando": "Preparando el cartel…",
+      "ayuda": "El QR para sacar turno, listo para imprimir, con un recuadro para escribir el código de ese día.",
+      "listo": "Listo, el cartel se descargó.",
+      "error": "No se pudo preparar el cartel. Vuelve a intentar.",
+      "mensaje": "Escanea aquí para sacar tu turno",
+      "recuadro": "Código del día:"
+    }
   }
 }

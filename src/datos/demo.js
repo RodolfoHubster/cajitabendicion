@@ -114,10 +114,13 @@ export function leerIdBloque(id) {
 export function disponibilidadDeEjemplo({ p_desde, p_hasta, p_fila } = {}, hoy) {
   const abreEn = `${sumarDias(hoy, -1)}T09:00:00`
 
-  return fechasDeEjemplo(hoy)
+  const fechas = p_fila === 'a_pie' ? [...new Set([hoy, ...fechasDeEjemplo(hoy)])] : fechasDeEjemplo(hoy)
+
+  return fechas
     .filter((fecha) => (!p_desde || fecha >= p_desde) && (!p_hasta || fecha <= p_hasta))
     .flatMap((fecha) => {
       if (p_fila === 'a_pie') {
+        //  La fila a pie de ejemplo tambien abre hoy: para grabar el turno.
         return [
           {
             bloque_id: idBloque(fecha, '14:00:00', 'a_pie'),
@@ -178,7 +181,11 @@ const falla = (mensaje) => ({ data: null, error: { message: mensaje } })
  * La respuesta de ejemplo a una llamada a la base. Nunca escribe nada: lo
  * que se "registra" queda en esta pestana nada mas.
  */
-export function respuestaDemo(nombre, parametros = {}, { hoy = hoySanDiego(), almacen = sesion(), azar = Math.random } = {}) {
+export function respuestaDemo(
+  nombre,
+  parametros = {},
+  { hoy = hoySanDiego(), almacen = sesion(), azar = Math.random, ahora = Date.now() } = {},
+) {
   const citas = leerCitas(almacen)
 
   switch (nombre) {
@@ -205,6 +212,29 @@ export function respuestaDemo(nombre, parametros = {}, { hoy = hoySanDiego(), al
       return ok([{ codigo_corto: CODIGO_DEMO, token_qr: token, fecha, hora, ya_existia: false }])
     }
 
+    //  El turno a pie sin datos (/turno): el 13, y la fila avanza sola.
+    case 'sacar_turno_a_pie': {
+      const token = `demo-${Math.floor(azar() * 1e12).toString(36)}`
+      const cita = {
+        codigo_corto: CODIGO_DEMO,
+        nombre: 'Turno 13',
+        fecha: hoy,
+        hora: '14:00:00',
+        estado: 'reservada',
+        fila: 'a_pie',
+        turno: 13,
+        creada: ahora,
+      }
+      guardarCitas(almacen, { ...citas, [token]: cita })
+      return ok([
+        { resultado: 'NUEVO', token_qr: token, codigo: CODIGO_DEMO, turno: 13, fecha: hoy, hora: '14:00:00', abre_en: null, citas_carro: 0, hora_carro: null },
+      ])
+    }
+
+    //  Hoy hay fila a pie, ya abierta y sin codigo del dia.
+    case 'fila_a_pie_hoy':
+      return ok([{ hora: '14:00:00', abre_en: null, abierta: true, cerrada: false, pide_codigo: false }])
+
     case 'consultar_cita': {
       const cita = citas[parametros.p_token]
       return ok(cita ? [cita] : [])
@@ -213,17 +243,22 @@ export function respuestaDemo(nombre, parametros = {}, { hoy = hoySanDiego(), al
     case 'turno_de_cita': {
       const cita = citas[parametros.p_token]
       if (!cita?.turno) return ok([])
+      //  Para el video: la fila avanza un turno cada 15 segundos, asi se ven
+      //  "faltan 3" y "¡es tu turno!".
+      const avance = cita.creada ? Math.max(0, Math.floor((ahora - cita.creada) / 15000)) : 0
+      const actual = Math.min(cita.turno, cita.turno - 4 + avance)
       return ok([
         {
           turno: cita.turno,
           estado: cita.estado,
           saltado: false,
-          actual: cita.turno - 4,
-          antes: 4,
-          atendidos: cita.turno - 5,
+          actual,
+          antes: cita.turno - actual,
+          atendidos: actual - 1,
           en_espera: 9,
           fecha: cita.fecha,
           hora: cita.hora,
+          cerrada: false,
         },
       ])
     }

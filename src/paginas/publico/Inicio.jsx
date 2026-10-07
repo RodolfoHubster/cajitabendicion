@@ -116,7 +116,7 @@ export default function Inicio() {
                 sigue siendo una. */}
             <button
               className={`${OPCION} group border-2 border-white/40 bg-white/10 text-white transition duration-300 hover:-translate-y-1 hover:bg-white/15 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70`}
-              onClick={() => navegar('/a-pie')}
+              onClick={() => navegar('/turno')}
               type="button"
             >
               <span className={`${CIRCULO} bg-white/15 group-hover:scale-110`}>

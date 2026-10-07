@@ -9,6 +9,7 @@ import DeshacerEntrega from '../../componentes/DeshacerEntrega'
 import ElegirFila from '../../componentes/ElegirFila'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import LectorQR from '../../componentes/LectorQR'
+import ListaDelDia from '../../componentes/ListaDelDia'
 import PanelTurnos from '../../componentes/PanelTurnos'
 import SelloVip from '../../componentes/SelloVip'
 import { Hueso } from '../../componentes/Esqueleto'
@@ -44,6 +45,7 @@ const ESTILO_RESULTADO = {
   OTRA_FECHA: 'bg-accion/15 text-principal border-accion',
   OTRA_FILA: 'bg-accion/15 text-principal border-accion',
   CANCELADA: 'bg-accion/15 text-principal border-accion',
+  TURNO_PERDIDO: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
   NO_EXISTE: 'bg-ya-recibio/10 text-ya-recibio border-ya-recibio',
 }
 
@@ -453,7 +455,7 @@ export default function Escanear() {
           <>
             <LectorQR activo alLeer={alLeer} />
             <Boton className="mt-3" onClick={() => setVista('manual')} variant="secondary">
-              {t('escaneo.buscarManual')}
+              {fila === 'a_pie' ? t('escaneo.aPie.buscar') : t('escaneo.buscarManual')}
             </Boton>
           </>
         )}
@@ -661,7 +663,8 @@ export default function Escanear() {
               )}
               {/* Un QR se puede pasar a otra persona. El nombre es la forma de
                   saber que es de quien lo trae. */}
-              {resultado.nombre && PUEDE_PASAR.includes(resultado.resultado) && (
+              {/* Un turno sin datos ("Turno 23") no tiene nombre que preguntar. */}
+              {resultado.nombre && !/^Turno \d+$/.test(resultado.nombre) && PUEDE_PASAR.includes(resultado.resultado) && (
                 <p className="mt-2 rounded-lg bg-principal/5 px-3 py-2 text-base font-semibold text-principal">
                   {t('escaneo.revisaNombre')}
                 </p>
@@ -707,23 +710,36 @@ export default function Escanear() {
           </>
         )}
 
+        {/* Carros: la gente de hoy ahi mismo, y se busca mientras se escribe.
+            A pie: solo con su codigo (es lo que prueba de quien es el turno). */}
         {vista === 'manual' && (
           <>
             <form className="space-y-3" onSubmit={buscar}>
               <Campo
+                autoComplete="off"
                 autoFocus
-                etiqueta={t('escaneo.buscarEtiqueta')}
+                etiqueta={fila === 'a_pie' ? t('escaneo.aPie.etiqueta') : t('escaneo.buscarEtiqueta')}
                 id="busqueda"
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="CB-4871"
+                onChange={(e) => {
+                  setBusqueda(e.target.value)
+                  setEncontrados(null)
+                }}
+                placeholder={fila === 'a_pie' ? 'CB-4871' : t('escaneo.lista.ejemplo')}
                 value={busqueda}
               />
-              <Boton type="submit" variant="secondary">
-                {t('escaneo.buscar')}
-              </Boton>
+              {fila === 'a_pie' && <p className="text-base text-principal/80">{t('escaneo.aPie.ayuda')}</p>}
+              {(fila === 'a_pie' || busqueda.trim() !== '') && (
+                <Boton type="submit" variant="secondary">
+                  {fila === 'a_pie' ? t('escaneo.buscar') : t('escaneo.lista.buscarOtras')}
+                </Boton>
+              )}
             </form>
 
             {avisoError}
+
+            {fila !== 'a_pie' && encontrados === null && (
+              <ListaDelDia alEntregar={entregarDeLista} alVer={elegirDeLista} ocupado={ocupado} texto={busqueda} />
+            )}
 
             {encontrados && encontrados.length === 0 && (
               <p className="mt-4 text-base">{t('escaneo.sinResultados')}</p>

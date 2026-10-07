@@ -26,6 +26,7 @@ import {
   revisarApertura,
   saltarTurno,
   situacionDelTurno,
+  terminarFilaAPie,
   turnoAdelantado,
   turnoDeCita,
 } from './filaAPie'
@@ -88,6 +89,19 @@ describe('el turno de la persona', () => {
     expect(situacionDelTurno({ ...base, saltado: true }).tipo).toBe('teLlamaron')
     expect(situacionDelTurno({ ...base, estado: 'entregada' }).tipo).toBe('recibida')
     expect(situacionDelTurno({ ...base, estado: 'cancelada' }).tipo).toBe('cancelada')
+    expect(situacionDelTurno({ ...base, cerrada: true }).tipo).toBe('terminada')
+    expect(situacionDelTurno({ ...base, cerrada: true, saltado: true }).tipo).toBe('terminada')
+    expect(situacionDelTurno({ ...base, cerrada: true, estado: 'entregada' }).tipo).toBe('recibida')
+  })
+
+  it('terminar la fila (y deshacerlo)', async () => {
+    supabase.rpc.mockResolvedValue({ data: true, error: null })
+    await expect(terminarFilaAPie()).resolves.toBe(true)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('terminar_fila_a_pie', { p_terminada: true })
+    await terminarFilaAPie(false)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('terminar_fila_a_pie', { p_terminada: false })
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: OTRA_FILA' } })
+    await expect(terminarFilaAPie()).rejects.toThrow('OTRA_FILA')
   })
 
   it('"ya recibió" gana a "te llamaron": si lo llamaron y después llegó, ya pasó', () => {

@@ -123,6 +123,30 @@ export async function buscarParaEscaneo(texto) {
   return (await llamar('buscar_para_escaneo', { p_texto: texto })) ?? []
 }
 
+/**
+ * La gente de hoy de la fila de carros, para buscarla en el escaner sin
+ * esperar: [{ nombre, codigo_corto, fecha, hora, estado, en_carro_de }].
+ * Sin telefono ni direccion. Solo para quien escanea en carros (OTRA_FILA
+ * si hoy esta en la fila a pie).
+ */
+export async function listaParaEscaneo() {
+  const { data, error } = await supabase.rpc('lista_para_escaneo', {})
+  if (error) throw new Error(error.message?.includes('OTRA_FILA') ? 'OTRA_FILA' : clasificarError(error))
+  return data ?? []
+}
+
+/** Ya recibio su caja hoy. */
+export function yaRecibio(persona) {
+  return persona?.estado === 'entregada'
+}
+
+/** Cuantos hay en la lista y cuantos faltan. */
+export function cuentaDeLista(lista) {
+  const total = (lista ?? []).length
+  const recibieron = (lista ?? []).filter(yaRecibio).length
+  return { total, recibieron, faltan: total - recibieron }
+}
+
 export const CODIGOS_ANULAR = ['MOTIVO_REQUERIDO', 'ENTREGA_NO_EXISTE', 'FUERA_DE_PLAZO']
 
 /**

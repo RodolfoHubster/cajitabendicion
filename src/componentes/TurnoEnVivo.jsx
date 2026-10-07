@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBellRing, LuCircleCheck, LuMegaphone, LuUsers } from 'react-icons/lu'
+import { LuBellRing, LuCircleCheck, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
 import useCadaRato from './useCadaRato'
+import usePantallaEncendida from './usePantallaEncendida'
 import { CADA_MS_PERSONA, situacionDelTurno, turnoDeCita } from '../datos/filaAPie'
-import { vibrar } from '../datos/sonido'
+import { avisoCerca, avisoEsTuTurno } from '../datos/sonido'
+import { avisoQueToca } from '../datos/turnoAPie'
 
 /**
  * El turno de la persona en la fila a pie, en vivo.
@@ -14,15 +16,22 @@ import { vibrar } from '../datos/sonido'
  *
  * turnoInicial: el que ya se sabe (de consultar_cita), para no esperar la
  * primera respuesta. alCambiar(datos): para que la pagina sepa cuando ya
- * recibio.
+ * recibio. accionPerdido: lo que se ofrece si perdio el turno (en /turno,
+ * "Sacar un turno nuevo").
+ *
+ * Cuando faltan 3 y cuando le toca, el telefono suena y vibra (vibrar, solo
+ * en Android). Mientras espera, la pantalla no se apaga sola.
  */
-export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambiar }) {
+export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambiar, accionPerdido = null }) {
   const { t } = useTranslation()
   const [datos, setDatos] = useState(null)
   const anterior = useRef(null)
 
   const situacion = situacionDelTurno(datos)
   const terminado = situacion?.tipo === 'recibida' || situacion?.tipo === 'cancelada'
+  //  La fila de hoy ya termino: se sigue preguntando (despacio no hace
+  //  falta: si la voluntaria lo toco por error y lo deshace, aqui se ve).
+  const filaTerminada = situacion?.tipo === 'terminada'
 
   useCadaRato(
     async () => {
@@ -30,10 +39,12 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
       setDatos(nuevos)
       alCambiar?.(nuevos)
 
-      //  Cuando le toca, el telefono vibra (una vez, no en cada vuelta).
-      const tipo = situacionDelTurno(nuevos)?.tipo
-      if (tipo === 'tuTurno' && anterior.current && anterior.current !== 'tuTurno') vibrar([200, 100, 200])
-      anterior.current = tipo
+      //  Una vez, cuando cambia: faltan 3, o ya le toca.
+      const nueva = situacionDelTurno(nuevos)
+      const aviso = avisoQueToca(anterior.current, nueva)
+      if (aviso === 'turno') avisoEsTuTurno()
+      if (aviso === 'cerca') avisoCerca()
+      anterior.current = nueva
     },
     CADA_MS_PERSONA,
     //  Otro dia basta con preguntar una vez; ya recibida, ya no hay que preguntar.
@@ -41,6 +52,7 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
   )
 
   const turno = datos?.turno ?? turnoInicial
+  usePantallaEncendida(Boolean(esHoy) && !terminado && !filaTerminada && situacion?.tipo !== 'teLlamaron')
 
   return (
     <div className="rounded-2xl border-4 border-accion bg-accion/10 p-4 text-center" aria-live="polite">
@@ -74,8 +86,16 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
       )}
 
       {situacion?.tipo === 'teLlamaron' && (
-        <p className="mt-3 rounded-xl bg-accion px-3 py-3 text-lg font-bold text-sobre-accion" role="alert">
-          {t('turno.teLlamaron')}
+        <div className="mt-3 rounded-xl bg-accion px-3 py-3 text-sobre-accion" role="alert">
+          <p className="text-lg font-bold">{t('turno.teLlamaron')}</p>
+          {accionPerdido}
+        </div>
+      )}
+
+      {situacion?.tipo === 'terminada' && (
+        <p className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-principal/10 px-3 py-3 text-lg font-bold text-principal" role="status">
+          <LuFlag aria-hidden="true" className="h-6 w-6 shrink-0" />
+          {t('turno.terminada')}
         </p>
       )}
 
@@ -86,7 +106,7 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
         </p>
       )}
 
-      {esHoy && !terminado && <p className="mt-3 text-chica text-principal/70">{t('turno.seActualiza')}</p>}
+      {esHoy && !terminado && !filaTerminada && <p className="mt-3 text-chica text-principal/70">{t('turno.seActualiza')}</p>}
     </div>
   )
 }
