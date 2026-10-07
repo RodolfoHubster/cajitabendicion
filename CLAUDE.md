@@ -81,7 +81,9 @@ VIP (`marcar_pase_vip`, solo admin, queda quién y desde cuándo): el QR sale
 **dorado con corona** y el escáner dice "VIP · pasa directo". Todo lo demás es
 igual que cualquier pase. Lo más fácil es **Personas**: se busca por nombre
 (el pastor da nombres, no códigos) y se toca "Hacer VIP". También desde
-**Pases → "Dar pase permanente"** con el código CB. Va en el pase y no en la
+**Pases → "Dar pase permanente"**, que pregunta "¿Ya tiene código CB?": si no,
+se registra ahí mismo. Desde el 6 de octubre de 2026 **Registrar persona es
+solo para citas**. Va en el pase y no en la
 cita porque cada registro público crea un código CB nuevo.
 
 **Personas** (desde el 30 de septiembre de 2026) busca en todos los registros
@@ -180,7 +182,9 @@ textos. **Arrancan todas apagadas.**
 - **Tres cosas no se pueden dar nunca, ni con todas las palomitas prendidas**:
   Equipo y accesos (ahí se reparten los roles: un voluntario que entre se hace
   admin solo y la lista deja de valer), Horarios y cupos (mueve el cupo de toda
-  la comunidad) y autorizar una segunda caja (la excepción la da el pastor).
+  la comunidad) y autorizar una segunda caja (la excepción la da el pastor;
+  sigue en la base, `reservar_con_excepcion`, pero desde el 6 de octubre de
+  2026 no tiene pantalla).
   Esas se quedan con `exigir_rol(array['admin'])` a secas.
 - Una palomita nueva se agrega en `permisos`, en `CLAVES_PERMISOS` y con sus
   textos en los tres idiomas; una prueba lo vigila.
@@ -201,13 +205,47 @@ hora, nadie saca turno (`A_PIE_CERRADO`). El turno lo pone el disparador
 sobre la fila de Equipo. El interruptor `a_pie_abierto` ya no existe.
 Detalle en `docs/fila-a-pie.md`.
 
+**Turno a pie sin datos** (desde el 6 de octubre de 2026): la gente a pie no
+quiere dar ni su nombre. Un QR general impreso lleva a `/turno` y con un botón
+se saca el turno sin dar nada (`sacar_turno_a_pie`): un turno vivo por
+teléfono por día; la persona es anónima ("Turno 23", `personas.anonima`).
+**"No se presentó" pierde el turno** (`TURNO_PERDIDO`; deshacer solo en 2
+minutos) y el teléfono vuelve a escanear. Quien no tiene teléfono recibe turno
+de la voluntaria (`dar_turno_sin_telefono`). Si el teléfono tiene cita de carro
+hoy y se cambia a pie, la de carro se cancela (`se_cambio_a_pie`, en Reportes);
+si es el **dueño del carro**, también las de sus acompañantes (se le avisa
+antes y cada uno saca su propio turno). Un acompañante que se cambia solo no
+afecta al dueño.
+Los datos se irán pidiendo poco a poco: **no pidas datos en `/turno`** sin que
+el pastor lo decida.
+
+**Código del día, lista del escáner y terminar la fila** (6 de octubre de 2026,
+sección 43):
+- **Código del día**: casilla "Pedir código del día" en la Fila a pie de cada
+  fecha (`codigo_turno_a_pie`, solo admin): 4 números al azar que se ponen en
+  la entrada (pizarrón o los dice la voluntaria). Sin él, `/turno` no da turno;
+  5 intentos mal frenan ese teléfono 5 minutos (`intentos_turno`). Los turnos
+  que da la voluntaria no lo piden. Ahí mismo se descarga el cartel del QR de
+  `/turno` con un recuadro para escribir el código.
+- **El código es la prueba del turno sin datos**: el panel de la voluntaria no
+  lo muestra (`fila_de_turnos` lo manda nulo) y `buscar_para_escaneo` solo
+  encuentra un turno sin datos con su código exacto. Si dos dicen "yo soy el
+  50", gana quien sabe el código ("Comprobar el código de un turno").
+- **"Terminar la fila de hoy"** (`terminar_fila_a_pie`, `bloques.terminada_en`):
+  quien todavía espera ve "La fila de hoy ya terminó". **No es "Cerrar los
+  turnos"** de Horarios, que solo deja de dar turnos nuevos: ahí quien ya tiene
+  turno lo conserva y sigue esperando. Se puede deshacer.
+- **La lista del escáner de carros** (`lista_para_escaneo`): la gente de hoy
+  ahí mismo, con nombre, código, hora y si ya recibió; sin teléfono ni
+  dirección. Se busca "como suena" (`src/datos/buscarParecido.js`: Javier
+  encuentra a Xavier). En la fila a pie no hay lista: se busca por código.
+
 ### Alcance
 
-**Fase 1: fila de carros** (en uso). **Fase 2: fila a pie por turnos**, lista
-y publicada pero **sin abrir**: ninguna fecha tiene fila a pie, y "A pie" en
-el inicio dice que por ahora no hay. No se crea una en Horarios hasta que el
-pastor decida el cupo; lo pendiente está en `docs/fila-a-pie.md`. Fase 3:
-check-in/out de voluntarios.
+**Fase 1: fila de carros** (en uso). **Fase 2: fila a pie por turnos**, sin
+datos y con el QR general (`/turno`), desde el 6 de octubre de 2026. Pendiente:
+avisar con el teléfono bloqueado (notificaciones) y los pases permanentes a
+pie; ver `docs/fila-a-pie.md`. Fase 3: check-in/out de voluntarios.
 
 **Fuera de la V1**: login de Google para el público (V2; el personal ya entra
 con Google), modo sin conexión (el personal usa datos móviles).

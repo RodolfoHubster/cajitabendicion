@@ -208,6 +208,36 @@ código exacto no existe devuelve los de hoy que se le parecen
 | `pases.vip`, `vip_por`, `vip_desde` | Pase de suscriptor VIP: QR dorado y pasa directo, sin fila. |
 | `marcar_pase_vip(codigo, vip)` | Lo pone o lo quita. Solo admin. `PASE_NO_EXISTE` si esa persona no tiene pase. |
 
+## Turno a pie sin datos (sección 42)
+
+| Objeto | Qué hace |
+|---|---|
+| `sacar_turno_a_pie(dispositivo, cambiar_carro, codigo)` | El QR general (`/turno`), sin sesión. Responde NUEVO, YA_TENIA, TIENE_CITA_EN_CARRO, YA_RECIBIO_EN_CARRO, AUN_NO_ABRE, NO_HAY_FILA o CERRADA; con el código del día, también FALTA_CODIGO, CODIGO_INCORRECTO o DEMASIADOS_INTENTOS (con `espera`). Un turno vivo por teléfono por día. |
+| `dar_turno_sin_telefono(sena)` | La voluntaria de a pie da turno a quien no tiene teléfono, con un nombre o seña opcional. No pide el código del día. |
+| `crear_turno_anonimo(...)` | Interna: persona anónima + `reservar_cita()` (mismo candado). Nadie la llama desde fuera. |
+| `personas.anonima`, `citas.se_cambio_a_pie` | El turno sin datos, y la cita de carro que se canceló al cambiarse a pie. |
+
+Cambia `registrar_entrega()` (`TURNO_PERDIDO`: "no se presentó" pierde el
+turno), `saltar_turno()` (deshacer solo en 2 minutos), `fila_de_turnos()`
+(`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
+`reporte_por_dias()` (`cambios_a_pie`).
+
+## Código del día, lista del escáner y terminar la fila (sección 43)
+
+| Objeto | Qué hace |
+|---|---|
+| `dias_entrega.a_pie_codigo` | El código del día de esa fecha (4 números), o nulo si no se pide. |
+| `intentos_turno` | Los códigos mal por teléfono: 5 en 5 minutos frenan ese teléfono. |
+| `codigo_turno_a_pie(fecha, activo, nuevo)` | Lee, prende, apaga o cambia el código del día. Solo admin. |
+| `fila_a_pie_hoy()` | Pública: si hoy hay fila a pie, si abrió, si se cerraron los turnos (`cerrada`), si terminó (`terminada`) y si pide código (nunca cuál). |
+| `bloques.terminada_en`, `terminar_fila_a_pie(terminada)` | "Terminar la fila de hoy": quien todavía espera lo ve (`turno_de_cita.cerrada`). Voluntaria de a pie o admin; se deshace con `false`. No es "Cerrar los turnos" (`bloques.cerrado`). |
+| `lista_para_escaneo()` | La gente de hoy de la fila de carros para el escáner: nombre, código, hora, estado y con quién va. Sin teléfono ni dirección. `OTRA_FILA` desde a pie. |
+
+Cambia `turno_de_cita()` (`cerrada` solo si se terminó la fila o se canceló
+el día), `fila_de_turnos()` (`codigo_dia`, `terminada`, y sin los códigos de
+los turnos sin datos) y `buscar_para_escaneo()` (los turnos sin datos, solo
+con el código exacto).
+
 ## Buscar personas y días de entrega (sección 41)
 
 | Función | Qué hace |
