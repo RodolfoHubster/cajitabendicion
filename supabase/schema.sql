@@ -440,16 +440,9 @@ begin
     return;
   end if;
 
-  --  Fila a pie: "no se presento" pierde el turno (seccion 42). Su QR ya
-  --  no entrega; la persona vuelve a sacar turno con el QR general.
-  if v_bloque.fila = 'a_pie' and v_cita.turno_saltado_en is not null then
-    insert into escaneos (cita_id, usuario_id, resultado)
-    values (v_cita.id, v_usuario, 'TURNO_PERDIDO');
-
-    return query select 'TURNO_PERDIDO'::text, v_persona.nombre,
-                        v_persona.codigo_corto, v_bloque.hora;
-    return;
-  end if;
+  --  Fila a pie: desde el 9 de octubre de 2026 "no se presento" ya NO
+  --  pierde el turno (seccion 44). Si la persona llega despues, su QR
+  --  entrega igual: la voluntaria se arregla con ella.
 
   update citas
      set estado   = 'entregada',
@@ -1299,9 +1292,9 @@ grant  execute on function bloques_del_dia(date) to authenticated;
 --
 --  Nunca expone telefono, correo, direccion ni el token del QR.
 --
---  Se borra antes de crearla porque la version anterior no devolvia la
---  fecha, y Postgres no deja cambiar las columnas de salida con
---  "create or replace".
+--  Se borra antes de crearla porque cambian las columnas de salida (la
+--  fecha; despues la fila y el turno, seccion 44), y Postgres no deja
+--  cambiarlas con "create or replace".
 drop function if exists buscar_para_escaneo(text);
 
 create or replace function buscar_para_escaneo(p_texto text)
@@ -1313,7 +1306,11 @@ returns table (
   estado       text,
   --  true: no hubo coincidencia exacta y este codigo se parece al
   --  tecleado (un digito distinto o dos al reves). Solo citas de hoy.
-  parecido     boolean
+  parecido     boolean,
+  --  De que fila es, y su turno si es a pie (seccion 44): en la fila a pie
+  --  el escaner muestra solo turnos a pie, con su numero.
+  fila         text,
+  turno        int
 )
 language plpgsql
 stable
@@ -1336,7 +1333,7 @@ begin
   end if;
 
   return query
-  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, false
+  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, false, b.fila, c.turno
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -1369,7 +1366,7 @@ begin
   end if;
 
   return query
-  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, true
+  select p.nombre, p.codigo_corto, b.fecha, b.hora, c.estado, true, b.fila, c.turno
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -6664,12 +6661,11 @@ revoke execute on function fila_de_turnos(date) from public, anon;
 grant  execute on function fila_de_turnos(date) to authenticated;
 
 
---  "No se presento": la fila pasa al siguiente y ese turno se pierde (su
---  QR ya no entrega, seccion 42). Con p_saltado = false se deshace: la
---  persona regresa a la fila en su mismo turno, pero solo en los 2 minutos
---  siguientes (por si se marco al equivocado); el administrador, siempre.
---  Por NUMERO de turno y no "el que va": si dos voluntarias lo tocan al
---  mismo tiempo, se salta uno solo. Solo en la fila a pie de hoy.
+--  "No se presento": la fila pasa al siguiente. Desde el 9 de octubre de
+--  2026 el turno NO se pierde (seccion 44): si llega despues, su QR entrega
+--  igual. Con p_saltado = false regresa a la fila en su mismo turno, cuando
+--  sea. Por NUMERO de turno y no "el que va": si dos voluntarias lo tocan
+--  al mismo tiempo, se salta uno solo. Solo en la fila a pie de hoy.
 create or replace function saltar_turno(p_turno int, p_saltado boolean default true)
 returns int
 language plpgsql
@@ -6685,13 +6681,6 @@ begin
 
   if not puede_escanear_fila('a_pie') then
     raise exception 'OTRA_FILA';
-  end if;
-
-  if not coalesce(p_saltado, true) and v_rol <> 'admin'
-     and exists (select 1 from citas c join bloques b on b.id = c.bloque_id
-                  where b.fecha = current_date and b.fila = 'a_pie' and c.turno = p_turno
-                    and c.turno_saltado_en < now() - interval '2 minutes') then
-    raise exception 'FUERA_DE_PLAZO';
   end if;
 
   update citas c
@@ -7185,14 +7174,13 @@ begin
   --  Un telefono a la vez: dos toques seguidos no sacan dos turnos.
   perform pg_advisory_xact_lock(hashtext('turno-a-pie:' || v_disp || ':' || current_date::text));
 
-  --  Ya tiene turno hoy (esperando o ya recibido): se le devuelve el suyo.
-  --  Uno que "no se presento" ya no cuenta: puede sacar otro.
+  --  Ya tiene turno hoy (esperando, ya recibido, o lo llamaron y no
+  --  estaba): se le devuelve el suyo, no uno nuevo hasta atras (seccion 44).
   select c.* into v_cita
     from citas c
    where c.bloque_id = v_bloque.id
      and c.dispositivo_id = v_disp
      and c.estado in ('reservada', 'llego', 'entregada')
-     and c.turno_saltado_en is null
    order by c.creada_en desc
    limit 1;
 
@@ -7546,6 +7534,72 @@ $$;
 
 revoke execute on function terminar_fila_a_pie(boolean) from public, anon;
 grant  execute on function terminar_fila_a_pie(boolean) to authenticated;
+
+
+-- ============================================================
+--  44. LA FILA A PIE, MAS AGIL
+-- ============================================================
+--  Lo que se vio el jueves 8 de octubre de 2026 en la fila a pie:
+--
+--  * "No se presento" ya NO pierde el turno. La fila avanza, pero si la
+--    persona llega despues su QR entrega igual (registrar_entrega), se le
+--    puede regresar a la fila cuando sea (saltar_turno) y, si vuelve a
+--    escanear el QR general, le sale su mismo turno (sacar_turno_a_pie).
+--    Perderlo hacia que la gente se enojara: si llego, si paso.
+--  * Entregar por NUMERO de turno, sin QR (entregar_turno): la persona
+--    abrio la pagina en una ventana privada, se le cerro y no supo tomar
+--    captura, pero sabe su numero. La voluntaria lo decide.
+--  * La busqueda del escaner dice de que fila es cada cita y su turno
+--    (buscar_para_escaneo): en la fila a pie solo se ven turnos a pie.
+
+--  Entregar el turno N de la fila a pie de hoy sin escanear su QR. No
+--  reimplementa la entrega: busca el token y llama a registrar_entrega(),
+--  con su mismo candado. Un QR escaneado y este boton al mismo tiempo
+--  entregan una sola vez. TURNO_NO_EXISTE si hoy no hay ese turno.
+create or replace function entregar_turno(p_turno int)
+returns table (
+  resultado    text,
+  nombre       text,
+  codigo_corto text,
+  hora         time,
+  turno        int
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_token text;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  select c.token_qr into v_token
+    from citas c
+    join bloques b on b.id = c.bloque_id
+   where b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado <> 'cancelada'
+   limit 1;
+
+  if v_token is null then
+    return query select 'TURNO_NO_EXISTE'::text, null::text, null::text, null::time, p_turno;
+    return;
+  end if;
+
+  return query
+  select r.resultado, r.nombre, r.codigo_corto, r.hora, p_turno
+    from registrar_entrega(v_token) r;
+end;
+$$;
+
+revoke execute on function entregar_turno(int) from public, anon;
+grant  execute on function entregar_turno(int) to authenticated;
 
 
 -- ============================================================

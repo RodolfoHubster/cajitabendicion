@@ -2251,15 +2251,15 @@ begin
       select resultado into v_texto from registrar_entrega(v_texto2);
       perform pg_temp.comprobar('Filas: y una sola vez, como siempre', v_texto = 'YA_USADO', v_texto);
       select resultado into v_texto from registrar_entrega((select c.token_qr from citas c where c.bloque_id = v_b_pie and c.turno = 1));
-      perform pg_temp.comprobar('Fila a pie: quien no se presentó perdió su turno; llegar después ya no entrega',
-        v_texto = 'TURNO_PERDIDO', v_texto);
+      perform pg_temp.comprobar('Fila a pie: quien no se presentó y llega después, recibe igual (sección 44)',
+        v_texto = 'VALIDO', v_texto);
       select resultado into v_texto from registrar_entrega((select c.token_qr from citas c join personas p on p.id = c.persona_id
                                                               where p.codigo_corto = 'CB-PRF2' and c.bloque_id = v_b_hoy));
       perform pg_temp.comprobar('Fila a pie: estando en a pie, un código de carro se manda a su fila', v_texto = 'OTRA_FILA', v_texto);
 
       v_json := fila_de_turnos(null);
       perform pg_temp.comprobar('Fila a pie: la lista cuenta cada entrega',
-        (v_json->>'atendidos')::int = 1 and (v_json->'actual'->>'turno')::int = 2 and jsonb_typeof(v_json->'ultimo') = 'object',
+        (v_json->>'atendidos')::int = 2 and (v_json->'actual'->>'turno')::int = 2 and jsonb_typeof(v_json->'ultimo') = 'object',
         format('atendidos %s, va %s', v_json->>'atendidos', v_json->'actual'->>'turno'));
 
       perform elegir_fila('carro');
@@ -2282,7 +2282,7 @@ begin
         format('%s, turno %s, va %s', v_fila.estado, v_fila.turno, v_fila.actual));
       v_json := fila_de_turnos(null);
       perform pg_temp.comprobar('Fila a pie: y la voluntaria la ve otra vez como el turno que va',
-        (v_json->'actual'->>'turno')::int = 2 and (v_json->>'atendidos')::int = 1, v_json->>'actual');
+        (v_json->'actual'->>'turno')::int = 2 and (v_json->>'atendidos')::int = 2, v_json->>'actual');
       select resultado into v_texto from registrar_entrega(v_token_pie);
       perform pg_temp.comprobar('Fila a pie: y su QR vuelve a servir', v_texto = 'VALIDO', v_texto);
 
@@ -2393,34 +2393,39 @@ begin
 
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
 
-      --  "No se presentó": el turno se pierde.
+      --  "No se presentó": la fila avanza, pero desde el 9 de octubre el
+      --  turno NO se pierde (sección 44).
+      perform saltar_turno(v_numero);
+      select * into v_fila from turno_de_cita(v_token);
+      perform pg_temp.comprobar('No se presentó: la persona ve que ya la llamaron', v_fila.saltado);
+      update citas set turno_saltado_en = now() - interval '30 minutes' where token_qr = v_token;
+      perform pg_temp.esperar_ok('No se presentó: se le regresa a la fila cuando sea (media hora después)',
+        format('select saltar_turno(%s, false)', v_numero));
       perform saltar_turno(v_numero);
       select resultado into v_texto from registrar_entrega(v_token);
-      perform pg_temp.comprobar('No se presentó: su QR ya no entrega', v_texto = 'TURNO_PERDIDO', v_texto);
-      perform pg_temp.comprobar('No se presentó: y no se cuenta como entregada',
-        (select c.estado from citas c where c.token_qr = v_token) = 'reservada');
-      select * into v_fila from turno_de_cita(v_token);
-      perform pg_temp.comprobar('No se presentó: la persona ve que perdió su turno', v_fila.saltado);
-
-      perform pg_temp.esperar_ok('No se presentó: en los 2 minutos se puede deshacer',
-        format('select saltar_turno(%s, false)', v_numero));
-      select resultado into v_texto from registrar_entrega(v_token);
-      perform pg_temp.comprobar('No se presentó: deshecho, su QR vuelve a servir', v_texto = 'VALIDO', v_texto);
+      perform pg_temp.comprobar('No se presentó y llegó después: su QR entrega igual', v_texto = 'VALIDO', v_texto);
 
       select * into v_fila from sacar_turno_a_pie('tel-anonimo-2');
       v_numero := v_fila.turno;
       v_token := v_fila.token_qr;
       perform saltar_turno(v_numero);
-      update citas set turno_saltado_en = now() - interval '3 minutes' where token_qr = v_token;
-      perform pg_temp.esperar_error('No se presentó: pasados 2 minutos, el voluntario ya no lo deshace',
-        format('select saltar_turno(%s, false)', v_numero), 'FUERA_DE_PLAZO');
-
       perform set_config('request.jwt.claim.sub', '', true);
       select * into v_fila from sacar_turno_a_pie('tel-anonimo-2');
-      perform pg_temp.comprobar('No se presentó: ese teléfono vuelve a escanear y se forma hasta atrás',
-        v_fila.resultado = 'NUEVO' and v_fila.turno > v_numero and v_fila.token_qr <> v_token,
+      perform pg_temp.comprobar('No se presentó: si vuelve a escanear, le sale su mismo turno (no uno nuevo hasta atrás)',
+        v_fila.resultado = 'YA_TENIA' and v_fila.turno = v_numero and v_fila.token_qr = v_token,
         format('%s %s', v_fila.resultado, v_fila.turno));
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+      --  Sin QR, por número de turno (sección 44): perdió su página pero sabe su número.
+      select * into v_fila from entregar_turno(v_numero);
+      perform pg_temp.comprobar('Sin QR: la voluntaria entrega por número de turno',
+        v_fila.resultado = 'VALIDO' and v_fila.turno = v_numero, v_fila.resultado);
+      select * into v_fila from entregar_turno(v_numero);
+      perform pg_temp.comprobar('Sin QR: y una sola vez, como con el QR', v_fila.resultado = 'YA_USADO', v_fila.resultado);
+      select resultado into v_texto from registrar_entrega(v_token);
+      perform pg_temp.comprobar('Sin QR: ya entregado así, su QR no da otra caja', v_texto = 'YA_USADO', v_texto);
+      select * into v_fila from entregar_turno(99999);
+      perform pg_temp.comprobar('Sin QR: un turno que hoy no existe lo dice', v_fila.resultado = 'TURNO_NO_EXISTE', v_fila.resultado);
 
       --  Quien no tiene teléfono: la voluntaria de a pie le da turno.
       select * into v_fila from dar_turno_sin_telefono();
@@ -2530,6 +2535,8 @@ begin
       perform pg_temp.esperar_error('Lista del escáner: en la fila a pie no se ve la gente de carros',
         'select * from lista_para_escaneo()', 'OTRA_FILA');
       perform elegir_fila('carro');
+      perform pg_temp.esperar_error('Sin QR: quien escanea en carros no entrega turnos a pie',
+        'select * from entregar_turno(1)', 'OTRA_FILA');
       perform pg_temp.esperar_error('Terminar la fila: quien escanea en carros no la termina',
         'select terminar_fila_a_pie()', 'OTRA_FILA');
       select count(*) into v_numero from lista_para_escaneo() l where l.fecha <> v_hoy;
@@ -2549,7 +2556,8 @@ begin
         not has_function_privilege('anon', 'lista_para_escaneo()', 'execute')
         and has_function_privilege('anon', 'fila_a_pie_hoy()', 'execute')
         and not has_function_privilege('anon', 'codigo_turno_a_pie(date, boolean, boolean)', 'execute')
-        and not has_function_privilege('anon', 'terminar_fila_a_pie(boolean)', 'execute'));
+        and not has_function_privilege('anon', 'terminar_fila_a_pie(boolean)', 'execute')
+        and not has_function_privilege('anon', 'entregar_turno(integer)', 'execute'));
 
       --  Buscar en el escáner no enseña los códigos de los turnos sin datos.
       declare
@@ -2567,6 +2575,9 @@ begin
         perform pg_temp.comprobar('Búsqueda: un turno sin datos no sale como "código parecido"', v_numero = 0, v_numero::text);
         select count(*) into v_numero from buscar_para_escaneo(lower(replace(v_anon, '-', ' '))) b where b.codigo_corto = v_anon;
         perform pg_temp.comprobar('Búsqueda: con su código exacto sí sale', v_numero = 1, v_numero::text);
+        select count(*) into v_numero from buscar_para_escaneo(v_anon) b
+         where b.codigo_corto = v_anon and b.fila = 'a_pie' and b.turno is not null;
+        perform pg_temp.comprobar('Búsqueda: dice que es un turno a pie, y su número (sección 44)', v_numero = 1, v_numero::text);
       end;
 
       --  "Entró sin cita" se anota en la fila en que está hoy.
@@ -2589,7 +2600,7 @@ begin
       update personal set rol = 'admin', fila = 'ambas', fila_hoy = null, fila_hoy_fecha = null where usuario_id = v_admin;
 
       select r.ya_recibieron into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
-      perform pg_temp.comprobar('Filas: el resumen a pie cuenta solo las cajas a pie (el turno perdido no)', v_numero = 3, v_numero::text);
+      perform pg_temp.comprobar('Filas: el resumen a pie cuenta solo las cajas a pie (también el que no se presentó y llegó después, y el entregado sin QR)', v_numero = 5, v_numero::text);
       select r.sin_cita into v_numero from resumen_del_dia(v_hoy, 'a_pie') r;
       perform pg_temp.comprobar('Filas: y solo los "sin cita" a pie', v_numero = 1, v_numero::text);
 
@@ -2606,7 +2617,7 @@ begin
       perform pg_temp.comprobar('Filas: en los reportes, juntas = carro + a pie', v_si);
 
       select coalesce(sum(r.cajas), 0) into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
-      perform pg_temp.comprobar('Filas: las cajas a pie del día (3 con turno + 1 sin cita)', v_numero = 4, v_numero::text);
+      perform pg_temp.comprobar('Filas: las cajas a pie del día (5 con turno + 1 sin cita)', v_numero = 6, v_numero::text);
       select r.cambios_a_pie into v_numero from reporte_por_dias(v_hoy, v_hoy, null) r;
       perform pg_temp.comprobar('Reportes: cuenta quién se cambió de carro a pie (personas, con los acompañantes del dueño)',
         v_numero = 5, v_numero::text);
@@ -2621,8 +2632,9 @@ begin
 
       select * into v_fila from listar_dias_entrega(v_hoy) l where l.fecha = v_hoy;
       perform pg_temp.comprobar('Fila a pie: la lista de fechas trae la fila a pie aparte de los horarios de carro',
-        --  3 con datos + los 12 turnos sin datos de las secciones 42 y 43.
-        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 15 and v_fila.a_pie_abre_en is not null
+        --  3 con datos + los 11 turnos sin datos de las secciones 42 y 43 (el que
+        --  vuelve a escanear ya no saca otro: sección 44).
+        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 14 and v_fila.a_pie_abre_en is not null
         and v_fila.capacidad_total < cupo_sin_limite(),
         format('ocupados %s, cupo de carro %s', v_fila.a_pie_ocupados, v_fila.capacidad_total));
 
