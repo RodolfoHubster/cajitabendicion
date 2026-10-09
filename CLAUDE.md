@@ -209,9 +209,13 @@ Detalle en `docs/fila-a-pie.md`.
 quiere dar ni su nombre. Un QR general impreso lleva a `/turno` y con un botón
 se saca el turno sin dar nada (`sacar_turno_a_pie`): un turno vivo por
 teléfono por día; la persona es anónima ("Turno 23", `personas.anonima`).
-**"No se presentó" pierde el turno** (`TURNO_PERDIDO`; deshacer solo en 2
-minutos) y el teléfono vuelve a escanear. Quien no tiene teléfono recibe turno
-de la voluntaria (`dar_turno_sin_telefono`). Si el teléfono tiene cita de carro
+**"No se presentó" ya NO pierde el turno** (desde el 9 de octubre de 2026,
+sección 44): la fila avanza, pero si llega después su QR entrega igual, se le
+regresa a la fila cuando sea, y si vuelve a escanear el QR general le sale su
+mismo turno. Quien perdió su página pero sabe su número recibe con **"Entregar
+sin QR"** (`entregar_turno`, el mismo candado de `registrar_entrega`). Quien
+no tiene teléfono recibe "Turno nuevo" de la voluntaria (`dar_turno_sin_telefono`).
+En la fila a pie el escáner no muestra "Entró sin cita": ahí se da turno nuevo. Si el teléfono tiene cita de carro
 hoy y se cambia a pie, la de carro se cancela (`se_cambio_a_pie`, en Reportes);
 si es el **dueño del carro**, también las de sus acompañantes (se le avisa
 antes y cada uno saca su propio turno). Un acompañante que se cambia solo no

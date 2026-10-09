@@ -217,10 +217,21 @@ código exacto no existe devuelve los de hoy que se le parecen
 | `crear_turno_anonimo(...)` | Interna: persona anónima + `reservar_cita()` (mismo candado). Nadie la llama desde fuera. |
 | `personas.anonima`, `citas.se_cambio_a_pie` | El turno sin datos, y la cita de carro que se canceló al cambiarse a pie. |
 
-Cambia `registrar_entrega()` (`TURNO_PERDIDO`: "no se presentó" pierde el
-turno), `saltar_turno()` (deshacer solo en 2 minutos), `fila_de_turnos()`
+Cambia `registrar_entrega()` (desde la sección 44, "no se presentó" ya no
+pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
+
+## La fila a pie, más ágil (sección 44)
+
+| Objeto | Qué hace |
+|---|---|
+| `entregar_turno(turno)` | "Entregar sin QR": entrega el turno N a pie de hoy llamando a `registrar_entrega()` (mismo candado). VALIDO, YA_USADO, CANCELADA o TURNO_NO_EXISTE. Voluntaria de a pie o admin. |
+
+Cambia `registrar_entrega()` ("no se presentó" ya no pierde el turno),
+`saltar_turno()` (regresar a la fila cuando sea), `sacar_turno_a_pie()` (si
+lo saltaron y vuelve a escanear, le sale el suyo) y `buscar_para_escaneo()`
+(devuelve `fila` y `turno`).
 
 ## Código del día, lista del escáner y terminar la fila (sección 43)
 
