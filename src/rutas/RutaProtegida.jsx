@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../componentes/Boton'
@@ -13,6 +13,11 @@ export default function RutaProtegida() {
   const navegar = useNavigate()
 
   const [estado, setEstado] = useState({ revisando: true, sesion: null, rol: null, permisos: [], error: null })
+  //  "Intentar de nuevo" vuelve a revisar sin recargar.
+  const [intento, setIntento] = useState(0)
+  //  Lo ultimo que se supo con acceso: si al despertar el telefono la senal
+  //  todavia no regresa, no se le saca del panel por eso.
+  const ultimoBueno = useRef(null)
 
   useEffect(() => {
     let vigente = true
@@ -38,14 +43,26 @@ export default function RutaProtegida() {
         permisos = await misPermisos().catch(() => (rol === 'admin' ? CLAVES_PERMISOS : []))
       }
 
-      if (vigente) setEstado({ revisando: false, sesion, rol, permisos, error })
+      //  Ya tenia acceso y solo fallo la revision (sin senal al despertar
+      //  el telefono): se queda como estaba. La base revisa el permiso en
+      //  cada accion de todos modos.
+      if (error && sesion && ultimoBueno.current) {
+        if (vigente) setEstado({ ...ultimoBueno.current, sesion })
+        return
+      }
+
+      const nuevo = { revisando: false, sesion, rol, permisos, error }
+      if (rol) ultimoBueno.current = nuevo
+      if (vigente) setEstado(nuevo)
     }
 
     revisar()
 
-    // Mantiene la pantalla al dia si la sesion caduca o se cierra desde
-    // otra pestana, en vez de dejar al voluntario viendo datos viejos.
-    const dejarDeEscuchar = alCambiarSesion(() => {
+    // Mantiene la pantalla al dia si la sesion se cierra (o se entra con
+    // otra cuenta) desde otra pestana. La renovacion sola del token (cada
+    // hora, o al despertar el telefono) no cambia quien es: no se revisa.
+    const dejarDeEscuchar = alCambiarSesion((_sesion, evento) => {
+      if (evento === 'TOKEN_REFRESHED' || evento === 'INITIAL_SESSION') return
       revisar()
     })
 
@@ -53,7 +70,7 @@ export default function RutaProtegida() {
       vigente = false
       dejarDeEscuchar()
     }
-  }, [])
+  }, [intento])
 
   async function salir() {
     await cerrarSesion()
@@ -93,6 +110,18 @@ export default function RutaProtegida() {
           <p className="mb-4 text-base text-principal/70">
             {t('rol.cuentaActual', { correo: estado.sesion.user.email })}
           </p>
+        )}
+        {/* Casi siempre es la senal: primero se ofrece volver a intentar. */}
+        {estado.error && (
+          <Boton
+            className="mb-3"
+            onClick={() => {
+              setEstado((antes) => ({ ...antes, revisando: true }))
+              setIntento((n) => n + 1)
+            }}
+          >
+            {t('rol.reintentar')}
+          </Boton>
         )}
         <Boton onClick={salir} variant="secondary">
           {t('admin.salir')}

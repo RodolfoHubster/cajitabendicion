@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { instalarDemo } from '../datos/demo'
+import { crearAlmacenSesion } from '../datos/recordarSesion'
 import { conRetraso, retrasoDePrueba } from '../datos/retraso'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -35,5 +36,10 @@ export const supabase = instalarDemo(createClient(supabaseUrl, supabaseAnonKey, 
     // PKCE: al volver de Google, la sesion llega como un codigo de un solo
     // uso en vez de viajar los tokens en la direccion de la pagina.
     flowType: 'pkce',
+    // "Mantener la sesion activa": en el telefono 30 dias, o solo en la
+    // pestana (datos/recordarSesion.js). Se renueva sola mientras tanto.
+    persistSession: true,
+    autoRefreshToken: true,
+    storage: crearAlmacenSesion(),
   },
 }))

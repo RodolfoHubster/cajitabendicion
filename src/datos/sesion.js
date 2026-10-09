@@ -1,4 +1,5 @@
 import { clasificarError, conLimiteDeTiempo, esErrorDeConexion } from './errores'
+import { marcarInicio, olvidarInicio, sesionVencida } from './recordarSesion'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -12,7 +13,11 @@ import { supabase } from '../lib/supabase'
 //  en "Entrando..." para siempre. Pasado esto se avisa que no hay conexion.
 export const LIMITE_ENTRAR_MS = 20000
 
-export async function iniciarSesion(correo, contrasena) {
+//  recordar: "Mantener la sesion activa" (30 dias en este telefono) o solo
+//  mientras la pestana este abierta. Se marca antes de entrar: asi Supabase
+//  guarda la sesion en el lugar que toca.
+export async function iniciarSesion(correo, contrasena, { recordar = true } = {}) {
+  marcarInicio(recordar)
   const { data, error } = await conLimiteDeTiempo(
     supabase.auth.signInWithPassword({
       email: correo,
@@ -34,7 +39,8 @@ export async function iniciarSesion(correo, contrasena) {
  * Google solo confirma quien es; el permiso lo da la tabla personal. Si la
  * cuenta no tiene rol, el panel muestra "sin acceso" y no deja hacer nada.
  */
-export async function iniciarSesionConGoogle(destino = '/admin') {
+export async function iniciarSesionConGoogle(destino = '/admin', { recordar = true } = {}) {
+  marcarInicio(recordar)
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -52,10 +58,16 @@ export async function iniciarSesionConGoogle(destino = '/admin') {
 
 export async function cerrarSesion() {
   await supabase.auth.signOut()
+  olvidarInicio()
 }
 
+/** La sesion guardada, o null. Pasados los 30 dias se cierra sola. */
 export async function obtenerSesion() {
   const { data } = await supabase.auth.getSession()
+  if (data.session && sesionVencida()) {
+    await cerrarSesion()
+    return null
+  }
   return data.session
 }
 
@@ -77,10 +89,11 @@ export async function obtenerRol() {
 
 /**
  * Avisa cuando la sesion cambia: al entrar, al salir, y cuando el token
- * se renueva solo. Devuelve la funcion para dejar de escuchar.
+ * se renueva solo (evento 'TOKEN_REFRESHED'). callback(sesion, evento).
+ * Devuelve la funcion para dejar de escuchar.
  */
 export function alCambiarSesion(callback) {
-  const { data } = supabase.auth.onAuthStateChange((_evento, sesion) => callback(sesion))
+  const { data } = supabase.auth.onAuthStateChange((evento, sesion) => callback(sesion, evento))
   return () => data.subscription.unsubscribe()
 }
 

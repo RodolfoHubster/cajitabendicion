@@ -6,12 +6,24 @@ vi.mock('../lib/supabase', () => ({
     auth: {
       signInWithOAuth: vi.fn(),
       signInWithPassword: vi.fn(),
+      getSession: vi.fn(),
+      signOut: vi.fn(),
     },
   },
 }))
 
 import { supabase } from '../lib/supabase'
-import { LIMITE_ENTRAR_MS, iniciarSesion, iniciarSesionConGoogle, obtenerRol } from './sesion'
+import { LLAVE_DESDE, LLAVE_RECORDAR } from './recordarSesion'
+import { LIMITE_ENTRAR_MS, iniciarSesion, iniciarSesionConGoogle, obtenerRol, obtenerSesion } from './sesion'
+
+function almacen() {
+  const datos = new Map()
+  return {
+    getItem: (k) => (datos.has(k) ? datos.get(k) : null),
+    setItem: (k, v) => datos.set(k, String(v)),
+    removeItem: (k) => datos.delete(k),
+  }
+}
 
 beforeEach(() => {
   vi.stubGlobal('window', { location: { origin: 'https://citas.casadealabanzasd.com' } })
@@ -22,6 +34,31 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('mantener la sesión activa', () => {
+  it('al entrar se guarda si se recuerda (con correo y con Google)', async () => {
+    const local = almacen()
+    vi.stubGlobal('localStorage', local)
+    supabase.auth.signInWithPassword.mockResolvedValue({ data: { user: { id: 'u' } }, error: null })
+    await iniciarSesion('a@b.com', 'x', { recordar: false })
+    expect(local.getItem(LLAVE_RECORDAR)).toBe('0')
+    supabase.auth.signInWithOAuth.mockResolvedValue({ error: null })
+    await iniciarSesionConGoogle('/admin')
+    expect(local.getItem(LLAVE_RECORDAR)).toBe('1')
+    expect(Number(local.getItem(LLAVE_DESDE))).toBeGreaterThan(0)
+  })
+
+  it('pasados los 30 días, la sesión se cierra sola', async () => {
+    const local = almacen()
+    vi.stubGlobal('localStorage', local)
+    supabase.auth.getSession.mockResolvedValue({ data: { session: { user: { id: 'u' } } } })
+    local.setItem(LLAVE_DESDE, String(Date.now() - 2 * 86_400_000))
+    await expect(obtenerSesion()).resolves.toMatchObject({ user: { id: 'u' } })
+    local.setItem(LLAVE_DESDE, String(Date.now() - 31 * 86_400_000))
+    await expect(obtenerSesion()).resolves.toBeNull()
+    expect(supabase.auth.signOut).toHaveBeenCalled()
+  })
 })
 
 describe('entrar con correo y contraseña', () => {

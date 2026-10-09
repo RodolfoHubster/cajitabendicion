@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import Tarjeta from '../../componentes/Tarjeta'
+import { quiereRecordar } from '../../datos/recordarSesion'
 import { iniciarSesion, iniciarSesionConGoogle, obtenerRol, obtenerSesion } from '../../datos/sesion'
 
 // A donde entra cada rol si no venia de otra pantalla: el voluntario va
@@ -26,6 +27,9 @@ export default function Login() {
   const [error, setError] = useState(null)
   // Escribir a ciegas en el telefono es como se equivoca uno: se puede ver.
   const [verContrasena, setVerContrasena] = useState(false)
+  //  "Mantener la sesion activa": 30 dias en este telefono. Sirve para
+  //  Google y para correo; se recuerda la ultima eleccion.
+  const [recordar, setRecordar] = useState(() => quiereRecordar())
 
   const destinoPedido = state?.destino
 
@@ -61,7 +65,7 @@ export default function Login() {
     setEntrando(true)
 
     try {
-      await iniciarSesion(correo, contrasena)
+      await iniciarSesion(correo, contrasena, { recordar })
       navegar(destinoPedido ?? (await inicioSegunRol()), { replace: true })
     } catch (e) {
       setError(e.message)
@@ -76,7 +80,7 @@ export default function Login() {
     setEntrando(true)
 
     try {
-      await iniciarSesionConGoogle(destinoPedido ?? '/admin')
+      await iniciarSesionConGoogle(destinoPedido ?? '/admin', { recordar })
     } catch (e) {
       setError(e.message)
       setEntrando(false)
@@ -87,6 +91,21 @@ export default function Login() {
     <Tarjeta>
       <h1 className="mb-1 text-2xl font-bold">{t('pages.adminLogin')}</h1>
       <p className="mb-4 text-base text-principal/70">{t('admin.soloPersonal')}</p>
+
+      {/* Va antes de los dos botones porque sirve para los dos. */}
+      <label className="mb-4 flex min-h-14 cursor-pointer items-start gap-3 rounded-xl bg-principal/5 p-3" htmlFor="mantener-sesion">
+        <input
+          checked={recordar}
+          className="mt-1 h-6 w-6 shrink-0 accent-principal"
+          id="mantener-sesion"
+          onChange={(e) => setRecordar(e.target.checked)}
+          type="checkbox"
+        />
+        <span>
+          <span className="block text-base font-semibold text-principal">{t('admin.mantenerSesion')}</span>
+          <span className="block text-chica text-principal/70">{t('admin.mantenerSesionAyuda')}</span>
+        </span>
+      </label>
 
       <button
         className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-principal/25 bg-superficie px-4 text-base font-bold text-principal shadow-sm transition hover:border-principal focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-principal/20 disabled:cursor-not-allowed disabled:opacity-60"
