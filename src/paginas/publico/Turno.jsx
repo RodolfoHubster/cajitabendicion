@@ -15,7 +15,6 @@ import {
   filaAPieHoy,
   guardarMiTurno,
   leerMiTurno,
-  olvidarMiTurno,
   relojDeEspera,
   sacarTurnoAPie,
   traeTurno,
@@ -151,16 +150,6 @@ export default function Turno() {
     }
   }
 
-  //  Perdio su turno (no estaba cuando lo llamaron): puede sacar otro.
-  function sacarOtro() {
-    olvidarMiTurno()
-    setMiTurno(null)
-    setQr(null)
-    setSituacion(null)
-    setAvisoVisto(false)
-    setRespuesta(null)
-  }
-
   const encabezado = (
     <div className="mb-4 flex items-center gap-3">
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accion/20">
@@ -196,20 +185,17 @@ export default function Turno() {
         <Tarjeta>
           {encabezado}
           <TurnoEnVivo
-            accionPerdido={
-              <button
-                className="mt-3 inline-flex min-h-14 w-full items-center justify-center rounded-xl bg-superficie px-4 text-base font-bold text-principal"
-                onClick={sacarOtro}
-                type="button"
-              >
-                {t('turnoAPie.sacarOtro')}
-              </button>
-            }
             alCambiar={(datos) => setSituacion(situacionDelTurno(datos))}
             esHoy
             token={miTurno.token}
             turnoInicial={miTurno.turno}
           />
+
+          {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
+              pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
+          <p className="mt-3 rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
+            {t('turnoAPie.anotalo', { turno: miTurno.turno })}
+          </p>
 
           <div className="mt-4">
             {qr ? (
@@ -359,6 +345,8 @@ export default function Turno() {
                 {t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}
               </p>
             )}
+            {/* Para no sacar un segundo turno hasta atras. */}
+            <p className="mt-3 rounded-xl bg-principal/5 p-3 text-base text-principal">{t('turnoAPie.yaTenias')}</p>
           </form>
         )}
 

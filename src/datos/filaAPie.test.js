@@ -27,6 +27,8 @@ import {
   saltarTurno,
   situacionDelTurno,
   terminarFilaAPie,
+  entregarTurno,
+  numeroDeTurno,
   turnoAdelantado,
   turnoDeCita,
 } from './filaAPie'
@@ -92,6 +94,22 @@ describe('el turno de la persona', () => {
     expect(situacionDelTurno({ ...base, cerrada: true }).tipo).toBe('terminada')
     expect(situacionDelTurno({ ...base, cerrada: true, saltado: true }).tipo).toBe('terminada')
     expect(situacionDelTurno({ ...base, cerrada: true, estado: 'entregada' }).tipo).toBe('recibida')
+  })
+
+  it('entregar por número de turno, sin QR', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ resultado: 'VALIDO', nombre: 'Turno 23', turno: 23 }], error: null })
+    await expect(entregarTurno('23')).resolves.toMatchObject({ resultado: 'VALIDO', turno: 23 })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('entregar_turno', { p_turno: 23 })
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: OTRA_FILA' } })
+    await expect(entregarTurno(23)).rejects.toThrow('OTRA_FILA')
+  })
+
+  it('el número de turno que se escribe', () => {
+    expect(numeroDeTurno('23')).toBe(23)
+    expect(numeroDeTurno(' 007 ')).toBe(7)
+    expect(numeroDeTurno('')).toBeNull()
+    expect(numeroDeTurno('0')).toBeNull()
+    expect(numeroDeTurno('123456')).toBeNull()
   })
 
   it('terminar la fila (y deshacerlo)', async () => {

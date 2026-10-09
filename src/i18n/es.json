@@ -27,7 +27,9 @@
     "google": "Continuar con Google",
     "oCorreo": "o con correo y contraseña",
     "mostrarContrasena": "Mostrar",
-    "ocultarContrasena": "Ocultar"
+    "ocultarContrasena": "Ocultar",
+    "mantenerSesion": "Mantener la sesión activa en este teléfono (30 días)",
+    "mantenerSesionAyuda": "Quítale la palomita si el teléfono o la computadora no es tuyo."
   },
   "nav": {
     "citasHoy": "Citas de hoy",
@@ -85,7 +87,8 @@
       "OTRA_FILA": "Otra fila",
       "SIN_CONEXION": "Sin señal",
       "RECIEN_ENTREGADO": "Ya se le entregó hace un momento",
-      "TURNO_PERDIDO": "Perdió su turno"
+      "TURNO_PERDIDO": "Perdió su turno",
+      "TURNO_NO_EXISTE": "Ese turno no existe hoy"
     },
     "explicacion": {
       "VALIDO": "Cita válida para hoy. Entrégale su caja.",
@@ -100,7 +103,8 @@
       "OTRA_FILA": "Este código es de la otra fila. No se usó: mándalo a su fila y ahí le entregan su caja.",
       "SIN_CONEXION": "No se pudo revisar el código porque se cortó la conexión. El código puede estar bien: no rechaces a la persona. Revisa tus datos y vuelve a revisarlo.",
       "RECIEN_ENTREGADO": "Es el mismo código que acabas de entregar ({{nombre}}). La cámara lo volvió a leer: no hay que hacer nada, ya puede avanzar.",
-      "TURNO_PERDIDO": "Lo llamaron y no estaba. Que vuelva a escanear el código de la entrada para sacar un turno nuevo."
+      "TURNO_PERDIDO": "Lo llamaron y no estaba. Que vuelva a escanear el código de la entrada para sacar un turno nuevo.",
+      "TURNO_NO_EXISTE": "Revisa el número. Solo se entregan los turnos a pie de hoy."
     },
     "camara": {
       "SIN_PERMISO": "No diste permiso para usar la cámara.",
@@ -151,9 +155,10 @@
     },
     "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina.",
     "aPie": {
-      "buscar": "Buscar por código",
       "etiqueta": "Código de su turno",
-      "ayuda": "Pídele su código: lo tiene en su teléfono o en su papel. Si dos dicen que son el mismo número, el turno es de quien sabe el código."
+      "ayuda": "Solo los 4 números: el «CB-» ya está puesto. Si dos dicen el mismo número, el turno es de quien sabe el código.",
+      "turno": "Turno {{turno}}",
+      "noEsta": "No hay un turno a pie de hoy con ese código. Revisa los números."
     },
     "lista": {
       "cargando": "Cargando la gente de hoy…",
@@ -168,7 +173,9 @@
       "vacia": "Hoy no hay citas en la fila de carros.",
       "otraFila": "Esta lista es de la fila de carros. Hoy estás en la fila a pie.",
       "sinConexion": "Sin señal: la lista puede no estar al día."
-    }
+    },
+    "siguienteOtraVez": "Escanea otra vez o el siguiente",
+    "intentarOtraVez": "Intenta otra vez: acerca el QR a la cámara"
   },
   "pase": {
     "etiqueta": "Pase permanente",
@@ -549,7 +556,8 @@
       "voluntario": "Voluntario"
     },
     "errorTitulo": "No pudimos revisar tu acceso",
-    "cuentaActual": "Entraste como {{correo}}. Si no es la cuenta correcta, sal y entra con otra."
+    "cuentaActual": "Entraste como {{correo}}. Si no es la cuenta correcta, sal y entra con otra.",
+    "reintentar": "Intentar de nuevo"
   },
   "registrarPanel": {
     "titulo": "Registrar persona",
@@ -807,7 +815,7 @@
       },
       "buscar": {
         "titulo": "Si el QR no se deja leer",
-        "texto": "Toca «Buscar por nombre o código». En la fila de carros ves ahí mismo la gente de hoy: escribe un pedazo del nombre (aunque no sepas cómo se escribe: «Javier» también encuentra a «Xavier») o su código, toca a la persona y luego «Registrar entrega». Revisa bien: hay muchos nombres repetidos. En la fila a pie se busca solo con su código."
+        "texto": "En la fila de carros toca «Buscar por nombre o código»: ves ahí mismo la gente de hoy. Escribe un pedazo del nombre (aunque no sepas cómo se escribe: «Javier» también encuentra a «Xavier») o su código, toca a la persona y luego «Registrar entrega». En la fila a pie, escribe debajo de la cámara solo los 4 números del código: el «CB-» ya está puesto y busca solo."
       },
       "sinCita": {
         "titulo": "Si llega alguien sin cita",
@@ -851,7 +859,7 @@
       },
       "turnos": {
         "titulo": "La fila a pie va por turnos",
-        "texto": "La gente saca su turno sin dar datos, con el QR de la entrada. Ves en grande el turno que va. Si no se presenta, toca «No se presentó». Si dos dicen que son el mismo número, pídeles su código y toca «Comprobar el código de un turno»: el turno es de quien sabe su código. A quien no tiene teléfono, dale turno (puedes anotar su nombre o una seña). Al acabar, toca «Terminar la fila de hoy»."
+        "texto": "Arriba de la cámara ves el turno que va y los que siguen. Escanea su QR; si no lo trae pero sabe su número, toca «Entregar sin QR». Si no está, toca «No se presentó»: la fila sigue, y si llega después su turno vale igual. A quien no tiene teléfono, dale «Turno nuevo» en el panel. Al acabar, toca «Terminar la fila de hoy»."
       },
       "filaAPie": {
         "titulo": "Armar la fila a pie",
@@ -1639,7 +1647,7 @@
     "antes_other": "Faltan {{count}} personas antes de ti",
     "eresElSiguiente": "¡Eres el siguiente! Acércate.",
     "esTuTurno": "¡Es tu turno! Acércate y muestra tu código.",
-    "teLlamaron": "Te llamaron y no estabas: perdiste este turno. Vuelve a escanear el código de la entrada para sacar uno nuevo.",
+    "teLlamaron": "Ya llamaron tu turno y no estabas. Acércate con la voluntaria y enséñale tu número o tu código: todavía puedes recibir.",
     "recibida": "Ya recibiste tu caja. ¡Gracias por venir!",
     "otroDia": "El día de la entrega, aquí mismo vas a ver qué turno va.",
     "seActualiza": "Se actualiza solo cada pocos segundos.",
@@ -1667,8 +1675,6 @@
     "frase": "Turno {{turno}}",
     "noSePresento": "No se presentó",
     "nadieEsperando": "No hay nadie esperando por ahora.",
-    "saltado": "El turno {{turno}} quedó como que no se presentó.",
-    "deshacer": "Deshacer",
     "cuentas": {
       "atendidos": "Ya recibieron",
       "esperando": "Esperando",
@@ -1678,29 +1684,28 @@
     "siguen": "Siguen",
     "noSePresentaron_one": "{{count}} no se presentó",
     "noSePresentaron_other": "{{count}} no se presentaron",
-    "noSePresentaronAyuda": "Perdieron su turno: su código ya no entrega. En los 2 minutos siguientes puedes regresarlo a la fila, por si te equivocaste.",
+    "noSePresentaronAyuda": "La fila siguió sin ellos, pero su turno sigue valiendo: si llegan, escanea su QR o toca «Entregar».",
     "regresar": "Regresar a la fila",
-    "buscar": "Buscar por nombre o código",
     "seActualiza": "Se actualiza sola cada pocos segundos.",
     "errores": {
       "TURNO_NO_EXISTE": "Ese turno ya no está esperando: puede que ya haya recibido.",
       "OTRA_FILA": "Para ver los turnos, elige la fila a pie.",
       "SOLO_HOY": "Solo se puede ver la fila de hoy.",
       "FILA_A_PIE_NO_EXISTE": "Hoy no hay fila a pie.",
-      "DIA_CERRADO": "El día de hoy está cerrado.",
-      "FUERA_DE_PLAZO": "Ya pasaron 2 minutos: ese turno se perdió. La persona tiene que volver a sacar turno."
+      "DIA_CERRADO": "El día de hoy está cerrado."
     },
     "anunciar": "Anunciar cada turno en voz alta",
     "voz": "Voz",
     "vozDelTelefono": "La del teléfono",
-    "perdio": "Perdió su turno",
     "sinTelefono": {
-      "boton": "Dar turno a alguien sin teléfono",
+      "boton": "Dar turno nuevo",
       "dado": "Su turno",
       "ayuda": "Dile su número y su código, y que lo apunte (o apúntaselo en un papel). Con el código se comprueba que el turno es suyo.",
       "listo": "Listo",
       "sena": "Nombre o seña (opcional)",
-      "senaEjemplo": "Ej.: Rosa, chamarra roja"
+      "senaEjemplo": "Ej.: Rosa, chamarra roja",
+      "dar": "Dar el turno",
+      "cancelar": "Cancelar"
     },
     "codigoDia": "Código del día",
     "comprobar": "Comprobar el código de un turno",
@@ -1712,6 +1717,13 @@
       "no": "No, todavía no",
       "terminada": "La fila de hoy ya terminó. Quien esperaba ya lo ve en su teléfono.",
       "deshacer": "Volver a abrir la fila (si fue un error)"
+    },
+    "sigueLista": "Siguen: {{turnos}}",
+    "sinQr": {
+      "boton": "Entregar sin QR",
+      "entregar": "Entregar",
+      "entregarNumero": "Entregar este turno sin QR",
+      "numero": "Número de turno"
     }
   },
   "filaAPieAdmin": {
@@ -1900,7 +1912,6 @@
     "noHay": "Hoy no hay fila a pie.",
     "abreA": "Los turnos se dan a partir de las {{hora}}. Vuelve a abrir esta página a esa hora.",
     "llena": "Ya no hay turnos por hoy.",
-    "sacarOtro": "Sacar un turno nuevo",
     "esTuTurno": "¡Es tu turno!",
     "acercate": "Acércate y muestra tu código QR.",
     "verMiQr": "Ver mi código",
@@ -1908,7 +1919,7 @@
       "sinDatos": "No te pedimos nombre, edad ni teléfono. Nada de esto se guarda ni se comparte.",
       "soloHoy": "Tu turno es solo para hoy y es para una despensa.",
       "abierta": "Deja esta página abierta: aquí ves qué turno va, y tu teléfono suena cuando falten 3 y cuando te toque.",
-      "teLlaman": "Si te llaman y no estás, pierdes tu turno y tienes que volver a escanear el código de la entrada.",
+      "teLlaman": "Si te llaman y no estás, acércate en cuanto llegues con tu número: tu turno sigue valiendo.",
       "cadaQuien": "Cada adulto saca su propio turno. Si no tienes teléfono, pídeselo a una voluntaria."
     },
     "carro": {
@@ -1943,7 +1954,9 @@
       "CODIGO_INCORRECTO": "Ese no es el código de hoy. Revísalo y vuelve a intentar.",
       "DEMASIADOS_INTENTOS": "Demasiados intentos. Podrás volver a intentar en {{reloj}}.",
       "esperaBoton": "Espera {{reloj}}"
-    }
+    },
+    "anotalo": "Anota tu número ({{turno}}) o tómale foto a esta pantalla. Si se te cierra la página, no saques otro turno: dile tu número a la voluntaria.",
+    "yaTenias": "¿Ya sacaste tu turno y se te cerró la página? No saques otro: dile tu número a la voluntaria."
   },
   "codigoDelDia": {
     "casilla": "Pedir código del día",

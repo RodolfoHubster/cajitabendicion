@@ -27,7 +27,9 @@
     "google": "Continue with Google",
     "oCorreo": "or with email and password",
     "mostrarContrasena": "Show",
-    "ocultarContrasena": "Hide"
+    "ocultarContrasena": "Hide",
+    "mantenerSesion": "Keep me signed in on this phone (30 days)",
+    "mantenerSesionAyuda": "Uncheck it if this phone or computer isn't yours."
   },
   "nav": {
     "citasHoy": "Today",
@@ -85,7 +87,8 @@
       "OTRA_FILA": "Other line",
       "SIN_CONEXION": "No signal",
       "RECIEN_ENTREGADO": "Delivered a moment ago",
-      "TURNO_PERDIDO": "Lost their number"
+      "TURNO_PERDIDO": "Lost their number",
+      "TURNO_NO_EXISTE": "That number doesn't exist today"
     },
     "explicacion": {
       "VALIDO": "Valid appointment for today. Hand them their box.",
@@ -100,7 +103,8 @@
       "OTRA_FILA": "This code belongs to the other line. It was not used: send them to their line to get their box.",
       "SIN_CONEXION": "The code could not be checked because the connection dropped. The code may be fine: do not turn the person away. Check your data and check it again.",
       "RECIEN_ENTREGADO": "This is the same code you just delivered ({{nombre}}). The camera read it again: nothing to do, they can move on.",
-      "TURNO_PERDIDO": "They were called and were not there. They need to scan the code at the entrance again for a new number."
+      "TURNO_PERDIDO": "They were called and were not there. They need to scan the code at the entrance again for a new number.",
+      "TURNO_NO_EXISTE": "Check the number. Only today's walk-up numbers can be given out."
     },
     "camara": {
       "SIN_PERMISO": "You did not allow camera access.",
@@ -151,9 +155,10 @@
     },
     "revisaNombre": "Ask their name: it must match the screen. If it does not, undo the delivery and tell the coordinator.",
     "aPie": {
-      "buscar": "Search by code",
       "etiqueta": "Their number's code",
-      "ayuda": "Ask for their code: it's on their phone or their slip of paper. If two people say they have the same number, it belongs to whoever knows the code."
+      "ayuda": "Just the 4 digits: “CB-” is already there. If two people say they have the same number, it belongs to whoever knows the code.",
+      "turno": "Number {{turno}}",
+      "noEsta": "There's no walk-up number today with that code. Check the digits."
     },
     "lista": {
       "cargando": "Loading today's list…",
@@ -168,7 +173,9 @@
       "vacia": "There are no car line appointments today.",
       "otraFila": "This list is for the car line. Today you are in the walk-up line.",
       "sinConexion": "No signal: the list may not be up to date."
-    }
+    },
+    "siguienteOtraVez": "Scan again or scan the next one",
+    "intentarOtraVez": "Try again: hold the QR up to the camera"
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -549,7 +556,8 @@
       "voluntario": "Volunteer"
     },
     "errorTitulo": "We could not check your access",
-    "cuentaActual": "You signed in as {{correo}}. If that is not the right account, sign out and use another one."
+    "cuentaActual": "You signed in as {{correo}}. If that is not the right account, sign out and use another one.",
+    "reintentar": "Try again"
   },
   "registrarPanel": {
     "titulo": "Register a person",
@@ -806,8 +814,8 @@
         "texto": "Tap “Undo this delivery” during the first minute and that code works again. After a minute, ask an administrator."
       },
       "buscar": {
-        "titulo": "If the QR can’t be read",
-        "texto": "Tap “Search by name or code”. In the car line you see today’s people right there: type part of the name (even if you’re not sure how it’s spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. Check carefully: many names repeat. In the walk-up line you can only search by their code."
+        "titulo": "If the QR will not scan",
+        "texto": "In the car line, tap “Search by name or code”: you see today’s people right there. Type part of the name (even if you’re not sure how it’s spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. In the walk-up line, type just the 4 digits of the code under the camera: “CB-” is already there and it searches by itself."
       },
       "sinCita": {
         "titulo": "If someone arrives without an appointment",
@@ -851,7 +859,7 @@
       },
       "turnos": {
         "titulo": "The walk-up line uses numbers",
-        "texto": "People get a number without giving any information, with the QR at the entrance. You see the current number in large print. If someone doesn’t show up, tap “Did not show up”. If two people say they have the same number, ask for their code and tap “Check a number’s code”: the number belongs to whoever knows the code. For someone without a phone, give them a number (you can note their name or a detail). When you’re done, tap “End today’s line”."
+        "texto": "Above the camera you see the current number and the next ones. Scan their QR; if they don’t have it but know their number, tap “Give out without QR”. If they’re not here, tap “Did not show up”: the line moves on, and if they arrive later their number still counts. For someone without a phone, use “Give a new number” in the panel. When you’re done, tap “End today’s line”."
       },
       "filaAPie": {
         "titulo": "Set up the walk-up line",
@@ -1639,7 +1647,7 @@
     "antes_other": "{{count}} people ahead of you",
     "eresElSiguiente": "You are next! Come closer.",
     "esTuTurno": "It is your turn! Come up and show your code.",
-    "teLlamaron": "Your number was called and you were not there: you lost this number. Scan the code at the entrance again to get a new one.",
+    "teLlamaron": "Your number was called and you weren't here. Go to the volunteer and show your number or your code: you can still receive.",
     "recibida": "You already received your box. Thank you for coming!",
     "otroDia": "On delivery day, you will see here which number is being served.",
     "seActualiza": "Updates by itself every few seconds.",
@@ -1667,8 +1675,6 @@
     "frase": "Number {{turno}}",
     "noSePresento": "Did not show up",
     "nadieEsperando": "Nobody is waiting right now.",
-    "saltado": "Number {{turno}} was marked as not showing up.",
-    "deshacer": "Undo",
     "cuentas": {
       "atendidos": "Received",
       "esperando": "Waiting",
@@ -1678,29 +1684,28 @@
     "siguen": "Next up",
     "noSePresentaron_one": "{{count}} did not show up",
     "noSePresentaron_other": "{{count}} did not show up",
-    "noSePresentaronAyuda": "They lost their number: their code no longer works. Within the next 2 minutes you can put them back in line, in case you made a mistake.",
+    "noSePresentaronAyuda": "The line moved on without them, but their number still counts: if they arrive, scan their QR or tap “Give out”.",
     "regresar": "Put back in line",
-    "buscar": "Search by name or code",
     "seActualiza": "Updates by itself every few seconds.",
     "errores": {
       "TURNO_NO_EXISTE": "That number is no longer waiting: they may have already received.",
       "OTRA_FILA": "To see the numbers, choose the walk-up line.",
       "SOLO_HOY": "Only today's line can be viewed.",
       "FILA_A_PIE_NO_EXISTE": "There is no walk-up line today.",
-      "DIA_CERRADO": "Today is closed.",
-      "FUERA_DE_PLAZO": "More than 2 minutes passed: that number is lost. The person needs to get a new one."
+      "DIA_CERRADO": "Today is closed."
     },
     "anunciar": "Announce each number out loud",
     "voz": "Voice",
     "vozDelTelefono": "The phone's default",
-    "perdio": "Lost their number",
     "sinTelefono": {
-      "boton": "Give a number to someone without a phone",
+      "boton": "Give a new number",
       "dado": "Their number",
       "ayuda": "Tell them their number and code, and have them write it down (or write it on a slip of paper). The code proves the number is theirs.",
       "listo": "Done",
       "sena": "Name or a detail (optional)",
-      "senaEjemplo": "E.g.: Rosa, red jacket"
+      "senaEjemplo": "E.g.: Rosa, red jacket",
+      "dar": "Give the number",
+      "cancelar": "Cancel"
     },
     "codigoDia": "Today's code",
     "comprobar": "Check a number's code",
@@ -1712,6 +1717,13 @@
       "no": "Not yet",
       "terminada": "Today's line is over. Those who were waiting already see it on their phones.",
       "deshacer": "Reopen the line (if it was a mistake)"
+    },
+    "sigueLista": "Next: {{turnos}}",
+    "sinQr": {
+      "boton": "Give out without QR",
+      "entregar": "Give out",
+      "entregarNumero": "Give out this number without QR",
+      "numero": "Number"
     }
   },
   "filaAPieAdmin": {
@@ -1900,7 +1912,6 @@
     "noHay": "There is no walk-up line today.",
     "abreA": "Numbers are given starting at {{hora}}. Open this page again at that time.",
     "llena": "There are no more numbers today.",
-    "sacarOtro": "Get a new number",
     "esTuTurno": "It is your turn!",
     "acercate": "Come up and show your QR code.",
     "verMiQr": "See my code",
@@ -1908,7 +1919,7 @@
       "sinDatos": "We do not ask for your name, age or phone number. None of this is saved or shared.",
       "soloHoy": "Your number is for today only and for one box.",
       "abierta": "Keep this page open: you can see which number is being served, and your phone rings when you are 3 away and when it is your turn.",
-      "teLlaman": "If your number is called and you are not there, you lose it and need to scan the code at the entrance again.",
+      "teLlaman": "If your number is called and you're not here, come over with your number as soon as you arrive: it still counts.",
       "cadaQuien": "Each adult gets their own number. If you do not have a phone, ask a volunteer."
     },
     "carro": {
@@ -1943,7 +1954,9 @@
       "CODIGO_INCORRECTO": "That isn't today's code. Check it and try again.",
       "DEMASIADOS_INTENTOS": "Too many tries. You can try again in {{reloj}}.",
       "esperaBoton": "Wait {{reloj}}"
-    }
+    },
+    "anotalo": "Write down your number ({{turno}}) or take a photo of this screen. If the page closes, don't get another number: tell the volunteer your number.",
+    "yaTenias": "Already got your number and the page closed? Don't get another one: tell the volunteer your number."
   },
   "codigoDelDia": {
     "casilla": "Ask for today's code",

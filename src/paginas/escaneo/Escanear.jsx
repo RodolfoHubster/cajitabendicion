@@ -5,6 +5,7 @@ import { LuArrowLeftRight, LuKeyRound, LuLayers, LuShieldCheck } from 'react-ico
 import { useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
+import CampoCodigo from '../../componentes/CampoCodigo'
 import DeshacerEntrega from '../../componentes/DeshacerEntrega'
 import ElegirFila from '../../componentes/ElegirFila'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
@@ -14,6 +15,7 @@ import PanelTurnos from '../../componentes/PanelTurnos'
 import SelloVip from '../../componentes/SelloVip'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
+import TurnoQueVa from '../../componentes/TurnoQueVa'
 import { textoParaBuscar } from '../../datos/codigoCorto'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import {
@@ -29,7 +31,7 @@ import {
   verCita,
   verPase,
 } from '../../datos/escaneo'
-import { elegirFila, miFilaDeHoy, turnoAdelantado } from '../../datos/filaAPie'
+import { elegirFila, entregarTurno, miFilaDeHoy, saltarTurno, turnoAdelantado } from '../../datos/filaAPie'
 import { esDeOtraFila, filaDe, miFila } from '../../datos/filas'
 import { hoyLocal } from '../../datos/panel'
 import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
@@ -108,6 +110,8 @@ export default function Escanear() {
   // A pie: el turno que va (lo trae el panel de turnos) y cuantas veces ha
   // cambiado la fila, para que el panel pregunte de inmediato.
   const [queVa, setQueVa] = useState(null)
+  //  Toda la fila (el que va y los que siguen), para la tira de arriba.
+  const [datosTurnos, setDatosTurnos] = useState(null)
   const turnoQueVa = queVa?.turno ?? null
   const turnoQueVaRef = useRef(null)
   const [versionTurnos, setVersionTurnos] = useState(0)
@@ -185,6 +189,38 @@ export default function Escanear() {
   function alActualizarTurnos(datos) {
     turnoQueVaRef.current = datos?.actual?.turno ?? null
     setQueVa(datos?.actual ?? null)
+    setDatosTurnos(datos ?? null)
+  }
+
+  //  A pie, sin QR: trae su numero pero perdio su pagina (seccion 44). Es la
+  //  misma entrega que al escanear; el resultado sale arriba, como un escaneo,
+  //  con "Deshacer" a la mano.
+  async function entregarPorTurno(turno) {
+    setOcupado(true)
+    setError(null)
+    try {
+      mostrarResultado(await entregarTurno(turno), null)
+      document.getElementById('escaner-arriba')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  //  "No se presento" desde la tira: la fila sigue. Si llega despues, su
+  //  turno vale igual.
+  async function saltarDesdeTira(turno) {
+    setOcupado(true)
+    setError(null)
+    try {
+      await saltarTurno(turno)
+      setVersionTurnos((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
   }
 
   //  La respuesta de la base, con su tono. Si puede pasar, "Deshacer" queda a
@@ -192,7 +228,9 @@ export default function Escanear() {
   //  extra: lo que la pantalla sabe y la base no dice (a pie, si llego
   //  antes de su turno).
   function mostrarResultado(respuesta, token, extra = {}) {
-    setResultado(respuesta ? { ...respuesta, ...extra } : respuesta)
+    //  El token se guarda para que la camara de abajo no lo vuelva a leer
+    //  mientras la persona no baja su telefono.
+    setResultado(respuesta ? { ...respuesta, ...extra, token: token ?? null } : respuesta)
     setVista('resultado')
     recordarEntrega(respuesta, token)
     avisoDelResultado(respuesta?.resultado)
@@ -373,7 +411,7 @@ export default function Escanear() {
     <div className="grid items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       {/* El color de arriba es el de la fila: azul carros, naranja a pie. */}
       <Tarjeta className={listo && fila === 'a_pie' ? 'border-t-8 border-accion' : listo && fila === 'carro' ? 'border-t-8 border-principal' : ''}>
-        <h1 className="mb-1 text-2xl font-bold">{t('pages.escanear')}</h1>
+        <h1 className="mb-1 scroll-mt-24 text-2xl font-bold" id="escaner-arriba">{t('pages.escanear')}</h1>
         <p className="text-base text-principal/70">{t('escaneo.instruccion')}</p>
 
         {cargandoFila && (
@@ -435,28 +473,25 @@ export default function Escanear() {
           </div>
         )}
 
-        {/* A pie, el turno que va queda siempre encima de la camara: se
-            grita y se escanea sin tener que bajar al panel. */}
-        {listo && fila === 'a_pie' && queVa && (vista === 'camara' || vista === 'resultado') && (
-          <p
-            aria-live="polite"
-            className="mb-3 flex items-center gap-3 rounded-xl border-2 border-accion bg-accion/10 px-3 py-2 text-principal"
-          >
-            <span className="text-base font-bold uppercase leading-tight">{t('filaTurnos.va')}</span>
-            <span className="font-titulo text-4xl font-bold leading-none">{queVa.turno}</span>
-            <span className="min-w-0 text-base font-semibold leading-tight">
-              {queVa.nombre}
-              <span className="block text-chica font-normal text-principal/70">{queVa.codigo_corto}</span>
-            </span>
-          </p>
+        {/* A pie, el turno que va queda siempre encima de la camara, con sus
+            botones: se grita, se escanea o se entrega sin QR sin bajar al panel. */}
+        {listo && fila === 'a_pie' && (vista === 'camara' || vista === 'resultado') && (
+          <TurnoQueVa alEntregar={entregarPorTurno} alSaltar={saltarDesdeTira} datos={datosTurnos} ocupado={ocupado} />
         )}
+
+        {listo && fila === 'a_pie' && error && (vista === 'camara' || vista === 'resultado') && avisoError}
 
         {listo && vista === 'camara' && (
           <>
             <LectorQR activo alLeer={alLeer} />
-            <Boton className="mt-3" onClick={() => setVista('manual')} variant="secondary">
-              {fila === 'a_pie' ? t('escaneo.aPie.buscar') : t('escaneo.buscarManual')}
-            </Boton>
+            {/* A pie, el codigo se escribe aqui mismo, sin cambiar de pantalla. */}
+            {fila === 'a_pie' ? (
+              <BusquedaAPie alEntregar={entregarDeLista} alVer={elegirDeLista} hoy={hoy} ocupado={ocupado} />
+            ) : (
+              <Boton className="mt-3" onClick={() => setVista('manual')} variant="secondary">
+                {t('escaneo.buscarManual')}
+              </Boton>
+            )}
           </>
         )}
 
@@ -477,13 +512,21 @@ export default function Escanear() {
 
         {vista === 'previa' && previa && (
           <>
+            {/* Un QR que no es nuestro (o no se leyo bien): la camara sigue
+                abierta para intentar otra vez, sin volver a leer el mismo. */}
             {previa.resultado === 'NO_EXISTE' && (
-              <div className={`rounded-xl border-2 p-4 ${ESTILO_RESULTADO.NO_EXISTE}`}>
-                <p className="text-2xl font-bold">{t('escaneo.resultado.NO_EXISTE')}</p>
-                <p className="mt-2 text-base text-principal/80">
-                  {t('escaneo.explicacion.NO_EXISTE')}
-                </p>
-              </div>
+              <>
+                <div className={`rounded-xl border-2 p-4 ${ESTILO_RESULTADO.NO_EXISTE}`}>
+                  <p className="text-2xl font-bold">{t('escaneo.resultado.NO_EXISTE')}</p>
+                  <p className="mt-2 text-base text-principal/80">
+                    {t('escaneo.explicacion.NO_EXISTE')}
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <p className="mb-2 text-lg font-bold text-principal">{t('escaneo.intentarOtraVez')}</p>
+                  <LectorQR activo alLeer={alLeer} ignorar={previa.token ?? null} />
+                </div>
+              </>
             )}
 
             {previa.resultado === 'SIN_CONEXION' && (
@@ -690,15 +733,18 @@ export default function Escanear() {
               <DeshacerEntrega codigo={resultado.codigo_corto} nombre={resultado.nombre} />
             )}
 
-            {/* Puede pasar: la camara ya esta lista para el siguiente carro.
-                El codigo que se acaba de entregar no cuenta: la persona
-                todavia no baja su telefono. */}
-            {PUEDE_PASAR.includes(resultado.resultado) && (
-              <div className="mt-4">
-                <p className="mb-2 text-lg font-bold text-principal">{t('escaneo.siguiente')}</p>
-                <LectorQR activo alLeer={alLeer} ignorar={tokenEntregado} />
-              </div>
-            )}
+            {/* La camara ya esta lista para el siguiente, pase o no pase: no
+                hay que tocar "Escanear otro". El codigo que se acaba de leer no
+                cuenta: la persona todavia no baja su telefono. */}
+            <div className="mt-4">
+              <p className="mb-2 text-lg font-bold text-principal">
+                {PUEDE_PASAR.includes(resultado.resultado) ? t('escaneo.siguiente') : t('escaneo.siguienteOtraVez')}
+              </p>
+              <LectorQR activo alLeer={alLeer} ignorar={resultado.token ?? tokenEntregado} />
+              {fila === 'a_pie' && (
+                <BusquedaAPie alEntregar={entregarDeLista} alVer={elegirDeLista} hoy={hoy} ocupado={ocupado} />
+              )}
+            </div>
 
             <Boton
               className="mt-4"
@@ -811,14 +857,22 @@ export default function Escanear() {
               alActualizar={alActualizarTurnos}
               alBuscar={() => {
                 reiniciar()
-                setVista('manual')
+                //  El campo del codigo esta debajo de la camara.
+                setTimeout(() => {
+                  const campo = document.getElementById('codigo-a-pie')
+                  campo?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  campo?.focus()
+                }, 50)
               }}
+              alEntregarTurno={entregarPorTurno}
+              ocupadoFuera={ocupado}
               version={versionTurnos}
             />
           </Tarjeta>
         )}
 
-        {listo && puedeAnotarSinCita && (vista === 'camara' || vista === 'manual') && (
+        {/* A pie no: ahi a quien llega sin nada se le da turno nuevo en el panel. */}
+        {listo && puedeAnotarSinCita && fila !== 'a_pie' && (vista === 'camara' || vista === 'manual') && (
           <Tarjeta>
             <h2 className="mb-1 text-lg font-bold">{t('sinCita.titulo')}</h2>
             <p className="mb-3 text-base text-principal/70">{t('sinCita.ayuda')}</p>
@@ -826,6 +880,115 @@ export default function Escanear() {
           </Tarjeta>
         )}
       </div>
+    </div>
+  )
+}
+
+/**
+ * A pie, debajo de la camara: el codigo con el "CB-" ya puesto. Al escribir
+ * los 4 numeros busca solo, y muestra solo turnos a pie, con su numero (el
+ * codigo es lo que prueba de quien es el turno).
+ */
+function BusquedaAPie({ hoy, ocupado, alEntregar, alVer }) {
+  const { t, i18n } = useTranslation()
+  const [numeros, setNumeros] = useState('')
+  const [encontrados, setEncontrados] = useState(null)
+  const [buscando, setBuscando] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function buscar(codigo) {
+    setBuscando(true)
+    setError(null)
+    try {
+      const todos = await buscarParaEscaneo(codigo)
+      //  Solo turnos a pie. Una base sin la fila en la respuesta los deja todos.
+      setEncontrados(todos.filter((persona) => !persona.fila || persona.fila === 'a_pie'))
+    } catch (e) {
+      setError(e.message)
+      setEncontrados(null)
+    } finally {
+      setBuscando(false)
+    }
+  }
+
+  const fechaLarga = (fecha) =>
+    new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }).format(aFechaLocal(fecha))
+
+  return (
+    <div className="mt-4">
+      <CampoCodigo
+        alCambiar={(nuevos) => {
+          setNumeros(nuevos)
+          if (nuevos.length < 4) setEncontrados(null)
+        }}
+        alCompletar={buscar}
+        ayuda={t('escaneo.aPie.ayuda')}
+        etiqueta={t('escaneo.aPie.etiqueta')}
+        id="codigo-a-pie"
+        valor={numeros}
+      />
+
+      {buscando && (
+        <p className="mt-2 text-base text-principal/80" role="status">
+          {t('escaneo.buscando')}
+        </p>
+      )}
+      {error && (
+        <p className="mt-2 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+          {t(`escaneo.errores.${error}`, { defaultValue: t('escaneo.errores.ERROR_DESCONOCIDO') })}
+        </p>
+      )}
+      {encontrados && encontrados.length === 0 && (
+        <p className="mt-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
+          {t('escaneo.aPie.noEsta')}
+        </p>
+      )}
+
+      {encontrados?.map((persona) => {
+        const deOtroDia = persona.fecha !== hoy
+        const puedeRecibir = !deOtroDia && ['reservada', 'llego'].includes(persona.estado)
+        const titulo =
+          persona.turno && !String(persona.nombre).startsWith('Turno ')
+            ? `${t('escaneo.aPie.turno', { turno: persona.turno })} · ${persona.nombre}`
+            : persona.nombre
+
+        return (
+          <div
+            className={`aparecer mt-2 rounded-xl border p-3 ${deOtroDia ? 'border-accion/60 bg-accion/5' : 'border-principal/20'}`}
+            key={`${persona.codigo_corto}-${persona.fecha}`}
+          >
+            {persona.parecido && (
+              <p className="mb-1 inline-block rounded-lg bg-accion/20 px-2 py-0.5 text-base font-bold text-principal">
+                {t('escaneo.parecido')}
+              </p>
+            )}
+            <p className="text-xl font-bold text-principal">{titulo}</p>
+            <p className="text-base text-principal/70">{persona.codigo_corto}</p>
+            <p className="mt-1 text-base text-principal/80">
+              {deOtroDia
+                ? `${t('escaneo.resultado.OTRA_FECHA')}: ${fechaLarga(persona.fecha)}`
+                : t(`escaneo.estadoPrevio.${persona.estado}`, { defaultValue: persona.estado })}
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {puedeRecibir && (
+                <Boton
+                  disabled={ocupado}
+                  onClick={() => {
+                    alEntregar(persona)
+                    setNumeros('')
+                    setEncontrados(null)
+                  }}
+                >
+                  {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
+                </Boton>
+              )}
+              <Boton onClick={() => alVer(persona)} variant="secondary">
+                {t('escaneo.verCita')}
+              </Boton>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

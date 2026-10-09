@@ -15,17 +15,20 @@ import { supabase } from '../lib/supabase'
 //  6 de octubre de 2026 (version 5): el menu por secciones, la lista de
 //  hoy en el escaner, el codigo del dia y terminar la fila a pie, los pases
 //  con "¿Ya tiene codigo CB?" y el reporte del ultimo dia de entrega.
+//  9 de octubre de 2026 (version 6): la fila a pie mas agil: los botones del
+//  turno arriba de la camara, entregar sin QR, el "CB-" ya puesto y "no se
+//  presento" ya no pierde el turno.
 export const PASOS_GUIA = [
   { clave: 'bienvenida', desde: 1 },
   { clave: 'menu', desde: 5, conMenu: true },
   { clave: 'escanear', desde: 1, seccion: 'escanear' },
   { clave: 'colores', desde: 1, seccion: 'escanear' },
   { clave: 'deshacer', desde: 1, seccion: 'escanear' },
-  { clave: 'buscar', desde: 5, seccion: 'escanear' },
+  { clave: 'buscar', desde: 6, seccion: 'escanear' },
   //  28 de septiembre de 2026: la fila a pie por turnos.
   { clave: 'elegirFila', desde: 2, seccion: 'escanear' },
   { clave: 'dosQr', desde: 2, seccion: 'escanear' },
-  { clave: 'turnos', desde: 5, seccion: 'escanear' },
+  { clave: 'turnos', desde: 6, seccion: 'escanear' },
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
   { clave: 'registrar', desde: 5, seccion: 'registrar' },

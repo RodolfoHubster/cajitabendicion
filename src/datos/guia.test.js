@@ -61,7 +61,7 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
 
     const admin = pasosDeGuia({ rol: 'admin', permisos: [], secciones: ['escanear', 'horarios'] })
     expect(claves(pasosPendientes(admin, 1))).toEqual(['menu', 'buscar', 'elegirFila', 'dosQr', 'turnos', 'filaAPie'])
-    expect(VERSION_GUIA).toBe(5)
+    expect(VERSION_GUIA).toBe(6)
   })
 
   it('quien ya vio la versión 4 solo ve lo del 6 de octubre, si puede entrar ahí', () => {
@@ -75,7 +75,8 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
     //  Un voluntario que solo escanea: lo de su pantalla, y sin el paso del menú (tiene una sola).
     const voluntario = pasosDeGuia({ rol: 'voluntario', permisos: [], secciones: ['escanear'] })
     expect(claves(pasosPendientes(voluntario, 4))).toEqual(['buscar', 'turnos'])
-    expect(claves(pasosPendientes(voluntario, 5))).toEqual([])
+    expect(claves(pasosPendientes(voluntario, 5))).toEqual(['buscar', 'turnos'])
+    expect(claves(pasosPendientes(voluntario, 6))).toEqual([])
   })
 
   it('con sus palomitas: el menú, anotar sin cita y citas de hoy', () => {

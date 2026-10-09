@@ -139,6 +139,22 @@ export function terminarFilaAPie(terminada = true) {
   return llamar('terminar_fila_a_pie', { p_terminada: Boolean(terminada) })
 }
 
+/**
+ * Entregar el turno N de hoy SIN escanear su QR (seccion 44): la persona
+ * perdio su pagina pero sabe su numero. Es la misma entrega que al escanear
+ * (el mismo candado). Devuelve { resultado, nombre, codigo_corto, hora,
+ * turno }: VALIDO, YA_USADO, CANCELADA o TURNO_NO_EXISTE.
+ */
+export async function entregarTurno(turno) {
+  return primeraFila(await llamar('entregar_turno', { p_turno: Number(turno) }))
+}
+
+/** Lo que se escribe como numero de turno: solo numeros, sin ceros de mas. null si no es un turno. */
+export function numeroDeTurno(texto) {
+  const limpio = String(texto ?? '').replace(/\D/g, '').replace(/^0+/, '')
+  return limpio && limpio.length <= 4 ? Number(limpio) : null
+}
+
 /** "No se presento" (o, con saltado = false, regresarlo a la fila). */
 export function saltarTurno(turno, saltado = true) {
   return llamar('saltar_turno', { p_turno: turno, p_saltado: saltado })
