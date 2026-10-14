@@ -947,9 +947,11 @@ begin
   -- ----------------------------------------------------------
   --  Se reintenta porque dos registros simultaneos pueden sacar el
   --  mismo numero al azar. El indice unico los separa; aqui solo se
-  --  vuelve a intentar. Son 10,000 codigos para unas 2,000 personas.
+  --  vuelve a intentar. Desde el 10 de octubre de 2026 los nuevos son de
+  --  5 numeros (CB-10000 a CB-99999, seccion 45): con 4 se iban a acabar.
+  --  Los de 4 que ya existen siguen valiendo.
   loop
-    v_codigo := 'CB-' || lpad((floor(random() * 10000))::int::text, 4, '0');
+    v_codigo := 'CB-' || (10000 + floor(random() * 90000))::int::text;
 
     begin
       --  "nombre" guarda el nombre completo: es el que se muestra al
@@ -1361,7 +1363,7 @@ begin
   --  ofrecen los de HOY que se le parecen, y el voluntario confirma con
   --  el nombre. No abre el padron: son las mismas citas que ya salen al
   --  buscar por nombre.
-  if found or v_codigo !~ '^CB-[0-9]{4}$' then
+  if found or v_codigo !~ '^CB-[0-9]{4,5}$' then
     return;
   end if;
 
@@ -2008,8 +2010,9 @@ begin
     end if;
   end if;
 
+  --  5 numeros, como en el registro publico (seccion 45).
   loop
-    v_codigo := 'CB-' || lpad((floor(random() * 10000))::int::text, 4, '0');
+    v_codigo := 'CB-' || (10000 + floor(random() * 90000))::int::text;
 
     begin
       insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, email,
@@ -5316,9 +5319,10 @@ immutable
 parallel safe
 set search_path = public, pg_temp
 as $$
+  --  4 numeros (los de antes) o 5 (desde el 10 de octubre de 2026).
   select case
-           when x ~ '^(CB|C8)?[0-9OIL]{4}$' and x ~ '[0-9]'
-             then 'CB-' || translate(right(x, 4), 'OIL', '011')
+           when x ~ '^(CB|C8)?[0-9OIL]{4,5}$' and x ~ '[0-9]'
+             then 'CB-' || translate(regexp_replace(x, '^(CB|C8)', ''), 'OIL', '011')
            else upper(trim(coalesce(p_texto, '')))
          end
     from (select regexp_replace(upper(coalesce(p_texto, '')), '[^A-Z0-9]', '', 'g') as x) s;
@@ -7055,9 +7059,10 @@ declare
   v_codigo   text;
   v_intentos int := 0;
 begin
-  --  El codigo CB, como en el registro: si sale repetido se vuelve a sacar.
+  --  El codigo CB, como en el registro (5 numeros): si sale repetido se
+  --  vuelve a sacar.
   loop
-    v_codigo := 'CB-' || lpad((floor(random() * 10000))::int::text, 4, '0');
+    v_codigo := 'CB-' || (10000 + floor(random() * 90000))::int::text;
     begin
       insert into personas (codigo_corto, nombre, anonima)
       values (v_codigo, 'Turno', true)

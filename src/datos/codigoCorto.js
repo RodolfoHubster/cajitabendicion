@@ -1,9 +1,12 @@
 /**
- * El codigo corto (CB-4871) como lo teclea la gente.
+ * El codigo corto (CB-4871, o CB-48213 desde el 10 de octubre de 2026) como
+ * lo teclea la gente.
  *
  *   "cb 4871", "CB4871", "4871", "cb-487l", "CBO871"  ->  "CB-4871" / "CB-0871"
+ *   "48213", "cb 48213"                                ->  "CB-48213"
  *
- * La O se lee como cero y la I y la L como uno, solo en los cuatro
+ * Los de 4 numeros son los de antes y siguen valiendo; los nuevos son de 5.
+ * La O se lee como cero y la I y la L como uno, solo en los
  * digitos: en un teclado de telefono, con prisa y con el sol de frente,
  * se confunden. Tiene que haber al menos un digito: "Lili" es un nombre,
  * no un codigo.
@@ -17,8 +20,8 @@ export function normalizarCodigoCorto(texto) {
   const original = String(texto ?? '')
   const compacto = original.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
-  if (/^(CB|C8)?[0-9OIL]{4}$/.test(compacto) && /\d/.test(compacto)) {
-    const digitos = compacto.slice(-4).replace(/O/g, '0').replace(/[IL]/g, '1')
+  if (/^(CB|C8)?[0-9OIL]{4,5}$/.test(compacto) && /\d/.test(compacto)) {
+    const digitos = compacto.replace(/^(CB|C8)/, '').replace(/O/g, '0').replace(/[IL]/g, '1')
     return `CB-${digitos}`
   }
 
@@ -27,7 +30,7 @@ export function normalizarCodigoCorto(texto) {
 
 /** Si lo tecleado se lee como un codigo corto completo. */
 export function pareceCodigoCorto(texto) {
-  return /^CB-\d{4}$/.test(normalizarCodigoCorto(texto))
+  return /^CB-\d{4,5}$/.test(normalizarCodigoCorto(texto))
 }
 
 /**

@@ -161,7 +161,7 @@
     "revisaNombre": "Hỏi tên của họ: phải giống tên trên màn hình. Nếu không giống, hãy hủy lần phát và báo cho người điều phối.",
     "aPie": {
       "etiqueta": "Mã số thứ tự của họ",
-      "ayuda": "Chỉ 4 chữ số: “CB-” đã có sẵn. Nếu hai người nói cùng một số, số đó thuộc về người biết mã.",
+      "ayuda": "Chỉ các chữ số (4 hoặc 5): “CB-” đã có sẵn. Nếu hai người nói cùng một số, số đó thuộc về người biết mã.",
       "turno": "Số {{turno}}",
       "noEsta": "Hôm nay không có số hàng đi bộ nào với mã này. Hãy kiểm tra lại các chữ số."
     },
@@ -811,7 +811,7 @@
       },
       "buscar": {
         "titulo": "Nếu không quét được mã QR",
-        "texto": "Ở hàng xe, bấm “Tìm theo tên hoặc mã”: bạn thấy ngay danh sách người của hôm nay. Gõ một phần tên (dù không chắc cách viết: “Javier” cũng tìm ra “Xavier”) hoặc mã của họ, bấm vào người đó rồi bấm “Ghi nhận đã nhận hàng”. Ở hàng đi bộ, chỉ gõ 4 chữ số của mã bên dưới máy ảnh: “CB-” đã có sẵn và tự tìm."
+        "texto": "Ở hàng xe, bấm “Tìm theo tên hoặc mã”: bạn thấy ngay danh sách người của hôm nay. Gõ một phần tên (dù không chắc cách viết: “Javier” cũng tìm ra “Xavier”) hoặc mã của họ, bấm vào người đó rồi bấm “Ghi nhận đã nhận hàng”. Ở hàng đi bộ, chỉ gõ các chữ số của mã bên dưới máy ảnh (4 hoặc 5): “CB-” đã có sẵn và tự tìm."
       },
       "sinCita": {
         "titulo": "Nếu có người đến mà không có lịch hẹn",
@@ -1890,7 +1890,6 @@
     "empiezaA": "Chúng tôi bắt đầu phát lúc {{hora}}",
     "revisando": "Đang kiểm tra hàng…",
     "noHay": "Hôm nay không có hàng đi bộ.",
-    "abreA": "Số được phát từ {{hora}}. Hãy mở lại trang này vào giờ đó.",
     "llena": "Hôm nay đã hết số.",
     "esTuTurno": "Đến lượt bạn!",
     "acercate": "Hãy đến gần và đưa mã QR.",

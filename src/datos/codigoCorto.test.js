@@ -14,6 +14,11 @@ describe('el código como lo teclea la gente', () => {
     ['C8 4871', 'CB-4871'],
     ['  CB - 4871  ', 'CB-4871'],
     ['cb.4871', 'CB-4871'],
+    //  Los nuevos, de 5 números (10 de octubre de 2026).
+    ['cb 48213', 'CB-48213'],
+    ['48213', 'CB-48213'],
+    ['CBO8213', 'CB-08213'],
+    ['C8 48213', 'CB-48213'],
   ])('"%s" -> %s', (tecleado, esperado) => {
     expect(normalizarCodigoCorto(tecleado)).toBe(esperado)
   })
@@ -22,7 +27,7 @@ describe('el código como lo teclea la gente', () => {
     ['Lili', 'LILI'],
     [' cb-prb2 ', 'CB-PRB2'],
     ['SC-1234', 'SC-1234'],
-    ['12345', '12345'],
+    ['123456', '123456'],
     ['CBOOII', 'CBOOII'],
     ['', ''],
   ])('"%s" no es un código corto: se queda como está (%s)', (tecleado, esperado) => {
@@ -40,6 +45,8 @@ describe('qué se manda a buscar', () => {
     expect(pareceCodigoCorto('cb 4871')).toBe(true)
     expect(textoParaBuscar('cb 4871')).toBe('CB-4871')
     expect(textoParaBuscar('4871')).toBe('CB-4871')
+    expect(pareceCodigoCorto('48213')).toBe(true)
+    expect(textoParaBuscar('48213')).toBe('CB-48213')
   })
 
   it('un nombre se manda tal cual, sin mayúsculas forzadas', () => {

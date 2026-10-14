@@ -200,7 +200,6 @@ export default function Escanear() {
     setError(null)
     try {
       mostrarResultado(await entregarTurno(turno), null)
-      document.getElementById('escaner-arriba')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -241,6 +240,10 @@ export default function Escanear() {
     setDeshacerPropia(puedePasar)
     setTokenEntregado(puedePasar ? (token ?? null) : null)
     if (puedePasar) plazoDeshacer.current = setTimeout(() => setDeshacerPropia(false), MS_DESHACER_PROPIA)
+    //  El resultado sale arriba. Si se entrego desde el campo del codigo o
+    //  desde el panel (abajo de la camara), en el telefono quedaba fuera de
+    //  la vista: se sube a el.
+    document.getElementById('escaner-arriba')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
   }
 
   //  Ni el iPhone ni Chrome dejan que una pagina suene antes de que
@@ -408,7 +411,9 @@ export default function Escanear() {
   const otraFila = fila === 'a_pie' ? 'carro' : 'a_pie'
 
   return (
-    <div className="grid items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    //  grid-cols-1 (minmax(0,1fr)): en el telefono la columna nunca es mas
+    //  ancha que la pantalla, aunque algo de adentro pida mas.
+    <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       {/* El color de arriba es el de la fila: azul carros, naranja a pie. */}
       <Tarjeta className={listo && fila === 'a_pie' ? 'border-t-8 border-accion' : listo && fila === 'carro' ? 'border-t-8 border-principal' : ''}>
         <h1 className="mb-1 scroll-mt-24 text-2xl font-bold" id="escaner-arriba">{t('pages.escanear')}</h1>

@@ -156,7 +156,7 @@
     "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina.",
     "aPie": {
       "etiqueta": "Código de su turno",
-      "ayuda": "Solo los 4 números: el «CB-» ya está puesto. Si dos dicen el mismo número, el turno es de quien sabe el código.",
+      "ayuda": "Solo los números (4 o 5): el «CB-» ya está puesto. Si dos dicen el mismo número de turno, el turno es de quien sabe el código.",
       "turno": "Turno {{turno}}",
       "noEsta": "No hay un turno a pie de hoy con ese código. Revisa los números."
     },
@@ -815,7 +815,7 @@
       },
       "buscar": {
         "titulo": "Si el QR no se deja leer",
-        "texto": "En la fila de carros toca «Buscar por nombre o código»: ves ahí mismo la gente de hoy. Escribe un pedazo del nombre (aunque no sepas cómo se escribe: «Javier» también encuentra a «Xavier») o su código, toca a la persona y luego «Registrar entrega». En la fila a pie, escribe debajo de la cámara solo los 4 números del código: el «CB-» ya está puesto y busca solo."
+        "texto": "En la fila de carros toca «Buscar por nombre o código»: ves ahí mismo la gente de hoy. Escribe un pedazo del nombre (aunque no sepas cómo se escribe: «Javier» también encuentra a «Xavier») o su código, toca a la persona y luego «Registrar entrega». En la fila a pie, escribe debajo de la cámara solo los números del código (4 o 5): el «CB-» ya está puesto y busca solo."
       },
       "sinCita": {
         "titulo": "Si llega alguien sin cita",
@@ -1910,7 +1910,6 @@
     "empiezaA": "Empezamos a entregar a las {{hora}}",
     "revisando": "Revisando la fila…",
     "noHay": "Hoy no hay fila a pie.",
-    "abreA": "Los turnos se dan a partir de las {{hora}}. Vuelve a abrir esta página a esa hora.",
     "llena": "Ya no hay turnos por hoy.",
     "esTuTurno": "¡Es tu turno!",
     "acercate": "Acércate y muestra tu código QR.",

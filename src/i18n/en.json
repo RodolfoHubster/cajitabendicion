@@ -156,7 +156,7 @@
     "revisaNombre": "Ask their name: it must match the screen. If it does not, undo the delivery and tell the coordinator.",
     "aPie": {
       "etiqueta": "Their number's code",
-      "ayuda": "Just the 4 digits: “CB-” is already there. If two people say they have the same number, it belongs to whoever knows the code.",
+      "ayuda": "Just the digits (4 or 5): “CB-” is already there. If two people say they have the same number, it belongs to whoever knows the code.",
       "turno": "Number {{turno}}",
       "noEsta": "There's no walk-up number today with that code. Check the digits."
     },
@@ -815,7 +815,7 @@
       },
       "buscar": {
         "titulo": "If the QR will not scan",
-        "texto": "In the car line, tap “Search by name or code”: you see today’s people right there. Type part of the name (even if you’re not sure how it’s spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. In the walk-up line, type just the 4 digits of the code under the camera: “CB-” is already there and it searches by itself."
+        "texto": "In the car line, tap “Search by name or code”: you see today’s people right there. Type part of the name (even if you’re not sure how it’s spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. In the walk-up line, type just the digits of the code under the camera (4 or 5): “CB-” is already there and it searches by itself."
       },
       "sinCita": {
         "titulo": "If someone arrives without an appointment",
@@ -1910,7 +1910,6 @@
     "empiezaA": "We start handing out at {{hora}}",
     "revisando": "Checking the line…",
     "noHay": "There is no walk-up line today.",
-    "abreA": "Numbers are given starting at {{hora}}. Open this page again at that time.",
     "llena": "There are no more numbers today.",
     "esTuTurno": "It is your turn!",
     "acercate": "Come up and show your QR code.",

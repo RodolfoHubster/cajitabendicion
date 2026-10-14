@@ -537,6 +537,8 @@ begin
     pg_temp.registro(v_b_lunes, p_nombre => 'Ofelia', p_telefono => '+16195557001', p_dispositivo => 'prueba-misma-c')));
   perform pg_temp.comprobar('Misma persona: si canceló, puede volver a sacar cita ese día',
     v_texto is not null and v_texto <> v_codigo, v_texto);
+  perform pg_temp.comprobar('Código de 5 números (sección 45): el registro público da CB-10000 a CB-99999',
+    v_texto ~ '^CB-[1-9][0-9]{4}$', v_texto);
 
   --  Cómo se lee lo que teclea la gente.
   perform pg_temp.comprobar('Código: "cb 4871" se lee CB-4871',
@@ -547,6 +549,11 @@ begin
     normalizar_codigo_corto('CBO87l') = 'CB-0871', normalizar_codigo_corto('CBO87l'));
   perform pg_temp.comprobar('Código: un nombre de cuatro letras no se vuelve código',
     normalizar_codigo_corto('Lili') = 'LILI', normalizar_codigo_corto('Lili'));
+  perform pg_temp.comprobar('Código de 5 números (sección 45): "cb 48213" y "48213" se leen CB-48213',
+    normalizar_codigo_corto('cb 48213') = 'CB-48213' and normalizar_codigo_corto('48213') = 'CB-48213'
+    and normalizar_codigo_corto('CBO8213') = 'CB-08213', normalizar_codigo_corto('48213'));
+  perform pg_temp.comprobar('Código: 6 números ya no es un código',
+    normalizar_codigo_corto('482131') = '482131', normalizar_codigo_corto('482131'));
   perform pg_temp.comprobar('Código: los de prueba y los de "sin cita" se quedan como están',
     normalizar_codigo_corto(' cb-prb2 ') = 'CB-PRB2' and normalizar_codigo_corto('SC-1234') = 'SC-1234');
   perform pg_temp.comprobar('Nombres: sin acentos, mayúsculas, guiones ni espacios de más',
@@ -926,6 +933,10 @@ begin
 
     -- ---------- Registro desde el panel ----------
     perform pg_temp.esperar_ok('Panel: registra sin correo', pg_temp.panel(v_b_lunes));
+    v_texto := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+      pg_temp.panel(v_b_lunes, p_nombre => 'Cinco', p_telefono => '+16195550461')));
+    perform pg_temp.comprobar('Código de 5 números (sección 45): el registro del panel también',
+      v_texto ~ '^CB-[1-9][0-9]{4}$', v_texto);
     perform pg_temp.esperar_ok('Panel: registra en una fecha que aún no abre al público',
       pg_temp.panel(v_b_programada));
     perform pg_temp.esperar_error('Panel: no registra en una fecha cerrada',
@@ -2294,6 +2305,8 @@ begin
       perform pg_temp.comprobar('Turno sin datos: sin sesión y sin dar nada, saca su turno',
         v_fila.resultado = 'NUEVO' and v_fila.turno > 0 and v_fila.codigo like 'CB-%' and v_fila.token_qr is not null,
         v_fila.resultado);
+      perform pg_temp.comprobar('Código de 5 números (sección 45): los nuevos van de CB-10000 a CB-99999',
+        v_fila.codigo ~ '^CB-[1-9][0-9]{4}$', v_fila.codigo);
       v_numero := v_fila.turno;
       v_token := v_fila.token_qr;
       select p.anonima::text || '|' || p.nombre || '|' || coalesce(p.telefono, 'sin teléfono') into v_texto
@@ -2565,7 +2578,8 @@ begin
         v_anon  text := (select p.codigo_corto from citas c join personas p on p.id = c.persona_id where c.token_qr = v_token);
         v_cerca text;
       begin
-        v_cerca := 'CB-' || ((substr(right(v_anon, 4), 1, 1)::int % 9) + 1)::text || right(v_anon, 3);
+        --  Otro primer número, del mismo largo (4 o 5).
+        v_cerca := 'CB-' || ((substr(v_anon, 4, 1)::int % 9) + 1)::text || substr(v_anon, 5);
         select count(*) into v_numero from buscar_para_escaneo('turno') b
           join personas p on p.codigo_corto = b.codigo_corto where p.anonima;
         perform pg_temp.comprobar('Búsqueda: escribir "turno" no enseña los códigos de los turnos sin datos', v_numero = 0, v_numero::text);
@@ -2578,6 +2592,26 @@ begin
         select count(*) into v_numero from buscar_para_escaneo(v_anon) b
          where b.codigo_corto = v_anon and b.fila = 'a_pie' and b.turno is not null;
         perform pg_temp.comprobar('Búsqueda: dice que es un turno a pie, y su número (sección 44)', v_numero = 1, v_numero::text);
+      end;
+
+      --  Un código de 5 números con un número mal escrito sugiere el parecido (sección 45).
+      declare
+        v_cinco text;
+        v_mal   text;
+      begin
+        for i in 10000 .. 99998 loop
+          v_cinco := 'CB-' || i::text;
+          v_mal := 'CB-' || (i + 1)::text;
+          exit when right(v_cinco, 1) <> '9'
+                and not exists (select 1 from personas p where p.codigo_corto in (v_cinco, v_mal));
+        end loop;
+        insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+        values (v_cinco, 'Prueba Cinco Números', 'Prueba', 'Cinco Números', '+16195550451') returning id into v_persona;
+        perform reservar_cita(v_persona, v_b_hoy);
+        select count(*) into v_numero from buscar_para_escaneo(right(v_cinco, 5)) b where b.codigo_corto = v_cinco and not b.parecido;
+        perform pg_temp.comprobar('Código de 5 números: con los 5 números se encuentra', v_numero = 1, v_numero::text);
+        select count(*) into v_numero from buscar_para_escaneo(v_mal) b where b.codigo_corto = v_cinco and b.parecido;
+        perform pg_temp.comprobar('Código de 5 números: un número mal escrito sugiere el parecido', v_numero = 1, v_numero::text);
       end;
 
       --  "Entró sin cita" se anota en la fila en que está hoy.

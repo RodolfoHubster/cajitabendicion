@@ -22,7 +22,7 @@ iglesia: Pastor David Villalobos.
 | Bloques de 15 min | ~2:45 PM – 6:30 PM. Capacidad por bloque configurable (hoy 15–28). **Un lugar es un carro**, no una persona (ver "Acompañantes"). |
 | Corte real de cupo | Al llenarse un bloque se bloquea de verdad. Este es el bug que se está arreglando. |
 | QR de un solo uso | La cita se invalida al escanearse. Sin datos personales dentro del código. |
-| Código corto | ID estable tipo matrícula (`CB-4871`), respaldo cuando el QR no se deja leer. Buscar por nombre no basta: se repiten. |
+| Código corto | ID estable tipo matrícula (`CB-4871`), respaldo cuando el QR no se deja leer. Buscar por nombre no basta: se repiten. Desde el 10 de octubre de 2026 los nuevos son de **5 números** (`CB-48213`, sección 45): con 4 solo cabían 10,000 y cada registro y turno gasta uno para siempre. Los de 4 siguen valiendo. |
 | Entró sin cita | Solo panel, nunca público. Pide nombre y teléfono (opcional; decisión del pastor, 24 sep 2026), da comprobante `SC-1234`, guarda quién y a qué hora. Avisa si el nombre o el teléfono ya se anotaron hoy. Un error se **anula**, no se borra. |
 | Donaciones | Enlaces opcionales (PayPal, GoFundMe, suscripción de Facebook). **Nunca condicionan la cita**: cada invitación dice primero que los alimentos son gratuitos. |
 
