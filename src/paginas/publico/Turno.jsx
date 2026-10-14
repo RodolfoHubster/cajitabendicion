@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaPersonWalking } from 'react-icons/fa6'
 import { LuBellRing, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
+import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
 import { dibujarQR } from '../../datos/cita'
 import { formatearHora } from '../../datos/disponibilidad'
-import { consultarFilasAPie, estadoFilaAPie, situacionDelTurno } from '../../datos/filaAPie'
+import {
+  consultarFilasAPie,
+  estadoFilaAPie,
+  filaAlDia,
+  siguienteFilaAPie,
+  situacionDelTurno,
+} from '../../datos/filaAPie'
 import { hoyLocal } from '../../datos/panel'
 import { prepararSonido } from '../../datos/sonido'
 import {
@@ -22,6 +29,9 @@ import {
 
 const AVISOS = ['sinDatos', 'soloHoy', 'abierta', 'teLlaman', 'cadaQuien']
 const ICONO_AVISO = { sinDatos: LuShieldCheck, soloHoy: LuTicket, abierta: LuBellRing, teLlaman: LuTriangleAlert, cadaQuien: LuHandHeart }
+
+/** Hoy ya no se puede sacar turno: abajo, cuando es la proxima fila. */
+const SIN_TURNO_HOY = ['no_hay', 'terminada', 'cerrada', 'llena']
 
 /** "2026-10-08T09:00:00" (hora de San Diego) -> "9:00 AM". */
 const horaDe = (marca) => (marca ? formatearHora(String(marca).slice(11, 19)) : '')
@@ -38,6 +48,9 @@ const FRENO_SEGUNDOS = 300
  * Si ese dia se pide el codigo del dia (seccion 43), se escribe antes del
  * boton: esta en el pizarron de la entrada. Con 5 codigos mal, el telefono
  * espera 5 minutos (se ve la cuenta regresiva).
+ *
+ * Antes de que abra (o si hoy no hay fila), cuando se abren los turnos y
+ * cuanto falta: el boton aparece solo a esa hora, sin recargar.
  */
 export default function Turno() {
   const { t } = useTranslation()
@@ -55,6 +68,11 @@ export default function Turno() {
   const [error, setError] = useState(null)
   //  Lo que contesto la base al tocar el boton, cuando no fue un turno.
   const [respuesta, setRespuesta] = useState(null)
+  //  La siguiente fila despues de hoy (null: no hay; undefined: no se sabe).
+  const [proxima, setProxima] = useState(undefined)
+  //  Al llegar la hora de apertura se vuelve a preguntar a la base.
+  const [recarga, setRecarga] = useState(0)
+  const volverAPreguntar = useCallback(() => setRecarga((n) => n + 1), [])
 
   //  El codigo del dia: lo que escribe, si la base lo pidio y que paso.
   const [codigoDia, setCodigoDia] = useState('')
@@ -72,6 +90,7 @@ export default function Turno() {
       .then(([filas, deHoy]) => {
         if (!vigente) return
         const disponible = filas.find((f) => f.fecha === hoy) ?? null
+        setProxima(siguienteFilaAPie(filas, hoy))
         if (deHoy?.cerrada) {
           setFila({ ...(disponible ?? {}), cerrada: true, terminada: Boolean(deHoy.terminada) })
         } else {
@@ -84,7 +103,7 @@ export default function Turno() {
     return () => {
       vigente = false
     }
-  }, [hoy, miTurno])
+  }, [hoy, miTurno, recarga])
 
   useEffect(() => {
     if (!miTurno?.token) return undefined
@@ -244,7 +263,13 @@ export default function Turno() {
 
   // ---------------- Todavia no tiene turno ----------------
   const estado =
-    fila === undefined ? 'cargando' : fila?.terminada ? 'terminada' : fila?.cerrada ? 'cerrada' : estadoFilaAPie(fila)
+    fila === undefined
+      ? 'cargando'
+      : fila?.terminada
+        ? 'terminada'
+        : fila?.cerrada
+          ? 'cerrada'
+          : estadoFilaAPie(filaAlDia(fila))
   const conCodigo = Boolean(fila?.pide_codigo) || pideCodigo
   const faltaEscribir = conCodigo && codigoDia.length < 4
 
@@ -261,7 +286,10 @@ export default function Turno() {
           </div>
         )}
 
-        {estado === 'no_hay' && <p className="text-lg">{t('turnoAPie.noHay')}</p>}
+        {/* Sin fila hoy ni fecha proxima: "por ahora no hay; cuando haya, aqui mismo". */}
+        {estado === 'no_hay' && (
+          <p className="text-lg">{t(proxima === null ? 'aPie.noHay' : 'turnoAPie.noHay')}</p>
+        )}
 
         {estado === 'terminada' && (
           <p className="rounded-xl bg-principal/10 p-4 text-lg font-semibold text-principal" role="status">
@@ -276,12 +304,14 @@ export default function Turno() {
         )}
 
         {estado === 'por_abrir' && (
-          <p className="rounded-xl bg-accion/15 p-4 text-lg font-semibold text-principal">
-            {t('turnoAPie.abreA', { hora: horaDe(fila.abre_en) })}
-          </p>
+          <AperturaFilaAPie alAbrir={volverAPreguntar} esHoy fila={fila} key={fila.abre_en} />
         )}
 
         {estado === 'llena' && <p className="text-lg">{t('turnoAPie.llena')}</p>}
+
+        {SIN_TURNO_HOY.includes(estado) && proxima && (
+          <AperturaFilaAPie alAbrir={volverAPreguntar} fila={proxima} key={proxima.abre_en} />
+        )}
 
         {/* Ya abrio: el codigo del dia (si se pide) y el boton grande. */}
         {estado === 'abierta' && !respuesta && (

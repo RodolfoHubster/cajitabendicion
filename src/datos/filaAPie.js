@@ -1,4 +1,4 @@
-import { consultarDisponibilidad, horasEntre, restarHoras, sumarDias } from './disponibilidad'
+import { consultarDisponibilidad, horasEntre, restarHoras, segundosHasta, sumarDias } from './disponibilidad'
 import { clasificarError } from './errores'
 import { supabase } from '../lib/supabase'
 
@@ -77,6 +77,20 @@ export function consultarFilasAPie(hoy) {
 /** La que se muestra: la mas cercana (la de hoy, si hay). */
 export function proximaFilaAPie(filas) {
   return [...(filas ?? [])].sort((a, b) => a.fecha.localeCompare(b.fecha))[0] ?? null
+}
+
+/** La siguiente despues de hoy, para decir cuando volver; o null si no hay. */
+export function siguienteFilaAPie(filas, hoy) {
+  return proximaFilaAPie((filas ?? []).filter((f) => f.fecha > hoy))
+}
+
+/**
+ * La fila tal como debe verse ahora: si su hora de apertura llego con la
+ * pagina abierta, ya esta abierta, sin esperar a volver a preguntar.
+ */
+export function filaAlDia(fila) {
+  if (!fila || fila.abierto !== false || !fila.abre_en) return fila
+  return segundosHasta(fila.abre_en) <= 0 ? { ...fila, abierto: true } : fila
 }
 
 /** 'no_hay' | 'por_abrir' | 'llena' | 'abierta'. */

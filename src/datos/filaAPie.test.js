@@ -18,6 +18,7 @@ import {
   elegirFila,
   esSinLimite,
   estadoFilaAPie,
+  filaAlDia,
   filaDeTurnos,
   guardarFilaAPie,
   miFilaDeHoy,
@@ -25,6 +26,7 @@ import {
   quitarFilaAPie,
   revisarApertura,
   saltarTurno,
+  siguienteFilaAPie,
   situacionDelTurno,
   terminarFilaAPie,
   entregarTurno,
@@ -63,6 +65,29 @@ describe('la fila a pie que ve el público', () => {
   it('muestra la más cercana', () => {
     expect(proximaFilaAPie([{ fecha: '2026-10-01' }, { fecha: '2026-09-28' }]).fecha).toBe('2026-09-28')
     expect(proximaFilaAPie([])).toBeNull()
+  })
+
+  it('la siguiente después de hoy, para decir cuándo volver', () => {
+    const filas = [{ fecha: '2026-10-15' }, { fecha: '2026-10-13' }, { fecha: '2026-10-19' }]
+    expect(siguienteFilaAPie(filas, '2026-10-13').fecha).toBe('2026-10-15')
+    //  Sin fila hoy: la mas cercana de las que vienen.
+    expect(siguienteFilaAPie([{ fecha: '2026-10-19' }, { fecha: '2026-10-15' }], '2026-10-13').fecha).toBe('2026-10-15')
+    expect(siguienteFilaAPie([{ fecha: '2026-10-13' }], '2026-10-13')).toBeNull()
+    expect(siguienteFilaAPie(null, '2026-10-13')).toBeNull()
+  })
+
+  it('al llegar la hora de apertura con la página abierta, ya está abierta', () => {
+    vi.useFakeTimers()
+    //  1:00 PM en San Diego (UTC-7 en octubre).
+    vi.setSystemTime(new Date('2026-10-15T20:00:00Z'))
+    const fila = { fecha: '2026-10-15', abierto: false, libres: 50 }
+    expect(estadoFilaAPie(filaAlDia({ ...fila, abre_en: '2026-10-15T13:00:01' }))).toBe('por_abrir')
+    expect(estadoFilaAPie(filaAlDia({ ...fila, abre_en: '2026-10-15T13:00:00' }))).toBe('abierta')
+    expect(estadoFilaAPie(filaAlDia({ ...fila, abre_en: '2026-10-15T12:30:00', libres: 0 }))).toBe('llena')
+    //  Lo demas pasa igual.
+    expect(filaAlDia(null)).toBeNull()
+    expect(filaAlDia({ abierto: false })).toEqual({ abierto: false })
+    vi.useRealTimers()
   })
 
   it('abierta, por abrir o llena', () => {

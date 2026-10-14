@@ -18,6 +18,7 @@ import {
   horaSanDiego,
   segundosHasta,
   sumarDias,
+  tiempoRestante,
 } from './disponibilidad'
 
 beforeEach(() => {
@@ -116,6 +117,27 @@ describe('hora de San Diego', () => {
     [259200.7, { dias: 3, horas: 0, minutos: 0, segundos: 0 }],
   ])('desglosarSegundos(%s)', (total, esperado) => {
     expect(desglosarSegundos(total)).toEqual(esperado)
+  })
+
+  //  Un t() de mentira: basta con ver que partes se piden y en que orden.
+  const t = (clave, { count, n } = {}) =>
+    ({
+      'proxima.tiempo.dias': `${count} d`,
+      'proxima.tiempo.horas': `${n} h`,
+      'proxima.tiempo.minutos': `${n} min`,
+      'proxima.tiempo.segundos': `${n} s`,
+    })[clave]
+
+  it.each([
+    [90061, '1 d 1 h 1 min'],
+    //  Con dias, las horas salen aunque sean 0: "2 d 0 h 5 min".
+    [173100, '2 d 0 h 5 min'],
+    [3600, '1 h 0 min'],
+    [3599, '59 min 59 s'],
+    [42, '0 min 42 s'],
+    [-3, '0 min 0 s'],
+  ])('tiempoRestante(%s) = %s: segundos solo en la ultima hora', (total, esperado) => {
+    expect(tiempoRestante(t, total)).toBe(esperado)
   })
 })
 

@@ -14,11 +14,11 @@ import {
   aFechaLocal,
   agruparPorFecha,
   consultarDisponibilidad,
-  desglosarSegundos,
   elegirProximaEntrega,
   formatearFechaHora,
   formatearHora,
   segundosHasta,
+  tiempoRestante,
 } from '../../datos/disponibilidad'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { EsqueletoProximaFecha } from '../../componentes/Esqueleto'
@@ -27,19 +27,6 @@ import { EsqueletoProximaFecha } from '../../componentes/Esqueleto'
 // blanca, el oficial no llega al contraste minimo legible.
 const AZUL_FACEBOOK =
   'bg-[#1560D4] text-white shadow-sm hover:brightness-110 focus-visible:ring-[#1560D4]/40'
-
-/** "1 dia 3 h 20 min" o, en la ultima hora, "20 min 15 s". */
-function tiempoRestante(t, total) {
-  const { dias, horas, minutos, segundos } = desglosarSegundos(total)
-  const partes = []
-
-  if (dias) partes.push(t('proxima.tiempo.dias', { count: dias }))
-  if (dias || horas) partes.push(t('proxima.tiempo.horas', { n: horas }))
-  partes.push(t('proxima.tiempo.minutos', { n: minutos }))
-  if (!dias && !horas) partes.push(t('proxima.tiempo.segundos', { n: segundos }))
-
-  return partes.join(' ')
-}
 
 /**
  * Proxima entrega: una sola fecha, con toda su informacion.

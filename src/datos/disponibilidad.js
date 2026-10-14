@@ -173,6 +173,19 @@ export function desglosarSegundos(total) {
   }
 }
 
+/** "1 dia 3 h 20 min" o, en la ultima hora, "20 min 15 s". `t` es el de i18next. */
+export function tiempoRestante(t, total) {
+  const { dias, horas, minutos, segundos } = desglosarSegundos(total)
+  const partes = []
+
+  if (dias) partes.push(t('proxima.tiempo.dias', { count: dias }))
+  if (dias || horas) partes.push(t('proxima.tiempo.horas', { n: horas }))
+  partes.push(t('proxima.tiempo.minutos', { n: minutos }))
+  if (!dias && !horas) partes.push(t('proxima.tiempo.segundos', { n: segundos }))
+
+  return partes.join(' ')
+}
+
 /** Un momento guardado en la base ('2026-09-14T21:05:00+00:00') -> '2:05 PM' en San Diego. */
 export function horaSanDiego(marca) {
   if (!marca) return ''
