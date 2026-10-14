@@ -41,3 +41,4 @@ dist-ssr
 .claude/settings.local.json
 .claude/launch.json
 .sesion-prueba.json
+docs/voices/generar_voces.py
