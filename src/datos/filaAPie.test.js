@@ -17,8 +17,16 @@ import {
   consultarFilasAPie,
   elegirFila,
   esSinLimite,
+  anularTurno,
+  buscarTurnos,
+  estadoDeTurno,
   estadoFilaAPie,
   filaAlDia,
+  haceCuanto,
+  horaDeMarca,
+  minutosDesde,
+  qrDeTurno,
+  turnosAPieDeHoy,
   filaDeTurnos,
   guardarFilaAPie,
   miFilaDeHoy,
@@ -98,6 +106,89 @@ describe('la fila a pie que ve el público', () => {
   })
 })
 
+describe('todo desde el escáner (sección 46)', () => {
+  const LISTA = [
+    { turno: 1, codigo_corto: 'CB-48213', nombre: 'Turno 1', estado: 'entregada' },
+    { turno: 2, codigo_corto: 'CB-4871', nombre: 'Turno 2 · María, chamarra roja', estado: 'reservada' },
+    { turno: 12, codigo_corto: 'CB-61002', nombre: 'Turno 12', estado: 'reservada', saltado_en: '2026-10-15T15:05:00' },
+    { turno: 20, codigo_corto: 'CB-20001', nombre: 'Turno 20', estado: 'reservada' },
+    { turno: 21, codigo_corto: 'CB-77554', nombre: 'Turno 21', estado: 'cancelada', anulado_en: '2026-10-15T15:50:00' },
+    { turno: 200, codigo_corto: 'CB-12345', nombre: 'Turno 200', estado: 'reservada' },
+  ]
+  const turnos = (texto) => buscarTurnos(LISTA, texto).map((fila) => fila.turno)
+
+  it('por número de turno: el exacto primero, luego los que empiezan igual', () => {
+    expect(turnos('2')).toEqual([2, 20, 21, 200])
+    expect(turnos('20')).toEqual([20, 200])
+    expect(turnos('021')).toEqual([21])
+    expect(turnos('12')).toEqual([12])
+  })
+
+  it('por código: solo el completo (4 o 5 números), con o sin "CB"', () => {
+    expect(turnos('48213')).toEqual([1])
+    expect(turnos('CB-48213')).toEqual([1])
+    expect(turnos('cb 4871')).toEqual([2])
+    //  A medias no: el código es lo que prueba de quién es el turno.
+    expect(turnos('4821')).toEqual([])
+    expect(turnos('2000')).toEqual([])
+  })
+
+  it('por seña o nombre, sin acentos', () => {
+    expect(turnos('chamarra')).toEqual([2])
+    expect(turnos('MARIA roja')).toEqual([2])
+    expect(turnos('azul')).toEqual([])
+  })
+
+  it('sin nada escrito, nada', () => {
+    expect(buscarTurnos(LISTA, '')).toEqual([])
+    expect(buscarTurnos(LISTA, '  -  ')).toEqual([])
+    expect(buscarTurnos(null, '2')).toEqual([])
+  })
+
+  it('cómo está cada turno', () => {
+    expect(estadoDeTurno(LISTA[0])).toBe('recibio')
+    expect(estadoDeTurno(LISTA[1], 2)).toBe('va')
+    expect(estadoDeTurno(LISTA[1], 1)).toBe('esperando')
+    expect(estadoDeTurno(LISTA[2], 12)).toBe('saltado')
+    expect(estadoDeTurno(LISTA[4])).toBe('anulado')
+  })
+
+  it('a qué hora y hace cuánto (hora de San Diego, como la manda la base)', () => {
+    vi.useFakeTimers()
+    //  3:45 PM en San Diego (UTC-7 en octubre).
+    vi.setSystemTime(new Date('2026-10-15T22:45:00Z'))
+    expect(horaDeMarca('2026-10-15T15:05:00.123456')).toBe('3:05 PM')
+    expect(horaDeMarca(null)).toBe('')
+    expect(minutosDesde('2026-10-15T15:05:00.9')).toBe(40)
+    expect(minutosDesde('2026-10-15T15:50:00')).toBe(0)
+    expect(minutosDesde(null)).toBe(0)
+    const t = (clave, o = {}) => `${clave}|${JSON.stringify(o)}`
+    expect(haceCuanto(t, '2026-10-15T15:44:40')).toBe('escaneo.turnos.haceUnMomento|{}')
+    expect(haceCuanto(t, '2026-10-15T15:05:00')).toBe('escaneo.turnos.haceMin|{"n":40}')
+    expect(haceCuanto(t, '2026-10-15T13:25:00')).toBe('escaneo.turnos.haceHoras|{"h":2,"m":20}')
+    vi.useRealTimers()
+  })
+
+  it('anular, la lista y el QR de un turno', async () => {
+    supabase.rpc.mockResolvedValue({ data: 23, error: null })
+    await expect(anularTurno('23')).resolves.toBe(23)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('anular_turno', { p_turno: 23 })
+
+    supabase.rpc.mockResolvedValue({ data: LISTA, error: null })
+    await expect(turnosAPieDeHoy()).resolves.toHaveLength(LISTA.length)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('turnos_a_pie_de_hoy', {})
+    supabase.rpc.mockResolvedValue({ data: null, error: null })
+    await expect(turnosAPieDeHoy()).resolves.toEqual([])
+
+    supabase.rpc.mockResolvedValue({ data: 'tok-23', error: null })
+    await expect(qrDeTurno(23)).resolves.toBe('tok-23')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('qr_de_turno', { p_turno: 23 })
+
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: TURNO_NO_EXISTE' } })
+    await expect(anularTurno(99)).rejects.toThrow('TURNO_NO_EXISTE')
+  })
+})
+
 describe('el turno de la persona', () => {
   it('lo pide por su código y devuelve una sola fila', async () => {
     supabase.rpc.mockResolvedValue({ data: [{ turno: 7, actual: 3 }], error: null })
@@ -116,6 +207,9 @@ describe('el turno de la persona', () => {
     expect(situacionDelTurno({ ...base, saltado: true }).tipo).toBe('teLlamaron')
     expect(situacionDelTurno({ ...base, estado: 'entregada' }).tipo).toBe('recibida')
     expect(situacionDelTurno({ ...base, estado: 'cancelada' }).tipo).toBe('cancelada')
+    //  Sección 46: la voluntaria lo anuló porque llegó tarde.
+    expect(situacionDelTurno({ ...base, estado: 'cancelada', anulado: true, saltado: true }).tipo).toBe('anulado')
+    expect(situacionDelTurno({ ...base, estado: 'entregada', anulado: false }).tipo).toBe('recibida')
     expect(situacionDelTurno({ ...base, cerrada: true }).tipo).toBe('terminada')
     expect(situacionDelTurno({ ...base, cerrada: true, saltado: true }).tipo).toBe('terminada')
     expect(situacionDelTurno({ ...base, cerrada: true, estado: 'entregada' }).tipo).toBe('recibida')

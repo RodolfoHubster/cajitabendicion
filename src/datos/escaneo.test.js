@@ -20,6 +20,7 @@ import {
   esRecienEntregado,
   zonaVisible,
   previaPorError,
+  queEsElQR,
 } from './escaneo'
 
 beforeEach(() => {
@@ -127,9 +128,42 @@ describe('sin señal no es "código no reconocido"', () => {
     expect(es.escaneo.resultado.SIN_CONEXION).toBeTruthy()
   })
 
-  it('cualquier otro problema sigue siendo "no reconocido"', () => {
-    expect(previaPorError('ERROR_DESCONOCIDO')).toBe('NO_EXISTE')
-    expect(previaPorError(undefined)).toBe('NO_EXISTE')
+  it('una falla nunca es "no reconocido": la sesión cerrada se dice, lo demás se vuelve a revisar', () => {
+    expect(previaPorError('SIN_PERMISO')).toBe('SIN_SESION')
+    expect(previaPorError('ERROR_DESCONOCIDO')).toBe('NO_SE_PUDO_REVISAR')
+    expect(previaPorError('FUNCION_NO_INSTALADA')).toBe('NO_SE_PUDO_REVISAR')
+    expect(previaPorError(undefined)).toBe('NO_SE_PUDO_REVISAR')
+    for (const clave of ['SIN_SESION', 'NO_SE_PUDO_REVISAR']) {
+      expect(es.escaneo.resultado[clave]).toBeTruthy()
+      expect(es.escaneo.explicacion[clave]).toBeTruthy()
+    }
+  })
+})
+
+describe('queEsElQR (un QR que no es de ninguna cita)', () => {
+  it('el cartel de la entrada, desde cualquier dirección del sistema', () => {
+    expect(queEsElQR('https://citas.casadealabanzasd.com/turno', 'otro')).toEqual({ tipo: 'CARTEL_TURNO' })
+    expect(queEsElQR('https://cajitabendicion.pages.dev/a-pie/', 'otro')).toEqual({ tipo: 'CARTEL_TURNO' })
+    expect(queEsElQR('http://localhost:5176/turno?demo=1', 'localhost')).toEqual({ tipo: 'CARTEL_TURNO' })
+  })
+
+  it('otra página del sistema', () => {
+    expect(queEsElQR('https://citas.casadealabanzasd.com/calendario', 'otro')).toEqual({ tipo: 'PAGINA_PROPIA' })
+    expect(queEsElQR('https://casadealabanzasd.com', 'otro')).toEqual({ tipo: 'PAGINA_PROPIA' })
+  })
+
+  it('una página de otro sitio dice cuál', () => {
+    expect(queEsElQR('https://www.facebook.com/casadealabanza', 'otro')).toEqual({ tipo: 'OTRA_PAGINA', dominio: 'facebook.com' })
+    expect(queEsElQR('www.gofundme.com/f/cajita', 'otro')).toEqual({ tipo: 'OTRA_PAGINA', dominio: 'gofundme.com' })
+    //  Que se parezca al nombre no basta.
+    expect(queEsElQR('https://casadealabanzasd.com.estafa.net', 'otro')).toEqual({ tipo: 'OTRA_PAGINA', dominio: 'casadealabanzasd.com.estafa.net' })
+  })
+
+  it('cualquier otra cosa', () => {
+    expect(queEsElQR('WIFI:S:Iglesia;T:WPA;P:1234;;', 'otro')).toEqual({ tipo: 'TEXTO' })
+    expect(queEsElQR('', 'otro')).toEqual({ tipo: 'TEXTO' })
+    expect(queEsElQR(null, 'otro')).toEqual({ tipo: 'TEXTO' })
+    expect(queEsElQR('https://', 'otro')).toEqual({ tipo: 'TEXTO' })
   })
 })
 
@@ -185,6 +219,13 @@ describe('entregaDirecta (escanear = entregar, en el caso de todos los días)', 
     expect(entregaDirecta(aPie(3), { hoy: HOY, fila: 'a_pie' })).toBe(true)
     //  Pero un código de carros, no: es de la otra fila.
     expect(entregaDirecta(cita({ fila: 'carro' }), { hoy: HOY, fila: 'a_pie' })).toBe(false)
+  })
+
+  it('a pie, a quien llegó tarde o con el turno anulado no se le entrega solo (sección 46)', () => {
+    const aPie = (extra) => cita({ fila: 'a_pie', turno: 5, ...extra })
+    expect(entregaDirecta(aPie({ saltado_en: '2026-09-25T15:05:00' }), { hoy: HOY, fila: 'a_pie' })).toBe(false)
+    expect(entregaDirecta(aPie({ anulado: true, estado: 'cancelada' }), { hoy: HOY, fila: 'a_pie' })).toBe(false)
+    expect(entregaDirecta(aPie({ saltado_en: null, anulado: false }), { hoy: HOY, fila: 'a_pie' })).toBe(true)
   })
 
   it('la búsqueda a mano nunca entrega sola (la María equivocada)', () => {

@@ -203,12 +203,51 @@ export function esRecienEntregado(ultima, token, ahora = Date.now()) {
 }
 
 /**
- * Que mostrar cuando no se pudo revisar un codigo. Sin senal NO es "codigo
- * no reconocido": el codigo puede estar bien, y decir "no existe" hacia que
- * se rechazara a alguien con cita.
+ * Que mostrar cuando no se pudo revisar un codigo:
+ *
+ *   SIN_CONEXION        se corto la senal: el codigo puede estar bien
+ *   SIN_SESION          se cerro la sesion: hay que volver a entrar
+ *   NO_SE_PUDO_REVISAR  cualquier otra falla: volver a intentar
+ *
+ * Nunca "codigo no reconocido": eso solo lo dice la base cuando de verdad
+ * no hay cita ni pase con ese codigo. Hasta el 15 de octubre de 2026 una
+ * falla se veia igual que un QR ajeno, y se podia rechazar a alguien con cita.
  */
 export function previaPorError(mensaje) {
-  return mensaje === 'SIN_CONEXION' ? 'SIN_CONEXION' : 'NO_EXISTE'
+  if (mensaje === 'SIN_CONEXION') return 'SIN_CONEXION'
+  if (mensaje === 'SIN_PERMISO') return 'SIN_SESION'
+  return 'NO_SE_PUDO_REVISAR'
+}
+
+//  Las direcciones de este sistema: un QR con una de estas no es de otra pagina.
+const SITIOS_PROPIOS = ['casadealabanzasd.com', 'cajitabendicion.pages.dev', 'localhost']
+
+/**
+ * Que es un QR que no es de ninguna cita ni pase, para decirselo a quien
+ * escanea en vez de un "no reconocido" a secas:
+ *
+ *   CARTEL_TURNO   el cartel de la entrada, para sacar turno a pie
+ *   PAGINA_PROPIA  otra pagina de este sistema
+ *   OTRA_PAGINA    una pagina de otro sitio ({ dominio })
+ *   TEXTO          cualquier otra cosa
+ */
+export function queEsElQR(texto, aqui = globalThis.location?.hostname ?? '') {
+  const limpio = String(texto ?? '').trim()
+  if (!/^(https?:\/\/|www\.)/i.test(limpio)) return { tipo: 'TEXTO' }
+
+  let url
+  try {
+    url = new URL(/^www\./i.test(limpio) ? `https://${limpio}` : limpio)
+  } catch {
+    return { tipo: 'TEXTO' }
+  }
+
+  const host = url.hostname.toLowerCase().replace(/^www\./, '')
+  const propio = host === aqui || SITIOS_PROPIOS.some((sitio) => host === sitio || host.endsWith(`.${sitio}`))
+  if (!propio) return { tipo: 'OTRA_PAGINA', dominio: host }
+
+  const ruta = url.pathname.replace(/\/+$/, '')
+  return { tipo: ruta === '/turno' || ruta === '/a-pie' ? 'CARTEL_TURNO' : 'PAGINA_PROPIA' }
 }
 
 /**
@@ -233,6 +272,9 @@ export function previaPorError(mensaje) {
 export function entregaDirecta(previa, { hoy, fila }) {
   if (!previa || previa.resultado || previa.porCodigo) return false
   if (previa.pase) return Boolean(previa.activo)
+  //  A pie (seccion 46): a quien lo llamaron y no estaba, o con el turno
+  //  anulado, no se le entrega solo. Quien escanea ve cuanto tardo y decide.
+  if (previa.saltado_en || previa.anulado) return false
   return Boolean(previa.fecha) && previa.fecha === hoy && !esDeOtraFila(fila, previa.fila)
 }
 

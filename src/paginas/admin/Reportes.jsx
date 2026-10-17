@@ -44,6 +44,8 @@ function descargarCsv(nombre, texto) {
 
 //  En el detalle de un dia, a pie se dice distinto: son turnos.
 const CUENTAS_DETALLE = ['con_cita', 'recibieron', 'no_asistieron', 'sin_cita', 'con_pase', 'cajas']
+//  A pie, tambien los turnos que se anularon porque llegaron tarde (seccion 46).
+const CUENTAS_A_PIE = ['con_cita', 'recibieron', 'no_asistieron', 'turnos_anulados', 'sin_cita', 'con_pase', 'cajas']
 const ETIQUETA_A_PIE = { con_cita: 'reportes.detalle.turnos', no_asistieron: 'reportes.detalle.perdieron' }
 const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking }
 
@@ -441,7 +443,7 @@ function DetalleDelDia({ fecha, titulo = null }) {
                 {t(`filas.nombre.${fila}`)}
               </h3>
               <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-base">
-                {CUENTAS_DETALLE.map((cuenta) => (
+                {(fila === 'a_pie' ? CUENTAS_A_PIE : CUENTAS_DETALLE).map((cuenta) => (
                   <Fragment key={cuenta}>
                     <dt className="text-principal/70">{etiqueta(fila, cuenta)}</dt>
                     <dd className={`text-right tabular-nums ${cuenta === 'cajas' ? 'font-bold text-principal' : ''}`}>

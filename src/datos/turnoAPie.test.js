@@ -43,6 +43,16 @@ describe('sacar el turno', () => {
     expect(supabase.rpc.mock.calls[0][1].p_cambiar_carro).toBe(true)
   })
 
+  it('con su código CB de carro (sección 46): solo los números, con su CB-, y solo si lo escribió', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ resultado: 'TIENE_CITA_EN_CARRO' }], error: null })
+    await sacarTurnoAPie({ codigoCarro: ' cb-48213 ' })
+    expect(supabase.rpc.mock.calls[0][1].p_codigo_carro).toBe('CB-48213')
+    await sacarTurnoAPie({ codigoCarro: '' })
+    expect(supabase.rpc.mock.calls[1][1]).not.toHaveProperty('p_codigo_carro')
+    await sacarTurnoAPie()
+    expect(supabase.rpc.mock.calls[2][1]).not.toHaveProperty('p_codigo_carro')
+  })
+
   it('sin la actualización de la base lo dice; sin señal, también', async () => {
     supabase.rpc.mockResolvedValue({ data: null, error: { code: 'PGRST202', message: 'x' } })
     await expect(sacarTurnoAPie()).rejects.toThrow('FUNCION_NO_INSTALADA')

@@ -1,4 +1,4 @@
-import { consultarDisponibilidad, horasEntre, restarHoras, segundosHasta, sumarDias } from './disponibilidad'
+import { consultarDisponibilidad, formatearHora, horasEntre, restarHoras, segundosHasta, sumarDias } from './disponibilidad'
 import { clasificarError } from './errores'
 import { supabase } from '../lib/supabase'
 
@@ -101,7 +101,7 @@ export function estadoFilaAPie(fila) {
   return 'abierta'
 }
 
-/** Su turno en vivo: { turno, estado, saltado, actual, antes, atendidos, en_espera, fecha, hora }, o null. */
+/** Su turno en vivo: { turno, estado, saltado, actual, antes, atendidos, en_espera, fecha, hora, cerrada, anulado }, o null. */
 export async function turnoDeCita(token) {
   return primeraFila(await llamar('turno_de_cita', { p_token: token }))
 }
@@ -112,13 +112,16 @@ export async function turnoDeCita(token) {
  *   recibida    ya le entregaron
  *   cancelada   la cancelo
  *   terminada   la fila de hoy ya cerro y no alcanzo a recibir
- *   teLlamaron  la llamaron y no estaba: perdio el turno
+ *   anulado     llego tarde y la voluntaria anulo su turno (seccion 46)
+ *   teLlamaron  la llamaron y no estaba: que se acerque ya
  *   tuTurno     es el turno que va
  *   esperando   faltan `antes` turnos (va en el `actual`)
  */
 export function situacionDelTurno(datos) {
   if (!datos) return null
   if (datos.estado === 'entregada') return { tipo: 'recibida' }
+  //  La voluntaria lo anulo porque llego tarde (seccion 46): saca otro.
+  if (datos.anulado) return { tipo: 'anulado' }
   if (datos.estado === 'cancelada') return { tipo: 'cancelada' }
   if (datos.cerrada) return { tipo: 'terminada' }
   if (datos.saltado) return { tipo: 'teLlamaron' }
@@ -170,6 +173,97 @@ export function numeroDeTurno(texto) {
 }
 
 /** "No se presento" (o, con saltado = false, regresarlo a la fila). */
+/**
+ * Anula el turno N de hoy (seccion 46): lo llamaron, no estaba y llego
+ * tarde. Ya no entrega; la persona lo ve en su telefono y saca otro.
+ */
+export function anularTurno(turno) {
+  return llamar('anular_turno', { p_turno: Number(turno) })
+}
+
+/**
+ * Los turnos a pie de hoy, para buscar en el escaner mientras se teclea:
+ * [{ turno, codigo_corto, nombre, estado, sacado_en, saltado_en,
+ * entregado_en, anulado_en, dado_por }].
+ */
+export async function turnosAPieDeHoy() {
+  return (await llamar('turnos_a_pie_de_hoy', {})) ?? []
+}
+
+/** El QR del turno N de hoy (para su detalle en el escaner). */
+export function qrDeTurno(turno) {
+  return llamar('qr_de_turno', { p_turno: Number(turno) })
+}
+
+/** "2026-10-15T15:05:00.123" (hora de San Diego, de la base) -> "3:05 PM". */
+export function horaDeMarca(marca) {
+  return marca ? formatearHora(String(marca).slice(11, 16)) : ''
+}
+
+/** Cuantos minutos completos han pasado desde esa hora de San Diego (0 si todavia no llega). */
+export function minutosDesde(marca) {
+  return marca ? Math.max(0, Math.floor(-segundosHasta(String(marca).slice(0, 19)) / 60)) : 0
+}
+
+/** "hace 40 min", "hace 1 h 20 min". `t` es el de i18next; `marca`, hora de San Diego de la base. */
+export function haceCuanto(t, marca) {
+  const minutos = minutosDesde(marca)
+  if (minutos < 1) return t('escaneo.turnos.haceUnMomento')
+  if (minutos < 60) return t('escaneo.turnos.haceMin', { n: minutos })
+  return t('escaneo.turnos.haceHoras', { h: Math.floor(minutos / 60), m: minutos % 60 })
+}
+
+/** Como esta un turno de la lista: 'anulado' | 'recibio' | 'saltado' | 'va' | 'esperando'. */
+export function estadoDeTurno(fila, actual = null) {
+  if (fila.anulado_en || fila.estado === 'cancelada') return 'anulado'
+  if (fila.estado === 'entregada') return 'recibio'
+  if (fila.saltado_en) return 'saltado'
+  if (actual != null && fila.turno === actual) return 'va'
+  return 'esperando'
+}
+
+const sinAcentos = (texto) =>
+  String(texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+/**
+ * Buscar en la lista de turnos a pie mientras se teclea (seccion 46):
+ *
+ *   1 a 3 numeros   el turno: el exacto primero, luego los que empiezan asi
+ *   4 o 5 numeros   el codigo CB completo (y el turno, si alguno es tan alto)
+ *   con letras      la sena o el nombre ("chamarra roja")
+ *
+ * El codigo nunca se busca a medias: es lo que prueba de quien es el turno.
+ */
+export function buscarTurnos(lista, texto, maximo = 8) {
+  const limpio = String(texto ?? '').trim().replace(/^c\s*b[-\s]*/i, '')
+  const filas = lista ?? []
+  if (!limpio) return []
+
+  if (/[a-z]/i.test(sinAcentos(limpio))) {
+    const palabras = sinAcentos(limpio).split(/\s+/).filter(Boolean)
+    return filas.filter((fila) => palabras.every((palabra) => sinAcentos(fila.nombre).includes(palabra))).slice(0, maximo)
+  }
+
+  const numeros = limpio.replace(/\D/g, '')
+  if (!numeros) return []
+  const turno = String(Number(numeros))
+
+  const porCodigo =
+    numeros.length >= 4 ? filas.filter((fila) => String(fila.codigo_corto ?? '').replace(/\D/g, '') === numeros) : []
+  const exacto = filas.filter((fila) => String(fila.turno) === turno)
+  const empiezan =
+    numeros.length <= 3
+      ? filas
+          .filter((fila) => String(fila.turno).startsWith(turno) && String(fila.turno) !== turno)
+          .sort((a, b) => a.turno - b.turno)
+      : []
+
+  return [...new Set([...porCodigo, ...exacto, ...empiezan])].slice(0, maximo)
+}
+
 export function saltarTurno(turno, saltado = true) {
   return llamar('saltar_turno', { p_turno: turno, p_saltado: saltado })
 }

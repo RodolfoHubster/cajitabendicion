@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaPersonWalking } from 'react-icons/fa6'
+import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import { LuBellRing, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
+import Boton from '../../componentes/Boton'
+import CampoCodigo from '../../componentes/CampoCodigo'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
@@ -22,6 +24,7 @@ import {
   filaAPieHoy,
   guardarMiTurno,
   leerMiTurno,
+  olvidarMiTurno,
   relojDeEspera,
   sacarTurnoAPie,
   traeTurno,
@@ -78,6 +81,11 @@ export default function Turno() {
   const [codigoDia, setCodigoDia] = useState('')
   const [pideCodigo, setPideCodigo] = useState(false)
   const [avisoCodigo, setAvisoCodigo] = useState(null)
+  //  Tenia cita en carro (seccion 46): su codigo CB, para cambiarse a pie
+  //  aunque abra esta pagina en otro navegador.
+  const [conCarro, setConCarro] = useState(false)
+  const [codigoCarro, setCodigoCarro] = useState('')
+  const [avisoCarro, setAvisoCarro] = useState(null)
   //  Frenado por intentos fallidos: hasta cuando (y la hora, para la cuenta regresiva).
   const [frenoHasta, setFrenoHasta] = useState(0)
   const [ahora, setAhora] = useState(0)
@@ -141,16 +149,27 @@ export default function Turno() {
     setOcupado(true)
     setError(null)
     try {
-      //  El codigo se queda escrito: si tiene cita de carro, el segundo toque lo vuelve a mandar.
-      const r = await sacarTurnoAPie({ cambiarCarro, codigo: codigoDia })
+      //  Los codigos se quedan escritos: si tiene cita de carro, el segundo
+      //  toque los vuelve a mandar. El de carro, solo si esta completo.
+      const r = await sacarTurnoAPie({
+        cambiarCarro,
+        codigo: codigoDia,
+        codigoCarro: conCarro && codigoCarro.length >= 4 ? codigoCarro : '',
+      })
       if (traeTurno(r)) {
         const nuevo = { fecha: hoy, token: r.token_qr, turno: r.turno, codigo: r.codigo }
         guardarMiTurno(nuevo)
         setMiTurno(nuevo)
         setRespuesta(null)
         setAvisoCodigo(null)
+        setAvisoCarro(null)
+      } else if (r?.resultado === 'CODIGO_CARRO_NO_EXISTE') {
+        setRespuesta(null)
+        setAvisoCarro(r.resultado)
       } else if (RESULTADOS_DE_CODIGO.includes(r?.resultado)) {
-        setPideCodigo(true)
+        //  El freno tambien llega por codigos de carro mal escritos: el
+        //  codigo del dia solo se pide si la base lo pidio.
+        if (r.resultado !== 'DEMASIADOS_INTENTOS') setPideCodigo(true)
         setRespuesta(null)
         setAvisoCodigo(r.resultado)
         if (r.resultado === 'CODIGO_INCORRECTO') setCodigoDia('')
@@ -195,44 +214,70 @@ export default function Turno() {
     </ul>
   )
 
+  //  Su turno se anulo (llego tarde): se olvida y saca uno nuevo, al final.
+  function sacarOtro() {
+    olvidarMiTurno()
+    setMiTurno(null)
+    setQr(null)
+    setSituacion(null)
+    setAvisoVisto(false)
+    setRespuesta(null)
+  }
+
   // ---------------- Ya tiene su turno ----------------
   if (miTurno) {
     const esTuTurno = situacion?.tipo === 'tuTurno'
+    //  Anulado (seccion 46): ni su numero ni su QR sirven ya; no se ensenan.
+    const anulado = situacion?.tipo === 'anulado'
 
     return (
       <div className="space-y-4">
         <Tarjeta>
           {encabezado}
           <TurnoEnVivo
+            accionPerdido={
+              <button
+                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-lg font-bold text-sobre-accion shadow-sm"
+                onClick={sacarOtro}
+                type="button"
+              >
+                <LuTicket aria-hidden="true" className="h-6 w-6" />
+                {t('turnoAPie.otroTurno')}
+              </button>
+            }
             alCambiar={(datos) => setSituacion(situacionDelTurno(datos))}
             esHoy
             token={miTurno.token}
             turnoInicial={miTurno.turno}
           />
 
-          {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
-              pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
-          <p className="mt-3 rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
-            {t('turnoAPie.anotalo', { turno: miTurno.turno })}
-          </p>
+          {!anulado && (
+            <>
+            {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
+                pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
+            <p className="mt-3 rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
+              {t('turnoAPie.anotalo', { turno: miTurno.turno })}
+            </p>
 
-          <div className="mt-4">
-            {qr ? (
-              <img
-                alt={t('confirmacion.qrAlt')}
-                className="aparecer mx-auto w-full max-w-[16rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
-                src={qr}
-              />
-            ) : (
-              <Hueso className="mx-auto h-64 w-64 max-w-full" />
-            )}
-          </div>
+            <div className="mt-4">
+              {qr ? (
+                <img
+                  alt={t('confirmacion.qrAlt')}
+                  className="aparecer mx-auto w-full max-w-[16rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
+                  src={qr}
+                />
+              ) : (
+                <Hueso className="mx-auto h-64 w-64 max-w-full" />
+              )}
+            </div>
 
-          <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-3 text-center">
-            <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-            <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
-            <p className="mt-1 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
-          </div>
+            <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-3 text-center">
+              <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+              <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
+              <p className="mt-1 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
+            </div>
+            </>
+          )}
         </Tarjeta>
 
         <Tarjeta>{avisos}</Tarjeta>
@@ -375,6 +420,60 @@ export default function Turno() {
                 {t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}
               </p>
             )}
+            {/* Tenia cita en carro (seccion 46): con su codigo CB se cambia a
+                pie aunque abra esta pagina en otro navegador (el de la camara
+                y no el de Facebook, donde hizo su cita). */}
+            {conCarro ? (
+              <div className="aparecer mt-4 space-y-3 rounded-2xl border-2 border-principal/20 p-4">
+                <p className="flex items-center gap-2 text-lg font-bold text-principal">
+                  <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+                  {t('turnoAPie.carroCodigo.titulo')}
+                </p>
+                <p className="text-base text-principal">{t('turnoAPie.carroCodigo.ayuda')}</p>
+                <CampoCodigo
+                  alCambiar={(numeros) => {
+                    setCodigoCarro(numeros)
+                    setAvisoCarro(null)
+                  }}
+                  ayuda={t('turnoAPie.carroCodigo.campoAyuda')}
+                  etiqueta={t('turnoAPie.carroCodigo.etiqueta')}
+                  id="codigo-carro"
+                  valor={codigoCarro}
+                />
+                {(avisoCarro || (frenado && !conCodigo)) && (
+                  <p className="rounded-xl bg-ya-recibio/10 p-3 text-base font-semibold text-ya-recibio" role="alert">
+                    {avisoCarro
+                      ? t(`turnoAPie.carroCodigo.${avisoCarro}`)
+                      : t('turnoAPie.codigo.DEMASIADOS_INTENTOS', { reloj: relojDeEspera(segundosFreno) })}
+                  </p>
+                )}
+                <Boton disabled={ocupado || frenado || faltaEscribir || codigoCarro.length < 4} type="submit">
+                  <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0" />
+                  {t('turnoAPie.carroCodigo.boton')}
+                </Boton>
+                <button
+                  className="inline-flex min-h-12 w-full items-center justify-center text-base font-semibold text-principal underline underline-offset-4"
+                  onClick={() => {
+                    setConCarro(false)
+                    setCodigoCarro('')
+                    setAvisoCarro(null)
+                  }}
+                  type="button"
+                >
+                  {t('turnoAPie.carroCodigo.cancelar')}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/25 px-4 text-base font-semibold text-principal transition hover:border-principal"
+                onClick={() => setConCarro(true)}
+                type="button"
+              >
+                <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+                {t('turnoAPie.carroCodigo.abrir')}
+              </button>
+            )}
+
             {/* Para no sacar un segundo turno hasta atras. */}
             <p className="mt-3 rounded-xl bg-principal/5 p-3 text-base text-principal">{t('turnoAPie.yaTenias')}</p>
           </form>

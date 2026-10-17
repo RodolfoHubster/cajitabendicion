@@ -222,6 +222,21 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Turnos anulados y todo desde el escáner (sección 46)
+
+| Objeto | Qué hace |
+|---|---|
+| `citas.turno_anulado_en`, `citas.turno_anulado_por` | Cuándo y quién anuló un turno a pie (llegó tarde). |
+| `anular_turno(turno)` | Anula el turno N a pie de hoy: queda cancelado y marcado; su QR ya no entrega (`CANCELADA`) y por número dice `TURNO_ANULADO`. Solo los que esperan (`TURNO_NO_EXISTE` si ya recibió). Voluntaria de a pie o admin. |
+| `turnos_a_pie_de_hoy()` | Los turnos a pie de hoy, para buscar en el escáner: turno, código, seña, estado, sus horas (lo sacó, lo llamaron, recibió, se anuló) y quién se lo dio. Con los anulados. Voluntaria de a pie o admin. |
+| `qr_de_turno(turno)` | El QR de un turno de hoy, para su detalle en el escáner. |
+
+Cambia `consultar_cita()` (`saltado_en`, `anulado`: el escáner pregunta antes de
+entregarle a quien llegó tarde), `turno_de_cita()` (`anulado`), `entregar_turno()`
+(`TURNO_ANULADO`), `sacar_turno_a_pie()` (`p_codigo_carro`: cambiarse a pie con su
+código CB, `CODIGO_CARRO_NO_EXISTE`; `TURNOS_ANULADOS` con dos anulados el mismo
+día) y `reporte_por_dias()` (`turnos_anulados`).
+
 ## La fila a pie, más ágil (sección 44)
 
 | Objeto | Qué hace |

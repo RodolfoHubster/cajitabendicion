@@ -32,6 +32,7 @@ export const COLUMNAS = [
   'cajas',
   'intentos_repetidos',
   'cambios_a_pie',
+  'turnos_anulados',
 ]
 
 const NUMERICAS = COLUMNAS.filter((columna) => columna !== 'fecha')

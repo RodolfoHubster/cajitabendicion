@@ -111,6 +111,9 @@ create table citas (
   --  y no estaba. Van aqui porque consultar_cita() es SQL y los lee al crearse.
   turno            int,
   turno_saltado_en timestamptz,
+  --  La voluntaria anulo su turno (llego tarde) y quien (seccion 46).
+  turno_anulado_en  timestamptz,
+  turno_anulado_por uuid,
 
   creada_en    timestamptz not null default now()
 );
@@ -1018,6 +1021,9 @@ grant  execute on function registrar_y_reservar(text, text, text, uuid, text, te
 --  correo ni direccion: quien tiene el token ve su cita, nada mas.
 --
 --  El token son 24 bytes aleatorios, no se adivina.
+--
+--  Le crecieron saltado_en y anulado (seccion 46): se borra y se vuelve a
+--  crear.
 
 drop function if exists consultar_cita(text);
 
@@ -1030,7 +1036,11 @@ returns table (
   estado       text,
   fila         text,
   --  Su numero en la fila a pie (seccion 38). Nulo en carro.
-  turno        int
+  turno        int,
+  --  A pie (seccion 46): a que hora lo llamaron y no estaba, y si su turno
+  --  se anulo. El escaner pregunta antes de entregarle a quien llega tarde.
+  saltado_en   timestamp,
+  anulado      boolean
 )
 language sql
 stable
@@ -1038,7 +1048,9 @@ security definer
 set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
-  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado, b.fila, c.turno
+  select p.codigo_corto, p.nombre, b.fecha, b.hora, c.estado, b.fila, c.turno,
+         c.turno_saltado_en at time zone 'America/Los_Angeles',
+         c.turno_anulado_en is not null
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -3251,7 +3263,7 @@ grant  execute on function definir_mi_codigo_autorizacion(text) to authenticated
 --  Maximo 366 dias por consulta. Solo admin.
 drop function if exists reporte_por_dias(date, date);
 
---  Le crecio cambios_a_pie (seccion 42).
+--  Le crecio cambios_a_pie (seccion 42), y turnos_anulados (seccion 46).
 drop function if exists reporte_por_dias(date, date, text);
 
 create or replace function reporte_por_dias(p_desde date, p_hasta date, p_fila text default null)
@@ -3270,7 +3282,9 @@ returns table (
   intentos_repetidos int,
   --  Citas de carro que se cancelaron porque la persona se paso a la fila a
   --  pie (seccion 42): cuantos prefirieron no esperar en carro.
-  cambios_a_pie      int
+  cambios_a_pie      int,
+  --  Turnos a pie que la voluntaria anulo porque llegaron tarde (seccion 46).
+  turnos_anulados    int
 )
 language plpgsql
 stable
@@ -3366,6 +3380,14 @@ begin
      where c.se_cambio_a_pie and b.fecha between p_desde and p_hasta
        and (p_fila is null or p_fila = 'carro')
      group by b.fecha
+  ),
+  anulados as (
+    select b.fecha as dia, count(*)::int as n
+      from citas c
+      join bloques b on b.id = c.bloque_id
+     where c.turno_anulado_en is not null and b.fecha between p_desde and p_hasta
+       and (p_fila is null or p_fila = 'a_pie')
+     group by b.fecha
   )
   select d.dia,
          coalesce(cu.n, 0),
@@ -3382,7 +3404,8 @@ begin
          --  banco de alimentos.
          coalesce(en.n, 0) + coalesce(sc.n, 0) + coalesce(pa.n, 0),
          coalesce(re.n, 0),
-         coalesce(ca.n, 0)
+         coalesce(ca.n, 0),
+         coalesce(an.n, 0)
     from dias d
     left join cupos        cu on cu.dia = d.dia
     left join agenda       ag on ag.dia = d.dia
@@ -3391,6 +3414,7 @@ begin
     left join pases_dia    pa on pa.dia = d.dia
     left join repetidos    re on re.dia = d.dia
     left join cambios      ca on ca.dia = d.dia
+    left join anulados     an on an.dia = d.dia
    order by d.dia;
 end;
 $$;
@@ -6511,7 +6535,8 @@ grant  execute on function quitar_fila_a_pie(date) to authenticated;
 --  cuantos tiene antes. La pagina lo vuelve a pedir cada pocos segundos.
 --  Solo numeros: nada de quien esta antes o despues. Sin filas si la cita
 --  no existe o no es de la fila a pie.
---  Le crecio "cerrada" (seccion 43): la fila de ese dia ya termino.
+--  Le crecio "cerrada" (seccion 43): la fila de ese dia ya termino. Y
+--  "anulado" (seccion 46): la voluntaria anulo su turno.
 drop function if exists turno_de_cita(text);
 
 create or replace function turno_de_cita(p_token text)
@@ -6528,7 +6553,10 @@ returns table (
   --  La fila se termino (o el dia se cancelo): "la fila de hoy ya
   --  termino". Cerrar los turnos NO cuenta: quien ya tiene turno lo
   --  conserva.
-  cerrada   boolean
+  cerrada   boolean,
+  --  La voluntaria anulo su turno (seccion 46): llego tarde. Su pagina le
+  --  dice que saque uno nuevo.
+  anulado   boolean
 )
 language plpgsql
 stable
@@ -6565,7 +6593,8 @@ begin
          v_bloque.fecha,
          v_bloque.hora,
          v_bloque.terminada_en is not null
-           or exists (select 1 from dias_entrega d where d.fecha = v_bloque.fecha and d.cerrado);
+           or exists (select 1 from dias_entrega d where d.fecha = v_bloque.fecha and d.cerrado),
+         v_cita.turno_anulado_en is not null;
 end;
 $$;
 
@@ -6666,8 +6695,8 @@ grant  execute on function fila_de_turnos(date) to authenticated;
 
 
 --  "No se presento": la fila pasa al siguiente. Desde el 9 de octubre de
---  2026 el turno NO se pierde (seccion 44): si llega despues, su QR entrega
---  igual. Con p_saltado = false regresa a la fila en su mismo turno, cuando
+--  2026 el turno no se pierde solo (seccion 44); desde el 15, si llega tarde
+--  el escaner pregunta y la voluntaria lo entrega o lo anula (seccion 46). Con p_saltado = false regresa a la fila en su mismo turno, cuando
 --  sea. Por NUMERO de turno y no "el que va": si dos voluntarias lo tocan
 --  al mismo tiempo, se salta uno solo. Solo en la fila a pie de hoy.
 create or replace function saltar_turno(p_turno int, p_saltado boolean default true)
@@ -7107,14 +7136,26 @@ revoke execute on function crear_turno_anonimo(uuid, text, uuid) from public, an
 --    FALTA_CODIGO         ese dia se pide el codigo del dia (seccion 43)
 --    CODIGO_INCORRECTO    el codigo no es el del dia
 --    DEMASIADOS_INTENTOS  5 codigos mal en 5 minutos: espera (segundos)
+--    CODIGO_CARRO_NO_EXISTE  no hay cita de carro de hoy con ese codigo CB
+--                         (seccion 46; cuenta como intento fallido)
+--    TURNOS_ANULADOS      a este telefono ya se le anularon dos turnos hoy
+--                         (seccion 46): el primero se perdona, el segundo no
+--
+--  p_codigo_carro (seccion 46): su codigo CB de la cita de carro de hoy. Asi
+--  se cambia a pie aunque abra esta pagina en otro navegador (el de la
+--  camara, no el de Facebook donde hizo su cita): el telefono no la
+--  reconoceria y el cambio no se contaba.
 drop function if exists sacar_turno_a_pie(text, boolean);
 drop function if exists sacar_turno_a_pie(text, boolean, text);
+drop function if exists sacar_turno_a_pie(text, boolean, text, text);
 
 create or replace function sacar_turno_a_pie(
   p_dispositivo   text,
   p_cambiar_carro boolean default false,
   --  El codigo del dia, si ese dia se pide (seccion 43).
-  p_codigo        text    default null
+  p_codigo        text    default null,
+  --  Su codigo CB de carro, para cambiarse a pie (seccion 46).
+  p_codigo_carro  text    default null
 )
 returns table (
   resultado  text,
@@ -7149,6 +7190,10 @@ declare
   v_codigo_dia text;
   v_fallos   int;
   v_primero  timestamptz;
+  --  Su codigo CB de carro, como se teclee ("48213", "cb 48213").
+  v_codigo_carro text := nullif(normalizar_codigo_corto(p_codigo_carro), '');
+  v_carro    citas;
+  v_anulados int;
 begin
   if v_disp is null or char_length(v_disp) > 100 then
     raise exception 'DISPOSITIVO_INVALIDO';
@@ -7181,6 +7226,7 @@ begin
 
   --  Ya tiene turno hoy (esperando, ya recibido, o lo llamaron y no
   --  estaba): se le devuelve el suyo, no uno nuevo hasta atras (seccion 44).
+  --  Uno ANULADO ya no cuenta (seccion 46): puede sacar otro.
   select c.* into v_cita
     from citas c
    where c.bloque_id = v_bloque.id
@@ -7196,10 +7242,23 @@ begin
     return;
   end if;
 
-  --  El codigo del dia (seccion 43): sin el no hay turno, asi no se saca
-  --  desde la casa con el enlace. Cinco codigos mal desde un telefono lo
-  --  frenan 5 minutos: no se puede adivinar probando.
-  if v_codigo_dia is not null then
+  --  Le anularon el turno por llegar tarde (seccion 46): se le da otro, al
+  --  final de la fila, una sola vez. Si tambien ese se anula, ya no.
+  select count(*)::int into v_anulados
+    from citas c
+   where c.bloque_id = v_bloque.id
+     and c.dispositivo_id = v_disp
+     and c.turno_anulado_en is not null;
+
+  if v_anulados >= 2 then
+    return query select 'TURNOS_ANULADOS'::text, null::text, null::text, null::int, current_date,
+                        null::time, null::timestamp, 0, null::time, 0, 0;
+    return;
+  end if;
+
+  --  Cinco codigos mal en 5 minutos (el del dia o el CB de carro) frenan
+  --  este telefono: no se pueden adivinar probando.
+  if v_codigo_dia is not null or v_codigo_carro is not null then
     select count(*)::int, min(i.creado_en) into v_fallos, v_primero
       from intentos_turno i
      where i.dispositivo = v_disp and i.creado_en > now() - interval '5 minutes';
@@ -7210,7 +7269,11 @@ begin
                           greatest(1, ceil(extract(epoch from (v_primero + interval '5 minutes' - now())))::int);
       return;
     end if;
+  end if;
 
+  --  El codigo del dia (seccion 43): sin el no hay turno, asi no se saca
+  --  desde la casa con el enlace.
+  if v_codigo_dia is not null then
     if nullif(trim(coalesce(p_codigo, '')), '') is null then
       return query select 'FALTA_CODIGO'::text, null::text, null::text, null::int, current_date,
                           null::time, null::timestamp, 0, null::time, 0, 0;
@@ -7236,16 +7299,47 @@ begin
     return;
   end if;
 
-  --  Tiene cita de carro hoy: primero se le pregunta.
+  --  Con su codigo CB (seccion 46): su cita de carro de hoy, la haya hecho
+  --  en este telefono o no.
+  if v_codigo_carro is not null then
+    select c.* into v_carro
+      from citas c
+      join personas p on p.id = c.persona_id
+      join bloques  b on b.id = c.bloque_id
+     where upper(p.codigo_corto) = v_codigo_carro
+       and b.fecha = current_date
+       and b.fila = 'carro'
+       and c.estado in ('reservada', 'llego', 'entregada')
+     order by c.estado = 'entregada'
+     limit 1;
+
+    if v_carro.id is null then
+      insert into intentos_turno (dispositivo) values (v_disp);
+      return query select 'CODIGO_CARRO_NO_EXISTE'::text, null::text, null::text, null::int, current_date,
+                          null::time, null::timestamp, 0, null::time, 0, 0;
+      return;
+    end if;
+
+    if v_carro.estado = 'entregada' then
+      return query select 'YA_RECIBIO_EN_CARRO'::text, null::text, null::text, null::int, current_date,
+                          null::time, null::timestamp, 0, null::time, 0, 0;
+      return;
+    end if;
+  end if;
+
+  --  Tiene cita de carro hoy (en este telefono o con su codigo): primero
+  --  se le pregunta.
   select count(*)::int, min(b.hora) into v_carros, v_hora
     from citas c join bloques b on b.id = c.bloque_id
-   where c.dispositivo_id = v_disp and b.fecha = current_date and b.fila = 'carro'
+   where (c.dispositivo_id = v_disp or c.id = v_carro.id)
+     and b.fecha = current_date and b.fila = 'carro'
      and c.estado in ('reservada', 'llego');
 
   --  Si es el dueno del carro: sus acompanantes, de cualquier telefono.
   select coalesce(array_agg(c.id), '{}') into v_duenos
     from citas c join bloques b on b.id = c.bloque_id
-   where c.dispositivo_id = v_disp and b.fecha = current_date and b.fila = 'carro'
+   where (c.dispositivo_id = v_disp or c.id = v_carro.id)
+     and b.fecha = current_date and b.fila = 'carro'
      and c.estado in ('reservada', 'llego') and c.acompana_a is null;
 
   select count(*)::int into v_acomp
@@ -7265,12 +7359,13 @@ begin
     update citas c
        set estado             = 'cancelada',
            cancelada_en       = now(),
-           motivo_cancelacion = case when c.dispositivo_id = v_disp then 'Se cambió a la fila a pie'
+           motivo_cancelacion = case when c.dispositivo_id = v_disp or c.id = v_carro.id
+                                     then 'Se cambió a la fila a pie'
                                      else 'Su carro se cambió a la fila a pie' end,
            se_cambio_a_pie    = true
       from bloques b
      where b.id = c.bloque_id
-       and (c.dispositivo_id = v_disp or c.acompana_a = any (v_duenos))
+       and (c.dispositivo_id = v_disp or c.id = v_carro.id or c.acompana_a = any (v_duenos))
        and b.fecha = current_date
        and b.fila = 'carro'
        and c.estado in ('reservada', 'llego');
@@ -7284,8 +7379,8 @@ begin
 end;
 $$;
 
-revoke execute on function sacar_turno_a_pie(text, boolean, text) from public;
-grant  execute on function sacar_turno_a_pie(text, boolean, text) to anon, authenticated;
+revoke execute on function sacar_turno_a_pie(text, boolean, text, text) from public;
+grant  execute on function sacar_turno_a_pie(text, boolean, text, text) to anon, authenticated;
 
 
 --  Quien no tiene telefono: la voluntaria de la fila a pie le da turno y le
@@ -7560,7 +7655,8 @@ grant  execute on function terminar_fila_a_pie(boolean) to authenticated;
 --  Entregar el turno N de la fila a pie de hoy sin escanear su QR. No
 --  reimplementa la entrega: busca el token y llama a registrar_entrega(),
 --  con su mismo candado. Un QR escaneado y este boton al mismo tiempo
---  entregan una sola vez. TURNO_NO_EXISTE si hoy no hay ese turno.
+--  entregan una sola vez. TURNO_NO_EXISTE si hoy no hay ese turno;
+--  TURNO_ANULADO si la voluntaria lo anulo (seccion 46).
 create or replace function entregar_turno(p_turno int)
 returns table (
   resultado    text,
@@ -7593,6 +7689,13 @@ begin
    limit 1;
 
   if v_token is null then
+    --  Lo anularon por llegar tarde (seccion 46): que saque uno nuevo.
+    if exists (select 1 from citas c join bloques b on b.id = c.bloque_id
+                where b.fecha = current_date and b.fila = 'a_pie'
+                  and c.turno = p_turno and c.turno_anulado_en is not null) then
+      return query select 'TURNO_ANULADO'::text, null::text, null::text, null::time, p_turno;
+      return;
+    end if;
     return query select 'TURNO_NO_EXISTE'::text, null::text, null::text, null::time, p_turno;
     return;
   end if;
@@ -7605,6 +7708,173 @@ $$;
 
 revoke execute on function entregar_turno(int) from public, anon;
 grant  execute on function entregar_turno(int) to authenticated;
+
+
+-- ============================================================
+--  46. TURNOS ANULADOS Y TODO DESDE EL ESCANER
+-- ============================================================
+--  Lo que se vio el jueves 15 de octubre de 2026 en la fila a pie:
+--
+--  * El turno 1 llego a las 3:40 PM y su turno seguia valiendo. Es injusto
+--    para quien si espero. "No se presento" sigue igual (la fila avanza y,
+--    si regresa a los pocos minutos, la voluntaria decide), pero ahora la
+--    voluntaria puede ANULAR el turno (anular_turno): ya no entrega, la
+--    persona lo ve en su telefono y saca uno nuevo, al final de la fila,
+--    una sola vez (sacar_turno_a_pie: TURNOS_ANULADOS). Cuenta en los
+--    reportes (reporte_por_dias.turnos_anulados).
+--  * Todo desde el escaner: la lista de turnos a pie de hoy para buscar en
+--    vivo por turno o por codigo (turnos_a_pie_de_hoy) y el QR de un turno
+--    para su detalle (qr_de_turno). consultar_cita dice a que hora lo
+--    llamaron y si se anulo, para preguntar antes de entregarle.
+--  * Cambiarse de carro a pie con su codigo CB (sacar_turno_a_pie,
+--    p_codigo_carro): el telefono solo reconocia la cita si se abria en el
+--    mismo navegador, y el 8 de octubre no se conto ningun cambio.
+
+alter table citas add column if not exists turno_anulado_en  timestamptz;
+alter table citas add column if not exists turno_anulado_por uuid;
+
+--  Anular el turno N de la fila a pie de hoy: lo llamaron, no estaba y
+--  llego tarde. Su QR ya no entrega, su pagina se lo dice y puede sacar uno
+--  nuevo. Queda quien lo anulo y a que hora. Por NUMERO de turno, con el
+--  mismo cuidado que saltar_turno: dos voluntarias al mismo tiempo anulan
+--  uno solo, y uno que ya recibio no se anula (TURNO_NO_EXISTE).
+create or replace function anular_turno(p_turno int)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_id uuid;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  update citas c
+     set estado             = 'cancelada',
+         cancelada_en       = now(),
+         motivo_cancelacion = 'Turno anulado: no estaba cuando lo llamaron',
+         turno_anulado_en   = now(),
+         turno_anulado_por  = auth.uid()
+    from bloques b
+   where b.id = c.bloque_id
+     and b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado in ('reservada', 'llego')
+  returning c.id into v_id;
+
+  if v_id is null then
+    raise exception 'TURNO_NO_EXISTE';
+  end if;
+
+  return p_turno;
+end;
+$$;
+
+revoke execute on function anular_turno(int) from public, anon;
+grant  execute on function anular_turno(int) to authenticated;
+
+
+--  Los turnos a pie de hoy, para buscar en el escaner mientras se teclea:
+--  el turno, su codigo (la pantalla solo lo ensena en el detalle, para
+--  compararlo con el que dice la persona), la sena, el estado y las horas.
+--  Tambien los anulados, marcados. Solo quien escanea en la fila a pie.
+--  Sin telefono, correo ni direccion.
+create or replace function turnos_a_pie_de_hoy()
+returns table (
+  turno        int,
+  codigo_corto text,
+  nombre       text,
+  estado       text,
+  sacado_en    timestamp,
+  saltado_en   timestamp,
+  entregado_en timestamp,
+  anulado_en   timestamp,
+  --  Si se lo dio una voluntaria (sin telefono): su correo.
+  dado_por     text
+)
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  return query
+  select c.turno,
+         p.codigo_corto,
+         p.nombre,
+         c.estado,
+         c.creada_en        at time zone 'America/Los_Angeles',
+         c.turno_saltado_en at time zone 'America/Los_Angeles',
+         c.usado_en         at time zone 'America/Los_Angeles',
+         c.turno_anulado_en at time zone 'America/Los_Angeles',
+         u.email::text
+    from citas c
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id
+    left join auth.users u on u.id = c.registrado_por
+   where b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno is not null
+     and (c.estado <> 'cancelada' or c.turno_anulado_en is not null)
+   order by c.turno;
+end;
+$$;
+
+revoke execute on function turnos_a_pie_de_hoy() from public, anon;
+grant  execute on function turnos_a_pie_de_hoy() to authenticated;
+
+
+--  El QR del turno N de hoy, para el detalle del escaner ("Ver QR"). Quien
+--  escanea en la fila a pie ya puede entregar ese turno; el QR no le da mas.
+create or replace function qr_de_turno(p_turno int)
+returns text
+language plpgsql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_token text;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  select c.token_qr into v_token
+    from citas c
+    join bloques b on b.id = c.bloque_id
+   where b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado <> 'cancelada'
+   limit 1;
+
+  if v_token is null then
+    raise exception 'TURNO_NO_EXISTE';
+  end if;
+
+  return v_token;
+end;
+$$;
+
+revoke execute on function qr_de_turno(int) from public, anon;
+grant  execute on function qr_de_turno(int) to authenticated;
 
 
 -- ============================================================

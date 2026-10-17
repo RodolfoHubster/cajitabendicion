@@ -134,6 +134,7 @@ describe('totalesReporte y porcentaje', () => {
       cajas: 93,
       intentos_repetidos: 2,
       cambios_a_pie: 0,
+      turnos_anulados: 0,
       dias: 2,
     })
   })

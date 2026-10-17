@@ -43,13 +43,22 @@ async function llamar(funcion, parametros) {
  * Si ese dia se pide el codigo del dia (seccion 43), tambien FALTA_CODIGO,
  * CODIGO_INCORRECTO o DEMASIADOS_INTENTOS (con `espera`: los segundos que
  * faltan para volver a intentar).
+ *
+ * Seccion 46: con codigoCarro (su codigo CB de carro) se cambia a pie aunque
+ * abra la pagina en otro navegador; CODIGO_CARRO_NO_EXISTE si hoy no hay cita
+ * de carro con ese codigo. TURNOS_ANULADOS: a este telefono ya se le
+ * anularon dos turnos hoy.
  */
-export function sacarTurnoAPie({ cambiarCarro = false, codigo = '' } = {}) {
+export function sacarTurnoAPie({ cambiarCarro = false, codigo = '', codigoCarro = '' } = {}) {
   const parametros = { p_dispositivo: dispositivoParaTurno(), p_cambiar_carro: Boolean(cambiarCarro) }
   //  Solo los numeros, y solo si escribio algo: sin codigo se llama igual
   //  que antes.
   const limpio = String(codigo ?? '').replace(/\D/g, '')
   if (limpio) parametros.p_codigo = limpio
+  //  Su codigo CB de carro (seccion 46), para cambiarse a pie desde
+  //  cualquier navegador. Solo si lo escribio.
+  const carro = String(codigoCarro ?? '').replace(/\D/g, '')
+  if (carro) parametros.p_codigo_carro = `CB-${carro}`
   return llamar('sacar_turno_a_pie', parametros)
 }
 

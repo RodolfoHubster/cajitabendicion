@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaPersonWalking } from 'react-icons/fa6'
-import { LuFlag, LuKeyRound, LuPackageCheck, LuSearch, LuUndo2, LuUserPlus } from 'react-icons/lu'
+import { LuBan, LuFlag, LuKeyRound, LuPackageCheck, LuSearch, LuUndo2, LuUserPlus } from 'react-icons/lu'
 import { Hueso } from './Esqueleto'
+import { ConfirmarAnular } from './LlegoTarde'
 import useCadaRato from './useCadaRato'
 import { formatearHora } from '../datos/disponibilidad'
 import { MAXIMO_SENA, darTurnoSinTelefono } from '../datos/turnoAPie'
@@ -10,6 +11,7 @@ import {
   CADA_MS_VOLUNTARIA,
   esSinLimite,
   filaDeTurnos,
+  haceCuanto,
   numeroDeTurno,
   saltarTurno,
   terminarFilaAPie,
@@ -37,20 +39,29 @@ const BOTON_CHICO =
  *
  *   - dar turno nuevo a quien no tiene telefono (nombre o sena, opcional)
  *   - entregar un turno sin QR, por su numero (perdio su pagina)
- *   - los que siguen y los que no se presentaron (su turno sigue valiendo)
+ *   - los que siguen y los que no se presentaron: si llegan a los pocos
+ *     minutos se les entrega; si tardaron, se anula su turno (seccion 46)
  *   - comprobar el codigo de un turno, las cuentas, la voz, terminar la fila
  *
  * Se vuelve a pedir cada pocos segundos, y de inmediato cuando cambia
  * `version` (se acaba de entregar o de saltar).
  *
  * alActualizar(datos): la pantalla de escaneo pinta el turno que va.
- * alBuscar(): lleva al campo del codigo. alEntregarTurno(turno): entrega
- * sin QR y muestra el resultado arriba, como un escaneo.
+ * alBuscar(): lleva a la busqueda de turnos. alEntregarTurno(turno): entrega
+ * sin QR y muestra el resultado arriba, como un escaneo. alAnularTurno(turno):
+ * anula su turno y lo dice arriba (seccion 46).
  *
  * Los turnos sin datos llegan SIN su codigo (seccion 43 de la base): el
  * codigo es lo unico que prueba de quien es el turno.
  */
-export default function PanelTurnos({ version = 0, alActualizar, alBuscar, alEntregarTurno, ocupadoFuera = false }) {
+export default function PanelTurnos({
+  version = 0,
+  alActualizar,
+  alBuscar,
+  alEntregarTurno,
+  alAnularTurno,
+  ocupadoFuera = false,
+}) {
   const { t, i18n } = useTranslation()
   const [datos, setDatos] = useState(undefined)
   const [sinConexion, setSinConexion] = useState(false)
@@ -70,6 +81,8 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar, alEnt
 
   //  Entregar sin QR, por numero.
   const [numeroSinQr, setNumeroSinQr] = useState('')
+  //  El turno que se esta por anular (pregunta antes).
+  const [anulando, setAnulando] = useState(null)
   const [preguntandoTerminar, setPreguntandoTerminar] = useState(false)
 
   //  Anunciar cada turno en voz alta, solo, con la voz que se escoja. Se
@@ -351,7 +364,8 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar, alEnt
         </div>
       )}
 
-      {/* No estaban cuando los llamaron: su turno sigue valiendo (seccion 44). */}
+      {/* No estaban cuando los llamaron (seccion 44). Si llegan a los pocos
+          minutos se les entrega; si tardaron, se anula su turno (seccion 46). */}
       {saltados.length > 0 && (
         <details className="mt-3 rounded-xl border border-principal/15 p-3">
           <summary className="min-h-10 cursor-pointer text-base font-bold text-principal">
@@ -360,24 +374,51 @@ export default function PanelTurnos({ version = 0, alActualizar, alBuscar, alEnt
           <p className="mt-1 text-chica text-principal/70">{t('filaTurnos.noSePresentaronAyuda')}</p>
           <ul className="mt-2 space-y-2">
             {saltados.map((persona) => (
-              <li className="flex flex-wrap items-center justify-between gap-2" key={persona.turno}>
-                <span className="text-base text-principal">
-                  <span className="font-bold">{persona.turno}</span> · {persona.nombre}
-                  {persona.codigo_corto && ` · ${persona.codigo_corto}`}
-                </span>
-                <span className="flex flex-wrap">
-                  <button className={BOTON_CHICO} disabled={ocupado} onClick={() => alEntregarTurno?.(persona.turno)} type="button">
-                    {t('filaTurnos.sinQr.entregar')}
-                  </button>
-                  <button
-                    className={BOTON_CHICO}
-                    disabled={ocupado}
-                    onClick={() => correr(() => saltarTurno(persona.turno, false))}
-                    type="button"
-                  >
-                    {t('filaTurnos.regresar')}
-                  </button>
-                </span>
+              <li className="space-y-2" key={persona.turno}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-base text-principal">
+                    <span className="font-bold">{persona.turno}</span> · {persona.nombre}
+                    {persona.codigo_corto && ` · ${persona.codigo_corto}`}
+                    {persona.saltado_en && (
+                      <span className="block text-chica text-principal/70">{haceCuanto(t, persona.saltado_en)}</span>
+                    )}
+                  </span>
+                  <span className="flex flex-wrap">
+                    <button className={BOTON_CHICO} disabled={ocupado} onClick={() => alEntregarTurno?.(persona.turno)} type="button">
+                      {t('filaTurnos.sinQr.entregar')}
+                    </button>
+                    <button
+                      className={BOTON_CHICO}
+                      disabled={ocupado}
+                      onClick={() => correr(() => saltarTurno(persona.turno, false))}
+                      type="button"
+                    >
+                      {t('filaTurnos.regresar')}
+                    </button>
+                    {alAnularTurno && (
+                      <button
+                        className={`${BOTON_CHICO} text-ya-recibio`}
+                        disabled={ocupado}
+                        onClick={() => setAnulando(persona.turno)}
+                        type="button"
+                      >
+                        <LuBan aria-hidden="true" className="h-4 w-4" />
+                        {t('filaTurnos.anular')}
+                      </button>
+                    )}
+                  </span>
+                </div>
+                {anulando === persona.turno && (
+                  <ConfirmarAnular
+                    alNo={() => setAnulando(null)}
+                    alSi={() => {
+                      setAnulando(null)
+                      alAnularTurno?.(persona.turno)
+                    }}
+                    ocupado={ocupado}
+                    turno={persona.turno}
+                  />
+                )}
               </li>
             ))}
           </ul>

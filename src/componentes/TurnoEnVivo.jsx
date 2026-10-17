@@ -16,8 +16,8 @@ import { avisoQueToca } from '../datos/turnoAPie'
  *
  * turnoInicial: el que ya se sabe (de consultar_cita), para no esperar la
  * primera respuesta. alCambiar(datos): para que la pagina sepa cuando ya
- * recibio. accionPerdido: lo que se ofrece si perdio el turno (en /turno,
- * "Sacar un turno nuevo").
+ * recibio. accionPerdido: lo que se ofrece si su turno se anulo porque
+ * llego tarde (en /turno, "Sacar un turno nuevo"; seccion 46).
  *
  * Cuando faltan 3 y cuando le toca, el telefono suena y vibra (vibrar, solo
  * en Android). Mientras espera, la pantalla no se apaga sola.
@@ -28,7 +28,7 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
   const anterior = useRef(null)
 
   const situacion = situacionDelTurno(datos)
-  const terminado = situacion?.tipo === 'recibida' || situacion?.tipo === 'cancelada'
+  const terminado = situacion?.tipo === 'recibida' || situacion?.tipo === 'cancelada' || situacion?.tipo === 'anulado'
   //  La fila de hoy ya termino: se sigue preguntando (despacio no hace
   //  falta: si la voluntaria lo toco por error y lo deshace, aqui se ve).
   const filaTerminada = situacion?.tipo === 'terminada'
@@ -88,6 +88,13 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
       {situacion?.tipo === 'teLlamaron' && (
         <div className="mt-3 rounded-xl bg-accion px-3 py-3 text-sobre-accion" role="alert">
           <p className="text-lg font-bold">{t('turno.teLlamaron')}</p>
+        </div>
+      )}
+
+      {/* Llego tarde y la voluntaria anulo su turno (seccion 46). */}
+      {situacion?.tipo === 'anulado' && (
+        <div className="mt-3 space-y-3 rounded-xl border-2 border-ya-recibio bg-ya-recibio/10 px-3 py-3 text-principal" role="alert">
+          <p className="text-lg font-bold">{t('turno.anulado')}</p>
           {accionPerdido}
         </div>
       )}

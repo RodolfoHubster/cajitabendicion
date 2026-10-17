@@ -14,9 +14,9 @@ el registro abre a la hora que diga el pastor, por lo general 9:00 AM).
 | Un turno por teléfono | Un turno vivo por teléfono por día (el identificador al azar del registro, nada personal). Si vuelve a tocar, le sale el suyo. Prueba: `scripts/prueba-qr-general.mjs` (50 teléfonos al mismo tiempo, y uno que toca 10 veces). |
 | La persona del turno | Anónima (`personas.anonima`): se llama "Turno 23" y tiene su código CB, que es el que dice si el QR no se lee. No sale al buscar por nombre en Personas. |
 | En vivo | Su página dice qué turno va y cuántos faltan; **suena y vibra** (vibrar solo en Android) cuando faltan 3 y cuando le toca, con la pantalla completa en verde, y la pantalla no se apaga sola mientras espera. Con el teléfono bloqueado no suena: eso pide notificaciones (pendiente). |
-| "No se presentó" | La fila avanza, pero desde el 9 de octubre **ya no pierde el turno**: si llega después, su QR entrega igual; se le regresa a la fila cuando sea, y si vuelve a escanear el QR general le sale su mismo turno (no uno nuevo hasta atrás). Perderlo hacía que la gente se enojara. |
+| "No se presentó" | La fila avanza. Si llega a los pocos minutos, la voluntaria le entrega. Desde el 16 de octubre, si tardó, el escáner **no le entrega solo**: dice a qué hora lo llamaron y hace cuánto, y la voluntaria le entrega o **anula su turno** (`anular_turno`). Con el turno anulado, su QR ya no entrega, su página se lo dice y saca uno nuevo al final de la fila, una sola vez (con dos anulados el mismo día ya no). El 9 de octubre se había quitado perder el turno; el jueves 15 el turno 1 llegó a las 3:40 PM. |
 | Sin QR | Mucha gente abre el QR en una ventana privada y, si se le cierra, pierde la página. Su página le pide "Anota tu número o tómale foto". Con su número, la voluntaria toca **"Entregar sin QR"** (arriba de la cámara para el turno que va, o en el panel con cualquier número). Es la misma entrega que al escanear. |
-| El escáner a pie | Arriba de la cámara: el turno que va, los que siguen y sus botones (Entregar sin QR, No se presentó, Decirlo). Después de cada resultado la cámara sigue abierta, sin tocar "Escanear otro". Debajo, el código con el "CB-" ya puesto: con los 4 números busca solo, y solo muestra turnos a pie. No hay "Entró sin cita": ahí se da "Turno nuevo". |
+| El escáner a pie | Arriba de la cámara: el turno que va, los que siguen y sus botones (Entregar sin QR, No se presentó, Decirlo). Después de cada resultado la cámara sigue abierta, sin tocar "Escanear otro", también con un QR que no es de nadie. Debajo, **"Buscar un turno"**: por número de turno o por su código, con los resultados mientras se escribe; tocar el turno entrega, y la «i» abre su detalle (código, a qué hora lo sacó, si lo llamaron, si recibió, su QR, y Entregar, Anular o Regresar a la fila). No hay "Entró sin cita": ahí se da "Turno nuevo". Cada caso, en `docs/escaner-casos.md`. |
 | Sin teléfono | La voluntaria de a pie toca "Dar turno a alguien sin teléfono" en el escáner y le dice su número y su código. Puede anotar su nombre o una seña ("chamarra roja"), opcional. Queda quién lo dio. |
 | Código del día | Opcional, por fecha: casilla "Pedir código del día" en la Fila a pie de Horarios. Son 4 números al azar que se ponen en la entrada; sin ellos `/turno` no da turno (así nadie lo saca desde su casa). 5 intentos mal frenan ese teléfono 5 minutos, con cuenta regresiva. Los turnos que da la voluntaria no lo piden. La voluntaria lo ve en su panel. |
 | El cartel | "Descargar cartel" en la Fila a pie: el QR de `/turno` con el logo, listo para imprimir, con un recuadro para escribir el código del día. |
@@ -49,7 +49,7 @@ carro); al terminar, la persona recibe su QR y su número de turno.
 | ¿Cuántas filas a pie hay por día? | Una. En la base es un solo horario con `fila = 'a_pie'`; su cupo es el de todo el día. "Sin límite" guarda `cupo_sin_limite()` (10000) para que `reservar_cita()` cuente igual. |
 | ¿Quién da el turno? | El disparador `dar_turno`, al guardar la cita, bajo **el mismo candado** de `reservar_cita()` sobre el horario. Cincuenta registros al mismo tiempo reciben los turnos 1 a 50, sin repetir ni saltarse ninguno (`scripts/prueba-turnos.mjs`). `reservar_cita()` no se tocó. |
 | ¿Qué turno va? | El menor que sigue esperando. La persona lo ve en vivo en su página; la voluntaria ve la fila en el escáner y puede **anunciar los turnos en voz alta** (con la voz que escoja). |
-| ¿Y si alguien no llega? | "No se presentó" (`saltar_turno`): la fila avanza; si llega después, su turno vale igual (ver arriba). |
+| ¿Y si alguien no llega? | "No se presentó" (`saltar_turno`): la fila avanza; si llega tarde, se le entrega o se anula su turno (ver arriba). |
 | ¿Si llega antes de su turno? | Se le entrega igual; la pantalla avisa que llegó antes de su turno. |
 | ¿Las reglas son las mismas que en carro? | No. Antes de sacar turno se aceptan las reglas **a pie** (sección `registro_a_pie` de avisos), editables aparte en **Textos y reglas**. |
 | ¿El QR se distingue? | Sí: el de a pie lleva una **persona caminando** en el centro; el de carro, un carro. Es el mismo tipo de código (aleatorio, sin datos personales). |
@@ -76,6 +76,9 @@ Ya **no existe** el interruptor `a_pie_abierto`: lo quitó
 - Base, turno sin datos: secciones 42, 43 y 44 (`sacar_turno_a_pie`,
   `dar_turno_sin_telefono`, `codigo_turno_a_pie`, `fila_a_pie_hoy`,
   `terminar_fila_a_pie`, `lista_para_escaneo`, `entregar_turno`).
+- Base, turnos anulados y todo desde el escáner: sección 46 (`anular_turno`,
+  `turnos_a_pie_de_hoy`, `qr_de_turno`, y el cambio a pie con su código CB en
+  `sacar_turno_a_pie`). Migración `2026-10-16-turnos-anulados.sql`.
   Migraciones `2026-10-06-turno-a-pie-sin-datos.sql` y
   `2026-10-09-fila-a-pie-mas-agil.sql`.
 - Pantallas: `/turno` (`publico/Turno.jsx`; `/a-pie` lleva ahí), el registro

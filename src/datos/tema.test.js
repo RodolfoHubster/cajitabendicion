@@ -167,6 +167,8 @@ describe('los colores respetan el modo oscuro', () => {
     //  El QR del turno, y el boton sobre el verde fijo de "¡es tu turno!".
     'paginas/publico/Turno.jsx': 2,
     'paginas/publico/Inicio.jsx': 1,
+    //  El QR de un turno, en su detalle del escaner (seccion 46).
+    'componentes/BuscarTurno.jsx': 1,
   }
 
   it('bg-white solo donde va un QR o el logo; lo demás es bg-superficie', async () => {

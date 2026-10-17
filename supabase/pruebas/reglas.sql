@@ -2404,6 +2404,40 @@ begin
       perform pg_temp.comprobar('Cambio a pie: quien ya recibió en carro no saca turno a pie',
         v_fila.resultado = 'YA_RECIBIO_EN_CARRO' and v_fila.token_qr is null, v_fila.resultado);
 
+      --  Cambio a pie con su código CB (sección 46): abre la página en otro
+      --  navegador (el de la cámara) y el teléfono no reconoce su cita.
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+      values ('CB-PTA7', 'Prueba Con Su Código', 'Prueba', 'Con Su Código', '+16195550317') returning id into v_persona;
+      select (reservar_cita(v_persona, v_b_hoy)).id into v_cita;
+      update citas set dispositivo_id = 'tel-donde-hizo-su-cita' where id = v_cita;
+      perform set_config('request.jwt.claim.sub', '', true);
+      select * into v_fila from sacar_turno_a_pie('tel-otro-navegador', false, null, ' cb-pta7 ');
+      perform pg_temp.comprobar('Cambio con código: con su código CB, desde otro navegador, se le pregunta',
+        v_fila.resultado = 'TIENE_CITA_EN_CARRO' and v_fila.citas_carro = 1 and v_fila.token_qr is null,
+        format('%s %s', v_fila.resultado, v_fila.citas_carro));
+      perform pg_temp.comprobar('Cambio con código: preguntar no le cancela nada',
+        (select c.estado from citas c where c.id = v_cita) = 'reservada');
+      select * into v_fila from sacar_turno_a_pie('tel-otro-navegador', true, null, 'CB-PTA7');
+      perform pg_temp.comprobar('Cambio con código: al aceptar, recibe su turno', v_fila.resultado = 'NUEVO', v_fila.resultado);
+      select c.estado || '|' || c.se_cambio_a_pie::text into v_texto from citas c where c.id = v_cita;
+      perform pg_temp.comprobar('Cambio con código: su cita de carro se cancela y se cuenta como cambio a pie',
+        v_texto = 'cancelada|true', v_texto);
+      select * into v_fila from sacar_turno_a_pie('tel-codigo-carro-malo', false, null, 'CB-99999');
+      perform pg_temp.comprobar('Cambio con código: un código sin cita de carro hoy lo dice, y cuenta como intento',
+        v_fila.resultado = 'CODIGO_CARRO_NO_EXISTE' and v_fila.token_qr is null
+        and (select count(*) from intentos_turno it where it.dispositivo = 'tel-codigo-carro-malo') = 1,
+        v_fila.resultado);
+      select * into v_fila from sacar_turno_a_pie('tel-codigo-carro-ya', false, null, 'CB-PTA2');
+      perform pg_temp.comprobar('Cambio con código: si esa cita ya recibió en carro, no hay turno a pie',
+        v_fila.resultado = 'YA_RECIBIO_EN_CARRO' and v_fila.token_qr is null, v_fila.resultado);
+      for i in 1 .. 5 loop
+        select * into v_fila from sacar_turno_a_pie('tel-adivina', false, null, format('CB-%s', 90000 + i));
+      end loop;
+      select * into v_fila from sacar_turno_a_pie('tel-adivina', false, null, 'CB-PTA7');
+      perform pg_temp.comprobar('Cambio con código: 5 códigos mal frenan ese teléfono (no se adivinan probando)',
+        v_fila.resultado = 'DEMASIADOS_INTENTOS', v_fila.resultado);
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
 
       --  "No se presentó": la fila avanza, pero desde el 9 de octubre el
@@ -2440,6 +2474,82 @@ begin
       select * into v_fila from entregar_turno(99999);
       perform pg_temp.comprobar('Sin QR: un turno que hoy no existe lo dice', v_fila.resultado = 'TURNO_NO_EXISTE', v_fila.resultado);
 
+      -- ---------- Turnos anulados y todo desde el escáner (sección 46) ----------
+      --  El jueves 15 de octubre el turno 1 llegó a las 3:40 PM.
+      perform pg_temp.esperar_error('Anular: un turno que ya recibió no se anula',
+        format('select anular_turno(%s)', v_numero), 'TURNO_NO_EXISTE');
+      perform set_config('request.jwt.claim.sub', '', true);
+      select * into v_fila from sacar_turno_a_pie('tel-llega-tarde');
+      v_numero := v_fila.turno;
+      v_token := v_fila.token_qr;
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform saltar_turno(v_numero);
+      update citas set turno_saltado_en = now() - interval '40 minutes' where token_qr = v_token;
+      select * into v_fila from consultar_cita(v_token);
+      perform pg_temp.comprobar('Llega tarde: el escáner sabe a qué hora lo llamaron, y que no está anulado',
+        v_fila.saltado_en is not null and not v_fila.anulado, coalesce(v_fila.saltado_en::text, 'sin hora'));
+      select * into v_fila from turnos_a_pie_de_hoy() t where t.turno = v_numero;
+      perform pg_temp.comprobar('Lista a pie: el escáner tiene el turno con su código, sus horas y su estado',
+        v_fila.codigo_corto like 'CB-%' and v_fila.sacado_en is not null and v_fila.saltado_en is not null
+        and v_fila.estado = 'reservada' and v_fila.anulado_en is null, coalesce(v_fila.estado, 'no salió'));
+      perform pg_temp.comprobar('Ver QR: el detalle del turno trae su QR', qr_de_turno(v_numero) = v_token);
+
+      perform pg_temp.comprobar('Anular: la voluntaria anula el turno de quien llegó tarde', anular_turno(v_numero) = v_numero);
+      select c.estado || '|' || (c.turno_anulado_por = v_admin)::text || '|' || (c.turno_anulado_en is not null)::text
+        into v_texto from citas c where c.token_qr = v_token;
+      perform pg_temp.comprobar('Anular: queda anulado, con quién lo anuló y a qué hora', v_texto = 'cancelada|true|true', v_texto);
+      select resultado into v_texto from registrar_entrega(v_token);
+      perform pg_temp.comprobar('Anular: su QR ya no entrega', v_texto = 'CANCELADA', v_texto);
+      select * into v_fila from entregar_turno(v_numero);
+      perform pg_temp.comprobar('Anular: por número dice que se anuló', v_fila.resultado = 'TURNO_ANULADO', v_fila.resultado);
+      perform pg_temp.comprobar('Anular: el escáner lo sabe al leer su QR',
+        (select c.anulado from consultar_cita(v_token) c));
+      perform pg_temp.esperar_error('Anular: uno ya anulado no se anula otra vez',
+        format('select anular_turno(%s)', v_numero), 'TURNO_NO_EXISTE');
+      perform pg_temp.esperar_error('Anular: de uno anulado ya no se ve el QR',
+        format('select qr_de_turno(%s)', v_numero), 'TURNO_NO_EXISTE');
+      perform pg_temp.esperar_error('Anular: un turno que hoy no existe', 'select anular_turno(99999)', 'TURNO_NO_EXISTE');
+      select count(*) into v_numero2 from turnos_a_pie_de_hoy() t where t.turno = v_numero and t.anulado_en is not null;
+      perform pg_temp.comprobar('Lista a pie: los anulados salen, marcados', v_numero2 = 1, v_numero2::text);
+      select count(*) into v_numero2 from turnos_a_pie_de_hoy() t where t.estado = 'cancelada' and t.anulado_en is null;
+      perform pg_temp.comprobar('Lista a pie: sin los que se cancelaron por otra razón', v_numero2 = 0, v_numero2::text);
+
+      perform set_config('request.jwt.claim.sub', '', true);
+      select * into v_fila from turno_de_cita(v_token);
+      perform pg_temp.comprobar('Anular: la persona ve en su teléfono que se anuló', v_fila.anulado,
+        coalesce(v_fila.anulado::text, 'sin turno'));
+      select * into v_fila from sacar_turno_a_pie('tel-llega-tarde');
+      perform pg_temp.comprobar('Anular: con su turno anulado saca uno nuevo, al final de la fila',
+        v_fila.resultado = 'NUEVO' and v_fila.turno > v_numero, format('%s %s', v_fila.resultado, v_fila.turno));
+      v_numero2 := v_fila.turno;
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.esperar_ok('Anular: también el turno nuevo se puede anular',
+        format('select anular_turno(%s)', coalesce(v_numero2, -1)));
+      perform set_config('request.jwt.claim.sub', '', true);
+      select * into v_fila from sacar_turno_a_pie('tel-llega-tarde');
+      perform pg_temp.comprobar('Anular: si también el nuevo se anula, ese día ya no saca otro',
+        v_fila.resultado = 'TURNOS_ANULADOS' and v_fila.token_qr is null, v_fila.resultado);
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      select r.turnos_anulados into v_numero2 from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
+      perform pg_temp.comprobar('Reportes: se cuentan los turnos anulados del día (los dos de arriba)', v_numero2 = 2,
+        coalesce(v_numero2::text, 'sin fila'));
+      select r.turnos_anulados into v_numero2 from reporte_por_dias(v_hoy, v_hoy, 'carro') r;
+      perform pg_temp.comprobar('Reportes: en la fila de carros no hay turnos anulados', coalesce(v_numero2, 0) = 0,
+        coalesce(v_numero2::text, 'sin fila'));
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+
+      perform elegir_fila('carro');
+      perform pg_temp.esperar_error('Anular: quien escanea en carros no anula turnos a pie', 'select anular_turno(1)', 'OTRA_FILA');
+      perform pg_temp.esperar_error('Lista a pie: quien escanea en carros no la ve', 'select * from turnos_a_pie_de_hoy()', 'OTRA_FILA');
+      perform pg_temp.esperar_error('Ver QR: quien escanea en carros no lo ve', 'select qr_de_turno(1)', 'OTRA_FILA');
+      perform elegir_fila('a_pie');
+      perform pg_temp.comprobar('Anular: desde el navegador sin cuenta no se anula, ni se ve la lista, ni el QR',
+        not has_function_privilege('anon', 'anular_turno(int)', 'execute')
+        and not has_function_privilege('anon', 'turnos_a_pie_de_hoy()', 'execute')
+        and not has_function_privilege('anon', 'qr_de_turno(int)', 'execute'));
+
       --  Quien no tiene teléfono: la voluntaria de a pie le da turno.
       select * into v_fila from dar_turno_sin_telefono();
       perform pg_temp.comprobar('Sin teléfono: la voluntaria le da turno con su código',
@@ -2453,7 +2563,7 @@ begin
       perform elegir_fila('a_pie');
 
       perform pg_temp.comprobar('Turno sin datos: el público puede sacar turno, pero no darlo ni crearlo a mano',
-        has_function_privilege('anon', 'sacar_turno_a_pie(text, boolean, text)', 'execute')
+        has_function_privilege('anon', 'sacar_turno_a_pie(text, boolean, text, text)', 'execute')
         and not has_function_privilege('anon', 'dar_turno_sin_telefono(text)', 'execute')
         and not has_function_privilege('anon', 'crear_turno_anonimo(uuid, text, uuid)', 'execute')
         and not has_function_privilege('authenticated', 'crear_turno_anonimo(uuid, text, uuid)', 'execute'));
@@ -2653,8 +2763,9 @@ begin
       select coalesce(sum(r.cajas), 0) into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
       perform pg_temp.comprobar('Filas: las cajas a pie del día (5 con turno + 1 sin cita)', v_numero = 6, v_numero::text);
       select r.cambios_a_pie into v_numero from reporte_por_dias(v_hoy, v_hoy, null) r;
+      --  5 desde el teléfono (con los acompañantes del dueño) + 1 con su código CB (sección 46).
       perform pg_temp.comprobar('Reportes: cuenta quién se cambió de carro a pie (personas, con los acompañantes del dueño)',
-        v_numero = 5, v_numero::text);
+        v_numero = 6, v_numero::text);
       select r.cambios_a_pie into v_numero from reporte_por_dias(v_hoy, v_hoy, 'a_pie') r;
       perform pg_temp.comprobar('Reportes: el cambio se cuenta en carros, no en a pie', v_numero = 0, v_numero::text);
       select count(*) into v_numero from buscar_personas('turno') b where b.codigo_corto = v_codigo3;
@@ -2667,8 +2778,9 @@ begin
       select * into v_fila from listar_dias_entrega(v_hoy) l where l.fecha = v_hoy;
       perform pg_temp.comprobar('Fila a pie: la lista de fechas trae la fila a pie aparte de los horarios de carro',
         --  3 con datos + los 11 turnos sin datos de las secciones 42 y 43 (el que
-        --  vuelve a escanear ya no saca otro: sección 44).
-        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 14 and v_fila.a_pie_abre_en is not null
+        --  vuelve a escanear ya no saca otro: sección 44) + el de quien se cambió
+        --  con su código CB. Los dos anulados ya no ocupan lugar (sección 46).
+        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 15 and v_fila.a_pie_abre_en is not null
         and v_fila.capacidad_total < cupo_sin_limite(),
         format('ocupados %s, cupo de carro %s', v_fila.a_pie_ocupados, v_fila.capacidad_total));
 
@@ -2762,6 +2874,12 @@ begin
       'select fila_de_turnos(null)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se saltan turnos',
       'select saltar_turno(1)', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se anulan turnos',
+      'select anular_turno(1)', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve la lista de turnos a pie',
+      'select * from turnos_a_pie_de_hoy()', 'SIN_SESION');
+    perform pg_temp.esperar_error('Roles: sin sesión no se ve el QR de un turno',
+      'select qr_de_turno(1)', 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se crean fechas solo a pie',
       format('select crear_dia_a_pie(%L::date, ''15:00'')', v_lunes + 71), 'SIN_SESION');
     perform pg_temp.esperar_error('Roles: sin sesión no se arma la fila a pie',

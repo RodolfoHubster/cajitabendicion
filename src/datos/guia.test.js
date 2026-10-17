@@ -61,7 +61,7 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
 
     const admin = pasosDeGuia({ rol: 'admin', permisos: [], secciones: ['escanear', 'horarios'] })
     expect(claves(pasosPendientes(admin, 1))).toEqual(['menu', 'buscar', 'elegirFila', 'dosQr', 'turnos', 'filaAPie'])
-    expect(VERSION_GUIA).toBe(6)
+    expect(VERSION_GUIA).toBe(7)
   })
 
   it('quien ya vio la versión 4 solo ve lo del 6 de octubre, si puede entrar ahí', () => {
@@ -76,7 +76,9 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
     const voluntario = pasosDeGuia({ rol: 'voluntario', permisos: [], secciones: ['escanear'] })
     expect(claves(pasosPendientes(voluntario, 4))).toEqual(['buscar', 'turnos'])
     expect(claves(pasosPendientes(voluntario, 5))).toEqual(['buscar', 'turnos'])
-    expect(claves(pasosPendientes(voluntario, 6))).toEqual([])
+    //  16 de octubre (versión 7): buscar en vivo y anular turnos.
+    expect(claves(pasosPendientes(voluntario, 6))).toEqual(['buscar', 'turnos'])
+    expect(claves(pasosPendientes(voluntario, 7))).toEqual([])
   })
 
   it('con sus palomitas: el menú, anotar sin cita y citas de hoy', () => {

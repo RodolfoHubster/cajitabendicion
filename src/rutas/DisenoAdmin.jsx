@@ -4,6 +4,7 @@ import { LuChevronDown, LuCircleHelp, LuMenu } from 'react-icons/lu'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import GuiaDelPanel from '../componentes/guia/GuiaDelPanel'
 import {
+  EVENTO_ABRIR_GUIA,
   VERSION_GUIA,
   guiaDeRol,
   marcarGuiaVista,
@@ -60,6 +61,18 @@ export default function DisenoAdmin() {
     setGuia(null)
     marcarGuiaVista(tipoGuia, correo)
   }, [tipoGuia, correo])
+
+  //  El "?" del encabezado abre esta guia: dentro del panel no lleva a las
+  //  preguntas del publico (16 de octubre de 2026: sacaba del panel).
+  useEffect(() => {
+    const abrir = () => {
+      setAbierto(false)
+      const claves = seccionesVisibles(rol, permisos).map((seccion) => seccion.clave)
+      setGuia({ pasos: pasosDeGuia({ rol, permisos, secciones: claves }), novedades: false })
+    }
+    globalThis.addEventListener?.(EVENTO_ABRIR_GUIA, abrir)
+    return () => globalThis.removeEventListener?.(EVENTO_ABRIR_GUIA, abrir)
+  }, [rol, permisos])
 
   function abrirGuia() {
     setAbierto(false)

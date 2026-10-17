@@ -18,17 +18,19 @@ import { supabase } from '../lib/supabase'
 //  9 de octubre de 2026 (version 6): la fila a pie mas agil: los botones del
 //  turno arriba de la camara, entregar sin QR, el "CB-" ya puesto y "no se
 //  presento" ya no pierde el turno.
+//  16 de octubre de 2026 (version 7): llegar tarde ya no vale para siempre
+//  (anular turno) y la busqueda de turnos en vivo debajo de la camara.
 export const PASOS_GUIA = [
   { clave: 'bienvenida', desde: 1 },
   { clave: 'menu', desde: 5, conMenu: true },
   { clave: 'escanear', desde: 1, seccion: 'escanear' },
   { clave: 'colores', desde: 1, seccion: 'escanear' },
   { clave: 'deshacer', desde: 1, seccion: 'escanear' },
-  { clave: 'buscar', desde: 6, seccion: 'escanear' },
+  { clave: 'buscar', desde: 7, seccion: 'escanear' },
   //  28 de septiembre de 2026: la fila a pie por turnos.
   { clave: 'elegirFila', desde: 2, seccion: 'escanear' },
   { clave: 'dosQr', desde: 2, seccion: 'escanear' },
-  { clave: 'turnos', desde: 6, seccion: 'escanear' },
+  { clave: 'turnos', desde: 7, seccion: 'escanear' },
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
   { clave: 'registrar', desde: 5, seccion: 'registrar' },
@@ -44,6 +46,9 @@ export const PASOS_GUIA = [
 
 /** La version de la guia: la del paso mas nuevo. */
 export const VERSION_GUIA = Math.max(...PASOS_GUIA.map((paso) => paso.desde))
+
+/** El "?" del encabezado, dentro del panel, abre la guia con este aviso. */
+export const EVENTO_ABRIR_GUIA = 'cajita:abrir-guia'
 
 /** Cada rol tiene su guia: si un voluntario pasa a administrador, ve la suya. */
 export function guiaDeRol(rol) {

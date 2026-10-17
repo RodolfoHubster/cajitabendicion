@@ -88,14 +88,18 @@
       "SIN_CONEXION": "No signal",
       "RECIEN_ENTREGADO": "Delivered a moment ago",
       "TURNO_PERDIDO": "Lost their number",
-      "TURNO_NO_EXISTE": "That number doesn't exist today"
+      "TURNO_NO_EXISTE": "That number doesn't exist today",
+      "SIN_SESION": "Your session ended",
+      "NO_SE_PUDO_REVISAR": "Couldn't check it",
+      "TURNO_ANULADO": "Number voided",
+      "TURNO_ANULADO_AHORA": "Number {{turno}} voided"
     },
     "explicacion": {
       "VALIDO": "Valid appointment for today. Hand them their box.",
       "YA_USADO": "This code was already used today. No second delivery.",
       "OTRA_FECHA": "Their appointment is for another day. Not valid.",
       "CANCELADA": "This appointment was cancelled. Not valid.",
-      "NO_EXISTE": "That code does not match any appointment. Look them up by name.",
+      "NO_EXISTE": "That code does not match any appointment. Search for it below by name, number or code.",
       "VALIDO_AUTORIZADO": "Delivery authorized outside the appointment date. Who authorized it was recorded.",
       "VALIDO_PASE": "Valid permanent pass. Hand them their box. If you are unsure it is them, ask for an ID.",
       "PASE_REVOCADO": "An administrator removed this pass. Do not hand out a box.",
@@ -104,7 +108,11 @@
       "SIN_CONEXION": "The code could not be checked because the connection dropped. The code may be fine: do not turn the person away. Check your data and check it again.",
       "RECIEN_ENTREGADO": "This is the same code you just delivered ({{nombre}}). The camera read it again: nothing to do, they can move on.",
       "TURNO_PERDIDO": "They were called and were not there. They need to scan the code at the entrance again for a new number.",
-      "TURNO_NO_EXISTE": "Check the number. Only today's walk-up numbers can be given out."
+      "TURNO_NO_EXISTE": "Check the number. Only today's walk-up numbers can be given out.",
+      "SIN_SESION": "The code couldn't be checked because your session ended. The code may be fine: don't turn the person away. Sign in again and scan it again.",
+      "NO_SE_PUDO_REVISAR": "Something failed while checking the code. The code may be fine: don't turn the person away. Check it again.",
+      "TURNO_ANULADO": "This number was voided because they weren't here when it was called. It can't be used anymore: they should get a new number at the entrance sign.",
+      "TURNO_ANULADO_AHORA": "That number can't be used anymore. If they want, they can get a new one at the entrance sign and wait from the end."
     },
     "camara": {
       "SIN_PERMISO": "You did not allow camera access.",
@@ -175,7 +183,59 @@
       "sinConexion": "No signal: the list may not be up to date."
     },
     "siguienteOtraVez": "Scan again or scan the next one",
-    "intentarOtraVez": "Try again: hold the QR up to the camera"
+    "intentarOtraVez": "Try again: hold the QR up to the camera",
+    "volverAEntrar": "Sign in again",
+    "ajeno": {
+      "CARTEL_TURNO": "It's the QR on the entrance sign (the one for getting a number), not a person's. Ask for the QR on their phone, or search below by number or code.",
+      "PAGINA_PROPIA": "It's a link to a Cajita de Bendición page, not an appointment QR. Ask for their appointment QR, or search for it below.",
+      "OTRA_PAGINA": "It's the QR of another page ({{dominio}}), not Cajita de Bendición. Ask for their appointment QR, or search for it below.",
+      "TEXTO": "That QR isn't from Cajita de Bendición. Ask for their appointment QR, or search below by name, number or code."
+    },
+    "tarde": {
+      "titulo": "Number {{turno}}: called at {{hora}} and wasn't here ({{hace}})",
+      "ayuda": "If it was just a few minutes, give it out. If it was longer, void their number: they'll need to get a new one and wait from the end.",
+      "entregar": "Give out anyway",
+      "anular": "Void number"
+    },
+    "anular": {
+      "pregunta": "Void number {{turno}}?",
+      "explicacion": "It can't be used anymore. If they want, they get a new one at the entrance sign and wait from the end. This can't be undone.",
+      "si": "Yes, void the number",
+      "no": "No, go back"
+    },
+    "turnos": {
+      "etiqueta": "Find a number",
+      "ayuda": "Type the number or the digits of their code. Tap the number to give out; tap the “i” to see its details.",
+      "ejemplo": "Number or code",
+      "ejemploLetras": "Mark or name",
+      "borrar": "Clear what you typed",
+      "conLetras": "Search by mark or name (letters)",
+      "conNumeros": "Search by number (number or code)",
+      "cargando": "Loading today's numbers…",
+      "nada": "No number today matches that. Check the number; the code must be complete (4 or 5 digits).",
+      "tocaParaEntregar": "Tap to give out",
+      "verDetalle": "See details for number {{turno}}",
+      "codigo": "Code",
+      "sacado": "Got their number",
+      "dadoPor": "Given by",
+      "llamado": "Called",
+      "recibio": "Received",
+      "anulado": "Voided",
+      "comparaCodigo": "Ask for their code and compare it: the number belongs to whoever knows it.",
+      "verQr": "See their QR",
+      "ocultarQr": "Hide their QR",
+      "qrAlt": "QR for number {{turno}}",
+      "haceUnMomento": "just now",
+      "haceMin": "{{n}} min ago",
+      "haceHoras": "{{h}} h {{m}} min ago",
+      "estado": {
+        "va": "Now being served",
+        "esperando": "Waiting",
+        "saltado": "Called at {{hora}} and wasn't here · {{hace}}",
+        "recibio": "Received at {{hora}}",
+        "anulado": "Voided at {{hora}}"
+      }
+    }
   },
   "pase": {
     "etiqueta": "Permanent pass",
@@ -815,7 +875,7 @@
       },
       "buscar": {
         "titulo": "If the QR will not scan",
-        "texto": "In the car line, tap “Search by name or code”: you see today’s people right there. Type part of the name (even if you’re not sure how it’s spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. In the walk-up line, type just the digits of the code under the camera (4 or 5): “CB-” is already there and it searches by itself."
+        "texto": "In the car line, tap “Search by name or code”: you see today's people right there. Type part of the name (even if you're not sure how it's spelled: “Javier” also finds “Xavier”) or their code, tap the person and then “Record delivery”. In the walk-up line, under the camera type the number or the digits of their code: results show up as you type. Tap the number to give out, or the “i” to see its details."
       },
       "sinCita": {
         "titulo": "If someone arrives without an appointment",
@@ -859,7 +919,7 @@
       },
       "turnos": {
         "titulo": "The walk-up line uses numbers",
-        "texto": "Above the camera you see the current number and the next ones. Scan their QR; if they don’t have it but know their number, tap “Give out without QR”. If they’re not here, tap “Did not show up”: the line moves on, and if they arrive later their number still counts. For someone without a phone, use “Give a new number” in the panel. When you’re done, tap “End today’s line”."
+        "texto": "Above the camera you see the current number and the next ones. Scan their QR; if they don't have it but know their number, tap “Give out without QR”. If they're not here, tap “Did not show up”: the line moves on. If they arrive within a few minutes, give it out; if they took long, the scanner asks you and you tap “Void number”: they'll need a new one. For someone without a phone, use “Give a new number” in the panel. When you're done, tap “End today's line”."
       },
       "filaAPie": {
         "titulo": "Set up the walk-up line",
@@ -1233,7 +1293,8 @@
       "cajas": "Boxes",
       "intentos_repetidos": "Repeated attempts",
       "cambios_a_pie": "Switched to walking",
-      "con_pase": "With pass"
+      "con_pase": "With pass",
+      "turnos_anulados": "Voided numbers"
     },
     "errores": {
       "RANGO_INVALIDO": "The “From” date must be on or before “To”.",
@@ -1647,11 +1708,12 @@
     "antes_other": "{{count}} people ahead of you",
     "eresElSiguiente": "You are next! Come closer.",
     "esTuTurno": "It is your turn! Come up and show your code.",
-    "teLlamaron": "Your number was called and you weren't here. Go to the volunteer and show your number or your code: you can still receive.",
+    "teLlamaron": "Your number was called and you weren't here. Go to the volunteer now and show your number or your code. If you take too long, your number is voided and you'll need to get a new one.",
     "recibida": "You already received your box. Thank you for coming!",
     "otroDia": "On delivery day, you will see here which number is being served.",
     "seActualiza": "Updates by itself every few seconds.",
-    "terminada": "Today's line is over. Thank you for coming; we hope to see you at the next distribution."
+    "terminada": "Today's line is over. Thank you for coming; we hope to see you at the next distribution.",
+    "anulado": "Your number was voided because it was called and you weren't here. If you still want your groceries, get a new number: you'll wait from the end of the line."
   },
   "elegirFila": {
     "pregunta": "Which line are you in today?",
@@ -1684,7 +1746,7 @@
     "siguen": "Next up",
     "noSePresentaron_one": "{{count}} did not show up",
     "noSePresentaron_other": "{{count}} did not show up",
-    "noSePresentaronAyuda": "The line moved on without them, but their number still counts: if they arrive, scan their QR or tap “Give out”.",
+    "noSePresentaronAyuda": "The line moved on without them. If they arrive within a few minutes, tap “Give out”. If they took too long, tap “Void”: they'll need to get a new number.",
     "regresar": "Put back in line",
     "seActualiza": "Updates by itself every few seconds.",
     "errores": {
@@ -1724,7 +1786,8 @@
       "entregar": "Give out",
       "entregarNumero": "Give out this number without QR",
       "numero": "Number"
-    }
+    },
+    "anular": "Void"
   },
   "filaAPieAdmin": {
     "titulo": "Walk-up line",
@@ -1918,7 +1981,7 @@
       "sinDatos": "We do not ask for your name, age or phone number. None of this is saved or shared.",
       "soloHoy": "Your number is for today only and for one box.",
       "abierta": "Keep this page open: you can see which number is being served, and your phone rings when you are 3 away and when it is your turn.",
-      "teLlaman": "If your number is called and you're not here, come over with your number as soon as you arrive: it still counts.",
+      "teLlaman": "If your number is called and you're not here, come over as soon as you can. If you take too long, your number is voided and you'll need to get a new one, at the end of the line.",
       "cadaQuien": "Each adult gets their own number. If you do not have a phone, ask a volunteer."
     },
     "carro": {
@@ -1936,7 +1999,8 @@
       "YA_RECIBIO_EN_CARRO": "You already received your box by car today. Thank you for coming!",
       "AUN_NO_ABRE": "Numbers are given starting at {{hora}}.",
       "NO_HAY_FILA": "There is no walk-up line today.",
-      "CERRADA": "No more numbers are being given today."
+      "CERRADA": "No more numbers are being given today.",
+      "TURNOS_ANULADOS": "Two of your numbers were already voided today because you weren't here when they were called. If you need help, talk to a volunteer."
     },
     "errores": {
       "SIN_CONEXION": "No connection. Check your signal and tap the button again.",
@@ -1955,7 +2019,18 @@
       "esperaBoton": "Wait {{reloj}}"
     },
     "anotalo": "Write down your number ({{turno}}) or take a photo of this screen. If the page closes, don't get another number: tell the volunteer your number.",
-    "yaTenias": "Already got your number and the page closed? Don't get another one: tell the volunteer your number."
+    "yaTenias": "Already got your number and the page closed? Don't get another one: tell the volunteer your number.",
+    "otroTurno": "Get a new number",
+    "carroCodigo": {
+      "abrir": "Did you have a car appointment today?",
+      "titulo": "Switch from car to walking",
+      "ayuda": "If the car line is very long, you can switch to the walk-up line. Type the code of your car appointment. Your car appointment is cancelled and you can't go back to the car line.",
+      "etiqueta": "Your car appointment code",
+      "campoAyuda": "Just the digits (4 or 5): “CB-” is already there.",
+      "boton": "Switch to walking",
+      "cancelar": "I didn't have a car appointment",
+      "CODIGO_CARRO_NO_EXISTE": "We couldn't find a car appointment for today with that code. Check the digits."
+    }
   },
   "codigoDelDia": {
     "casilla": "Ask for today's code",

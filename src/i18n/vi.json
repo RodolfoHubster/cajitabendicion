@@ -93,14 +93,18 @@
       "SIN_CONEXION": "Mất sóng",
       "RECIEN_ENTREGADO": "Vừa phát xong",
       "TURNO_PERDIDO": "Đã mất số",
-      "TURNO_NO_EXISTE": "Hôm nay không có số này"
+      "TURNO_NO_EXISTE": "Hôm nay không có số này",
+      "SIN_SESION": "Phiên đăng nhập đã kết thúc",
+      "NO_SE_PUDO_REVISAR": "Không kiểm tra được",
+      "TURNO_ANULADO": "Số đã bị hủy",
+      "TURNO_ANULADO_AHORA": "Đã hủy số {{turno}}"
     },
     "explicacion": {
       "VALIDO": "Lịch hẹn hợp lệ cho hôm nay. Hãy đưa thùng hàng cho họ.",
       "YA_USADO": "Mã này đã được sử dụng hôm nay. Không phát thêm.",
       "OTRA_FECHA": "Lịch hẹn của họ là vào ngày khác. Không hợp lệ.",
       "CANCELADA": "Lịch hẹn này đã bị hủy. Không hợp lệ.",
-      "NO_EXISTE": "Mã này không khớp với lịch hẹn nào. Hãy tìm theo tên.",
+      "NO_EXISTE": "Mã này không khớp với lịch hẹn nào. Hãy tìm bên dưới theo tên, số thứ tự hoặc mã.",
       "VALIDO_AUTORIZADO": "Đã cho phép nhận hàng ngoài ngày hẹn. Hệ thống đã ghi lại người cho phép.",
       "VALIDO_PASE": "Thẻ vĩnh viễn hợp lệ. Hãy trao phần quà. Nếu chưa chắc là đúng người, xin xem giấy tờ tùy thân.",
       "PASE_REVOCADO": "Quản trị viên đã thu hồi thẻ này. Không phát phần quà.",
@@ -109,7 +113,11 @@
       "SIN_CONEXION": "Không kiểm tra được mã vì mất kết nối. Mã có thể vẫn đúng: đừng từ chối người đó. Hãy kiểm tra dữ liệu và kiểm tra lại.",
       "RECIEN_ENTREGADO": "Đây là mã bạn vừa phát ({{nombre}}). Máy ảnh đọc lại lần nữa: không cần làm gì, họ có thể đi tiếp.",
       "TURNO_PERDIDO": "Đã gọi mà không có mặt. Họ cần quét lại mã ở lối vào để lấy số mới.",
-      "TURNO_NO_EXISTE": "Hãy kiểm tra lại số. Chỉ phát cho các số hàng đi bộ của hôm nay."
+      "TURNO_NO_EXISTE": "Hãy kiểm tra lại số. Chỉ phát cho các số hàng đi bộ của hôm nay.",
+      "SIN_SESION": "Không kiểm tra được mã vì phiên đăng nhập của bạn đã kết thúc. Mã có thể vẫn đúng: đừng từ chối người đó. Hãy đăng nhập lại rồi quét lại.",
+      "NO_SE_PUDO_REVISAR": "Đã có lỗi khi kiểm tra mã. Mã có thể vẫn đúng: đừng từ chối người đó. Hãy kiểm tra lại.",
+      "TURNO_ANULADO": "Số này đã bị hủy vì người đó không có mặt khi được gọi. Không thể nhận bằng số này nữa: hãy lấy số mới ở bảng tại lối vào.",
+      "TURNO_ANULADO_AHORA": "Không thể nhận bằng số đó nữa. Nếu muốn, họ có thể lấy số mới ở bảng tại lối vào và chờ từ cuối hàng."
     },
     "camara": {
       "SIN_PERMISO": "Bạn chưa cho phép sử dụng camera.",
@@ -180,7 +188,59 @@
       "sinConexion": "Không có sóng: danh sách có thể chưa cập nhật."
     },
     "siguienteOtraVez": "Quét lại hoặc quét người tiếp theo",
-    "intentarOtraVez": "Thử lại: đưa mã QR lại gần máy ảnh"
+    "intentarOtraVez": "Thử lại: đưa mã QR lại gần máy ảnh",
+    "volverAEntrar": "Đăng nhập lại",
+    "ajeno": {
+      "CARTEL_TURNO": "Đây là mã QR trên bảng ở lối vào (để lấy số), không phải của một người. Hãy xin mã QR trên điện thoại của họ, hoặc tìm bên dưới theo số hoặc mã.",
+      "PAGINA_PROPIA": "Đây là đường dẫn đến một trang của Cajita de Bendición, không phải mã QR của lịch hẹn. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới.",
+      "OTRA_PAGINA": "Đây là mã QR của trang khác ({{dominio}}), không phải của Cajita de Bendición. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới.",
+      "TEXTO": "Mã QR này không phải của Cajita de Bendición. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới theo tên, số hoặc mã."
+    },
+    "tarde": {
+      "titulo": "Số {{turno}}: đã gọi lúc {{hora}} nhưng không có mặt ({{hace}})",
+      "ayuda": "Nếu chỉ vài phút, hãy phát. Nếu lâu hơn, hãy hủy số: họ sẽ phải lấy số mới và chờ từ cuối hàng.",
+      "entregar": "Vẫn phát",
+      "anular": "Hủy số"
+    },
+    "anular": {
+      "pregunta": "Hủy số {{turno}}?",
+      "explicacion": "Không thể nhận bằng số này nữa. Nếu muốn, họ lấy số mới ở bảng tại lối vào và chờ từ cuối hàng. Không thể hoàn tác.",
+      "si": "Có, hủy số",
+      "no": "Không, quay lại"
+    },
+    "turnos": {
+      "etiqueta": "Tìm số thứ tự",
+      "ayuda": "Gõ số thứ tự hoặc các chữ số trong mã của họ. Bấm vào số để phát; bấm «i» để xem chi tiết.",
+      "ejemplo": "Số hoặc mã",
+      "ejemploLetras": "Đặc điểm hoặc tên",
+      "borrar": "Xóa nội dung đã gõ",
+      "conLetras": "Tìm theo đặc điểm hoặc tên (chữ)",
+      "conNumeros": "Tìm theo số (số thứ tự hoặc mã)",
+      "cargando": "Đang tải các số của hôm nay…",
+      "nada": "Không có số nào hôm nay khớp. Kiểm tra lại số; mã phải đầy đủ (4 hoặc 5 chữ số).",
+      "tocaParaEntregar": "Bấm để phát",
+      "verDetalle": "Xem chi tiết số {{turno}}",
+      "codigo": "Mã",
+      "sacado": "Lấy số lúc",
+      "dadoPor": "Người cấp",
+      "llamado": "Đã gọi",
+      "recibio": "Đã nhận",
+      "anulado": "Đã hủy",
+      "comparaCodigo": "Hãy hỏi mã của họ và so sánh: số thuộc về người biết mã.",
+      "verQr": "Xem mã QR",
+      "ocultarQr": "Ẩn mã QR",
+      "qrAlt": "Mã QR của số {{turno}}",
+      "haceUnMomento": "vừa xong",
+      "haceMin": "{{n}} phút trước",
+      "haceHoras": "{{h}} giờ {{m}} phút trước",
+      "estado": {
+        "va": "Đang phục vụ",
+        "esperando": "Đang chờ",
+        "saltado": "Đã gọi lúc {{hora}} nhưng không có mặt · {{hace}}",
+        "recibio": "Đã nhận lúc {{hora}}",
+        "anulado": "Đã hủy lúc {{hora}}"
+      }
+    }
   },
   "pase": {
     "etiqueta": "Thẻ vào vĩnh viễn",
@@ -811,7 +871,7 @@
       },
       "buscar": {
         "titulo": "Nếu không quét được mã QR",
-        "texto": "Ở hàng xe, bấm “Tìm theo tên hoặc mã”: bạn thấy ngay danh sách người của hôm nay. Gõ một phần tên (dù không chắc cách viết: “Javier” cũng tìm ra “Xavier”) hoặc mã của họ, bấm vào người đó rồi bấm “Ghi nhận đã nhận hàng”. Ở hàng đi bộ, chỉ gõ các chữ số của mã bên dưới máy ảnh (4 hoặc 5): “CB-” đã có sẵn và tự tìm."
+        "texto": "Ở hàng xe, bấm “Tìm theo tên hoặc mã”: bạn thấy ngay danh sách người của hôm nay. Gõ một phần tên (dù không chắc cách viết: “Javier” cũng tìm ra “Xavier”) hoặc mã của họ, bấm vào người đó rồi bấm “Ghi nhận đã nhận hàng”. Ở hàng đi bộ, gõ số thứ tự hoặc các chữ số trong mã của họ bên dưới máy ảnh: kết quả hiện ra khi bạn gõ. Bấm vào số để phát, hoặc bấm “i” để xem chi tiết."
       },
       "sinCita": {
         "titulo": "Nếu có người đến mà không có lịch hẹn",
@@ -855,7 +915,7 @@
       },
       "turnos": {
         "titulo": "Hàng đi bộ phát theo số thứ tự",
-        "texto": "Phía trên máy ảnh bạn thấy số đang gọi và các số tiếp theo. Quét QR của họ; nếu họ không có QR nhưng biết số, bấm “Phát không cần QR”. Nếu họ không có mặt, bấm “Không có mặt”: hàng tiếp tục, và nếu họ đến sau thì số vẫn còn hiệu lực. Với người không có điện thoại, dùng “Cấp số mới” trong bảng. Khi xong, bấm “Kết thúc hàng hôm nay”."
+        "texto": "Phía trên máy ảnh bạn thấy số đang gọi và các số tiếp theo. Quét QR của họ; nếu họ không có QR nhưng biết số, bấm “Phát không cần QR”. Nếu họ không có mặt, bấm “Không có mặt”: hàng tiếp tục. Nếu họ đến trong vài phút, hãy phát; nếu đến quá trễ, máy quét sẽ hỏi và bạn bấm “Hủy số”: họ sẽ cần lấy số mới. Với người không có điện thoại, dùng “Cấp số mới” trong bảng. Khi xong, bấm “Kết thúc hàng hôm nay”."
       },
       "filaAPie": {
         "titulo": "Sắp xếp hàng đi bộ",
@@ -1227,7 +1287,8 @@
       "cajas": "Hộp",
       "intentos_repetidos": "Quét lặp lại",
       "cambios_a_pie": "Chuyển sang đi bộ",
-      "con_pase": "Có thẻ"
+      "con_pase": "Có thẻ",
+      "turnos_anulados": "Số đã hủy"
     },
     "errores": {
       "RANGO_INVALIDO": "Ngày «Từ» phải trùng hoặc trước ngày «Đến».",
@@ -1639,11 +1700,12 @@
     "antes_other": "Còn {{count}} người trước bạn",
     "eresElSiguiente": "Bạn là người kế tiếp! Hãy đến gần.",
     "esTuTurno": "Đến lượt bạn! Hãy đến và đưa mã.",
-    "teLlamaron": "Đã gọi đến số của bạn nhưng bạn không có mặt. Hãy đến gặp tình nguyện viên và cho xem số hoặc mã của bạn: bạn vẫn có thể nhận.",
+    "teLlamaron": "Đã gọi đến số của bạn nhưng bạn không có mặt. Hãy đến gặp tình nguyện viên ngay và cho xem số hoặc mã của bạn. Nếu bạn đến quá trễ, số sẽ bị hủy và bạn phải lấy số mới.",
     "recibida": "Bạn đã nhận thùng. Cảm ơn bạn đã đến!",
     "otroDia": "Vào ngày phát, bạn sẽ thấy tại đây đang gọi số nào.",
     "seActualiza": "Tự cập nhật mỗi vài giây.",
-    "terminada": "Hàng hôm nay đã kết thúc. Cảm ơn bạn đã đến; hẹn gặp bạn ở lần phát tiếp theo."
+    "terminada": "Hàng hôm nay đã kết thúc. Cảm ơn bạn đã đến; hẹn gặp bạn ở lần phát tiếp theo.",
+    "anulado": "Số của bạn đã bị hủy vì đã gọi đến mà bạn không có mặt. Nếu bạn vẫn muốn nhận thực phẩm, hãy lấy số mới: bạn sẽ chờ từ cuối hàng."
   },
   "elegirFila": {
     "pregunta": "Hôm nay bạn ở hàng nào?",
@@ -1675,7 +1737,7 @@
     "sinLimite": "Không giới hạn",
     "siguen": "Kế tiếp",
     "noSePresentaron_other": "{{count}} người không có mặt",
-    "noSePresentaronAyuda": "Hàng đã tiếp tục mà không có họ, nhưng số của họ vẫn còn hiệu lực: nếu họ đến, hãy quét QR hoặc bấm “Phát”.",
+    "noSePresentaronAyuda": "Hàng đã tiếp tục mà không có họ. Nếu họ đến trong vài phút, bấm «Phát». Nếu họ đến quá trễ, bấm «Hủy»: họ sẽ phải lấy số mới.",
     "regresar": "Cho vào hàng lại",
     "seActualiza": "Tự cập nhật mỗi vài giây.",
     "errores": {
@@ -1715,7 +1777,8 @@
       "entregar": "Phát",
       "entregarNumero": "Phát số này không cần QR",
       "numero": "Số"
-    }
+    },
+    "anular": "Hủy"
   },
   "filaAPieAdmin": {
     "titulo": "Hàng đi bộ",
@@ -1898,7 +1961,7 @@
       "sinDatos": "Chúng tôi không hỏi tên, tuổi hay số điện thoại. Không có gì được lưu hay chia sẻ.",
       "soloHoy": "Số của bạn chỉ dùng hôm nay và cho một thùng.",
       "abierta": "Hãy để trang này mở: bạn thấy số đang được gọi, và điện thoại sẽ kêu khi còn 3 người và khi đến lượt bạn.",
-      "teLlaman": "Nếu được gọi mà bạn không có mặt, hãy đến ngay khi bạn tới cùng với số của mình: số của bạn vẫn còn hiệu lực.",
+      "teLlaman": "Nếu được gọi mà bạn không có mặt, hãy đến ngay khi có thể. Nếu đến quá trễ, số của bạn sẽ bị hủy và bạn phải lấy số mới, ở cuối hàng.",
       "cadaQuien": "Mỗi người lớn lấy số riêng. Nếu không có điện thoại, hãy nhờ tình nguyện viên."
     },
     "carro": {
@@ -1914,7 +1977,8 @@
       "YA_RECIBIO_EN_CARRO": "Hôm nay bạn đã nhận thùng ở hàng xe. Cảm ơn bạn đã đến!",
       "AUN_NO_ABRE": "Số được phát từ {{hora}}.",
       "NO_HAY_FILA": "Hôm nay không có hàng đi bộ.",
-      "CERRADA": "Hôm nay không phát thêm số nữa."
+      "CERRADA": "Hôm nay không phát thêm số nữa.",
+      "TURNOS_ANULADOS": "Hôm nay đã có hai số của bạn bị hủy vì bạn không có mặt khi được gọi. Nếu cần giúp đỡ, hãy nói với tình nguyện viên."
     },
     "errores": {
       "SIN_CONEXION": "Không có kết nối. Kiểm tra sóng và bấm lại.",
@@ -1933,7 +1997,18 @@
       "esperaBoton": "Chờ {{reloj}}"
     },
     "anotalo": "Hãy ghi lại số của bạn ({{turno}}) hoặc chụp ảnh màn hình này. Nếu trang bị đóng, đừng lấy số khác: hãy nói số của bạn cho tình nguyện viên.",
-    "yaTenias": "Bạn đã lấy số và trang bị đóng? Đừng lấy số khác: hãy nói số của bạn cho tình nguyện viên."
+    "yaTenias": "Bạn đã lấy số và trang bị đóng? Đừng lấy số khác: hãy nói số của bạn cho tình nguyện viên.",
+    "otroTurno": "Lấy số mới",
+    "carroCodigo": {
+      "abrir": "Bạn có lịch hẹn đi xe hôm nay không?",
+      "titulo": "Chuyển từ xe sang đi bộ",
+      "ayuda": "Nếu hàng xe quá dài, bạn có thể chuyển sang hàng đi bộ. Hãy nhập mã lịch hẹn đi xe của bạn. Lịch hẹn đi xe sẽ bị hủy và bạn không thể quay lại hàng xe.",
+      "etiqueta": "Mã lịch hẹn đi xe của bạn",
+      "campoAyuda": "Chỉ các chữ số (4 hoặc 5): «CB-» đã có sẵn.",
+      "boton": "Chuyển sang đi bộ",
+      "cancelar": "Tôi không có lịch hẹn đi xe",
+      "CODIGO_CARRO_NO_EXISTE": "Không tìm thấy lịch hẹn đi xe hôm nay với mã đó. Hãy kiểm tra lại các chữ số."
+    }
   },
   "codigoDelDia": {
     "casilla": "Yêu cầu mã của hôm nay",
