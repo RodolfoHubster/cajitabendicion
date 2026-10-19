@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { LuInfo } from 'react-icons/lu'
+import HastaCodigo from './HastaCodigo'
 import { formatearHora } from '../datos/disponibilidad'
 import { aperturaDeCampos, aperturaRecomendada, otraHoraInicial, revisarApertura } from '../datos/filaAPie'
 import { hoyLocal } from '../datos/panel'
@@ -12,10 +13,13 @@ const ESTILO_INPUT =
  * entregar, cuantos turnos (o sin limite) y cuando se abren los turnos. Se
  * usa al crear la fecha (Nueva fecha) y al cambiarla (dentro de cada dia).
  *
- * valor: { hora, sinLimite, cupo, otraHora, abreEn } (ver camposFilaAPie).
+ * valor: { hora, sinLimite, cupo, otraHora, abreEn, codigo, codigoConHora,
+ * codigoHasta } (ver camposFilaAPie).
  * fecha: la del dia, para calcular "una hora antes"; puede faltar todavia.
+ * conCodigo: al crear la fila, tambien si pide el codigo del dia y hasta
+ * que hora (secciones 43 y 47). Ya creada, eso va en su recuadro (CodigoDelDia).
  */
-export default function CamposFilaAPie({ id, fecha, valor, alCambiar }) {
+export default function CamposFilaAPie({ id, fecha, valor, alCambiar, conCodigo = false }) {
   const { t } = useTranslation()
   const cambiar = (cambios) => alCambiar({ ...valor, ...cambios })
 
@@ -121,6 +125,33 @@ export default function CamposFilaAPie({ id, fecha, valor, alCambiar }) {
           </p>
         )}
       </fieldset>
+
+      {conCodigo && (
+        <div className="space-y-2 rounded-xl border border-principal/15 p-3">
+          <label className="flex min-h-12 items-center gap-3 text-base font-semibold text-principal">
+            <input
+              checked={Boolean(valor.codigo)}
+              className="h-6 w-6 shrink-0 accent-principal"
+              id={`codigoDia-${id}`}
+              onChange={(e) => cambiar({ codigo: e.target.checked })}
+              type="checkbox"
+            />
+            {t('codigoDelDia.casilla')}
+          </label>
+          <p className="text-base text-principal/70">{t('codigoDelDia.ayuda')}</p>
+          {valor.codigo && (
+            <HastaCodigo
+              abreEn={aperturaDeCampos(fecha, valor)}
+              alCambiar={({ conHora, hasta }) => cambiar({ codigoConHora: conHora, codigoHasta: hasta })}
+              conHora={Boolean(valor.codigoConHora)}
+              fecha={fecha}
+              hasta={valor.codigoHasta ?? ''}
+              id={id}
+              sugerida={valor.hora}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }

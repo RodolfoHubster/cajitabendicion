@@ -10,7 +10,10 @@ import {
   aperturaRecomendada,
   camposFilaAPie,
   cerrarRegistroAPie,
+  codigoHastaAPie,
+  codigoNuncaSePide,
   crearDiaAPie,
+  prenderCodigoDeCampos,
   filaAPieParaGuardar,
   otraHoraInicial,
   problemaFilaAPie,
@@ -327,7 +330,10 @@ describe('el administrador arma la fila del día', () => {
   })
 
   it('lo de arranque para una fecha nueva: sin límite y los turnos una hora antes', () => {
-    expect(camposFilaAPie()).toEqual({ hora: '14:00', sinLimite: true, cupo: '100', otraHora: false, abreEn: '' })
+    expect(camposFilaAPie()).toEqual({
+      hora: '14:00', sinLimite: true, cupo: '100', otraHora: false, abreEn: '',
+      codigo: false, codigoConHora: false, codigoHasta: '',
+    })
   })
 
   it('"otra hora" empieza llena: una hora antes, del día de la entrega o de hoy', () => {
@@ -340,6 +346,7 @@ describe('el administrador arma la fila del día', () => {
     const dia = { fecha: '2026-09-28', a_pie_bloque_id: 'b', a_pie_hora: '16:30:00', a_pie_capacidad: 80 }
     expect(camposFilaAPie({ ...dia, a_pie_abre_en: '2026-09-28T15:30:00' })).toEqual({
       hora: '16:30', sinLimite: false, cupo: '80', otraHora: false, abreEn: '2026-09-28T15:30',
+      codigo: false, codigoConHora: false, codigoHasta: '',
     })
     expect(camposFilaAPie({ ...dia, a_pie_capacidad: 10000, a_pie_abre_en: '2026-09-28T13:00:00' })).toMatchObject({
       sinLimite: true, cupo: '100', otraHora: true, abreEn: '2026-09-28T13:00',
@@ -360,6 +367,63 @@ describe('el administrador arma la fila del día', () => {
     )
     //  Mas temprano de lo recomendado se puede: solo se avisa.
     expect(problemaFilaAPie('2026-09-28', { ...bien, otraHora: true, abreEn: '2026-09-27T12:00' })).toBeNull()
+  })
+
+  it('al crearla con el código del día: "hasta las" necesita su hora', () => {
+    const bien = { hora: '16:30', sinLimite: true, cupo: '100', otraHora: false, abreEn: '' }
+    const sinHora = { ...bien, codigo: true, codigoConHora: true, codigoHasta: '' }
+    expect(problemaFilaAPie('2026-09-28', sinHora, true)).toBe('CODIGO_HASTA_REQUERIDA')
+    expect(problemaFilaAPie('2026-09-28', { ...sinHora, codigoHasta: '13:00' }, true)).toBeNull()
+    expect(problemaFilaAPie('2026-09-28', { ...sinHora, codigoConHora: false }, true)).toBeNull()
+    expect(problemaFilaAPie('2026-09-28', { ...sinHora, codigo: false }, true)).toBeNull()
+    //  Ya creada, el codigo se cambia en su recuadro: no estorba para guardar.
+    expect(problemaFilaAPie('2026-09-28', sinHora)).toBeNull()
+  })
+
+  it('avisa si el código dejaría de pedirse antes de abrir los turnos', () => {
+    expect(codigoNuncaSePide('2026-10-19', '2026-10-19T13:00', '12:30')).toBe(true)
+    expect(codigoNuncaSePide('2026-10-19', '2026-10-19T13:00', '13:00:00')).toBe(true)
+    expect(codigoNuncaSePide('2026-10-19', '2026-10-19T09:00', '13:00')).toBe(false)
+    //  Los turnos abren el dia anterior: a esa hora del dia ya se pidio.
+    expect(codigoNuncaSePide('2026-10-19', '2026-10-18T20:00', '09:00')).toBe(false)
+    expect(codigoNuncaSePide('2026-10-19', '2026-10-19T13:00', '')).toBe(false)
+    expect(codigoNuncaSePide('2026-10-19', '', '12:00')).toBe(false)
+  })
+
+  it('hasta qué hora se pide: leerla, guardarla y regresar a todo el día', async () => {
+    supabase.rpc.mockResolvedValue({ data: '13:00:00', error: null })
+    await expect(codigoHastaAPie('2026-10-19')).resolves.toBe('13:00:00')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('codigo_turno_a_pie_hasta', {
+      p_fecha: '2026-10-19', p_cambiar: false, p_hasta: null,
+    })
+    await codigoHastaAPie('2026-10-19', { cambiar: true, hasta: '13:00' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('codigo_turno_a_pie_hasta', {
+      p_fecha: '2026-10-19', p_cambiar: true, p_hasta: '13:00',
+    })
+    await codigoHastaAPie('2026-10-19', { cambiar: true, hasta: '' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('codigo_turno_a_pie_hasta', {
+      p_fecha: '2026-10-19', p_cambiar: true, p_hasta: null,
+    })
+
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'FILA_A_PIE_NO_EXISTE' } })
+    await expect(codigoHastaAPie('2026-10-19')).rejects.toThrow('FILA_A_PIE_NO_EXISTE')
+  })
+
+  it('al crear la fila prende el código del día y su hora, solo si se pidió', async () => {
+    supabase.rpc.mockResolvedValue({ data: '4821', error: null })
+    await expect(prenderCodigoDeCampos('2026-10-19', { codigo: false })).resolves.toBeNull()
+    expect(supabase.rpc).not.toHaveBeenCalled()
+
+    await expect(prenderCodigoDeCampos('2026-10-19', { codigo: true, codigoConHora: false, codigoHasta: '13:00' })).resolves.toBe('4821')
+    expect(supabase.rpc).toHaveBeenCalledTimes(1)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('codigo_turno_a_pie', { p_fecha: '2026-10-19', p_activo: true, p_nuevo: false })
+
+    supabase.rpc.mockClear()
+    await prenderCodigoDeCampos('2026-10-19', { codigo: true, codigoConHora: true, codigoHasta: '13:00' })
+    expect(supabase.rpc).toHaveBeenCalledTimes(2)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('codigo_turno_a_pie_hasta', {
+      p_fecha: '2026-10-19', p_cambiar: true, p_hasta: '13:00',
+    })
   })
 
   it('la apertura: la recomendada o la que se escogió', () => {

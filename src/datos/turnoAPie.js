@@ -64,8 +64,9 @@ export function sacarTurnoAPie({ cambiarCarro = false, codigo = '', codigoCarro 
 
 /**
  * La fila a pie de hoy, para la pagina del turno: { hora, abre_en, abierta,
- * cerrada, pide_codigo }, o null si hoy no hay. Dice SI se pide el codigo
- * del dia, nunca cual es.
+ * cerrada, pide_codigo, terminada, codigo_hasta }, o null si hoy no hay.
+ * Dice SI se pide el codigo del dia, nunca cual es; codigo_hasta (seccion
+ * 47): mientras se pide, a que hora se deja de pedir.
  */
 export function filaAPieHoy() {
   return llamar('fila_a_pie_hoy', {})

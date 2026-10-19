@@ -730,7 +730,8 @@
       "A_PIE_HORARIO_INVALIDO": "The time the walk-up delivery starts is missing.",
       "A_PIE_CAPACIDAD_INVALIDA": "Numbers must be 1 or more, or no limit.",
       "A_PIE_APERTURA_REQUERIDA": "The date and time numbers open is missing.",
-      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Numbers must open before the delivery starts."
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Numbers must open before the delivery starts.",
+      "A_PIE_CODIGO_HASTA_REQUERIDA": "The time until today's code is required is missing."
     },
     "activarSuscriptores": "Turn on access for Facebook subscribers",
     "entran": "Subscribers get in",
@@ -752,7 +753,8 @@
       "carro": "Cars only",
       "a_pie": "Walk-up only",
       "ambas": "Cars and walk-up",
-      "faltoAPie": "The date was created, but the walk-up line could not be saved. Open it in the list below and set it up there."
+      "faltoAPie": "The date was created, but the walk-up line could not be saved. Open it in the list below and set it up there.",
+      "faltoCodigo": "The date was created, but today's code could not be turned on. Open it in the list below and turn it on there."
     }
   },
   "incidencias": {
@@ -1787,7 +1789,9 @@
       "entregarNumero": "Give out this number without QR",
       "numero": "Number"
     },
-    "anular": "Void"
+    "anular": "Void",
+    "codigoHasta": "Required until {{hora}}.",
+    "codigoYaNo": "Since {{hora}} today's code is no longer required: anyone can get a number with the QR."
   },
   "filaAPieAdmin": {
     "titulo": "Walk-up line",
@@ -2046,6 +2050,18 @@
       "error": "The poster couldn't be prepared. Try again.",
       "mensaje": "Scan here to get your number",
       "recuadro": "Today's code:"
+    },
+    "hasta": {
+      "titulo": "Until what time is the code required?",
+      "todoElDia": "All day",
+      "hastaLas": "Until",
+      "hora": "Time when the code stops being required",
+      "ayuda": "After that time it is no longer required: anyone can get a number with the QR on the sign, and they go to the end of the line.",
+      "antesDeAbrir": "At that time numbers are not open yet: the code would never be required.",
+      "sePideTodoElDia": "Required all day.",
+      "sePideHasta": "Required until {{hora}}.",
+      "guardar": "Save the time",
+      "guardada": "Done, the time was saved."
     }
   }
 }

@@ -10,6 +10,7 @@ import {
   cerrarRegistroAPie,
   filaAPieParaGuardar,
   guardarFilaAPie,
+  prenderCodigoDeCampos,
   problemaFilaAPie,
   quitarFilaAPie,
 } from '../datos/filaAPie'
@@ -38,14 +39,18 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
 
   const [campos, setCampos] = useState(() => camposFilaAPie(dia))
   const [preguntandoQuitar, setPreguntandoQuitar] = useState(false)
-  const problema = problemaFilaAPie(dia.fecha, campos)
+  const problema = problemaFilaAPie(dia.fecha, campos, !existe)
 
   function guardar(evento) {
     evento.preventDefault()
-    ejecutar(() => guardarFilaAPie(filaAPieParaGuardar(dia.fecha, campos)), {
-      seccion: 'aPie',
-      avisar: 'filaAPieAdmin.guardado',
-    })
+    ejecutar(
+      async () => {
+        await guardarFilaAPie(filaAPieParaGuardar(dia.fecha, campos))
+        //  Al crearla: el codigo del dia, si se escogio (secciones 43 y 47).
+        if (!existe) await prenderCodigoDeCampos(dia.fecha, campos)
+      },
+      { seccion: 'aPie', avisar: 'filaAPieAdmin.guardado' },
+    )
   }
 
   function alternarRegistro() {
@@ -97,7 +102,7 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
       )}
 
       <form className="space-y-4" onSubmit={guardar}>
-        <CamposFilaAPie alCambiar={setCampos} fecha={dia.fecha} id={dia.fecha} valor={campos} />
+        <CamposFilaAPie alCambiar={setCampos} conCodigo={!existe} fecha={dia.fecha} id={dia.fecha} valor={campos} />
 
         <div className="flex flex-wrap gap-2">
           <button className={BOTON_FUERTE} disabled={ocupado || Boolean(problema)} type="submit">
@@ -114,7 +119,13 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
       {mensaje}
 
       {/* El codigo del dia y el cartel del QR de turnos. */}
-      {existe && <CodigoDelDia fecha={dia.fecha} />}
+      {existe && (
+        <CodigoDelDia
+          abreEn={aCampo(dia.a_pie_abre_en)}
+          fecha={dia.fecha}
+          horaInicio={String(dia.a_pie_hora ?? '').slice(0, 5)}
+        />
+      )}
 
       {/* Con turnos dados no se quita: se cierra el registro. */}
       {existe &&

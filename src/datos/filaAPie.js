@@ -148,6 +148,39 @@ export function codigoTurnoAPie(fecha, { activo = null, nuevo = false } = {}) {
 }
 
 /**
+ * Hasta que hora se pide el codigo del dia de una fecha (seccion 47).
+ * Sin `cambiar`, solo la lee; con `cambiar`, guarda `hasta` ('13:00'; vacio
+ * o null: todo el dia). Devuelve '13:00:00', o null si se pide todo el dia.
+ */
+export function codigoHastaAPie(fecha, { cambiar = false, hasta = null } = {}) {
+  return llamar('codigo_turno_a_pie_hasta', { p_fecha: fecha, p_cambiar: Boolean(cambiar), p_hasta: hasta || null })
+}
+
+/**
+ * Al crear la fila a pie: prende el codigo del dia y su hora, si se pidio
+ * en los campos (ver camposFilaAPie). La fila ya tiene que existir.
+ * Devuelve el codigo, o null si no se pidio.
+ */
+export async function prenderCodigoDeCampos(fecha, campos) {
+  if (!campos?.codigo) return null
+  const codigo = await codigoTurnoAPie(fecha, { activo: true })
+  if (campos.codigoConHora && campos.codigoHasta) {
+    await codigoHastaAPie(fecha, { cambiar: true, hasta: campos.codigoHasta })
+  }
+  return codigo
+}
+
+/**
+ * Si el codigo dejaria de pedirse antes de que se abran los turnos (o justo
+ * al abrir): entonces nunca se pediria. abreEn: '2026-10-19T13:00'.
+ */
+export function codigoNuncaSePide(fecha, abreEn, hasta) {
+  if (!fecha || !abreEn || !hasta) return false
+  const [dia, hora = ''] = abreEn.split('T')
+  return dia === fecha && String(hasta).slice(0, 5) <= hora.slice(0, 5)
+}
+
+/**
  * Terminar la fila a pie de hoy, al acabar: ya no se dan turnos y quien
  * todavia espera ve "La fila de hoy ya termino". Con false se deshace.
  * No es "Cerrar los turnos" (Horarios): ahi quien ya tiene turno lo conserva.
@@ -322,6 +355,10 @@ export function revisarApertura({ fecha, hora, abreEn }) {
  * CamposFilaAPie): de un dia que ya la tiene, o lo de arranque para uno
  * nuevo (sin limite y los turnos una hora antes, mientras se decide con el
  * pastor).
+ *
+ * Al crear la fila tambien se escoge si pide el codigo del dia y hasta que
+ * hora (codigo, codigoConHora, codigoHasta). Ya creada, eso se cambia en su
+ * recuadro (CodigoDelDia), no aqui.
  */
 export function camposFilaAPie(dia = null) {
   const existe = Boolean(dia?.a_pie_bloque_id)
@@ -337,6 +374,9 @@ export function camposFilaAPie(dia = null) {
     //  "Otra hora" solo si ya se habia guardado una distinta a la recomendada.
     otraHora: Boolean(abreEn && hora) && abreEn !== aperturaRecomendada(dia.fecha, hora),
     abreEn,
+    codigo: false,
+    codigoConHora: false,
+    codigoHasta: '',
   }
 }
 
@@ -355,8 +395,11 @@ export function aperturaDeCampos(fecha, campos) {
   return fecha && campos.hora ? aperturaRecomendada(fecha, campos.hora) : ''
 }
 
-/** Lo que falta o esta mal en lo capturado, o null si se puede guardar. */
-export function problemaFilaAPie(fecha, campos) {
+/**
+ * Lo que falta o esta mal en lo capturado, o null si se puede guardar.
+ * conCodigo: al crear la fila, cuando tambien se escoge el codigo del dia.
+ */
+export function problemaFilaAPie(fecha, campos, conCodigo = false) {
   if (!campos.hora) return 'HORARIO_INVALIDO'
   const cupo = Number(String(campos.cupo).trim() || NaN)
   if (!campos.sinLimite && !(Number.isInteger(cupo) && cupo >= 1)) return 'CAPACIDAD_INVALIDA'
@@ -364,6 +407,7 @@ export function problemaFilaAPie(fecha, campos) {
   if (revisarApertura({ fecha, hora: campos.hora, abreEn: aperturaDeCampos(fecha, campos) }) === 'DESPUES_DE_INICIO') {
     return 'APERTURA_DESPUES_DE_INICIO'
   }
+  if (conCodigo && campos.codigo && campos.codigoConHora && !campos.codigoHasta) return 'CODIGO_HASTA_REQUERIDA'
   return null
 }
 

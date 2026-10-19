@@ -730,7 +730,8 @@
       "A_PIE_HORARIO_INVALIDO": "Falta la hora en que empieza la entrega a pie.",
       "A_PIE_CAPACIDAD_INVALIDA": "Los turnos tienen que ser 1 o más, o sin límite.",
       "A_PIE_APERTURA_REQUERIDA": "Falta la fecha y hora en que se abren los turnos.",
-      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Los turnos tienen que abrirse antes de empezar a entregar."
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Los turnos tienen que abrirse antes de empezar a entregar.",
+      "A_PIE_CODIGO_HASTA_REQUERIDA": "Falta la hora hasta la que se pide el código del día."
     },
     "activarSuscriptores": "Activar acceso para suscriptores de Facebook",
     "entran": "Los suscriptores entran",
@@ -752,7 +753,8 @@
       "carro": "Solo carros",
       "a_pie": "Solo a pie",
       "ambas": "Carros y a pie",
-      "faltoAPie": "La fecha se creó, pero la fila a pie no se pudo guardar. Ábrela en la lista de abajo y ármala ahí."
+      "faltoAPie": "La fecha se creó, pero la fila a pie no se pudo guardar. Ábrela en la lista de abajo y ármala ahí.",
+      "faltoCodigo": "La fecha se creó, pero el código del día no se pudo prender. Ábrela en la lista de abajo y préndelo ahí."
     }
   },
   "incidencias": {
@@ -1787,7 +1789,9 @@
       "entregarNumero": "Entregar este turno sin QR",
       "numero": "Número de turno"
     },
-    "anular": "Anular"
+    "anular": "Anular",
+    "codigoHasta": "Se pide hasta las {{hora}}.",
+    "codigoYaNo": "Desde las {{hora}} ya no se pide el código del día: cualquiera saca turno con el QR."
   },
   "filaAPieAdmin": {
     "titulo": "Fila a pie",
@@ -2046,6 +2050,18 @@
       "error": "No se pudo preparar el cartel. Vuelve a intentar.",
       "mensaje": "Escanea aquí para sacar tu turno",
       "recuadro": "Código del día:"
+    },
+    "hasta": {
+      "titulo": "¿Hasta qué hora se pide el código?",
+      "todoElDia": "Todo el día",
+      "hastaLas": "Hasta las",
+      "hora": "Hora en que se deja de pedir el código",
+      "ayuda": "Después de esa hora ya no se pide: cualquiera saca su turno con el QR del cartel y queda al final de la fila.",
+      "antesDeAbrir": "A esa hora todavía no se abren los turnos: el código no se pediría nunca.",
+      "sePideTodoElDia": "Se pide todo el día.",
+      "sePideHasta": "Se pide hasta las {{hora}}.",
+      "guardar": "Guardar la hora",
+      "guardada": "Listo, se guardó la hora."
     }
   }
 }

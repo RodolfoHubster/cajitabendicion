@@ -232,14 +232,25 @@ export default function PanelTurnos({
         </div>
       )}
 
-      {/* El codigo del dia, para decirlo en la entrada (o escribirlo en el pizarron). */}
+      {/* El codigo del dia, para decirlo en la entrada (o escribirlo en el
+          pizarron), y hasta que hora se pide (seccion 47). */}
       {datos.codigo_dia && !datos.terminada && (
-        <p className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-dashed border-accion bg-accion/10 px-3 py-2 text-base font-semibold text-principal">
-          <span className="inline-flex items-center gap-2">
-            <LuKeyRound aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t('filaTurnos.codigoDia')}
-          </span>
-          <span className="font-titulo text-3xl font-bold tracking-[0.3em]">{datos.codigo_dia}</span>
+        <div className="mt-3 rounded-xl border-2 border-dashed border-accion bg-accion/10 px-3 py-2 text-base text-principal">
+          <p className="flex flex-wrap items-center justify-between gap-2 font-semibold">
+            <span className="inline-flex items-center gap-2">
+              <LuKeyRound aria-hidden="true" className="h-5 w-5 text-accion" />
+              {t('filaTurnos.codigoDia')}
+            </span>
+            <span className="font-titulo text-3xl font-bold tracking-[0.3em]">{datos.codigo_dia}</span>
+          </p>
+          {datos.codigo_hasta && <p>{t('filaTurnos.codigoHasta', { hora: formatearHora(datos.codigo_hasta) })}</p>}
+        </div>
+      )}
+      {/* Ya paso la hora: si alguien pregunta por el codigo, ya no hace falta. */}
+      {!datos.codigo_dia && datos.codigo_hasta && !datos.terminada && (
+        <p className="mt-3 flex items-center gap-2 rounded-xl bg-principal/5 px-3 py-2 text-base text-principal">
+          <LuKeyRound aria-hidden="true" className="h-5 w-5 shrink-0 text-principal/70" />
+          {t('filaTurnos.codigoYaNo', { hora: formatearHora(datos.codigo_hasta) })}
         </p>
       )}
 

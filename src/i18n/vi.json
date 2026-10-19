@@ -726,7 +726,8 @@
       "A_PIE_HORARIO_INVALIDO": "Thiếu giờ bắt đầu phát cho hàng đi bộ.",
       "A_PIE_CAPACIDAD_INVALIDA": "Số lượng phải từ 1 trở lên, hoặc không giới hạn.",
       "A_PIE_APERTURA_REQUERIDA": "Thiếu ngày giờ mở lấy số.",
-      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Phải mở lấy số trước khi bắt đầu phát."
+      "A_PIE_APERTURA_DESPUES_DE_INICIO": "Phải mở lấy số trước khi bắt đầu phát.",
+      "A_PIE_CODIGO_HASTA_REQUERIDA": "Thiếu giờ ngừng yêu cầu mã của hôm nay."
     },
     "activarSuscriptores": "Bật đăng ký sớm cho người theo dõi trên Facebook",
     "entran": "Người theo dõi được vào",
@@ -748,7 +749,8 @@
       "carro": "Chỉ xe hơi",
       "a_pie": "Chỉ đi bộ",
       "ambas": "Xe hơi và đi bộ",
-      "faltoAPie": "Đã tạo ngày, nhưng chưa lưu được hàng đi bộ. Hãy mở ngày đó trong danh sách bên dưới và tạo hàng tại đó."
+      "faltoAPie": "Đã tạo ngày, nhưng chưa lưu được hàng đi bộ. Hãy mở ngày đó trong danh sách bên dưới và tạo hàng tại đó.",
+      "faltoCodigo": "Đã tạo ngày, nhưng không bật được mã của hôm nay. Hãy mở ngày đó trong danh sách bên dưới và bật ở đó."
     }
   },
   "incidencias": {
@@ -1778,7 +1780,9 @@
       "entregarNumero": "Phát số này không cần QR",
       "numero": "Số"
     },
-    "anular": "Hủy"
+    "anular": "Hủy",
+    "codigoHasta": "Yêu cầu đến {{hora}}.",
+    "codigoYaNo": "Từ {{hora}} không cần mã của hôm nay nữa: ai cũng có thể lấy số bằng mã QR."
   },
   "filaAPieAdmin": {
     "titulo": "Hàng đi bộ",
@@ -2024,6 +2028,18 @@
       "error": "Không chuẩn bị được áp phích. Hãy thử lại.",
       "mensaje": "Quét ở đây để lấy số",
       "recuadro": "Mã hôm nay:"
+    },
+    "hasta": {
+      "titulo": "Yêu cầu mã đến mấy giờ?",
+      "todoElDia": "Cả ngày",
+      "hastaLas": "Đến",
+      "hora": "Giờ không còn yêu cầu mã",
+      "ayuda": "Sau giờ đó không cần mã nữa: ai cũng có thể lấy số bằng mã QR trên bảng và sẽ xếp cuối hàng.",
+      "antesDeAbrir": "Lúc đó chưa mở lấy số: mã sẽ không bao giờ được yêu cầu.",
+      "sePideTodoElDia": "Yêu cầu cả ngày.",
+      "sePideHasta": "Yêu cầu đến {{hora}}.",
+      "guardar": "Lưu giờ",
+      "guardada": "Xong, đã lưu giờ."
     }
   }
 }

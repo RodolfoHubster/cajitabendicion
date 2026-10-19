@@ -2598,6 +2598,54 @@ begin
       update intentos_turno set creado_en = now() - interval '6 minutes' where dispositivo = 'tel-codigo-1';
       select * into v_fila from sacar_turno_a_pie('tel-codigo-1', false, v_codigo);
       perform pg_temp.comprobar('Código del día: pasados los 5 minutos ya puede', v_fila.resultado = 'NUEVO', v_fila.resultado);
+      --  Hasta cierta hora (sección 47).
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.esperar_error('Código hasta cierta hora: un voluntario no la cambia',
+        format('select codigo_turno_a_pie_hasta(%L::date, true, %L::time)', v_hoy, '13:00'), 'SIN_PERMISO');
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      perform pg_temp.comprobar('Código hasta cierta hora: al prenderlo se pide todo el día', codigo_turno_a_pie_hasta(v_hoy) is null);
+      perform pg_temp.comprobar('Código hasta cierta hora: se guarda la hora',
+        codigo_turno_a_pie_hasta(v_hoy, true, '23:59:59') = '23:59:59'::time
+        and codigo_turno_a_pie_hasta(v_hoy) = '23:59:59'::time);
+      perform pg_temp.comprobar('Código hasta cierta hora: antes de la hora, la voluntaria lo ve y sabe hasta cuándo',
+        fila_de_turnos(null)->>'codigo_dia' = v_codigo and fila_de_turnos(null)->>'codigo_hasta' = '23:59:59',
+        fila_de_turnos(null)->>'codigo_hasta');
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.comprobar('Código hasta cierta hora: antes de la hora, la página lo pide y sabe hasta cuándo',
+        (select f.pide_codigo and f.codigo_hasta = v_hoy + '23:59:59'::time from fila_a_pie_hoy() f));
+      select * into v_fila from sacar_turno_a_pie('tel-codigo-hora');
+      perform pg_temp.comprobar('Código hasta cierta hora: antes de la hora, sin código no da turno',
+        v_fila.resultado = 'FALTA_CODIGO', v_fila.resultado);
+
+      --  Ya pasó la hora: a las 00:00 siempre ya pasó.
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform codigo_turno_a_pie_hasta(v_hoy, true, '00:00');
+      perform pg_temp.comprobar('Código hasta cierta hora: pasada la hora, la voluntaria ve que ya no se pide',
+        fila_de_turnos(null)->>'codigo_dia' is null and fila_de_turnos(null)->>'codigo_hasta' = '00:00:00');
+      perform pg_temp.comprobar('Código hasta cierta hora: el administrador sigue viendo el código', codigo_turno_a_pie(v_hoy) = v_codigo);
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.comprobar('Código hasta cierta hora: pasada la hora, la página ya no lo pide',
+        (select not f.pide_codigo and f.codigo_hasta is null and f.abierta from fila_a_pie_hoy() f));
+      select * into v_fila from sacar_turno_a_pie('tel-codigo-hora', false, case when v_codigo = '0000' then '1111' else '0000' end);
+      perform pg_temp.comprobar('Código hasta cierta hora: pasada la hora, da turno aunque escriba otro código',
+        v_fila.resultado = 'NUEVO', v_fila.resultado);
+      perform pg_temp.comprobar('Código hasta cierta hora: pasada la hora, un código mal no cuenta para el freno',
+        not exists (select 1 from intentos_turno i where i.dispositivo = 'tel-codigo-hora'));
+
+      --  Otra vez todo el día.
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.comprobar('Código hasta cierta hora: se regresa a todo el día', codigo_turno_a_pie_hasta(v_hoy, true, null) is null);
+      perform pg_temp.comprobar('Código hasta cierta hora: todo el día, la voluntaria lo vuelve a ver',
+        fila_de_turnos(null)->>'codigo_dia' = v_codigo and fila_de_turnos(null)->'codigo_hasta' = 'null'::jsonb);
+      perform pg_temp.esperar_error('Código hasta cierta hora: sin fila a pie ese día no se puede',
+        format('select codigo_turno_a_pie_hasta(%L::date, true, %L::time)', v_pasada, '13:00'), 'FILA_A_PIE_NO_EXISTE');
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.comprobar('Código hasta cierta hora: la página lo vuelve a pedir',
+        (select f.pide_codigo and f.codigo_hasta is null from fila_a_pie_hoy() f));
+      select * into v_fila from sacar_turno_a_pie('tel-codigo-hora-2');
+      perform pg_temp.comprobar('Código hasta cierta hora: todo el día, sin código no da turno',
+        v_fila.resultado = 'FALTA_CODIGO', v_fila.resultado);
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
 
       select * into v_fila from dar_turno_sin_telefono('  María   chamarra roja ');
@@ -2679,6 +2727,9 @@ begin
         not has_function_privilege('anon', 'lista_para_escaneo()', 'execute')
         and has_function_privilege('anon', 'fila_a_pie_hoy()', 'execute')
         and not has_function_privilege('anon', 'codigo_turno_a_pie(date, boolean, boolean)', 'execute')
+        and not has_function_privilege('anon', 'codigo_turno_a_pie_hasta(date, boolean, time)', 'execute')
+        and not has_function_privilege('anon', 'codigo_del_dia_vigente(date)', 'execute')
+        and not has_function_privilege('authenticated', 'codigo_del_dia_vigente(date)', 'execute')
         and not has_function_privilege('anon', 'terminar_fila_a_pie(boolean)', 'execute')
         and not has_function_privilege('anon', 'entregar_turno(integer)', 'execute'));
 
@@ -2780,7 +2831,8 @@ begin
         --  3 con datos + los 11 turnos sin datos de las secciones 42 y 43 (el que
         --  vuelve a escanear ya no saca otro: sección 44) + el de quien se cambió
         --  con su código CB. Los dos anulados ya no ocupan lugar (sección 46).
-        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 15 and v_fila.a_pie_abre_en is not null
+        --  Más el que se sacó pasada la hora del código del día (sección 47).
+        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 16 and v_fila.a_pie_abre_en is not null
         and v_fila.capacidad_total < cupo_sin_limite(),
         format('ocupados %s, cupo de carro %s', v_fila.a_pie_ocupados, v_fila.capacidad_total));
 

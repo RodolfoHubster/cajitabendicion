@@ -9,7 +9,7 @@ import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
 import { dibujarQR } from '../../datos/cita'
-import { formatearHora } from '../../datos/disponibilidad'
+import { formatearHora, segundosHasta } from '../../datos/disponibilidad'
 import {
   consultarFilasAPie,
   estadoFilaAPie,
@@ -102,7 +102,11 @@ export default function Turno() {
         if (deHoy?.cerrada) {
           setFila({ ...(disponible ?? {}), cerrada: true, terminada: Boolean(deHoy.terminada) })
         } else {
-          setFila(disponible ? { ...disponible, pide_codigo: Boolean(deHoy?.pide_codigo) } : null)
+          setFila(
+            disponible
+              ? { ...disponible, pide_codigo: Boolean(deHoy?.pide_codigo), codigo_hasta: deHoy?.codigo_hasta ?? null }
+              : null,
+          )
         }
       })
       .catch(() => {
@@ -112,6 +116,25 @@ export default function Turno() {
       vigente = false
     }
   }, [hoy, miTurno, recarga])
+
+  //  El codigo del dia deja de pedirse a cierta hora (seccion 47): a esa
+  //  hora se vuelve a preguntar y el campo se quita solo. Unos segundos de
+  //  mas, por si el reloj del telefono va adelantado; si la base todavia lo
+  //  pide, se vuelve a preguntar cada 30 segundos.
+  const codigoHasta = fila?.pide_codigo ? fila.codigo_hasta : null
+  useEffect(() => {
+    if (!codigoHasta) return undefined
+    const segundos = segundosHasta(codigoHasta)
+    const reloj = setTimeout(
+      () => {
+        setPideCodigo(false)
+        setAvisoCodigo(null)
+        volverAPreguntar()
+      },
+      segundos > 0 ? segundos * 1000 + 2000 : 30000,
+    )
+    return () => clearTimeout(reloj)
+  }, [codigoHasta, recarga, volverAPreguntar])
 
   useEffect(() => {
     if (!miTurno?.token) return undefined

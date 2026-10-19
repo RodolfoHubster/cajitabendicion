@@ -6625,6 +6625,7 @@ declare
   v_bloque bloques;
   v_abre   timestamptz;
   v_codigo text;
+  v_hasta  time;
   v_json   jsonb;
 begin
   v_rol := exigir_rol(array['admin', 'voluntario']);
@@ -6643,7 +6644,11 @@ begin
     return null;
   end if;
 
-  select d.a_pie_abre_en, d.a_pie_codigo into v_abre, v_codigo from dias_entrega d where d.fecha = v_fecha;
+  --  El codigo del dia solo mientras se pide; la hora, si hay codigo (seccion 47).
+  select d.a_pie_abre_en, codigo_del_dia_vigente(d.fecha),
+         case when d.a_pie_codigo is not null then d.a_pie_codigo_hasta end
+    into v_abre, v_codigo, v_hasta
+    from dias_entrega d where d.fecha = v_fecha;
 
   with turnos as (
     --  El codigo de un turno sin datos no se manda: es lo unico que prueba
@@ -6669,6 +6674,8 @@ begin
     'abre_en',    v_abre at time zone 'America/Los_Angeles',
     --  El codigo del dia (seccion 43), si se pide: para decirlo en la entrada.
     'codigo_dia', v_codigo,
+    --  Hasta que hora se pide (seccion 47). Con codigo_dia nulo: ya no se pide.
+    'codigo_hasta', v_hasta,
     'actual',     (select jsonb_build_object('turno', e.turno, 'nombre', e.nombre, 'codigo_corto', e.codigo_corto)
                      from esperando e order by e.turno limit 1),
     'siguientes', coalesce((select jsonb_agg(jsonb_build_object('turno', s.turno, 'nombre', s.nombre,
@@ -7133,7 +7140,8 @@ revoke execute on function crear_turno_anonimo(uuid, text, uuid) from public, an
 --    AUN_NO_ABRE          todavia no es la hora (abre_en dice cuando)
 --    NO_HAY_FILA          hoy no hay fila a pie
 --    CERRADA              el dia o la fila se cerraron
---    FALTA_CODIGO         ese dia se pide el codigo del dia (seccion 43)
+--    FALTA_CODIGO         ese dia se pide el codigo del dia (seccion 43) y
+--                         todavia no es la hora en que se deja de pedir (47)
 --    CODIGO_INCORRECTO    el codigo no es el del dia
 --    DEMASIADOS_INTENTOS  5 codigos mal en 5 minutos: espera (segundos)
 --    CODIGO_CARRO_NO_EXISTE  no hay cita de carro de hoy con ese codigo CB
@@ -7200,7 +7208,8 @@ begin
   end if;
 
   select * into v_bloque from bloques b where b.fecha = current_date and b.fila = 'a_pie';
-  select d.a_pie_abre_en, d.cerrado, d.a_pie_codigo into v_abre, v_cerrado, v_codigo_dia
+  --  El codigo del dia, solo si a esta hora todavia se pide (seccion 47).
+  select d.a_pie_abre_en, d.cerrado, codigo_del_dia_vigente(d.fecha) into v_abre, v_cerrado, v_codigo_dia
     from dias_entrega d where d.fecha = current_date;
 
   if v_bloque.id is null or v_abre is null then
@@ -7465,6 +7474,31 @@ grant  execute on function dar_turno_sin_telefono(text) to authenticated;
 alter table dias_entrega add column if not exists a_pie_codigo text;
 alter table bloques      add column if not exists terminada_en timestamptz;
 
+--  Hasta que hora se pide el codigo del dia (seccion 47). Nula: todo el dia.
+alter table dias_entrega add column if not exists a_pie_codigo_hasta time;
+
+--  El codigo del dia que se pide AHORA (seccion 47): el de esa fecha, salvo
+--  que hoy ya haya pasado la hora hasta la que se pedia. Nulo si no se
+--  pide. Solo la usan las funciones de aqui; nadie la llama de fuera.
+create or replace function codigo_del_dia_vigente(p_fecha date)
+returns text
+language sql
+stable
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+  select case
+           when d.a_pie_codigo_hasta is null
+             or d.fecha <> current_date
+             or localtime < d.a_pie_codigo_hasta
+           then d.a_pie_codigo
+         end
+    from dias_entrega d
+   where d.fecha = p_fecha;
+$$;
+
+revoke execute on function codigo_del_dia_vigente(date) from public, anon, authenticated;
+
 --  Los intentos fallidos del codigo del dia, por telefono (el freno).
 create table if not exists intentos_turno (
   id          bigint generated always as identity primary key,
@@ -7519,16 +7553,19 @@ grant  execute on function codigo_turno_a_pie(date, boolean, boolean) to authent
 --  La fila a pie de hoy, para la pagina /turno: si hay, si ya abrio y si
 --  pide el codigo del dia (nunca el codigo). Sin fila, ningun renglon.
 --  "cerrada": ya no se dan turnos. "terminada": ademas, la fila acabo.
+--  "codigo_hasta" (seccion 47): mientras se pide el codigo, a que hora se
+--  deja de pedir, para que la pagina quite el campo a esa hora.
 drop function if exists fila_a_pie_hoy();
 
 create or replace function fila_a_pie_hoy()
 returns table (
-  hora        time,
-  abre_en     timestamp,
-  abierta     boolean,
-  cerrada     boolean,
-  pide_codigo boolean,
-  terminada   boolean
+  hora         time,
+  abre_en      timestamp,
+  abierta      boolean,
+  cerrada      boolean,
+  pide_codigo  boolean,
+  terminada    boolean,
+  codigo_hasta timestamp
 )
 language sql
 stable
@@ -7540,8 +7577,9 @@ as $$
          d.a_pie_abre_en at time zone 'America/Los_Angeles',
          now() >= d.a_pie_abre_en,
          b.cerrado or d.cerrado or b.terminada_en is not null,
-         d.a_pie_codigo is not null,
-         d.cerrado or b.terminada_en is not null
+         codigo_del_dia_vigente(d.fecha) is not null,
+         d.cerrado or b.terminada_en is not null,
+         case when codigo_del_dia_vigente(d.fecha) is not null then d.fecha + d.a_pie_codigo_hasta end
     from bloques b
     join dias_entrega d on d.fecha = b.fecha
    where b.fecha = current_date
@@ -7895,3 +7933,55 @@ grant  execute on function qr_de_turno(int) to authenticated;
 --  Si esto pasa, el sistema ya vale más que el formulario actual.
 --  Si no pasa, ninguna pantalla bonita lo va a salvar.
 -- ============================================================
+
+
+-- ============================================================
+--  47. EL CODIGO DEL DIA HASTA CIERTA HORA
+-- ============================================================
+--  Pedido del 19 de octubre de 2026 (la idea del 16, que el pastor habia
+--  dejado para despues): los turnos se abren temprano pidiendo el codigo
+--  del dia, que solo sabe quien esta en la entrada, y a cierta hora se deja
+--  de pedir. Desde esa hora cualquiera saca turno con el QR del cartel y
+--  queda al final de la fila.
+--
+--  * dias_entrega.a_pie_codigo_hasta (seccion 43): la hora. Nula, todo el dia.
+--  * codigo_del_dia_vigente() (seccion 43): el codigo que se pide ahora. La
+--    usan sacar_turno_a_pie(), fila_a_pie_hoy() (pide_codigo y
+--    codigo_hasta) y fila_de_turnos() (codigo_dia y codigo_hasta).
+--  * Pasada la hora tampoco cuentan los codigos mal escritos para el freno.
+--  * El administrador sigue viendo el codigo en Horarios: codigo_turno_a_pie()
+--    no cambia.
+
+--  Hasta que hora se pide el codigo del dia de una fecha. Sin p_cambiar
+--  solo la lee. p_hasta nulo: todo el dia. Devuelve la hora (o nulo).
+create or replace function codigo_turno_a_pie_hasta(p_fecha date, p_cambiar boolean default false, p_hasta time default null)
+returns time
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_hasta time;
+begin
+  perform exigir_rol(array['admin']);
+
+  if not exists (select 1 from bloques b where b.fecha = p_fecha and b.fila = 'a_pie') then
+    raise exception 'FILA_A_PIE_NO_EXISTE';
+  end if;
+
+  if coalesce(p_cambiar, false) then
+    update dias_entrega d
+       set a_pie_codigo_hasta = p_hasta
+     where d.fecha = p_fecha
+    returning d.a_pie_codigo_hasta into v_hasta;
+  else
+    select d.a_pie_codigo_hasta into v_hasta from dias_entrega d where d.fecha = p_fecha;
+  end if;
+
+  return v_hasta;
+end;
+$$;
+
+revoke execute on function codigo_turno_a_pie_hasta(date, boolean, time) from public, anon;
+grant  execute on function codigo_turno_a_pie_hasta(date, boolean, time) to authenticated;

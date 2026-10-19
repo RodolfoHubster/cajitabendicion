@@ -22,6 +22,7 @@ import {
   crearDiaAPie,
   filaAPieParaGuardar,
   guardarFilaAPie,
+  prenderCodigoDeCampos,
   problemaFilaAPie,
 } from '../../datos/filaAPie'
 import { EsqueletoLista } from '../../componentes/Esqueleto'
@@ -83,7 +84,7 @@ function NuevoDia({ alCrear, alCancelar }) {
     }
 
     //  Lo de la fila a pie se revisa antes de crear nada.
-    const problema = conAPie ? problemaFilaAPie(fecha, aPie) : null
+    const problema = conAPie ? problemaFilaAPie(fecha, aPie, true) : null
     if (problema) {
       setError('A_PIE_' + problema)
       return
@@ -95,11 +96,18 @@ function NuevoDia({ alCrear, alCancelar }) {
     if (!conCarros) {
       try {
         await crearDiaAPie(filaAPieParaGuardar(fecha, aPie))
-        alCrear(fecha, '')
       } catch (e) {
         setError(e.message)
         setEnviando(false)
+        return
       }
+      //  La fecha ya quedo; si el codigo del dia falla (sin senal), se avisa
+      //  y se prende dentro del dia.
+      const faltoCodigo = await prenderCodigoDeCampos(fecha, aPie).then(
+        () => false,
+        () => true,
+      )
+      alCrear(fecha, '', faltoCodigo ? 'faltoCodigo' : null)
       return
     }
 
@@ -120,15 +128,22 @@ function NuevoDia({ alCrear, alCancelar }) {
 
       //  Las dos filas: la fecha ya quedo; si la fila a pie falla (sin senal),
       //  se avisa y se arma dentro del dia, sin perder la fecha.
-      let faltoAPie = false
+      let falto = null
       if (conAPie) {
         try {
           await guardarFilaAPie(filaAPieParaGuardar(fecha, aPie))
         } catch {
-          faltoAPie = true
+          falto = 'faltoAPie'
+        }
+        if (!falto) {
+          try {
+            await prenderCodigoDeCampos(fecha, aPie)
+          } catch {
+            falto = 'faltoCodigo'
+          }
         }
       }
-      alCrear(fecha, anticipado ? codigo : '', faltoAPie)
+      alCrear(fecha, anticipado ? codigo : '', falto)
     } catch (e) {
       setError(e.message)
       setEnviando(false)
@@ -264,7 +279,7 @@ function NuevoDia({ alCrear, alCancelar }) {
               <FaPersonWalking aria-hidden="true" className="h-5 w-5 text-accion" />
               {t('filaAPieAdmin.titulo')}
             </h3>
-            <CamposFilaAPie alCambiar={setAPie} fecha={fecha} id="nueva" valor={aPie} />
+            <CamposFilaAPie alCambiar={setAPie} conCodigo fecha={fecha} id="nueva" valor={aPie} />
           </section>
         )}
 
@@ -305,8 +320,9 @@ export default function HorariosAdmin() {
   const [abierta, setAbierta] = useState(undefined)
   // null: nada que avisar. '': se creo sin suscriptores. Texto: su codigo.
   const [creada, setCreada] = useState(null)
-  // Se creo con las dos filas, pero la fila a pie no se pudo guardar.
-  const [faltoAPie, setFaltoAPie] = useState(false)
+  // Se creo, pero algo de la fila a pie no se pudo guardar: 'faltoAPie'
+  // (la fila) o 'faltoCodigo' (el codigo del dia). null: nada.
+  const [falto, setFalto] = useState(null)
 
   const recargar = () => setRecarga((n) => n + 1)
 
@@ -330,10 +346,10 @@ export default function HorariosAdmin() {
     }
   }, [recarga])
 
-  function alCrear(fecha, codigo, sinAPie = false) {
+  function alCrear(fecha, codigo, queFalto = null) {
     setCreando(false)
     setCreada(codigo)
-    setFaltoAPie(sinAPie)
+    setFalto(queFalto)
     setAbierta(fecha)
     recargar()
   }
@@ -366,9 +382,9 @@ export default function HorariosAdmin() {
               {creada ? t('diasAdmin.creadaConCodigo') : t('diasAdmin.creada')}
             </p>
             {creada && <CodigoCopiable autoCopiar codigo={creada} />}
-            {faltoAPie && (
+            {falto && (
               <p className="rounded-xl bg-accion/15 p-3 text-base text-principal" role="alert">
-                {t('diasAdmin.filas.faltoAPie')}
+                {t(`diasAdmin.filas.${falto}`)}
               </p>
             )}
           </div>

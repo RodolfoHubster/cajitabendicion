@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuDownload, LuKeyRound, LuRefreshCw } from 'react-icons/lu'
+import HastaCodigo from './HastaCodigo'
 import { dibujarCartelQr, urlDeTurno } from '../datos/cartelQr'
-import { codigoTurnoAPie } from '../datos/filaAPie'
+import { formatearHora } from '../datos/disponibilidad'
+import { codigoHastaAPie, codigoTurnoAPie } from '../datos/filaAPie'
 import { guardarImagen } from '../datos/imagenCita'
 import { ORGANIZACION } from '../datos/organizacion'
 
@@ -18,10 +20,14 @@ const BOTON =
  * su casa. Cada fecha tiene los suyos, al azar. Los turnos que da la
  * voluntaria no lo piden.
  *
+ * Hasta que hora se pide (seccion 47): todo el dia, o hasta cierta hora;
+ * despues cualquiera saca turno con el QR. abreEn ('2026-10-19T13:00') y
+ * horaInicio ('14:00') son para avisar y para sugerir la hora.
+ *
  * El cartel: el QR de /turno con el logo, listo para imprimir, con un
  * recuadro en blanco para escribir a mano el codigo de ese dia.
  */
-export default function CodigoDelDia({ fecha }) {
+export default function CodigoDelDia({ fecha, abreEn = '', horaInicio = '' }) {
   const { t } = useTranslation()
   //  undefined: preguntando; null: no se pide; '1234': el codigo.
   const [codigo, setCodigo] = useState(undefined)
@@ -29,6 +35,47 @@ export default function CodigoDelDia({ fecha }) {
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState(null)
   const [cartel, setCartel] = useState(null)
+  //  Hasta que hora se pide. undefined: preguntando; null: todo el dia;
+  //  '13:00:00'. false: no se pudo saber (la base todavia no lo tiene).
+  const [hasta, setHasta] = useState(undefined)
+  //  Lo que se escogio y todavia no se guarda (null: lo guardado).
+  const [borrador, setBorrador] = useState(null)
+  const [horaGuardada, setHoraGuardada] = useState(false)
+
+  useEffect(() => {
+    let vigente = true
+    codigoHastaAPie(fecha)
+      .then((actual) => {
+        if (vigente) setHasta(actual ?? null)
+      })
+      .catch((e) => {
+        if (!vigente) return
+        if (e.message !== 'FUNCION_NO_INSTALADA') setError(e.message)
+        setHasta(false)
+      })
+    return () => {
+      vigente = false
+    }
+  }, [fecha])
+
+  const guardado = { conHora: Boolean(hasta), hasta: hasta ? String(hasta).slice(0, 5) : '' }
+  const vista = borrador ?? guardado
+  const hayCambio =
+    Boolean(borrador) && (vista.conHora !== guardado.conHora || (vista.conHora && vista.hasta !== guardado.hasta))
+
+  async function guardarHasta() {
+    setOcupado(true)
+    setError(null)
+    try {
+      setHasta((await codigoHastaAPie(fecha, { cambiar: true, hasta: vista.conHora ? vista.hasta : null })) ?? null)
+      setBorrador(null)
+      setHoraGuardada(true)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
 
   useEffect(() => {
     let vigente = true
@@ -109,6 +156,44 @@ export default function CodigoDelDia({ fecha }) {
                 <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
                 {t('codigoDelDia.otro')}
               </button>
+            </div>
+          )}
+
+          {codigo && hasta !== undefined && hasta !== false && (
+            <div className="mt-3 space-y-2">
+              <p className="text-base font-semibold text-principal">
+                {hasta
+                  ? t('codigoDelDia.hasta.sePideHasta', { hora: formatearHora(hasta) })
+                  : t('codigoDelDia.hasta.sePideTodoElDia')}
+              </p>
+              <HastaCodigo
+                abreEn={abreEn}
+                alCambiar={(valor) => {
+                  setBorrador(valor)
+                  setHoraGuardada(false)
+                }}
+                conHora={vista.conHora}
+                disabled={ocupado}
+                fecha={fecha}
+                hasta={vista.hasta}
+                id={fecha}
+                sugerida={horaInicio}
+              />
+              {hayCambio && (
+                <button
+                  className={BOTON}
+                  disabled={ocupado || (vista.conHora && !vista.hasta)}
+                  onClick={guardarHasta}
+                  type="button"
+                >
+                  {t('codigoDelDia.hasta.guardar')}
+                </button>
+              )}
+              {horaGuardada && !hayCambio && (
+                <p className="text-base font-semibold text-puede-pasar" role="status">
+                  {t('codigoDelDia.hasta.guardada')}
+                </p>
+              )}
             </div>
           )}
 
