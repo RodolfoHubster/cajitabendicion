@@ -17,6 +17,7 @@ import {
   COLUMNAS,
   PERIODOS,
   aCsv,
+  descargarCsv,
   detalleDelDia,
   nombreArchivoReporte,
   periodoActivo,
@@ -29,18 +30,6 @@ import {
 
 // En pantalla, sin excepciones ni intentos repetidos: van en el CSV.
 const COLUMNAS_TABLA = ['capacidad', 'con_cita', 'recibieron', 'no_asistieron', 'pendientes', 'canceladas', 'sin_cita', 'cajas']
-
-function descargarCsv(nombre, texto) {
-  // La marca BOM al inicio: sin ella, Excel muestra mal los acentos.
-  const url = URL.createObjectURL(new Blob(['﻿', texto], { type: 'text/csv;charset=utf-8' }))
-  const enlace = document.createElement('a')
-  enlace.href = url
-  enlace.download = nombre
-  document.body.appendChild(enlace)
-  enlace.click()
-  enlace.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 0)
-}
 
 //  En el detalle de un dia, a pie se dice distinto: son turnos.
 const CUENTAS_DETALLE = ['con_cita', 'recibieron', 'no_asistieron', 'sin_cita', 'con_pase', 'cajas']

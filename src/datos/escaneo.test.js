@@ -159,6 +159,10 @@ describe('queEsElQR (un QR que no es de ninguna cita)', () => {
     expect(queEsElQR('https://casadealabanzasd.com.estafa.net', 'otro')).toEqual({ tipo: 'OTRA_PAGINA', dominio: 'casadealabanzasd.com.estafa.net' })
   })
 
+  it('la credencial de un voluntario (sección 48)', () => {
+    expect(queEsElQR(`vol${'c3'.repeat(24)}`, 'otro')).toEqual({ tipo: 'VOLUNTARIO' })
+  })
+
   it('cualquier otra cosa', () => {
     expect(queEsElQR('WIFI:S:Iglesia;T:WPA;P:1234;;', 'otro')).toEqual({ tipo: 'TEXTO' })
     expect(queEsElQR('', 'otro')).toEqual({ tipo: 'TEXTO' })

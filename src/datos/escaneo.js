@@ -1,6 +1,7 @@
 import jsQR from 'jsqr'
 import { clasificarError } from './errores'
 import { esDeOtraFila } from './filas'
+import { esCredencial } from './voluntarios'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -229,10 +230,13 @@ const SITIOS_PROPIOS = ['casadealabanzasd.com', 'cajitabendicion.pages.dev', 'lo
  *   CARTEL_TURNO   el cartel de la entrada, para sacar turno a pie
  *   PAGINA_PROPIA  otra pagina de este sistema
  *   OTRA_PAGINA    una pagina de otro sitio ({ dominio })
+ *   VOLUNTARIO     la credencial de un voluntario (seccion 48): su entrada
+ *                  y salida se marcan en Voluntarios
  *   TEXTO          cualquier otra cosa
  */
 export function queEsElQR(texto, aqui = globalThis.location?.hostname ?? '') {
   const limpio = String(texto ?? '').trim()
+  if (esCredencial(limpio)) return { tipo: 'VOLUNTARIO' }
   if (!/^(https?:\/\/|www\.)/i.test(limpio)) return { tipo: 'TEXTO' }
 
   let url

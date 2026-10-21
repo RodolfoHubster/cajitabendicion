@@ -10,6 +10,7 @@ import Permisos from '../paginas/admin/Permisos'
 import Personas from '../paginas/admin/Personas'
 import RegistrarPersona from '../paginas/admin/RegistrarPersona'
 import Reportes from '../paginas/admin/Reportes'
+import Voluntarios from '../paginas/admin/Voluntarios'
 import Escanear from '../paginas/escaneo/Escanear'
 import DisenoAdmin from './DisenoAdmin'
 import RutaProtegida from './RutaProtegida'
@@ -59,6 +60,7 @@ export default function RutasAdmin() {
             <Route element={<Equipo />} path="/admin/equipo" />
             <Route element={<Permisos />} path="/admin/permisos" />
             <Route element={<CodigosQr />} path="/admin/qr" />
+            <Route element={<Voluntarios />} path="/admin/voluntarios" />
           </Route>
 
           <Route element={<SoloRol roles={['admin', 'voluntario']} />}>

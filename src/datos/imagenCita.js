@@ -123,8 +123,9 @@ export async function dibujarTarjetaCita({ qr, codigo, nombre, textos, documento
   ctx.drawImage(imagen, 150, 350, 420, 420)
 
   escribir(ctx, textos.siNoSeLee, 822, { tamano: 26, peso: 500, color: '#4A5F85' })
-  escribir(ctx, codigo, 900, { tamano: 72, familia: TITULO })
-  escribir(ctx, `${textos.aNombreDe} ${nombre}`, 960, { tamano: 28, peso: 600 })
+  //  La credencial de un voluntario no tiene codigo CB (seccion 48).
+  if (codigo) escribir(ctx, codigo, 900, { tamano: 72, familia: TITULO })
+  if (nombre) escribir(ctx, `${textos.aNombreDe} ${nombre}`, 960, { tamano: 28, peso: 600 })
 
   ctx.fillStyle = NARANJA
   ctx.fillRect(0, 1060, 720, 20)

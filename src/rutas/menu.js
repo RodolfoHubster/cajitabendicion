@@ -17,6 +17,8 @@ export const SECCIONES = [
   { a: '/escanear', clave: 'escanear', grupo: 'dia', roles: ['admin', 'voluntario'] },
   { a: '/admin', clave: 'citasHoy', grupo: 'dia', exacta: true, permiso: 'ver_citas_del_dia' },
   { a: '/admin/registrar', clave: 'registrar', grupo: 'dia', permiso: 'registrar_personas' },
+  //  Entrada y salida de los voluntarios (seccion 48): solo el administrador.
+  { a: '/admin/voluntarios', clave: 'voluntarios', grupo: 'dia', roles: ['admin'] },
   { a: '/admin/personas', clave: 'personas', grupo: 'personas', permiso: 'ver_personas' },
   { a: '/admin/pases', clave: 'pases', grupo: 'personas', permiso: 'dar_pases' },
   { a: '/admin/horarios', clave: 'horarios', grupo: 'preparar', roles: ['admin'] },

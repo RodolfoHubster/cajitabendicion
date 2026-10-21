@@ -7,6 +7,8 @@ import {
   LuCircleX,
   LuClock,
   LuCrown,
+  LuLogIn,
+  LuLogOut,
   LuMenu,
   LuPencilLine,
   LuQrCode,
@@ -697,6 +699,39 @@ function FilaAPieEscena() {
   )
 }
 
+/** La misma credencial verde: en la manana es su entrada; en la tarde, su salida (seccion 48). */
+function VoluntariosEscena() {
+  const { t } = useTranslation()
+
+  return (
+    <div className="flex h-56 items-center justify-center gap-3 px-3">
+      <div className="guia-anim guia-fase-1 h-24 w-24 shrink-0 overflow-hidden rounded-lg border-4 border-puede-pasar/60 shadow-tarjeta">
+        <QrDibujo className="h-full w-full" />
+      </div>
+      <div className="flex w-full max-w-[11rem] flex-col gap-2">
+        <div className="guia-anim guia-fase-1 overflow-hidden rounded-xl border-2 border-puede-pasar bg-superficie">
+          <div className="bg-puede-pasar/10 px-3 py-2">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-puede-pasar">
+              <LuLogIn className="h-4 w-4 shrink-0" />
+              {t('voluntarios.resultado.ENTRADA')}
+            </p>
+            <p className="text-xs text-principal">Juana · 9:02 AM</p>
+          </div>
+        </div>
+        <div className="guia-anim guia-fase-2 overflow-hidden rounded-xl border-2 border-principal bg-superficie">
+          <div className="bg-principal/5 px-3 py-2">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-principal">
+              <LuLogOut className="h-4 w-4 shrink-0" />
+              {t('voluntarios.resultado.SALIDA')}
+            </p>
+            <p className="text-xs text-principal">1:15 PM · 4 h 13 min</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const ESCENAS = {
   bienvenida: Bienvenida,
   menu: Menu,
@@ -710,6 +745,7 @@ const ESCENAS = {
   sinCita: SinCita,
   citasHoy: CitasHoy,
   registrar: Registrar,
+  voluntarios: VoluntariosEscena,
   personas: PersonasEscena,
   pases: PasesEscena,
   horarios: Horarios,

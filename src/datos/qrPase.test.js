@@ -1,7 +1,7 @@
 import jsQR from 'jsqr'
 import QRCode from 'qrcode'
 import { describe, expect, it } from 'vitest'
-import { AZUL_QR, ICONOS_FILA, ORO_QR, lugarDelIcono, medidasDelSello } from './qrPase'
+import { AZUL_QR, ICONOS_FILA, ORO_QR, VERDE_QR, lugarDelIcono, medidasDelSello } from './qrPase'
 
 //  Un generador con semilla: la misma "mancha" cada vez que corre la prueba.
 function azar(semilla) {
@@ -122,5 +122,6 @@ describe('el sello en medio del QR', () => {
     const contraste = (hex) => 1.05 / (luminancia(hex) + 0.05)
     expect(contraste(ORO_QR)).toBeGreaterThan(5)
     expect(contraste(AZUL_QR)).toBeGreaterThan(5)
+    expect(contraste(VERDE_QR)).toBeGreaterThan(5)
   })
 })

@@ -25,6 +25,8 @@ describe('quién ve qué en el menú', () => {
     expect(claves).not.toContain('equipo')
     expect(claves).not.toContain('horarios')
     expect(claves).not.toContain('permisos')
+    //  Las horas de los voluntarios (seccion 48) son del administrador.
+    expect(claves).not.toContain('voluntarios')
   })
 
   it('quien no es del personal no ve nada', () => {
@@ -40,7 +42,7 @@ describe('el menú por secciones', () => {
   it('arriba lo del día de la entrega, con Escanear primero', () => {
     const grupos = menuPorGrupos(seccionesVisibles('admin', CLAVES_PERMISOS))
     expect(grupos.map((g) => g.grupo)).toEqual(['dia', 'personas', 'preparar', 'numeros', 'administracion'])
-    expect(grupos[0].secciones.map((s) => s.clave)).toEqual(['escanear', 'citasHoy', 'registrar'])
+    expect(grupos[0].secciones.map((s) => s.clave)).toEqual(['escanear', 'citasHoy', 'registrar', 'voluntarios'])
     expect(grupos[2].secciones.map((s) => s.clave)).toEqual(['horarios', 'avisos', 'codigosQr'])
     expect(grupos[4].secciones.map((s) => s.clave)).toEqual(['equipo', 'permisos'])
   })

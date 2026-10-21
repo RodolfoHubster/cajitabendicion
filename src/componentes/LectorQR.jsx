@@ -16,8 +16,12 @@ import { clasificarErrorCamara, leerQR, zonaVisible } from '../datos/escaneo'
  * `ignorar`: un codigo que no cuenta y se sigue buscando. Es el que se acaba
  * de entregar: la persona todavia no baja su telefono y la camara ya esta
  * lista para el siguiente carro.
+ *
+ * `olvidar` (milisegundos): el mismo codigo se vuelve a mandar si se dejo de
+ * ver ese rato. Para las credenciales de los voluntarios (seccion 48): la
+ * misma marca la entrada en la manana y la salida en la tarde.
  */
-export default function LectorQR({ activo, alLeer, ignorar = null }) {
+export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = null }) {
   const { t } = useTranslation()
   const videoRef = useRef(null)
   const lienzoRef = useRef(null)
@@ -31,6 +35,12 @@ export default function LectorQR({ activo, alLeer, ignorar = null }) {
   }, [ignorar])
   //  El ultimo codigo que se mando: no se vuelve a mandar mientras siga ahi.
   const ultimoRef = useRef(null)
+  //  Cuando se vio por ultima vez, y cuanto se espera para olvidarlo.
+  const vistoEnRef = useRef(0)
+  const olvidarRef = useRef(olvidar)
+  useEffect(() => {
+    olvidarRef.current = olvidar
+  }, [olvidar])
 
   useEffect(() => {
     if (!activo) return
@@ -77,9 +87,15 @@ export default function LectorQR({ activo, alLeer, ignorar = null }) {
         const { x, y, lado } = zonaVisible(lienzo.width, lienzo.height)
         const texto = leerQR(ctx.getImageData(x, y, lado, lado))
 
-        if (texto && texto !== ignorarRef.current && texto !== ultimoRef.current) {
-          ultimoRef.current = texto
-          alLeer(texto)
+        if (texto && texto !== ignorarRef.current) {
+          const ahora = Date.now()
+          const otraVez =
+            olvidarRef.current && texto === ultimoRef.current && ahora - vistoEnRef.current > olvidarRef.current
+          if (texto !== ultimoRef.current || otraVez) {
+            ultimoRef.current = texto
+            alLeer(texto)
+          }
+          vistoEnRef.current = ahora
         }
       }
 

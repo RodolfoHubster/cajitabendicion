@@ -176,6 +176,19 @@ export function aCsv(filas, columnas) {
   return renglones.map((renglon) => renglon.join(',')).join('\r\n') + '\r\n'
 }
 
+/** Baja el CSV como archivo. Lo usan Reportes y las horas de los voluntarios. */
+export function descargarCsv(nombre, texto, { documento = globalThis.document, urls = globalThis.URL } = {}) {
+  // La marca BOM al inicio: sin ella, Excel muestra mal los acentos.
+  const url = urls.createObjectURL(new Blob(['\uFEFF', texto], { type: 'text/csv;charset=utf-8' }))
+  const enlace = documento.createElement('a')
+  enlace.href = url
+  enlace.download = nombre
+  documento.body.appendChild(enlace)
+  enlace.click()
+  enlace.remove()
+  setTimeout(() => urls.revokeObjectURL(url), 0)
+}
+
 /** Con la fila en el nombre, para no confundir un archivo de a pie con el total. */
 export function nombreArchivoReporte(desde, hasta, vistaFila = 'juntas') {
   const fila = filaParaConsulta(vistaFila)

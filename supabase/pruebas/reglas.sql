@@ -1868,6 +1868,186 @@ begin
     perform pg_temp.esperar_error('Panel: tampoco desde el panel se mete gente en un horario lleno',
       format('select * from mover_cita_panel(%L::uuid, %L::uuid)', v_cita, v_b_uno), 'BLOQUE_LLENO');
 
+    -- ---------- Voluntarios: credencial, entrada y salida (sección 48) ----------
+    --  Si algo truena a medias, se ve como una sola prueba fallida con su
+    --  error, en vez de tumbar todas las que siguen.
+    declare
+      v_vol   uuid;
+      v_cred  text;
+      v_cred2 text;
+      v_m     record;
+      v_asis  bigint;
+      v_asis2 bigint;
+      v_asis3 bigint;
+    begin
+      perform pg_temp.esperar_error('Voluntarios: sin nombre no se registra',
+        'select * from registrar_voluntario(''  '')', 'NOMBRE_INVALIDO');
+      select r.id, r.token into v_vol, v_cred from registrar_voluntario('  Juana   Prueba  ', ' 619 555 0101 ') r;
+      perform pg_temp.comprobar('Voluntarios: se registra y su credencial empieza con "vol"',
+        v_cred ~ '^vol[0-9a-f]{48}$', v_cred);
+      perform pg_temp.comprobar('Voluntarios: el nombre y el contacto quedan limpios',
+        exists (select 1 from listar_voluntarios() l
+                 where l.id = v_vol and l.nombre = 'Juana Prueba' and l.contacto = '619 555 0101' and l.activo));
+      perform pg_temp.comprobar('Voluntarios: con el enlace de su credencial solo se ve su nombre',
+        (select c.nombre = 'Juana Prueba' and c.activo from credencial_voluntario(v_cred) c));
+
+      --  Entrada.
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Entrada: el primer escaneo es su entrada',
+        v_m.resultado = 'ENTRADA' and v_m.nombre = 'Juana Prueba' and v_m.olvido is null, v_m.resultado);
+      v_asis := v_m.asistencia_id;
+      select * into v_m from marcar_asistencia(upper(v_cred));
+      perform pg_temp.comprobar('Entrada: leída otra vez enseguida no lo saca', v_m.resultado = 'YA_ENTRO', v_m.resultado);
+      perform pg_temp.comprobar('Entrada: sale en la lista de hoy, adentro',
+        exists (select 1 from asistencias_del_dia(null) d where d.id = v_asis and d.estado = 'dentro'));
+      perform pg_temp.comprobar('Entrada: la lista de voluntarios dice desde cuándo está',
+        (select l.dentro_desde is not null from listar_voluntarios() l where l.id = v_vol));
+      perform pg_temp.esperar_error('Entrada: no puede haber dos entradas abiertas',
+        format('insert into asistencias_voluntarios (voluntario_id) values (%L)', v_vol), 'idx_asistencia_abierta');
+
+      --  Salida.
+      update asistencias_voluntarios set entrada_en = now() - interval '3 hours 15 minutes' where id = v_asis;
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Salida: el siguiente escaneo es su salida, con sus horas',
+        v_m.resultado = 'SALIDA' and v_m.minutos = 195 and v_m.asistencia_id = v_asis,
+        format('%s %s', v_m.resultado, v_m.minutos));
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Salida: leída otra vez enseguida no lo vuelve a meter', v_m.resultado = 'YA_SALIO', v_m.resultado);
+      perform pg_temp.comprobar('Deshacer: la salida recién marcada se reabre', deshacer_asistencia(v_asis) = 'SALIDA_DESHECHA');
+      perform pg_temp.comprobar('Deshacer: vuelve a estar adentro',
+        (select a.estado = 'dentro' and a.salida_en is null from asistencias_voluntarios a where a.id = v_asis));
+      select * into v_m from marcar_asistencia(null, v_vol);
+      perform pg_temp.comprobar('Sin credencial: el administrador lo busca y le marca la salida', v_m.resultado = 'SALIDA', v_m.resultado);
+      update asistencias_voluntarios
+         set entrada_en = now() - interval '3 hours 25 minutes', salida_en = now() - interval '10 minutes'
+       where id = v_asis;
+      perform pg_temp.esperar_error('Deshacer: pasado el plazo ya no',
+        format('select deshacer_asistencia(%s)', v_asis), 'FUERA_DE_PLAZO');
+
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Entrada: después de salir puede volver a entrar', v_m.resultado = 'ENTRADA', v_m.resultado);
+      perform pg_temp.comprobar('Deshacer: una entrada por error se quita', deshacer_asistencia(v_m.asistencia_id) = 'ENTRADA_DESHECHA');
+      perform pg_temp.comprobar('Deshacer: y ya no está adentro',
+        not exists (select 1 from asistencias_voluntarios a where a.voluntario_id = v_vol and a.estado = 'dentro'));
+
+      --  Se fue sin marcar salida.
+      select * into v_m from marcar_asistencia(v_cred);
+      v_asis2 := v_m.asistencia_id;
+      update asistencias_voluntarios set entrada_en = now() - interval '2 days' where id = v_asis2;
+      perform pg_temp.comprobar('Sin salida: la lista avisa que se fue sin marcar',
+        (select l.sin_salida = 1 and l.dentro_desde is null from listar_voluntarios() l where l.id = v_vol));
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Sin salida: otro día, el escaneo es su entrada y avisa del olvido',
+        v_m.resultado = 'ENTRADA' and v_m.olvido = v_hoy - 2, format('%s %s', v_m.resultado, v_m.olvido));
+      perform pg_temp.comprobar('Sin salida: la entrada vieja queda sin salida',
+        (select a.estado = 'sin_salida' from asistencias_voluntarios a where a.id = v_asis2));
+      update asistencias_voluntarios set entrada_en = now() - interval '5 minutes' where id = v_m.asistencia_id;
+      perform pg_temp.esperar_error('Deshacer: una entrada de hace más de 2 minutos ya no se quita',
+        format('select deshacer_asistencia(%s)', v_m.asistencia_id), 'FUERA_DE_PLAZO');
+      select * into v_m from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol;
+      perform pg_temp.comprobar('Horas: solo suman las completas; la de hoy y la sin salida no',
+        v_m.minutos = 195 and v_m.dias = 1 and v_m.sin_salida = 1,
+        format('%s min, %s días, %s sin salida', v_m.minutos, v_m.dias, v_m.sin_salida));
+
+      --  Corregir.
+      perform pg_temp.esperar_error('Corregir: sin motivo no',
+        format('select corregir_asistencia(%s, %L::timestamp, %L::timestamp, '' '')',
+               v_asis2, (v_hoy - 2) + time '09:00', (v_hoy - 2) + time '13:30'), 'MOTIVO_REQUERIDO');
+      perform pg_temp.esperar_error('Corregir: la salida antes de la entrada no',
+        format('select corregir_asistencia(%s, %L::timestamp, %L::timestamp, ''x'')',
+               v_asis2, (v_hoy - 2) + time '13:30', (v_hoy - 2) + time '09:00'), 'HORAS_INVALIDAS');
+      perform pg_temp.esperar_error('Corregir: más de 16 horas seguidas no',
+        format('select corregir_asistencia(%s, %L::timestamp, %L::timestamp, ''x'')',
+               v_asis2, (v_hoy - 3) + time '06:00', (v_hoy - 2) + time '00:00'), 'HORAS_INVALIDAS');
+      perform pg_temp.comprobar('Corregir: se le pone su salida',
+        corregir_asistencia(v_asis2, (v_hoy - 2) + time '09:00', (v_hoy - 2) + time '13:30', 'Se fue sin marcar') = 'CORREGIDA');
+      select * into v_m from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol;
+      perform pg_temp.comprobar('Corregir: ya suma sus horas',
+        v_m.minutos = 195 + 270 and v_m.dias = 2 and v_m.sin_salida = 0,
+        format('%s min, %s días, %s sin salida', v_m.minutos, v_m.dias, v_m.sin_salida));
+      perform pg_temp.comprobar('Corregir: queda quién, cuándo y por qué',
+        exists (select 1 from asistencias_voluntarios a
+                 where a.id = v_asis2 and a.corregida_por = v_admin and a.corregida_en is not null
+                   and a.motivo = 'Se fue sin marcar'));
+      perform pg_temp.comprobar('Corregir: el detalle la marca como corregida',
+        (select d.corregida and d.minutos = 270 and d.estado = 'salio'
+           from asistencias_de_voluntario(v_vol, v_hoy - 7, v_hoy) d where d.id = v_asis2));
+
+      --  Agregar una que no se escaneó, y anularla.
+      perform pg_temp.esperar_error('Agregar: no se puede encimar con otra',
+        format('select agregar_asistencia(%L::uuid, %L::timestamp, %L::timestamp, ''Olvidó escanear'')',
+               v_vol, (v_hoy - 2) + time '12:00', (v_hoy - 2) + time '15:00'), 'TRASLAPE');
+      perform pg_temp.esperar_error('Agregar: no en el futuro',
+        format('select agregar_asistencia(%L::uuid, %L::timestamp, %L::timestamp, ''x'')',
+               v_vol, (v_hoy + 1) + time '09:00', (v_hoy + 1) + time '10:00'), 'HORA_FUTURA');
+      perform pg_temp.esperar_error('Agregar: sin motivo no',
+        format('select agregar_asistencia(%L::uuid, %L::timestamp, %L::timestamp, null)',
+               v_vol, (v_hoy - 3) + time '10:00', (v_hoy - 3) + time '12:00'), 'MOTIVO_REQUERIDO');
+      v_asis3 := agregar_asistencia(v_vol, (v_hoy - 3) + time '10:00', (v_hoy - 3) + time '12:00', 'Olvidó su credencial');
+      perform pg_temp.comprobar('Agregar: suma sus horas',
+        (select h.minutos = 195 + 270 + 120 and h.dias = 3 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
+      perform pg_temp.esperar_error('Anular: sin motivo no', format('select anular_asistencia(%s, '''')', v_asis3), 'MOTIVO_REQUERIDO');
+      perform pg_temp.comprobar('Anular: con motivo se anula', anular_asistencia(v_asis3, 'Fue por error') = 'ANULADA');
+      perform pg_temp.comprobar('Anular: una asistencia equivocada deja de sumar',
+        (select h.minutos = 195 + 270 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
+      perform pg_temp.comprobar('Anular: en el detalle sigue, como anulada',
+        (select d.estado = 'anulada' from asistencias_de_voluntario(v_vol, v_hoy - 7, v_hoy) d where d.id = v_asis3));
+      perform pg_temp.esperar_error('Horas: un rango al revés no',
+        format('select * from horas_de_voluntarios(%L::date, %L::date)', v_hoy, v_hoy - 7), 'RANGO_INVALIDO');
+
+      --  Otra credencial, baja y alta, editar.
+      v_cred2 := nuevo_qr_voluntario(v_vol);
+      perform pg_temp.comprobar('Credencial nueva: cambia el código', v_cred2 <> v_cred and v_cred2 ~ '^vol[0-9a-f]{48}$');
+      select * into v_m from marcar_asistencia(v_cred);
+      perform pg_temp.comprobar('Credencial nueva: la vieja ya no sirve', v_m.resultado = 'NO_EXISTE', v_m.resultado);
+      perform pg_temp.comprobar('Credencial nueva: el enlace viejo ya no la enseña',
+        not exists (select 1 from credencial_voluntario(v_cred)));
+      perform pg_temp.comprobar('Baja: se da de baja', not activar_voluntario(v_vol, false));
+      perform pg_temp.comprobar('Baja: si estaba adentro, su entrada queda sin salida',
+        not exists (select 1 from asistencias_voluntarios a where a.voluntario_id = v_vol and a.estado = 'dentro'));
+      select * into v_m from marcar_asistencia(v_cred2);
+      perform pg_temp.comprobar('Baja: su credencial ya no marca entrada', v_m.resultado = 'INACTIVO', v_m.resultado);
+      perform pg_temp.comprobar('Baja: su enlace dice que ya no está activa',
+        not (select c.activo from credencial_voluntario(v_cred2) c));
+      perform pg_temp.comprobar('Alta: se vuelve a activar', activar_voluntario(v_vol, true));
+      perform pg_temp.comprobar('Editar: se guarda', editar_voluntario(v_vol, 'Juana  Prueba López', ' ') = 'GUARDADO');
+      perform pg_temp.comprobar('Editar: cambia el nombre, y el contacto vacío se quita',
+        exists (select 1 from listar_voluntarios() l where l.id = v_vol and l.nombre = 'Juana Prueba López' and l.contacto is null));
+      perform pg_temp.comprobar('Escáner de la despensa: una credencial no es una cita',
+        not exists (select 1 from consultar_cita(v_cred2)));
+
+      --  Un voluntario (rol) no puede nada de esto.
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Voluntarios: quien tiene rol de voluntario no registra',
+        'select * from registrar_voluntario(''Otra Persona'')', 'SIN_PERMISO');
+      perform pg_temp.esperar_error('Voluntarios: quien tiene rol de voluntario no marca entradas',
+        format('select * from marcar_asistencia(%L)', v_cred2), 'SIN_PERMISO');
+      perform pg_temp.esperar_error('Voluntarios: quien tiene rol de voluntario no ve las horas',
+        format('select * from horas_de_voluntarios(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_PERMISO');
+      update personal set rol = 'admin' where usuario_id = v_admin;
+
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.esperar_error('Voluntarios: sin sesión no se marca nada',
+        format('select * from marcar_asistencia(%L)', v_cred2), 'SIN_SESION');
+      perform pg_temp.esperar_error('Voluntarios: sin sesión no se ve la lista',
+        'select * from listar_voluntarios()', 'SIN_SESION');
+      perform pg_temp.comprobar('Voluntarios: sin sesión su credencial sí se ve (es su enlace)',
+        exists (select 1 from credencial_voluntario(v_cred2)));
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.comprobar('Voluntarios: desde el navegador sin cuenta solo se ve la credencial',
+        has_function_privilege('anon', 'credencial_voluntario(text)', 'execute')
+        and not has_function_privilege('anon', 'marcar_asistencia(text, uuid)', 'execute')
+        and not has_function_privilege('anon', 'listar_voluntarios()', 'execute')
+        and not has_function_privilege('anon', 'registrar_voluntario(text, text)', 'execute')
+        and not has_function_privilege('anon', 'horas_de_voluntarios(date, date)', 'execute')
+        and not has_function_privilege('anon', 'corregir_asistencia(bigint, timestamp, timestamp, text)', 'execute')
+        and not has_function_privilege('authenticated', 'revisar_horas_asistencia(uuid, timestamptz, timestamptz, bigint)', 'execute'));
+    exception when others then
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      perform pg_temp.comprobar('Voluntarios: las pruebas no terminaron', false, sqlerrm);
+    end;
+
     -- ---------- Roles: voluntario ----------
     update personal set rol = 'voluntario' where usuario_id = v_admin;
 

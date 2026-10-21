@@ -203,15 +203,19 @@ El pastor y los voluntarios pueden entrar al panel con su cuenta de Google.
 Google solo confirma quién es; el permiso lo da la tabla `personal`.
 
 - **Google Cloud**, proyecto `cajitabendicion`, en *Google Auth Platform*:
-  - Público externo, en estado **Prueba**. Solo pueden entrar los correos
-    agregados en *Usuarios de prueba* (límite de 100): cada persona del
-    personal que use Google tiene que estar ahí.
+  - Público externo. Mientras esté en estado **Prueba**, solo pueden entrar
+    los correos agregados en *Usuarios de prueba* (límite de 100).
   - Cliente web con orígenes `https://citas.casadealabanzasd.com` y
     `http://localhost:5173`, y como redirección la *Callback URL* que muestra
     Supabase.
-  - No se publicó: publicar pide política de privacidad y comprobar el
-    dominio, y la forma común es un TXT en el dominio principal, que no se
-    toca (ver "Regla absoluta").
+  - **Publicarla quita el paso de Google** (*Público → Publicar app*). La
+    app solo pide nombre y correo (`openid`, `email`, `profile`) y, según
+    la documentación de Google, con eso no hace falta revisión. **Sin subir
+    logo**: el logo sí pide revisión. Publicada, cualquier cuenta de Google
+    puede *intentar* entrar, pero el permiso lo sigue dando la tabla
+    `personal`: quien no está ahí ve "sin acceso". Si al publicar Google
+    pidiera comprobar el dominio con un TXT en el dominio principal, **no se
+    hace** (ver "Regla absoluta") y se sigue en Prueba.
 - **Supabase → Authentication → Sign In / Providers → Google**: activado con
   el ID y el secreto del cliente. El secreto vive solo ahí, nunca en el repo.
 - **Supabase → Authentication → URL Configuration**: Site URL
@@ -220,11 +224,18 @@ Google solo confirma quién es; el permiso lo da la tabla `personal`.
 
 Para dar acceso a alguien nuevo:
 
-1. Agregar su Gmail en *Usuarios de prueba* de Google.
-2. En el panel, **Equipo y accesos → Dar acceso** (lo hace el pastor). Funciona
-   aunque todavía no haya entrado: el rol se aplica la primera vez que entre
-   con Google. Si nadie puede entrar al panel, el SQL Editor sigue sirviendo:
-   `select definir_personal('correo@gmail.com', 'admin');`
+1. En el panel, **Equipo y accesos → Dar acceso**, con su Gmail y su rol.
+   Funciona aunque todavía no haya entrado: el rol se aplica solo la primera
+   vez que entre con Google. **No hace falta nada en Supabase.**
+2. Solo mientras la app de Google siga en **Prueba**: agregar su Gmail en
+   *Usuarios de prueba*. Ya publicada, este paso desaparece.
+
+El SQL Editor (`select definir_personal('correo@gmail.com', 'admin');`) es
+solo para emergencias: si nadie puede entrar al panel.
+
+Los voluntarios que solo vienen a servir **no necesitan cuenta**: su entrada y
+salida van con su credencial (panel → Voluntarios, sección 48). La cuenta es
+para quien usa el panel o el escáner.
 
 ## Catálogo de códigos postales
 

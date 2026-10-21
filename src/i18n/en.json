@@ -50,7 +50,8 @@
       "preparar": "Getting ready",
       "numeros": "Numbers",
       "administracion": "Administration"
-    }
+    },
+    "voluntarios": "Volunteers"
   },
   "escaneo": {
     "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
@@ -189,7 +190,8 @@
       "CARTEL_TURNO": "It's the QR on the entrance sign (the one for getting a number), not a person's. Ask for the QR on their phone, or search below by number or code.",
       "PAGINA_PROPIA": "It's a link to a Cajita de Bendición page, not an appointment QR. Ask for their appointment QR, or search for it below.",
       "OTRA_PAGINA": "It's the QR of another page ({{dominio}}), not Cajita de Bendición. Ask for their appointment QR, or search for it below.",
-      "TEXTO": "That QR isn't from Cajita de Bendición. Ask for their appointment QR, or search below by name, number or code."
+      "TEXTO": "That QR isn't from Cajita de Bendición. Ask for their appointment QR, or search below by name, number or code.",
+      "VOLUNTARIO": "That is a volunteer's badge, not an appointment. An admin checks volunteers in and out in «Volunteers»."
     },
     "tarde": {
       "titulo": "Number {{turno}}: called at {{hora}} and wasn't here ({{hace}})",
@@ -934,6 +936,10 @@
       "pases": {
         "titulo": "Permanent passes",
         "texto": "When giving a pass, first say whether the person already has a CB code. If not, you register them right there. The pass works in the car line and the walk-up line, and you can mark it as VIP."
+      },
+      "voluntarios": {
+        "titulo": "Volunteer check-in and check-out",
+        "texto": "Each volunteer has a badge with a green QR. When they arrive and when they leave, scan it in «Volunteers»: the first scan is their check-in and the second their check-out. Their hours are there too."
       }
     },
     "escena": {
@@ -2062,6 +2068,165 @@
       "sePideHasta": "Required until {{hora}}.",
       "guardar": "Save the time",
       "guardada": "Done, the time was saved."
+    }
+  },
+  "credencial": {
+    "etiqueta": "VOLUNTEER",
+    "titulo": "Volunteer badge",
+    "enseniala": "Show it when you arrive and when you leave",
+    "cargando": "Getting the badge ready…",
+    "qrAlt": "QR code of {{nombre}}'s badge",
+    "comoFunciona": "When you arrive, show this QR to an admin; when you leave, show it again. That is how your service hours are counted.",
+    "soloTuya": "It is yours only: do not share it. If you lose it, ask for a new one.",
+    "copiar": "Copy their link",
+    "cuidado": "The link works like a key: send it only to that person (for example, by WhatsApp). If someone else got it, use «Change QR» and the old one stops working.",
+    "inactiva": "This badge is no longer active.",
+    "inactivaTexto": "If you think this is a mistake, call the church at {{telefono}}.",
+    "noEncontrada": "We could not find this badge. Ask an admin to send you the link again.",
+    "sinConexion": "Your badge could not load. Check your signal and open the link again."
+  },
+  "voluntarios": {
+    "titulo": "Volunteers",
+    "ayuda": "Volunteer check-in and check-out with their badge, and their service hours.",
+    "cargando": "Loading volunteers…",
+    "pestanas": {
+      "entrada": "Scan",
+      "lista": "List",
+      "horas": "Hours"
+    },
+    "entrada": {
+      "titulo": "Scan their badge",
+      "ayuda": "If they have not checked in today, it checks them in; if they already did, it checks them out.",
+      "sinCredencial": "No badge? Look them up by name",
+      "buscarEjemplo": "For example: Juana",
+      "nadie": "No active volunteer with that name. Register them in the «List» tab."
+    },
+    "resultado": {
+      "ENTRADA": "Checked in",
+      "SALIDA": "Checked out",
+      "YA_ENTRO": "Already checked in",
+      "YA_SALIO": "Already checked out",
+      "INACTIVO": "Deactivated",
+      "NO_EXISTE": "Not a badge",
+      "esCita": "It looks like an appointment or pass QR: scan that one in «Scan».",
+      "noEsCredencial": "That QR is not a volunteer's badge.",
+      "inactivoAyuda": "Their badge does not check in. If they will serve again, reactivate them in the «List» tab.",
+      "entro": "In at {{hora}}",
+      "entroSalio": "In at {{entrada}} · out at {{salida}} · {{duracion}}",
+      "olvido": "On {{dia}} they left without checking out: fix it in the «Hours» tab."
+    },
+    "deshacer": "Undo",
+    "deshecho": {
+      "ENTRADA_DESHECHA": "Done, that check-in was removed.",
+      "SALIDA_DESHECHA": "Done, they are still in: that check-out was removed."
+    },
+    "adentroDesde": "In since {{hora}}",
+    "marcarEntrada": "Check in",
+    "marcarSalida": "Check out",
+    "hoy": {
+      "titulo": "Today",
+      "adentro_one": "{{count}} in right now",
+      "adentro_other": "{{count}} in right now",
+      "nadie": "Nobody has arrived yet today."
+    },
+    "estado": {
+      "dentro": "In",
+      "salio": "Complete",
+      "sin_salida": "No check-out",
+      "anulada": "Voided"
+    },
+    "duracion": {
+      "min": "{{m}} min",
+      "h": "{{h}} h",
+      "hMin": "{{h}} h {{m}} min"
+    },
+    "registrar": {
+      "titulo": "Register a volunteer",
+      "ayuda": "No account needed: with their name they get a badge with a QR to keep on their phone or print.",
+      "nombre": "Name",
+      "contacto": "Phone or email (optional)",
+      "contactoAyuda": "Only to send them their badge.",
+      "boton": "Register and see their badge"
+    },
+    "lista": {
+      "titulo_one": "{{count}} active volunteer",
+      "titulo_other": "{{count}} active volunteers",
+      "avisos": {
+        "registrado": "Done, they are registered. Send them their badge or save it to print.",
+        "guardado": "Done, saved.",
+        "baja": "Done, deactivated. Their badge no longer checks in.",
+        "alta": "Done, active again.",
+        "nuevoQr": "Done, they have a new badge. The old one no longer works: send them the new one."
+      },
+      "buscar": "Search by name",
+      "vacia": "No volunteers yet. Register the first one above.",
+      "guardar": "Save",
+      "cancelar": "Cancel",
+      "deBaja": "Deactivated",
+      "sinSalida_one": "{{count}} without check-out",
+      "sinSalida_other": "{{count}} without check-out",
+      "credencial": "Badge",
+      "editar": "Edit",
+      "nuevoQr": "Change QR",
+      "darDeBaja": "Deactivate",
+      "darDeAlta": "Reactivate",
+      "preguntar": {
+        "baja": "Deactivate {{nombre}}? Their badge stops checking in. Their hours are kept.",
+        "qr": "Change {{nombre}}'s QR? Their current badge stops working and you need to send them the new one.",
+        "si_baja": "Yes, deactivate",
+        "si_qr": "Yes, change QR"
+      }
+    },
+    "horas": {
+      "titulo": "Service hours",
+      "ayuda": "Only visits with check-in and check-out count. Tap a volunteer to see each day and fix it.",
+      "desde": "From",
+      "hasta": "To",
+      "total_one": "{{count}} volunteer · {{duracion}} in total",
+      "total_other": "{{count}} volunteers · {{duracion}} in total",
+      "descargar": "Download for Excel",
+      "nadie": "Nobody came on those dates.",
+      "renglon_one": "{{count}} day · {{duracion}}",
+      "renglon_other": "{{count}} days · {{duracion}}",
+      "entrada": "Check-in",
+      "salida": "Check-out",
+      "motivo": "Reason",
+      "motivoEjemplo": "For example: left without checking out",
+      "corregida": "Corrected",
+      "porque": "Reason: {{motivo}}",
+      "ponerSalida": "Add check-out",
+      "corregir": "Fix",
+      "anular": "Void",
+      "guardar": "Save",
+      "anularPregunta": "Void this visit? It stops counting hours, but stays on record.",
+      "siAnular": "Yes, void",
+      "agregarBoton": "Came but was not scanned? Add a visit",
+      "agregarTitulo": "Add a visit",
+      "quien": "Who?",
+      "escoge": "Choose the volunteer",
+      "agregar": "Add",
+      "col": {
+        "nombre": "Name",
+        "dias": "Days",
+        "horas": "Hours",
+        "sinSalida": "No check-out"
+      }
+    },
+    "errores": {
+      "ERROR_DESCONOCIDO": "It did not work. Try again.",
+      "SIN_CONEXION": "No signal. Check the internet and try again.",
+      "FUNCION_NO_INSTALADA": "This part is not ready in the system yet. Let the administrator know.",
+      "NOMBRE_INVALIDO": "Type their name (2 to 80 letters).",
+      "CONTACTO_INVALIDO": "The phone or email is too long.",
+      "VOLUNTARIO_NO_EXISTE": "That volunteer no longer exists.",
+      "ASISTENCIA_NO_EXISTE": "That visit no longer exists.",
+      "ASISTENCIA_ANULADA": "That visit is voided.",
+      "FUERA_DE_PLAZO": "The 2 minutes to undo are over. Fix it in the «Hours» tab.",
+      "MOTIVO_REQUERIDO": "Type the reason.",
+      "HORAS_INVALIDAS": "Check the times: check-out goes after check-in, and no more than 16 hours.",
+      "HORA_FUTURA": "Check-out cannot be a time that has not come yet.",
+      "TRASLAPE": "Those times overlap another visit of that person.",
+      "RANGO_INVALIDO": "Check the dates: «From» goes before «To», and no more than a year."
     }
   }
 }

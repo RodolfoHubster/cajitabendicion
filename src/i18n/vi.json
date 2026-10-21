@@ -55,7 +55,8 @@
       "preparar": "Chuẩn bị ngày phát",
       "numeros": "Số liệu",
       "administracion": "Quản trị"
-    }
+    },
+    "voluntarios": "Tình nguyện viên"
   },
   "escaneo": {
     "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
@@ -194,7 +195,8 @@
       "CARTEL_TURNO": "Đây là mã QR trên bảng ở lối vào (để lấy số), không phải của một người. Hãy xin mã QR trên điện thoại của họ, hoặc tìm bên dưới theo số hoặc mã.",
       "PAGINA_PROPIA": "Đây là đường dẫn đến một trang của Cajita de Bendición, không phải mã QR của lịch hẹn. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới.",
       "OTRA_PAGINA": "Đây là mã QR của trang khác ({{dominio}}), không phải của Cajita de Bendición. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới.",
-      "TEXTO": "Mã QR này không phải của Cajita de Bendición. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới theo tên, số hoặc mã."
+      "TEXTO": "Mã QR này không phải của Cajita de Bendición. Hãy xin mã QR lịch hẹn của họ, hoặc tìm bên dưới theo tên, số hoặc mã.",
+      "VOLUNTARIO": "Đây là thẻ của tình nguyện viên, không phải lịch hẹn. Quản trị viên ghi giờ vào và ra trong «Tình nguyện viên»."
     },
     "tarde": {
       "titulo": "Số {{turno}}: đã gọi lúc {{hora}} nhưng không có mặt ({{hace}})",
@@ -930,6 +932,10 @@
       "pases": {
         "titulo": "Thẻ dài hạn",
         "texto": "Khi cấp thẻ, trước tiên chọn người đó đã có mã CB hay chưa. Nếu chưa, bạn đăng ký cho họ ngay tại đó. Thẻ dùng được ở hàng xe và hàng đi bộ, và bạn có thể đánh dấu là VIP."
+      },
+      "voluntarios": {
+        "titulo": "Giờ vào và ra của tình nguyện viên",
+        "texto": "Mỗi tình nguyện viên có thẻ với mã QR màu xanh lá. Khi họ đến và khi họ về, hãy quét thẻ trong «Tình nguyện viên»: lần đầu là giờ vào, lần sau là giờ ra. Số giờ của họ cũng ở đó."
       }
     },
     "escena": {
@@ -2040,6 +2046,160 @@
       "sePideHasta": "Yêu cầu đến {{hora}}.",
       "guardar": "Lưu giờ",
       "guardada": "Xong, đã lưu giờ."
+    }
+  },
+  "credencial": {
+    "etiqueta": "TÌNH NGUYỆN VIÊN",
+    "titulo": "Thẻ tình nguyện viên",
+    "enseniala": "Đưa thẻ khi đến và khi về",
+    "cargando": "Đang chuẩn bị thẻ…",
+    "qrAlt": "Mã QR trên thẻ của {{nombre}}",
+    "comoFunciona": "Khi đến, hãy đưa mã QR này cho quản trị viên; khi về, đưa lại lần nữa. Như vậy giờ phục vụ của bạn được tính.",
+    "soloTuya": "Thẻ chỉ của riêng bạn: đừng đưa cho ai. Nếu mất, hãy xin thẻ mới.",
+    "copiar": "Sao chép đường dẫn",
+    "cuidado": "Đường dẫn giống như chìa khóa: chỉ gửi cho đúng người đó (ví dụ qua WhatsApp). Nếu người khác có nó, dùng «Đổi mã QR» và thẻ cũ sẽ không dùng được nữa.",
+    "inactiva": "Thẻ này không còn hiệu lực.",
+    "inactivaTexto": "Nếu bạn nghĩ đây là nhầm lẫn, hãy gọi nhà thờ số {{telefono}}.",
+    "noEncontrada": "Chúng tôi không tìm thấy thẻ này. Hãy nhờ quản trị viên gửi lại đường dẫn.",
+    "sinConexion": "Không tải được thẻ. Hãy kiểm tra sóng và mở lại đường dẫn."
+  },
+  "voluntarios": {
+    "titulo": "Tình nguyện viên",
+    "ayuda": "Giờ vào và ra của tình nguyện viên bằng thẻ của họ, và số giờ phục vụ.",
+    "cargando": "Đang tải danh sách tình nguyện viên…",
+    "pestanas": {
+      "entrada": "Quét",
+      "lista": "Danh sách",
+      "horas": "Số giờ"
+    },
+    "entrada": {
+      "titulo": "Quét thẻ của họ",
+      "ayuda": "Nếu hôm nay họ chưa vào, sẽ ghi giờ vào; nếu đã vào rồi, sẽ ghi giờ ra.",
+      "sinCredencial": "Không mang thẻ? Tìm theo tên",
+      "buscarEjemplo": "Ví dụ: Juana",
+      "nadie": "Không có tình nguyện viên nào đang hoạt động với tên đó. Hãy đăng ký trong thẻ «Danh sách»."
+    },
+    "resultado": {
+      "ENTRADA": "Giờ vào",
+      "SALIDA": "Giờ ra",
+      "YA_ENTRO": "Đã có giờ vào",
+      "YA_SALIO": "Đã có giờ ra",
+      "INACTIVO": "Đã ngưng hoạt động",
+      "NO_EXISTE": "Không phải thẻ",
+      "esCita": "Có vẻ là mã QR của lịch hẹn hoặc thẻ ưu tiên: mã đó quét trong «Quét mã».",
+      "noEsCredencial": "Mã QR đó không phải thẻ của tình nguyện viên.",
+      "inactivoAyuda": "Thẻ của họ không ghi giờ vào. Nếu họ sẽ phục vụ lại, hãy kích hoạt lại trong thẻ «Danh sách».",
+      "entro": "Vào lúc {{hora}}",
+      "entroSalio": "Vào lúc {{entrada}} · ra lúc {{salida}} · {{duracion}}",
+      "olvido": "Ngày {{dia}} họ về mà không ghi giờ ra: hãy sửa trong thẻ «Số giờ»."
+    },
+    "deshacer": "Hoàn tác",
+    "deshecho": {
+      "ENTRADA_DESHECHA": "Xong, đã bỏ giờ vào đó.",
+      "SALIDA_DESHECHA": "Xong, họ vẫn đang ở trong: đã bỏ giờ ra đó."
+    },
+    "adentroDesde": "Ở trong từ {{hora}}",
+    "marcarEntrada": "Ghi giờ vào",
+    "marcarSalida": "Ghi giờ ra",
+    "hoy": {
+      "titulo": "Hôm nay",
+      "adentro_other": "{{count}} người đang ở trong",
+      "nadie": "Hôm nay chưa có ai đến."
+    },
+    "estado": {
+      "dentro": "Đang ở trong",
+      "salio": "Đủ",
+      "sin_salida": "Không có giờ ra",
+      "anulada": "Đã hủy"
+    },
+    "duracion": {
+      "min": "{{m}} phút",
+      "h": "{{h}} giờ",
+      "hMin": "{{h}} giờ {{m}} phút"
+    },
+    "registrar": {
+      "titulo": "Đăng ký tình nguyện viên",
+      "ayuda": "Không cần tài khoản: với tên của họ sẽ có thẻ với mã QR để lưu trong điện thoại hoặc in ra.",
+      "nombre": "Tên",
+      "contacto": "Điện thoại hoặc email (không bắt buộc)",
+      "contactoAyuda": "Chỉ để gửi thẻ cho họ.",
+      "boton": "Đăng ký và xem thẻ"
+    },
+    "lista": {
+      "titulo_other": "{{count}} tình nguyện viên đang hoạt động",
+      "avisos": {
+        "registrado": "Xong, đã đăng ký. Hãy gửi thẻ cho họ hoặc lưu lại để in.",
+        "guardado": "Xong, đã lưu.",
+        "baja": "Xong, đã ngưng hoạt động. Thẻ của họ không còn ghi giờ vào.",
+        "alta": "Xong, đã hoạt động lại.",
+        "nuevoQr": "Xong, họ có thẻ mới. Thẻ cũ không dùng được nữa: hãy gửi thẻ mới cho họ."
+      },
+      "buscar": "Tìm theo tên",
+      "vacia": "Chưa có tình nguyện viên. Hãy đăng ký người đầu tiên ở trên.",
+      "guardar": "Lưu",
+      "cancelar": "Hủy",
+      "deBaja": "Đã ngưng hoạt động",
+      "sinSalida_other": "{{count}} lần không có giờ ra",
+      "credencial": "Thẻ",
+      "editar": "Sửa",
+      "nuevoQr": "Đổi mã QR",
+      "darDeBaja": "Ngưng hoạt động",
+      "darDeAlta": "Kích hoạt lại",
+      "preguntar": {
+        "baja": "Ngưng hoạt động {{nombre}}? Thẻ của họ sẽ không ghi giờ vào nữa. Số giờ vẫn được giữ.",
+        "qr": "Đổi mã QR của {{nombre}}? Thẻ hiện tại sẽ không dùng được nữa và cần gửi thẻ mới cho họ.",
+        "si_baja": "Có, ngưng hoạt động",
+        "si_qr": "Có, đổi mã QR"
+      }
+    },
+    "horas": {
+      "titulo": "Số giờ phục vụ",
+      "ayuda": "Chỉ tính những lần có cả giờ vào và giờ ra. Chạm vào một người để xem từng ngày và sửa.",
+      "desde": "Từ",
+      "hasta": "Đến",
+      "total_other": "{{count}} tình nguyện viên · tổng cộng {{duracion}}",
+      "descargar": "Tải về cho Excel",
+      "nadie": "Không có ai đến trong những ngày đó.",
+      "renglon_other": "{{count}} ngày · {{duracion}}",
+      "entrada": "Giờ vào",
+      "salida": "Giờ ra",
+      "motivo": "Lý do",
+      "motivoEjemplo": "Ví dụ: về mà không ghi giờ ra",
+      "corregida": "Đã sửa",
+      "porque": "Lý do: {{motivo}}",
+      "ponerSalida": "Thêm giờ ra",
+      "corregir": "Sửa",
+      "anular": "Hủy",
+      "guardar": "Lưu",
+      "anularPregunta": "Hủy lần này? Sẽ không tính giờ nữa, nhưng vẫn được ghi lại.",
+      "siAnular": "Có, hủy",
+      "agregarBoton": "Có đến mà không được quét? Thêm một lần",
+      "agregarTitulo": "Thêm một lần",
+      "quien": "Ai?",
+      "escoge": "Chọn tình nguyện viên",
+      "agregar": "Thêm",
+      "col": {
+        "nombre": "Tên",
+        "dias": "Ngày",
+        "horas": "Giờ",
+        "sinSalida": "Không có giờ ra"
+      }
+    },
+    "errores": {
+      "ERROR_DESCONOCIDO": "Không được. Hãy thử lại.",
+      "SIN_CONEXION": "Không có sóng. Hãy kiểm tra internet và thử lại.",
+      "FUNCION_NO_INSTALADA": "Phần này chưa sẵn sàng trong hệ thống. Hãy báo cho người quản lý.",
+      "NOMBRE_INVALIDO": "Hãy nhập tên (từ 2 đến 80 chữ).",
+      "CONTACTO_INVALIDO": "Số điện thoại hoặc email quá dài.",
+      "VOLUNTARIO_NO_EXISTE": "Tình nguyện viên đó không còn nữa.",
+      "ASISTENCIA_NO_EXISTE": "Lần đó không còn nữa.",
+      "ASISTENCIA_ANULADA": "Lần đó đã bị hủy.",
+      "FUERA_DE_PLAZO": "Đã quá 2 phút để hoàn tác. Hãy sửa trong thẻ «Số giờ».",
+      "MOTIVO_REQUERIDO": "Hãy nhập lý do.",
+      "HORAS_INVALIDAS": "Kiểm tra lại giờ: giờ ra phải sau giờ vào, và không quá 16 giờ.",
+      "HORA_FUTURA": "Giờ ra không thể là giờ chưa tới.",
+      "TRASLAPE": "Giờ đó trùng với một lần khác của người này.",
+      "RANGO_INVALIDO": "Kiểm tra lại ngày: «Từ» phải trước «Đến», và không quá một năm."
     }
   }
 }

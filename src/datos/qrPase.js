@@ -21,6 +21,9 @@ import { ORGANIZACION } from './organizacion'
 //  un dorado claro se veria bonito, pero la camara no lo distingue del fondo.
 export const AZUL_QR = '#1B3A6B'
 export const ORO_QR = '#7A5C12'
+//  La credencial de un voluntario (seccion 48): verde oscuro, el "puede
+//  pasar" de la marca bajado de tono para que contraste igual de bien.
+export const VERDE_QR = '#1E6B45'
 
 // Del viewBox de TechoSvg: el respaldo si la imagen del logo no carga.
 const TECHO = { ancho: 120, alto: 70 }
@@ -204,6 +207,11 @@ export async function dibujarQRConSello(
   }
 
   return lienzo.toDataURL('image/png')
+}
+
+/** La credencial de un voluntario: verde, con el logo de Cajita en el centro. */
+export function dibujarQRVoluntario(texto, opciones = {}) {
+  return dibujarQRConSello(texto, { ...opciones, sello: 'logo', oscuro: VERDE_QR })
 }
 
 /** El codigo del pase permanente, con el logo de Cajita en el centro. */

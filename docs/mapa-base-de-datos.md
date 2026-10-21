@@ -222,6 +222,33 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Voluntarios: credencial, entrada y salida (sección 48)
+
+| Objeto | Qué hace |
+|---|---|
+| `voluntarios` | Nombre, contacto opcional (teléfono o correo), `token` de su credencial (`vol` + 48 letras o números) y si está activo. No es una cuenta del panel. |
+| `asistencias_voluntarios` | Cada vez que vino: entrada, salida y estado (`dentro`, `salio`, `sin_salida`, `anulada`), quién la marcó y, si se corrigió, quién, cuándo y por qué. Índice único parcial: una sola entrada abierta por voluntario. |
+| `registrar_voluntario`, `editar_voluntario`, `activar_voluntario`, `nuevo_qr_voluntario`, `listar_voluntarios` | Registrarlo, cambiarlo, darlo de baja o de alta y cambiarle la credencial. |
+| `marcar_asistencia(token, voluntario)` | Escanear su credencial (o escogerlo de la lista): `ENTRADA` o `SALIDA` con sus minutos; `YA_ENTRO`/`YA_SALIO` si se leyó dos veces en 2 minutos; `INACTIVO`; `NO_EXISTE`. Bloquea al voluntario mientras decide. Una entrada de otro día queda `sin_salida` (`olvido`). |
+| `deshacer_asistencia` | Los primeros 2 minutos: quita la entrada o reabre la salida. Después, `FUERA_DE_PLAZO`. |
+| `corregir_asistencia`, `agregar_asistencia`, `anular_asistencia` | Con motivo (`MOTIVO_REQUERIDO`). Las horas se revisan: `HORAS_INVALIDAS` (al revés o más de 16 h), `HORA_FUTURA`, `TRASLAPE`. |
+| `asistencias_del_dia`, `horas_de_voluntarios(desde, hasta)`, `asistencias_de_voluntario` | Quién vino hoy, las horas por voluntario (solo las completas) y cada asistencia de uno. |
+| `credencial_voluntario(token)` | Lo único público: nombre y si está activa, para la página `/voluntario/:token`. |
+
+Todo lo demás es **solo de administradores**. No toca citas, cupos ni
+`registrar_entrega()`.
+
+## El código del día hasta cierta hora (sección 47)
+
+| Objeto | Qué hace |
+|---|---|
+| `dias_entrega.a_pie_codigo_hasta` | Hasta qué hora se pide el código del día. Nula: todo el día. |
+| `codigo_del_dia_vigente(fecha)` | Interna: el código que se pide ahora (nulo si ya pasó la hora). |
+| `codigo_turno_a_pie_hasta(fecha, cambiar, hasta)` | Leer o guardar la hora. Solo admin. |
+
+La respetan `sacar_turno_a_pie()`, `fila_a_pie_hoy()` (`pide_codigo`,
+`codigo_hasta`) y `fila_de_turnos()` (`codigo_dia`, `codigo_hasta`).
+
 ## Turnos anulados y todo desde el escáner (sección 46)
 
 | Objeto | Qué hace |

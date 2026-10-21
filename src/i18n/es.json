@@ -50,7 +50,8 @@
       "preparar": "Preparar la entrega",
       "numeros": "Números",
       "administracion": "Administración"
-    }
+    },
+    "voluntarios": "Voluntarios"
   },
   "escaneo": {
     "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
@@ -189,7 +190,8 @@
       "CARTEL_TURNO": "Es el QR del cartel de la entrada (el que sirve para sacar turno), no el de una persona. Pídele el QR que tiene en su teléfono, o búscalo abajo por su turno o su código.",
       "PAGINA_PROPIA": "Es un enlace a una página de Cajita de Bendición, no el QR de una cita. Pídele el QR de su cita, o búscala abajo.",
       "OTRA_PAGINA": "Es el QR de otra página ({{dominio}}), no de Cajita de Bendición. Pídele el QR de su cita, o búscala abajo.",
-      "TEXTO": "Ese QR no es de Cajita de Bendición. Pídele el QR de su cita, o búscala abajo por nombre, turno o código."
+      "TEXTO": "Ese QR no es de Cajita de Bendición. Pídele el QR de su cita, o búscala abajo por nombre, turno o código.",
+      "VOLUNTARIO": "Es la credencial de un voluntario, no una cita. Su entrada y su salida las marca un administrador en «Voluntarios»."
     },
     "tarde": {
       "titulo": "Turno {{turno}}: lo llamaron a las {{hora}} y no estaba ({{hace}})",
@@ -934,6 +936,10 @@
       "pases": {
         "titulo": "Pases permanentes",
         "texto": "Al dar un pase, primero dices si la persona ya tiene código CB. Si no, la registras ahí mismo. El pase sirve en carro y a pie, y lo puedes marcar como VIP."
+      },
+      "voluntarios": {
+        "titulo": "Entrada y salida de los voluntarios",
+        "texto": "Cada voluntario tiene su credencial con un QR verde. Cuando llegue y cuando se vaya, escanéala en «Voluntarios»: la primera vez es su entrada y la segunda su salida. Ahí mismo ves sus horas."
       }
     },
     "escena": {
@@ -2062,6 +2068,165 @@
       "sePideHasta": "Se pide hasta las {{hora}}.",
       "guardar": "Guardar la hora",
       "guardada": "Listo, se guardó la hora."
+    }
+  },
+  "credencial": {
+    "etiqueta": "VOLUNTARIO",
+    "titulo": "Credencial de voluntario",
+    "enseniala": "Enséñala al llegar y al irte",
+    "cargando": "Preparando la credencial…",
+    "qrAlt": "Código QR de la credencial de {{nombre}}",
+    "comoFunciona": "Cuando llegues, enséñale este QR a un administrador; cuando te vayas, otra vez. Así se cuentan tus horas de servicio.",
+    "soloTuya": "Es solo tuya: no se la pases a nadie. Si la pierdes, pide una nueva.",
+    "copiar": "Copiar su enlace",
+    "cuidado": "El enlace es como su llave: mándaselo solo a esa persona (por ejemplo, por WhatsApp). Si se le pasó a alguien más, usa «Cambiar QR» y la anterior deja de servir.",
+    "inactiva": "Esta credencial ya no está activa.",
+    "inactivaTexto": "Si crees que es un error, llama a la iglesia al {{telefono}}.",
+    "noEncontrada": "No encontramos esta credencial. Pídele a un administrador que te mande el enlace otra vez.",
+    "sinConexion": "No se pudo cargar tu credencial. Revisa tu señal y vuelve a abrir el enlace."
+  },
+  "voluntarios": {
+    "titulo": "Voluntarios",
+    "ayuda": "La entrada y salida de los voluntarios con su credencial, y sus horas de servicio.",
+    "cargando": "Cargando voluntarios…",
+    "pestanas": {
+      "entrada": "Escanear",
+      "lista": "Lista",
+      "horas": "Horas"
+    },
+    "entrada": {
+      "titulo": "Escanea su credencial",
+      "ayuda": "Si no ha entrado hoy, se marca su entrada; si ya entró, su salida.",
+      "sinCredencial": "¿No trae su credencial? Búscalo por su nombre",
+      "buscarEjemplo": "Por ejemplo: Juana",
+      "nadie": "No hay un voluntario activo con ese nombre. Regístralo en la pestaña «Lista»."
+    },
+    "resultado": {
+      "ENTRADA": "Entrada",
+      "SALIDA": "Salida",
+      "YA_ENTRO": "Ya tiene su entrada",
+      "YA_SALIO": "Ya tiene su salida",
+      "INACTIVO": "Está dado de baja",
+      "NO_EXISTE": "No es una credencial",
+      "esCita": "Parece el QR de una cita o de un pase: ese se escanea en «Escanear».",
+      "noEsCredencial": "Ese QR no es la credencial de un voluntario.",
+      "inactivoAyuda": "Su credencial no marca entrada. Si va a volver a servir, dalo de alta en la pestaña «Lista».",
+      "entro": "Entró a las {{hora}}",
+      "entroSalio": "Entró a las {{entrada}} · salió a las {{salida}} · {{duracion}}",
+      "olvido": "El {{dia}} se fue sin marcar su salida: corrígela en la pestaña «Horas»."
+    },
+    "deshacer": "Deshacer",
+    "deshecho": {
+      "ENTRADA_DESHECHA": "Listo, se quitó esa entrada.",
+      "SALIDA_DESHECHA": "Listo, sigue adentro: se quitó esa salida."
+    },
+    "adentroDesde": "Adentro desde las {{hora}}",
+    "marcarEntrada": "Marcar entrada",
+    "marcarSalida": "Marcar salida",
+    "hoy": {
+      "titulo": "Hoy",
+      "adentro_one": "{{count}} adentro ahora",
+      "adentro_other": "{{count}} adentro ahora",
+      "nadie": "Hoy todavía no ha llegado nadie."
+    },
+    "estado": {
+      "dentro": "Adentro",
+      "salio": "Completa",
+      "sin_salida": "Sin salida",
+      "anulada": "Anulada"
+    },
+    "duracion": {
+      "min": "{{m}} min",
+      "h": "{{h}} h",
+      "hMin": "{{h}} h {{m}} min"
+    },
+    "registrar": {
+      "titulo": "Registrar voluntario",
+      "ayuda": "No necesita cuenta: con su nombre se le hace su credencial con QR, que guarda en su teléfono o se imprime.",
+      "nombre": "Nombre",
+      "contacto": "Teléfono o correo (opcional)",
+      "contactoAyuda": "Solo para mandarle su credencial.",
+      "boton": "Registrar y ver su credencial"
+    },
+    "lista": {
+      "titulo_one": "{{count}} voluntario activo",
+      "titulo_other": "{{count}} voluntarios activos",
+      "avisos": {
+        "registrado": "Listo, quedó registrado. Mándale su credencial o guárdala para imprimirla.",
+        "guardado": "Listo, se guardó.",
+        "baja": "Listo, quedó dado de baja. Su credencial ya no marca entrada.",
+        "alta": "Listo, otra vez está activo.",
+        "nuevoQr": "Listo, tiene una credencial nueva. La anterior ya no sirve: mándale la nueva."
+      },
+      "buscar": "Buscar por nombre",
+      "vacia": "Todavía no hay voluntarios. Registra al primero arriba.",
+      "guardar": "Guardar",
+      "cancelar": "Cancelar",
+      "deBaja": "Dado de baja",
+      "sinSalida_one": "{{count}} sin salida",
+      "sinSalida_other": "{{count}} sin salida",
+      "credencial": "Credencial",
+      "editar": "Editar",
+      "nuevoQr": "Cambiar QR",
+      "darDeBaja": "Dar de baja",
+      "darDeAlta": "Dar de alta",
+      "preguntar": {
+        "baja": "¿Dar de baja a {{nombre}}? Su credencial deja de marcar entrada. Sus horas se quedan.",
+        "qr": "¿Cambiarle el QR a {{nombre}}? La credencial que tiene ahora deja de servir y hay que mandarle la nueva.",
+        "si_baja": "Sí, dar de baja",
+        "si_qr": "Sí, cambiar QR"
+      }
+    },
+    "horas": {
+      "titulo": "Horas de servicio",
+      "ayuda": "Solo suman las asistencias con entrada y salida. Toca a un voluntario para ver cada día y corregir.",
+      "desde": "Desde",
+      "hasta": "Hasta",
+      "total_one": "{{count}} voluntario · {{duracion}} en total",
+      "total_other": "{{count}} voluntarios · {{duracion}} en total",
+      "descargar": "Descargar para Excel",
+      "nadie": "Nadie vino en esas fechas.",
+      "renglon_one": "{{count}} día · {{duracion}}",
+      "renglon_other": "{{count}} días · {{duracion}}",
+      "entrada": "Entrada",
+      "salida": "Salida",
+      "motivo": "Motivo",
+      "motivoEjemplo": "Por ejemplo: se fue sin marcar su salida",
+      "corregida": "Corregida",
+      "porque": "Motivo: {{motivo}}",
+      "ponerSalida": "Poner su salida",
+      "corregir": "Corregir",
+      "anular": "Anular",
+      "guardar": "Guardar",
+      "anularPregunta": "¿Anular esta asistencia? Deja de sumar horas, pero se queda anotada.",
+      "siAnular": "Sí, anular",
+      "agregarBoton": "¿Vino y no se escaneó? Agregar una asistencia",
+      "agregarTitulo": "Agregar una asistencia",
+      "quien": "¿Quién?",
+      "escoge": "Escoge al voluntario",
+      "agregar": "Agregar",
+      "col": {
+        "nombre": "Nombre",
+        "dias": "Días",
+        "horas": "Horas",
+        "sinSalida": "Sin salida"
+      }
+    },
+    "errores": {
+      "ERROR_DESCONOCIDO": "No se pudo. Vuelve a intentar.",
+      "SIN_CONEXION": "Sin señal. Revisa el internet y vuelve a intentar.",
+      "FUNCION_NO_INSTALADA": "Esta parte todavía no está lista en el sistema. Avísale a quien lo administra.",
+      "NOMBRE_INVALIDO": "Escribe su nombre (de 2 a 80 letras).",
+      "CONTACTO_INVALIDO": "El teléfono o correo es demasiado largo.",
+      "VOLUNTARIO_NO_EXISTE": "Ese voluntario ya no existe.",
+      "ASISTENCIA_NO_EXISTE": "Esa asistencia ya no existe.",
+      "ASISTENCIA_ANULADA": "Esa asistencia está anulada.",
+      "FUERA_DE_PLAZO": "Ya pasaron los 2 minutos para deshacer. Corrígela en la pestaña «Horas».",
+      "MOTIVO_REQUERIDO": "Escribe el motivo.",
+      "HORAS_INVALIDAS": "Revisa las horas: la salida va después de la entrada, y no más de 16 horas.",
+      "HORA_FUTURA": "La salida no puede ser una hora que todavía no llega.",
+      "TRASLAPE": "Esas horas se enciman con otra asistencia de esa persona.",
+      "RANGO_INVALIDO": "Revisa las fechas: «Desde» va antes de «Hasta», y no más de un año."
     }
   }
 }

@@ -169,6 +169,9 @@ describe('los colores respetan el modo oscuro', () => {
     'paginas/publico/Inicio.jsx': 1,
     //  El QR de un turno, en su detalle del escaner (seccion 46).
     'componentes/BuscarTurno.jsx': 1,
+    //  La credencial de un voluntario (seccion 48), en el panel y en su enlace.
+    'componentes/VentanaCredencial.jsx': 1,
+    'paginas/publico/Credencial.jsx': 1,
   }
 
   it('bg-white solo donde va un QR o el logo; lo demás es bg-superficie', async () => {

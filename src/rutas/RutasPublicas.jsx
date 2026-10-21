@@ -1,6 +1,7 @@
 import { Navigate, Route } from 'react-router-dom'
 import Calendario from '../paginas/publico/Calendario'
 import CambiarHorario from '../paginas/publico/CambiarHorario'
+import Credencial from '../paginas/publico/Credencial'
 import Confirmacion from '../paginas/publico/Confirmacion'
 import Horarios from '../paginas/publico/Horarios'
 import Inicio from '../paginas/publico/Inicio'
@@ -23,6 +24,7 @@ export default function RutasPublicas() {
       <Route element={<Confirmacion />} path="/confirmacion/:id" />
       <Route element={<CambiarHorario />} path="/cambiar/:id" />
       <Route element={<Pase />} path="/pase/:id" />
+      <Route element={<Credencial />} path="/voluntario/:token" />
       <Route element={<Preguntas />} path="/preguntas" />
       <Route element={<QuienesSomos />} path="/quienes-somos" />
     </>

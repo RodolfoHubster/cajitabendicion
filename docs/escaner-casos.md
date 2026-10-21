@@ -56,6 +56,7 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
 | El QR del cartel de la entrada | «Código no reconocido» y se quedaba ahí. | «Es el QR del cartel de la entrada, no el de una persona.» La cámara y la búsqueda siguen ahí. |
 | El QR de otra página (Facebook, GoFundMe…) | «Código no reconocido». | Dice de qué página es. |
 | Cualquier otro QR | «Código no reconocido». | «Ese QR no es de Cajita de Bendición.» |
+| La credencial (QR verde) de un voluntario | — | «Es la credencial de un voluntario, no una cita»: su entrada y salida se marcan en Voluntarios (desde el 20 de octubre). |
 | Se cortó la señal | «Sin señal» y «Volver a revisar». | Igual. |
 | Se cerró la sesión | «Código no reconocido»: se rechazaba a gente que sí tenía cita. | «Se cerró tu sesión» y «Volver a entrar», que regresa al escáner. |
 | Otra falla | «Código no reconocido». | «No se pudo revisar» y «Volver a revisar». |
@@ -81,7 +82,8 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
 
 ## Pendiente
 
-- El código del día solo en un horario (de las 9 a la 1 o 2 de la tarde):
-  en espera de que el pastor lo apruebe.
+- ~~El código del día solo en un horario~~: hecho el 19 de octubre. En
+  Horarios, junto a la casilla del código, se escoge «Todo el día» o «Hasta
+  las…».
 - Los videos para el público y la guía de voluntarios en Word todavía dicen
   que el turno sigue valiendo si llegan tarde.

@@ -34,6 +34,8 @@ export const PASOS_GUIA = [
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
   { clave: 'registrar', desde: 5, seccion: 'registrar' },
+  //  20 de octubre de 2026 (version 8): entrada y salida de los voluntarios.
+  { clave: 'voluntarios', desde: 8, seccion: 'voluntarios' },
   { clave: 'personas', desde: 3, seccion: 'personas' },
   { clave: 'pases', desde: 5, seccion: 'pases' },
   { clave: 'horarios', desde: 1, seccion: 'horarios' },
