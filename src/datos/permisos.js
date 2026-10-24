@@ -27,6 +27,13 @@ export const CLAVES_PERMISOS = [
   'editar_textos',
 ]
 
+/**
+ * Los que no son palomitas para todos sino de cada persona (Equipo y
+ * accesos). La base los manda en mis_permisos() igual que los demas.
+ * "atender_voluntarios" (seccion 49): escanear y registrar voluntarios.
+ */
+export const PERMISOS_POR_PERSONA = ['atender_voluntarios']
+
 export const CODIGOS_PERMISOS = ['PERMISO_NO_EXISTE']
 
 async function llamar(funcion, parametros) {
@@ -74,6 +81,9 @@ export function puedeEntrar(seccion, rol, permisos = []) {
   if (!rol) return false
   if (seccion?.roles) return seccion.roles.includes(rol)
   if (!seccion?.permiso) return false
+  //  El administrador entra a todo lo que va por palomita, aunque la base
+  //  todavia no mande alguna (una migracion sin correr no le esconde nada).
+  if (rol === 'admin') return true
 
   return permisos.includes(seccion.permiso)
 }

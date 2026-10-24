@@ -9,19 +9,29 @@ import { dibujarTarjetaCredencial, nombreArchivoCredencial } from '../../datos/c
 import { guardarImagen } from '../../datos/imagenCita'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { dibujarQRVoluntario } from '../../datos/qrPase'
-import { credencialVoluntario } from '../../datos/voluntarios'
+import { horaDeMarca } from '../../datos/filaAPie'
+import { credencialVoluntario, historialDeCredencial, textoDuracion } from '../../datos/voluntarios'
+
+/** '2026-10-21' -> 'mié 21 oct'. */
+function diaCorto(fecha, idioma) {
+  return new Intl.DateTimeFormat(idioma, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+    new Date(`${fecha}T12:00:00Z`),
+  )
+}
 
 /**
  * La credencial de un voluntario, como la ve el (seccion 48): su nombre y
  * su QR verde para ensenarlo al llegar y al irse. Sin cuenta: quien tiene
- * el enlace es el dueno, como con los pases.
+ * el enlace es el dueno, como con los pases. Desde la seccion 49 tambien ve
+ * sus horas: el total y sus ultimas visitas completas.
  */
 export default function Credencial() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { token } = useParams()
   const [datos, setDatos] = useState(null)
   const [qr, setQr] = useState(null)
   const [estado, setEstado] = useState('cargando')
+  const [historial, setHistorial] = useState([])
   // La tarjeta se dibuja al llegar: el iPhone solo abre "compartir" si se
   // pide en el mismo toque (ver datos/imagenCita.js).
   const [tarjeta, setTarjeta] = useState(null)
@@ -29,6 +39,12 @@ export default function Credencial() {
 
   useEffect(() => {
     let vigente = true
+    //  Si sus horas no cargan, la credencial se ve igual.
+    historialDeCredencial(token)
+      .then((visitas) => {
+        if (vigente) setHistorial(visitas)
+      })
+      .catch(() => {})
     credencialVoluntario(token)
       .then(async (respuesta) => {
         if (!respuesta) {
@@ -121,6 +137,31 @@ export default function Credencial() {
 
         <p className="mt-4 text-base text-principal/80">{t('credencial.comoFunciona')}</p>
         <p className="mt-2 text-base text-principal/80">{t('credencial.soloTuya')}</p>
+
+        {/* Sus horas (seccion 49): solo las visitas con entrada y salida. */}
+        <section aria-labelledby="mis-horas" className="mt-5 rounded-xl border border-principal/15 p-4">
+          <h2 className="text-lg font-bold" id="mis-horas">
+            {t('credencial.horas.titulo')}
+          </h2>
+          <p className="mt-1 text-base">
+            {datos.minutos > 0
+              ? t('credencial.horas.llevas', { duracion: textoDuracion(t, datos.minutos), count: datos.dias })
+              : t('credencial.horas.todavia')}
+          </p>
+          {historial.length > 0 && (
+            <ul className="mt-2 divide-y divide-principal/10">
+              {historial.slice(0, 10).map((h) => (
+                <li className="flex flex-wrap justify-between gap-x-3 py-2 text-base" key={h.entrada}>
+                  <span>
+                    {diaCorto(h.fecha, i18n.language)} · {horaDeMarca(h.entrada)} – {horaDeMarca(h.salida)}
+                  </span>
+                  <span className="font-semibold tabular-nums">{textoDuracion(t, h.minutos)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-2 text-base text-principal/70">{t('credencial.horas.ayuda')}</p>
+        </section>
 
         <button
           className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-base font-bold text-sobre-accion shadow-sm transition hover:brightness-95"

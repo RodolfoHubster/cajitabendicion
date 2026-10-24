@@ -608,3 +608,19 @@
   animation-name: guia-latido;
   animation-duration: 1.8s;
 }
+
+/*
+ * Las hojas para imprimir del panel (la constancia de horas y las
+ * credenciales de los voluntarios, seccion 49) llevan .solo-imprimir: al
+ * imprimir sale la hoja y nada mas, sin encabezado, menu, avisos ni pie.
+ */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  body:has(.solo-imprimir) :is(header, footer, nav, [role='note'], [role='status']):not(.solo-imprimir *) {
+    display: none !important;
+  }
+}

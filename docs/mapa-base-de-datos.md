@@ -222,6 +222,18 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Voluntarios: teléfono y correo, envío y quien los atiende (sección 49)
+
+| Objeto | Qué hace |
+|---|---|
+| `voluntarios.telefono`, `voluntarios.correo` | Por separado. El teléfono con lada (`+16195550101`), listo para WhatsApp. `contacto` queda de antes; lo que no se pudo separar sale en `listar_voluntarios()` como `contacto_viejo`. |
+| `contacto_de_voluntario(contacto, telefono, correo)` | Interna: revisa y separa (`TELEFONO_INVALIDO`, `CORREO_INVALIDO`). Todo junto, 10 dígitos son +1 salvo 664 y 665 (Tijuana y Tecate), que son +52. |
+| `credenciales_enviadas`, `marcar_credencial_enviada(voluntario, medio)` | Por dónde (`whatsapp`, `correo`, `impresa`), cuándo y quién le mandó su credencial. Se anota al confirmar; nada se manda solo. Al cambiarle el QR (`credencial_desde`), lo de antes ya no cuenta. |
+| `personal.atiende_voluntarios`, `guardar_atiende_voluntarios(correo, activo)` | Por persona (Equipo y accesos, solo admin): escanea, registra, corrige y manda credenciales sin ser administrador. `mis_permisos()` lo manda como `atender_voluntarios`. |
+| `exigir_atender_voluntarios()` | Interna: admin, o voluntario con "atiende voluntarios". La usan registrar, editar, listar, marcar, deshacer, la lista del día, el envío y cerrar el día. Baja, QR nuevo, horas y correcciones siguen con `exigir_rol(admin)`. |
+| `cerrar_dia_voluntarios(hora)` | La salida, a esa hora (o ahora), de quienes entraron hoy antes y siguen adentro. `HORA_FUTURA`. |
+| `historial_de_credencial(token)` | Público, con su enlace: sus últimas 30 visitas completas. `credencial_voluntario()` ahora también trae `dias` y `minutos`. |
+
 ## Voluntarios: credencial, entrada y salida (sección 48)
 
 | Objeto | Qué hace |

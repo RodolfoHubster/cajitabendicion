@@ -2,8 +2,10 @@ import { Route } from 'react-router-dom'
 import Avisos from '../paginas/admin/Avisos'
 import CitasDeHoy from '../paginas/admin/CitasDeHoy'
 import CodigosQr from '../paginas/admin/CodigosQr'
+import ConstanciaHoras from '../paginas/admin/ConstanciaHoras'
 import Equipo from '../paginas/admin/Equipo'
 import HorariosAdmin from '../paginas/admin/Horarios'
+import ImprimirCredenciales from '../paginas/admin/ImprimirCredenciales'
 import Login from '../paginas/admin/Login'
 import Pases from '../paginas/admin/Pases'
 import Permisos from '../paginas/admin/Permisos'
@@ -60,7 +62,13 @@ export default function RutasAdmin() {
             <Route element={<Equipo />} path="/admin/equipo" />
             <Route element={<Permisos />} path="/admin/permisos" />
             <Route element={<CodigosQr />} path="/admin/qr" />
+            <Route element={<ConstanciaHoras />} path="/admin/voluntarios/constancia/:id" />
+          </Route>
+
+          {/* El administrador, y quien "atiende voluntarios" (seccion 49). */}
+          <Route element={<SoloRol permiso="atender_voluntarios" />}>
             <Route element={<Voluntarios />} path="/admin/voluntarios" />
+            <Route element={<ImprimirCredenciales />} path="/admin/voluntarios/imprimir" />
           </Route>
 
           <Route element={<SoloRol roles={['admin', 'voluntario']} />}>

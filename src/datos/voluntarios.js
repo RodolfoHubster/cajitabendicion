@@ -1,13 +1,14 @@
 import { aCsv } from './reportes'
 import { clasificarError } from './errores'
+import { normalizarTelefono } from './telefono'
 import { supabase } from '../lib/supabase'
 
 /**
  * Voluntarios: su credencial con QR permanente, su entrada y su salida
  * (seccion 48 de schema.sql).
  *
- * No son cuentas del panel: solo su nombre y, si quiere, un telefono o
- * correo. Al llegar y al irse se reportan con un administrador, que escanea
+ * No son cuentas del panel: solo su nombre y, si quiere, su telefono y su
+ * correo (seccion 49: por separado). Al llegar y al irse se reportan con un administrador, que escanea
  * su credencial: si no ha entrado es su entrada, si ya entro es su salida.
  * Todo es del administrador; el voluntario solo ve su credencial con su
  * enlace, como los pases.
@@ -26,6 +27,10 @@ export const CODIGOS_VOLUNTARIOS = [
   'HORA_FUTURA',
   'TRASLAPE',
   'RANGO_INVALIDO',
+  //  Seccion 49.
+  'TELEFONO_INVALIDO',
+  'CORREO_INVALIDO',
+  'MEDIO_INVALIDO',
 ]
 
 /** Lo que lleva el QR de una credencial: "vol" y 48 letras o numeros. */
@@ -59,13 +64,25 @@ const opcional = (texto) => String(texto ?? '').trim() || null
 //  Registrar y cambiar
 // ------------------------------------------------------------
 
-/** Lo registra y devuelve { id, nombre, token }: el token es su credencial. */
-export async function registrarVoluntario(nombre, contacto = '') {
-  return primera(await llamar('registrar_voluntario', { p_nombre: nombre, p_contacto: opcional(contacto) }))
+/**
+ * Lo registra y devuelve { id, nombre, token }: el token es su credencial.
+ * telefono con lada ('+16195550101') y correo, los dos opcionales (ver
+ * separarContacto).
+ */
+export async function registrarVoluntario(nombre, { telefono = null, correo = null } = {}) {
+  return primera(
+    await llamar('registrar_voluntario', { p_nombre: nombre, p_telefono: opcional(telefono), p_correo: opcional(correo) }),
+  )
 }
 
-export function editarVoluntario(id, nombre, contacto = '') {
-  return llamar('editar_voluntario', { p_id: id, p_nombre: nombre, p_contacto: opcional(contacto) })
+/** Cambia su nombre, su telefono y su correo (vacio: se quita). */
+export function editarVoluntario(id, nombre, { telefono = null, correo = null } = {}) {
+  return llamar('editar_voluntario', {
+    p_id: id,
+    p_nombre: nombre,
+    p_telefono: opcional(telefono),
+    p_correo: opcional(correo),
+  })
 }
 
 /** Dar de baja (false) o de alta (true). */
@@ -78,12 +95,16 @@ export function nuevoQrVoluntario(id) {
   return llamar('nuevo_qr_voluntario', { p_id: id })
 }
 
-/** Todos, los activos primero: { id, nombre, contacto, token, activo, dentro_desde, ultima_entrada, sin_salida }. */
+/**
+ * Todos, los activos primero: { id, nombre, telefono, correo, contacto_viejo,
+ * token, activo, creado_en, dentro_desde, ultima_entrada, sin_salida,
+ * enviada_en, enviada_medio }.
+ */
 export async function listarVoluntarios() {
   return (await llamar('listar_voluntarios', {})) ?? []
 }
 
-/** Lo que ve el voluntario con su enlace: { nombre, activo }, o null. */
+/** Lo que ve el voluntario con su enlace: { nombre, activo, dias, minutos }, o null. */
 export async function credencialVoluntario(token) {
   return primera(await llamar('credencial_voluntario', { p_token: token }))
 }
@@ -213,4 +234,146 @@ export function buscarVoluntarios(lista, texto, maximo = 8) {
   const buscado = limpiar(texto)
   if (!buscado) return []
   return (lista ?? []).filter((v) => limpiar(v.nombre).includes(buscado)).slice(0, maximo)
+}
+
+// ------------------------------------------------------------
+//  Seccion 49: telefono y correo, mandar la credencial, ordenar y filtrar
+// ------------------------------------------------------------
+
+/**
+ * Lo que se escribio en "Telefono o correo", separado: el correo (lo que
+ * lleva @) y el telefono con lada. Se pueden poner los dos ("619 555 0101,
+ * juana@gmail.com"). Sin lada, un numero de 10 digitos es de Estados Unidos,
+ * salvo los que empiezan con 664 o 665 (Tijuana y Tecate); con +52 adelante,
+ * de Mexico.
+ *
+ * Devuelve { telefono: '+16195550101' | null, pais: 'US' | 'MX' | ...,
+ * correo: 'juana@gmail.com' | null, error: null | 'TELEFONO_INVALIDO' |
+ * 'CORREO_INVALIDO' }.
+ */
+export function separarContacto(texto) {
+  const crudo = String(texto ?? '').trim()
+  const vacio = { telefono: null, pais: null, correo: null, error: null }
+  if (!crudo) return vacio
+
+  const conArroba = crudo.match(/[^\s,;/]*@[^\s,;/]*/)
+  let correo = null
+  let error = null
+  if (conArroba) {
+    correo = conArroba[0].toLowerCase()
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) || correo.length > 120) error = 'CORREO_INVALIDO'
+  }
+
+  const resto = (conArroba ? crudo.replace(conArroba[0], ' ') : crudo).replace(/[,;/]/g, ' ').trim()
+  if (!resto) return { ...vacio, correo, error }
+
+  const digitos = resto.replace(/\D/g, '')
+  const sinLada = !/^\s*(\+|00)/.test(resto)
+  const deMexico = (digitos.length === 10 && /^66[45]/.test(digitos)) || /^52\d{10}$/.test(digitos)
+  const preferido = sinLada && deMexico ? 'MX' : 'US'
+  const telefono = normalizarTelefono(preferido, resto)
+  if (!telefono.valido) return { telefono: null, pais: null, correo, error: error ?? 'TELEFONO_INVALIDO' }
+  return { telefono: telefono.e164, pais: telefono.pais, correo, error }
+}
+
+/** Lo que se escribe en el campo al editar: lo que tiene, junto. */
+export function contactoEnTexto(voluntario) {
+  const juntos = [voluntario?.telefono, voluntario?.correo].filter(Boolean).join(', ')
+  return juntos || voluntario?.contacto_viejo || ''
+}
+
+/** '+16195550101' -> '+1 619 555 0101'; '+526641234567' -> '+52 664 123 4567'. */
+export function telefonoBonito(e164) {
+  const texto = String(e164 ?? '')
+  const m = /^\+(1|52)(\d{3})(\d{3})(\d{4})$/.exec(texto)
+  return m ? `+${m[1]} ${m[2]} ${m[3]} ${m[4]}` : texto
+}
+
+/** Que se le dice al mandarle su credencial. */
+export function mensajeCredencial(t, nombre, enlace) {
+  const primero = String(nombre ?? '').trim().split(/\s+/)[0] ?? ''
+  return t('voluntarios.envio.mensaje', { nombre: primero, enlace })
+}
+
+/** Abre WhatsApp con el mensaje ya escrito; la persona toca Enviar. */
+export function enlaceWhatsAppCredencial(telefono, mensaje) {
+  const digitos = String(telefono ?? '').replace(/\D/g, '')
+  if (digitos.length < 8) return null
+  return `https://wa.me/${digitos}?text=${encodeURIComponent(mensaje)}`
+}
+
+/** Abre el correo del telefono con el asunto y el mensaje ya escritos. */
+export function enlaceCorreoCredencial(correo, asunto, mensaje) {
+  if (!correo) return null
+  return `mailto:${correo}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(mensaje)}`
+}
+
+/** Por donde se le mando: whatsapp, correo o impresa. */
+export function marcarCredencialEnviada(id, medio) {
+  return llamar('marcar_credencial_enviada', { p_voluntario: id, p_medio: medio })
+}
+
+/** Marcar la salida, a esa hora ('13:30', o ahora), de quienes siguen adentro. Devuelve cuantos. */
+export function cerrarDiaVoluntarios(hora = null) {
+  return llamar('cerrar_dia_voluntarios', { p_hora: hora || null })
+}
+
+/** Sus ultimas visitas completas, para su credencial: [{ fecha, entrada, salida, minutos }]. */
+export async function historialDeCredencial(token) {
+  return (await llamar('historial_de_credencial', { p_token: token })) ?? []
+}
+
+export const ORDENES = ['recientes', 'antiguos', 'nombre', 'ultimaVez']
+
+/** Ordena sin cambiar la lista original. Los dados de baja, siempre al final. */
+export function ordenarVoluntarios(lista, orden = 'recientes') {
+  const porNombre = (a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es', { sensitivity: 'base' })
+  const porFecha = (campo, direccion) => (a, b) => {
+    const x = a[campo] ?? ''
+    const y = b[campo] ?? ''
+    if (x === y) return porNombre(a, b)
+    if (!x) return 1
+    if (!y) return -1
+    return direccion * (x < y ? -1 : 1)
+  }
+  const criterio = {
+    recientes: porFecha('creado_en', -1),
+    antiguos: porFecha('creado_en', 1),
+    nombre: porNombre,
+    ultimaVez: porFecha('ultima_entrada', -1),
+  }[orden] ?? porNombre
+  return [...(lista ?? [])].sort((a, b) => Number(b.activo) - Number(a.activo) || criterio(a, b))
+}
+
+export const FILTROS = [
+  'activos',
+  'pendiente',
+  'enviada',
+  'conTelefono',
+  'conCorreo',
+  'sinContacto',
+  'adentro',
+  'sinSalida',
+  'deBaja',
+]
+
+/** Quienes entran en un filtro. Salvo "deBaja", solo los activos. */
+export function filtrarVoluntarios(lista, filtro = 'activos') {
+  const prueba = {
+    activos: () => true,
+    pendiente: (v) => !v.enviada_en,
+    enviada: (v) => Boolean(v.enviada_en),
+    conTelefono: (v) => Boolean(v.telefono),
+    conCorreo: (v) => Boolean(v.correo),
+    sinContacto: (v) => !v.telefono && !v.correo,
+    adentro: (v) => Boolean(v.dentro_desde),
+    sinSalida: (v) => v.sin_salida > 0,
+  }[filtro]
+  if (filtro === 'deBaja') return (lista ?? []).filter((v) => !v.activo)
+  return (lista ?? []).filter((v) => v.activo && (prueba ? prueba(v) : true))
+}
+
+/** Cuantos hay en cada filtro, para ponerlo en la lista de filtros. */
+export function contarPorFiltro(lista) {
+  return Object.fromEntries(FILTROS.map((filtro) => [filtro, filtrarVoluntarios(lista, filtro).length]))
 }

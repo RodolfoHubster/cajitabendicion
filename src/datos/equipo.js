@@ -49,6 +49,15 @@ export function quitarAcceso(correo) {
   return llamar('quitar_acceso_personal', { p_correo: correo })
 }
 
+/**
+ * "Atiende voluntarios" (seccion 49): escanea su entrada y salida, los
+ * registra y les manda su credencial, sin ser administrador. Es de cada
+ * persona, no una palomita para todos.
+ */
+export function guardarAtiendeVoluntarios(correo, activo) {
+  return llamar('guardar_atiende_voluntarios', { p_correo: correo, p_activo: Boolean(activo) })
+}
+
 /** El admin pone o cambia su propio codigo de autorizacion. */
 export function guardarMiCodigo(codigo) {
   return llamar('definir_mi_codigo_autorizacion', { p_codigo: codigo })

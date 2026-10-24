@@ -3106,7 +3106,9 @@ returns table (
   ultimo_acceso timestamptz,
   es_yo         boolean,
   tiene_codigo  boolean,
-  fila          text
+  fila          text,
+  --  Seccion 49: escanea y registra voluntarios sin ser administrador.
+  atiende_voluntarios boolean
 )
 language plpgsql
 stable
@@ -3124,7 +3126,8 @@ begin
          u.last_sign_in_at,
          pe.usuario_id = auth.uid(),
          exists (select 1 from autorizadores a where a.usuario_id = pe.usuario_id and a.activo),
-         pe.fila
+         pe.fila,
+         pe.atiende_voluntarios
     from personal pe
     join auth.users u on u.id = pe.usuario_id
   union all
@@ -3134,7 +3137,8 @@ begin
          null::timestamptz,
          false,
          false,
-         'ambas'::text
+         'ambas'::text,
+         false
     from personal_pendiente pp
    order by 3, 2, 1;
 end;
@@ -5051,10 +5055,18 @@ declare
 begin
   v_rol := exigir_rol(array['admin', 'voluntario']);
 
+  --  Seccion 49: "atender_voluntarios" no es una palomita de todos: es de
+  --  cada persona (Equipo y accesos). Se manda aqui para que el panel la
+  --  trate igual que las demas.
   return query
   select p.clave, case when v_rol = 'admin' then true else p.activo end
     from permisos p
-   order by p.clave;
+  union all
+  select 'atender_voluntarios'::text,
+         v_rol = 'admin'
+         or coalesce((select pe.atiende_voluntarios from personal pe
+                       where pe.usuario_id = auth.uid() and pe.activo), false)
+   order by 1;
 end;
 $$;
 
@@ -8002,6 +8014,8 @@ grant  execute on function codigo_turno_a_pie_hasta(date, boolean, time) to auth
 --  * El codigo empieza con "vol": el escaner de la despensa sabe que es una
 --    credencial y no una cita, y lo dice.
 --  * Solo administradores registran, escanean, corrigen y ven las horas.
+--    Desde la seccion 49, quien tiene "atiende voluntarios" (Equipo y
+--    accesos) tambien escanea, registra y manda credenciales.
 --  * Una sola entrada abierta por voluntario: lo asegura un indice unico
 --    parcial, y al escanear se bloquea la fila del voluntario, asi que dos
 --    escaneos al mismo tiempo no abren dos entradas.
@@ -8015,8 +8029,15 @@ grant  execute on function codigo_turno_a_pie_hasta(date, boolean, time) to auth
 create table if not exists voluntarios (
   id             uuid primary key default gen_random_uuid(),
   nombre         text not null,
-  --  Telefono o correo, opcional: solo para mandarle su credencial.
+  --  De antes de la seccion 49: telefono o correo, todo junto. Ya no se llena.
   contacto       text,
+  --  Seccion 49, por separado: el telefono con lada ("+16195550101", para
+  --  WhatsApp) y el correo. Los dos opcionales.
+  telefono       text,
+  correo         text,
+  --  Desde cuando vale la credencial que trae: al cambiarle el QR, lo que se
+  --  le mando antes ya no cuenta como enviado.
+  credencial_desde timestamptz not null default now(),
   --  Lo que lleva el QR: "vol" y 24 bytes al azar. Sin datos adentro.
   token          text not null unique,
   activo         boolean not null default true,
@@ -8095,7 +8116,14 @@ revoke execute on function limpiar_nombre_voluntario(text) from public, anon, au
 revoke execute on function limpiar_contacto_voluntario(text) from public, anon, authenticated;
 
 
-create or replace function registrar_voluntario(p_nombre text, p_contacto text default null)
+drop function if exists registrar_voluntario(text, text);
+
+create or replace function registrar_voluntario(
+  p_nombre   text,
+  p_contacto text default null,
+  p_telefono text default null,
+  p_correo   text default null
+)
 returns table (id uuid, nombre text, token text)
 language plpgsql
 security definer
@@ -8104,12 +8132,18 @@ as $$
 #variable_conflict use_column
 declare
   v_vol voluntarios;
+  v_tel text;
+  v_cor text;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
 
-  insert into voluntarios (nombre, contacto, token, creado_por)
+  select c.telefono, c.correo into v_tel, v_cor
+    from contacto_de_voluntario(p_contacto, p_telefono, p_correo) c;
+
+  insert into voluntarios (nombre, telefono, correo, token, creado_por)
   values (limpiar_nombre_voluntario(p_nombre),
-          limpiar_contacto_voluntario(p_contacto),
+          v_tel,
+          v_cor,
           'vol' || encode(gen_random_bytes(24), 'hex'),
           auth.uid())
   returning * into v_vol;
@@ -8118,22 +8152,38 @@ begin
 end;
 $$;
 
-revoke execute on function registrar_voluntario(text, text) from public, anon;
-grant  execute on function registrar_voluntario(text, text) to authenticated;
+revoke execute on function registrar_voluntario(text, text, text, text) from public, anon;
+grant  execute on function registrar_voluntario(text, text, text, text) to authenticated;
 
 
-create or replace function editar_voluntario(p_id uuid, p_nombre text, p_contacto text default null)
+drop function if exists editar_voluntario(uuid, text, text);
+
+create or replace function editar_voluntario(
+  p_id       uuid,
+  p_nombre   text,
+  p_contacto text default null,
+  p_telefono text default null,
+  p_correo   text default null
+)
 returns text
 language plpgsql
 security definer
 set search_path = public, extensions, pg_temp
 as $$
+declare
+  v_tel text;
+  v_cor text;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
+
+  select c.telefono, c.correo into v_tel, v_cor
+    from contacto_de_voluntario(p_contacto, p_telefono, p_correo) c;
 
   update voluntarios v
      set nombre         = limpiar_nombre_voluntario(p_nombre),
-         contacto       = limpiar_contacto_voluntario(p_contacto),
+         telefono       = v_tel,
+         correo         = v_cor,
+         contacto       = null,
          actualizado_en = now()
    where v.id = p_id;
 
@@ -8145,8 +8195,8 @@ begin
 end;
 $$;
 
-revoke execute on function editar_voluntario(uuid, text, text) from public, anon;
-grant  execute on function editar_voluntario(uuid, text, text) to authenticated;
+revoke execute on function editar_voluntario(uuid, text, text, text, text) from public, anon;
+grant  execute on function editar_voluntario(uuid, text, text, text, text) to authenticated;
 
 
 --  Dar de baja (o de alta otra vez). Su credencial deja de marcar entrada,
@@ -8196,7 +8246,7 @@ begin
   perform exigir_rol(array['admin']);
 
   update voluntarios v
-     set token = 'vol' || encode(gen_random_bytes(24), 'hex'), actualizado_en = now()
+     set token = 'vol' || encode(gen_random_bytes(24), 'hex'), credencial_desde = now(), actualizado_en = now()
    where v.id = p_id
   returning v.token into v_token;
 
@@ -8214,16 +8264,26 @@ grant  execute on function nuevo_qr_voluntario(uuid) to authenticated;
 
 --  Todos, los activos primero. dentro_desde: si hoy esta adentro, desde
 --  cuando. sin_salida: cuantas veces se fue sin marcar y falta corregir.
+--  Seccion 49: telefono y correo por separado (contacto_viejo: lo de antes
+--  que no se pudo separar), cuando se registro y la ultima vez que se le
+--  mando su credencial actual (enviada_en, enviada_medio).
+drop function if exists listar_voluntarios();
+
 create or replace function listar_voluntarios()
 returns table (
   id             uuid,
   nombre         text,
-  contacto       text,
+  telefono       text,
+  correo         text,
+  contacto_viejo text,
   token          text,
   activo         boolean,
+  creado_en      timestamp,
   dentro_desde   timestamp,
   ultima_entrada timestamp,
-  sin_salida     int
+  sin_salida     int,
+  enviada_en     timestamp,
+  enviada_medio  text
 )
 language plpgsql
 stable
@@ -8232,10 +8292,13 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
 
   return query
-  select v.id, v.nombre, v.contacto, v.token, v.activo,
+  select v.id, v.nombre, v.telefono, v.correo,
+         case when v.telefono is null and v.correo is null then v.contacto end,
+         v.token, v.activo,
+         v.creado_en at time zone 'America/Los_Angeles',
          (select a.entrada_en at time zone 'America/Los_Angeles'
             from asistencias_voluntarios a
            where a.voluntario_id = v.id and a.estado = 'dentro'
@@ -8247,8 +8310,17 @@ begin
             from asistencias_voluntarios a
            where a.voluntario_id = v.id
              and (a.estado = 'sin_salida'
-                  or (a.estado = 'dentro' and (a.entrada_en at time zone 'America/Los_Angeles')::date < current_date)))
+                  or (a.estado = 'dentro' and (a.entrada_en at time zone 'America/Los_Angeles')::date < current_date))),
+         env.enviada_en at time zone 'America/Los_Angeles',
+         env.medio
     from voluntarios v
+    left join lateral (
+      select e.enviada_en, e.medio
+        from credenciales_enviadas e
+       where e.voluntario_id = v.id and e.enviada_en >= v.credencial_desde
+       order by e.enviada_en desc
+       limit 1
+    ) env on true
    order by v.activo desc, v.nombre;
 end;
 $$;
@@ -8257,16 +8329,24 @@ revoke execute on function listar_voluntarios() from public, anon;
 grant  execute on function listar_voluntarios() to authenticated;
 
 
---  Lo que ve el voluntario con el enlace de su credencial: solo su nombre.
---  Quien tiene el enlace es el dueno, como con los pases.
+--  Lo que ve el voluntario con el enlace de su credencial: su nombre y, desde
+--  la seccion 49, cuantos dias vino y cuantos minutos suma (solo las
+--  completas). Quien tiene el enlace es el dueno, como con los pases.
+drop function if exists credencial_voluntario(text);
+
 create or replace function credencial_voluntario(p_token text)
-returns table (nombre text, activo boolean)
+returns table (nombre text, activo boolean, dias int, minutos int)
 language sql
 stable
 security definer
 set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
 as $$
-  select v.nombre, v.activo
+  select v.nombre, v.activo,
+         (select count(distinct (a.entrada_en at time zone 'America/Los_Angeles')::date)::int
+            from asistencias_voluntarios a where a.voluntario_id = v.id and a.estado = 'salio'),
+         (select coalesce(sum(floor(extract(epoch from a.salida_en - a.entrada_en) / 60)), 0)::int
+            from asistencias_voluntarios a where a.voluntario_id = v.id and a.estado = 'salio')
     from voluntarios v
    where v.token = lower(trim(coalesce(p_token, '')));
 $$;
@@ -8311,7 +8391,7 @@ declare
   v_ultima  asistencias_voluntarios;
   v_olvido  date;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
 
   --  Bloquear al voluntario: dos escaneos al mismo tiempo van en fila.
   select * into v_vol
@@ -8406,7 +8486,7 @@ as $$
 declare
   v_a asistencias_voluntarios;
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
 
   select * into v_a from asistencias_voluntarios a where a.id = p_id for update;
 
@@ -8455,7 +8535,7 @@ set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
 begin
-  perform exigir_rol(array['admin']);
+  perform exigir_atender_voluntarios();
 
   return query
   select a.id, v.id, v.nombre,
@@ -8745,3 +8825,248 @@ $$;
 
 revoke execute on function asistencias_de_voluntario(uuid, date, date) from public, anon;
 grant  execute on function asistencias_de_voluntario(uuid, date, date) to authenticated;
+
+
+-- ============================================================
+--  49. VOLUNTARIOS: TELEFONO Y CORREO, ENVIO, QUIEN LOS ATIENDE
+-- ============================================================
+--  Pedido del 23 de octubre de 2026:
+--
+--  * Telefono y correo por separado (antes, un solo "contacto"). El
+--    telefono va con lada ("+16195550101"), listo para WhatsApp.
+--  * La credencial se manda uno por uno desde el telefono de quien la
+--    manda (WhatsApp o correo, con el mensaje ya escrito), igual que las
+--    invitaciones de "sin cita": nada se manda solo. Al confirmar que se
+--    envio, queda anotado por donde, cuando y quien (credenciales_enviadas).
+--    Al cambiarle el QR, lo enviado antes ya no cuenta.
+--  * "Atiende voluntarios": un ajuste POR PERSONA en Equipo y accesos (no
+--    una palomita de Permisos, que vale para todos los voluntarios a la
+--    vez). Quien lo tiene escanea su entrada y salida, los registra, les
+--    corrige el nombre o el contacto, les manda su credencial y cierra el
+--    dia. Dar de baja, cambiar el QR, ver y corregir horas siguen siendo
+--    solo del administrador.
+--  * Cerrar el dia: marcar la salida, a una hora, de quienes siguen adentro.
+--  * Con el enlace de su credencial, el voluntario ve sus horas.
+
+alter table personal add column if not exists atiende_voluntarios boolean not null default false;
+
+--  Admin, o voluntario con "atiende voluntarios" prendido.
+create or replace function exigir_atender_voluntarios()
+returns text
+language plpgsql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_rol     text;
+  v_atiende boolean;
+begin
+  if auth.uid() is null then
+    raise exception 'SIN_SESION' using errcode = '42501';
+  end if;
+
+  select pe.rol, pe.atiende_voluntarios into v_rol, v_atiende
+    from personal pe
+   where pe.usuario_id = auth.uid()
+     and pe.activo;
+
+  if v_rol = 'admin' or (v_rol = 'voluntario' and v_atiende) then
+    return v_rol;
+  end if;
+
+  raise exception 'SIN_PERMISO' using errcode = '42501';
+end;
+$$;
+
+revoke execute on function exigir_atender_voluntarios() from public, anon, authenticated;
+
+
+--  El telefono y el correo, revisados. p_telefono ya viene con lada desde
+--  la pantalla. p_contacto: como se mandaba antes (seccion 48), todo junto;
+--  si trae "@" es correo, si no, telefono (10 digitos: +52 si empieza con
+--  664 o 665, Tijuana y Tecate; si no, +1).
+create or replace function contacto_de_voluntario(p_contacto text, p_telefono text, p_correo text)
+returns table (telefono text, correo text)
+language plpgsql
+immutable
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_tel text := nullif(regexp_replace(coalesce(p_telefono, ''), '[^0-9+]', '', 'g'), '');
+  v_cor text := nullif(lower(trim(coalesce(p_correo, ''))), '');
+  v_txt text := nullif(trim(coalesce(p_contacto, '')), '');
+  v_dig text;
+begin
+  if v_tel is null and v_cor is null and v_txt is not null then
+    if v_txt like '%@%' then
+      v_cor := lower(v_txt);
+    else
+      v_dig := regexp_replace(v_txt, '\D', '', 'g');
+      v_tel := case
+                 when char_length(v_dig) = 10 then (case when v_dig ~ '^66[45]' then '+52' else '+1' end) || v_dig
+                 when char_length(v_dig) between 11 and 15 then '+' || v_dig
+               end;
+      if v_tel is null then
+        raise exception 'TELEFONO_INVALIDO';
+      end if;
+    end if;
+  end if;
+
+  if v_tel is not null and v_tel !~ '^\+[0-9]{8,15}$' then
+    raise exception 'TELEFONO_INVALIDO';
+  end if;
+
+  if v_cor is not null and (char_length(v_cor) > 120 or v_cor !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$') then
+    raise exception 'CORREO_INVALIDO';
+  end if;
+
+  return query select v_tel, v_cor;
+end;
+$$;
+
+revoke execute on function contacto_de_voluntario(text, text, text) from public, anon, authenticated;
+
+
+--  Por donde, cuando y quien le mando su credencial.
+create table if not exists credenciales_enviadas (
+  id            bigint generated always as identity primary key,
+  voluntario_id uuid not null references voluntarios(id) on delete restrict,
+  --  whatsapp o correo, o impresa (se la dieron en papel).
+  medio         text not null check (medio in ('whatsapp', 'correo', 'impresa')),
+  enviada_en    timestamptz not null default now(),
+  enviada_por   uuid
+);
+
+create index if not exists idx_credenciales_enviadas on credenciales_enviadas (voluntario_id, enviada_en);
+alter table credenciales_enviadas enable row level security;
+
+--  Lo anota quien la mando, al confirmar que si se envio. Desde una pagina
+--  no se puede saber si el mensaje salio: por eso lo confirma una persona.
+create or replace function marcar_credencial_enviada(p_voluntario uuid, p_medio text)
+returns timestamp
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_en timestamptz;
+begin
+  perform exigir_atender_voluntarios();
+
+  if p_medio is null or p_medio not in ('whatsapp', 'correo', 'impresa') then
+    raise exception 'MEDIO_INVALIDO';
+  end if;
+
+  if not exists (select 1 from voluntarios v where v.id = p_voluntario) then
+    raise exception 'VOLUNTARIO_NO_EXISTE';
+  end if;
+
+  insert into credenciales_enviadas (voluntario_id, medio, enviada_por)
+  values (p_voluntario, p_medio, auth.uid())
+  returning enviada_en into v_en;
+
+  return v_en at time zone 'America/Los_Angeles';
+end;
+$$;
+
+revoke execute on function marcar_credencial_enviada(uuid, text) from public, anon;
+grant  execute on function marcar_credencial_enviada(uuid, text) to authenticated;
+
+
+--  Cerrar el dia: la salida, a la hora que se diga (hora de San Diego; sin
+--  hora, ahora mismo), de quienes entraron hoy y siguen adentro. Quien
+--  entro despues de esa hora se queda adentro. Devuelve cuantos salieron.
+create or replace function cerrar_dia_voluntarios(p_hora time default null)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_salida timestamptz := coalesce((current_date + p_hora) at time zone 'America/Los_Angeles', now());
+  v_cuantos int;
+begin
+  perform exigir_atender_voluntarios();
+
+  if v_salida > now() then
+    raise exception 'HORA_FUTURA';
+  end if;
+
+  update asistencias_voluntarios a
+     set salida_en  = v_salida,
+         salida_por = auth.uid(),
+         estado     = 'salio'
+   where a.estado = 'dentro'
+     and (a.entrada_en at time zone 'America/Los_Angeles')::date = current_date
+     and a.entrada_en < v_salida;
+
+  get diagnostics v_cuantos = row_count;
+  return v_cuantos;
+end;
+$$;
+
+revoke execute on function cerrar_dia_voluntarios(time) from public, anon;
+grant  execute on function cerrar_dia_voluntarios(time) to authenticated;
+
+
+--  Con el enlace de su credencial, el voluntario ve sus ultimas 30 visitas
+--  completas (las que suman horas). Quien tiene el enlace es el dueno.
+create or replace function historial_de_credencial(p_token text)
+returns table (fecha date, entrada timestamp, salida timestamp, minutos int)
+language sql
+stable
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+  select (a.entrada_en at time zone 'America/Los_Angeles')::date,
+         a.entrada_en at time zone 'America/Los_Angeles',
+         a.salida_en at time zone 'America/Los_Angeles',
+         floor(extract(epoch from a.salida_en - a.entrada_en) / 60)::int
+    from asistencias_voluntarios a
+    join voluntarios v on v.id = a.voluntario_id
+   where v.token = lower(trim(coalesce(p_token, '')))
+     and a.estado = 'salio'
+   order by a.entrada_en desc
+   limit 30;
+$$;
+
+revoke execute on function historial_de_credencial(text) from public;
+grant  execute on function historial_de_credencial(text) to anon, authenticated;
+
+
+--  Prender o apagar "atiende voluntarios" a alguien del equipo. Solo el
+--  administrador, como todo lo de Equipo y accesos.
+create or replace function guardar_atiende_voluntarios(p_correo text, p_activo boolean)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_correo  text := lower(trim(coalesce(p_correo, '')));
+  v_usuario uuid;
+begin
+  perform exigir_rol(array['admin']);
+
+  update personal pe
+     set atiende_voluntarios = coalesce(p_activo, false),
+         actualizado_en      = now()
+    from auth.users u
+   where u.id = pe.usuario_id
+     and lower(u.email) = v_correo
+  returning pe.usuario_id into v_usuario;
+
+  if v_usuario is null then
+    raise exception 'PERSONAL_NO_EXISTE';
+  end if;
+
+  return coalesce(p_activo, false);
+end;
+$$;
+
+revoke execute on function guardar_atiende_voluntarios(text, boolean) from public, anon;
+grant  execute on function guardar_atiende_voluntarios(text, boolean) to authenticated;

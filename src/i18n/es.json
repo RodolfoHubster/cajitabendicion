@@ -1219,7 +1219,9 @@
       "FILA_INVALIDA": "Esa fila no existe."
     },
     "fila": "Escanea en:",
-    "filaAdmin": "El administrador escanea en las dos filas."
+    "filaAdmin": "El administrador escanea en las dos filas.",
+    "atiende": "Atiende voluntarios",
+    "atiendeAyuda": "Escanea su entrada y salida, los registra y les manda su credencial. No ve ni corrige las horas."
   },
   "filtros": {
     "buscar": "Buscar por nombre o código",
@@ -2083,7 +2085,14 @@
     "inactiva": "Esta credencial ya no está activa.",
     "inactivaTexto": "Si crees que es un error, llama a la iglesia al {{telefono}}.",
     "noEncontrada": "No encontramos esta credencial. Pídele a un administrador que te mande el enlace otra vez.",
-    "sinConexion": "No se pudo cargar tu credencial. Revisa tu señal y vuelve a abrir el enlace."
+    "sinConexion": "No se pudo cargar tu credencial. Revisa tu señal y vuelve a abrir el enlace.",
+    "horas": {
+      "titulo": "Tus horas de servicio",
+      "llevas_one": "Llevas {{duracion}} en {{count}} día.",
+      "llevas_other": "Llevas {{duracion}} en {{count}} días.",
+      "todavia": "Todavía no tienes visitas completas. Cuando te escaneen al llegar y al irte, aquí verás tus horas.",
+      "ayuda": "Solo cuentan las visitas con entrada y salida. Aquí salen las últimas 10."
+    }
   },
   "voluntarios": {
     "titulo": "Voluntarios",
@@ -2145,8 +2154,9 @@
       "ayuda": "No necesita cuenta: con su nombre se le hace su credencial con QR, que guarda en su teléfono o se imprime.",
       "nombre": "Nombre",
       "contacto": "Teléfono o correo (opcional)",
-      "contactoAyuda": "Solo para mandarle su credencial.",
-      "boton": "Registrar y ver su credencial"
+      "contactoAyuda": "Su teléfono (para mandarle su credencial por WhatsApp), su correo, o los dos separados por una coma.",
+      "boton": "Registrar y ver su credencial",
+      "contactoEjemplo": "Por ejemplo: 619 555 0101, juana@gmail.com"
     },
     "lista": {
       "titulo_one": "{{count}} voluntario activo",
@@ -2175,7 +2185,41 @@
         "qr": "¿Cambiarle el QR a {{nombre}}? La credencial que tiene ahora deja de servir y hay que mandarle la nueva.",
         "si_baja": "Sí, dar de baja",
         "si_qr": "Sí, cambiar QR"
-      }
+      },
+      "faltan_one": "{{count}} voluntario no tiene su credencial.",
+      "faltan_other": "{{count}} voluntarios no tienen su credencial.",
+      "verFaltan": "Ver a quiénes",
+      "mostrar": "Mostrar",
+      "ordenar": "Ordenar",
+      "filtros": {
+        "activos": "Activos ({{count}})",
+        "pendiente": "Sin su credencial ({{count}})",
+        "enviada": "Con su credencial ({{count}})",
+        "conTelefono": "Con teléfono ({{count}})",
+        "conCorreo": "Con correo ({{count}})",
+        "sinContacto": "Sin teléfono ni correo ({{count}})",
+        "adentro": "Adentro ahora ({{count}})",
+        "sinSalida": "Con salidas sin marcar ({{count}})",
+        "deBaja": "Dados de baja ({{count}})"
+      },
+      "ordenes": {
+        "recientes": "Los más recientes",
+        "antiguos": "Los más antiguos",
+        "nombre": "Por nombre (A–Z)",
+        "ultimaVez": "Los que vinieron hace poco"
+      },
+      "seVen_one": "{{count}} en la lista",
+      "seVen_other": "{{count}} en la lista",
+      "imprimir": "Imprimir sus credenciales ({{count}})",
+      "nadieAsi": "Nadie en esa lista. Prueba con otro filtro o borra la búsqueda.",
+      "contactoViejo": "Contacto sin acomodar: «{{contacto}}». Tócale Editar para corregirlo.",
+      "enviada": {
+        "whatsapp": "Enviada por WhatsApp · {{dia}}",
+        "correo": "Enviada por correo · {{dia}}",
+        "impresa": "Entregada impresa · {{dia}}"
+      },
+      "sinMandar": "Credencial sin mandar",
+      "mandar": "Mandar credencial"
     },
     "horas": {
       "titulo": "Horas de servicio",
@@ -2210,7 +2254,8 @@
         "dias": "Días",
         "horas": "Horas",
         "sinSalida": "Sin salida"
-      }
+      },
+      "constancia": "Constancia de horas"
     },
     "errores": {
       "ERROR_DESCONOCIDO": "No se pudo. Vuelve a intentar.",
@@ -2226,7 +2271,80 @@
       "HORAS_INVALIDAS": "Revisa las horas: la salida va después de la entrada, y no más de 16 horas.",
       "HORA_FUTURA": "La salida no puede ser una hora que todavía no llega.",
       "TRASLAPE": "Esas horas se enciman con otra asistencia de esa persona.",
-      "RANGO_INVALIDO": "Revisa las fechas: «Desde» va antes de «Hasta», y no más de un año."
+      "RANGO_INVALIDO": "Revisa las fechas: «Desde» va antes de «Hasta», y no más de un año.",
+      "TELEFONO_INVALIDO": "Ese teléfono no está completo: van 10 números (si es de México, con +52 adelante).",
+      "CORREO_INVALIDO": "Ese correo no está completo: revisa lo que va después de la @.",
+      "MEDIO_INVALIDO": "No se pudo anotar el envío. Vuelve a intentar."
+    },
+    "contacto": {
+      "whatsapp": "WhatsApp: {{telefono}}",
+      "correo": "Correo: {{correo}}",
+      "pais": {
+        "US": "(Estados Unidos)",
+        "MX": "(México)"
+      }
+    },
+    "envio": {
+      "titulo": "Mandarle su credencial",
+      "noEnviada": "Todavía no se le ha mandado.",
+      "enviada": {
+        "whatsapp": "Se le mandó por WhatsApp el {{cuando}}.",
+        "correo": "Se le mandó por correo el {{cuando}}.",
+        "impresa": "Se le dio impresa el {{cuando}}."
+      },
+      "porWhatsApp": "Enviar por WhatsApp a {{telefono}}",
+      "porCorreo": "Enviar por correo a {{correo}}",
+      "sinContacto": "No tiene teléfono ni correo: guarda la imagen o imprímela y dásela en persona.",
+      "yaImpresa": "Ya se la di impresa",
+      "pregunta": {
+        "whatsapp": "¿Se envió el mensaje por WhatsApp?",
+        "correo": "¿Se envió el correo?"
+      },
+      "si": "Sí, ya se envió",
+      "no": "No, todavía no",
+      "asunto": "Tu credencial de voluntario · Cajita de Bendición",
+      "mensaje": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar y al irte: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!"
+    },
+    "cierre": {
+      "boton": "Marcar salida a los que siguen adentro",
+      "pregunta": "¿A qué hora se fueron?",
+      "ayuda": "Quien entró después de esa hora se queda adentro.",
+      "confirmar_one": "Marcar salida a {{count}}",
+      "confirmar_other": "Marcar salida a {{count}}",
+      "listo_one": "Listo: {{count}} con salida a las {{hora}}.",
+      "listo_other": "Listo: {{count}} con salida a las {{hora}}.",
+      "ninguno": "Nadie había entrado antes de esa hora: no se marcó ninguna salida."
     }
+  },
+  "constancia": {
+    "volver": "Volver a Voluntarios",
+    "cargando": "Preparando la constancia…",
+    "imprimir": "Imprimir o guardar como PDF",
+    "ayuda": "Al imprimir solo sale la hoja. Para tenerla en PDF, en la ventana de impresión escoge «Guardar como PDF».",
+    "titulo": "Constancia de horas de servicio",
+    "haceConstar": "Por medio de la presente hacemos constar que",
+    "sirvio": "sirvió como voluntario(a) en el programa {{programa}} de la {{iglesia}} entre el {{desde}} y el {{hasta}}, con un total de",
+    "total_one": "{{duracion}} ({{horas}} horas) en {{count}} día.",
+    "total_other": "{{duracion}} ({{horas}} horas) en {{count}} días.",
+    "col": {
+      "fecha": "Fecha",
+      "entrada": "Entrada",
+      "salida": "Salida",
+      "tiempo": "Tiempo",
+      "total": "Total"
+    },
+    "expedida": "Se expide a petición del interesado el {{fecha}}.",
+    "firma": "Nombre y firma",
+    "cargo": "Pastor o responsable del programa"
+  },
+  "imprimirCredenciales": {
+    "titulo_one": "{{count}} credencial para imprimir",
+    "titulo_other": "{{count}} credenciales para imprimir",
+    "ayuda": "Salen 8 por hoja carta: recórtalas por la línea punteada. Son las que se veían en la lista; para otras, regresa y escoge otro filtro.",
+    "imprimir": "Imprimir",
+    "marcarEntregadas": "Ya las entregué en papel",
+    "entregadas_one": "Listo: quedó anotado que {{count}} se entregó impresa.",
+    "entregadas_other": "Listo: quedó anotado que {{count}} se entregaron impresas.",
+    "ninguna": "No hay credenciales que imprimir con ese filtro."
   }
 }

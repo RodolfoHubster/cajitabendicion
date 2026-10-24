@@ -172,6 +172,9 @@ describe('los colores respetan el modo oscuro', () => {
     //  La credencial de un voluntario (seccion 48), en el panel y en su enlace.
     'componentes/VentanaCredencial.jsx': 1,
     'paginas/publico/Credencial.jsx': 1,
+    //  Las hojas para imprimir (seccion 49): papel blanco en cualquier modo.
+    'paginas/admin/ConstanciaHoras.jsx': 1,
+    'paginas/admin/ImprimirCredenciales.jsx': 1,
   }
 
   it('bg-white solo donde va un QR o el logo; lo demás es bg-superficie', async () => {

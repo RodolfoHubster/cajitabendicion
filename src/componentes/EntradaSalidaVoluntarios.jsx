@@ -4,11 +4,13 @@ import { LuLogIn, LuLogOut, LuSearch, LuUndo2 } from 'react-icons/lu'
 import LectorQR from './LectorQR'
 import Tarjeta from './Tarjeta'
 import { EsqueletoLista } from './Esqueleto'
+import { ahoraSanDiego, formatearHora } from '../datos/disponibilidad'
 import { horaDeMarca } from '../datos/filaAPie'
 import { avisoDetente, avisoLeido, avisoValido, prepararSonido } from '../datos/sonido'
 import {
   asistenciasDelDia,
   buscarVoluntarios,
+  cerrarDiaVoluntarios,
   deshacerAsistencia,
   esCredencial,
   esQrDeCita,
@@ -53,6 +55,10 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar }) {
   const [busqueda, setBusqueda] = useState('')
   const [hoy, setHoy] = useState(null)
   const [version, setVersion] = useState(0)
+  //  Cerrar el dia (seccion 49): a que hora, y que paso.
+  const [cerrando, setCerrando] = useState(false)
+  const [horaCierre, setHoraCierre] = useState('')
+  const [cerrado, setCerrado] = useState(null)
 
   //  El bip necesita un primer toque en la pagina (los navegadores lo piden).
   useEffect(() => {
@@ -134,6 +140,22 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar }) {
       setDeshecho(await deshacerAsistencia(resultado.asistencia_id))
       setResultado(null)
       setPuedeDeshacer(false)
+      setVersion((n) => n + 1)
+      alCambiar?.()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  async function cerrarDia() {
+    setOcupado(true)
+    setError(null)
+    try {
+      const cuantos = await cerrarDiaVoluntarios(horaCierre)
+      setCerrado({ cuantos, hora: formatearHora(horaCierre) })
+      setCerrando(false)
       setVersion((n) => n + 1)
       alCambiar?.()
     } catch (e) {
@@ -262,6 +284,62 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar }) {
           <h2 className="text-xl font-bold">{t('voluntarios.hoy.titulo')}</h2>
           {hoy && <p className="text-base font-semibold text-puede-pasar">{t('voluntarios.hoy.adentro', { count: adentro })}</p>}
         </div>
+        {/* Al terminar: la salida de los que se quedaron sin marcarla. */}
+        {adentro > 0 && !cerrando && (
+          <button
+            className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal disabled:opacity-50"
+            disabled={ocupado}
+            onClick={() => {
+              setCerrado(null)
+              setHoraCierre(ahoraSanDiego().slice(11, 16))
+              setCerrando(true)
+            }}
+            type="button"
+          >
+            <LuLogOut aria-hidden="true" className="h-5 w-5" />
+            {t('voluntarios.cierre.boton')}
+          </button>
+        )}
+        {cerrando && (
+          <div className="mt-3 space-y-3 rounded-xl border-2 border-accion bg-accion/10 p-3" role="group">
+            <label className="flex flex-wrap items-center gap-3 text-base font-semibold text-principal" htmlFor="hora-cierre">
+              {t('voluntarios.cierre.pregunta')}
+              <input
+                className="min-h-12 rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal outline-none focus:border-principal"
+                id="hora-cierre"
+                onChange={(e) => setHoraCierre(e.target.value)}
+                type="time"
+                value={horaCierre}
+              />
+            </label>
+            <p className="text-base text-principal/80">{t('voluntarios.cierre.ayuda')}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className="inline-flex min-h-12 items-center rounded-xl bg-marca px-4 text-base font-semibold text-white disabled:opacity-50"
+                disabled={ocupado || !horaCierre}
+                onClick={cerrarDia}
+                type="button"
+              >
+                {t('voluntarios.cierre.confirmar', { count: adentro })}
+              </button>
+              <button
+                className="inline-flex min-h-12 items-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+                onClick={() => setCerrando(false)}
+                type="button"
+              >
+                {t('voluntarios.lista.cancelar')}
+              </button>
+            </div>
+          </div>
+        )}
+        {cerrado && (
+          <p className="mt-3 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
+            {cerrado.cuantos > 0
+              ? t('voluntarios.cierre.listo', { count: cerrado.cuantos, hora: cerrado.hora })
+              : t('voluntarios.cierre.ninguno')}
+          </p>
+        )}
+
         {hoy === null ? (
           <div className="mt-3">
             <EsqueletoLista filas={3} texto={t('voluntarios.cargando')} />

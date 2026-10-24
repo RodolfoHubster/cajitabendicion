@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Boton from '../componentes/Boton'
 import Tarjeta from '../componentes/Tarjeta'
-import { CLAVES_PERMISOS, misPermisos } from '../datos/permisos'
+import { CLAVES_PERMISOS, PERMISOS_POR_PERSONA, misPermisos } from '../datos/permisos'
 import { alCambiarSesion, cerrarSesion, obtenerRol, obtenerSesion } from '../datos/sesion'
 import { EsqueletoNumeros, Hueso } from '../componentes/Esqueleto'
 
@@ -40,7 +40,9 @@ export default function RutaProtegida() {
         // Si la lista todavia no existe en la base (migracion sin aplicar),
         // el panel no se cae: el administrador sigue con todo y el
         // voluntario se queda como estaba, nada mas escaneando.
-        permisos = await misPermisos().catch(() => (rol === 'admin' ? CLAVES_PERMISOS : []))
+        permisos = await misPermisos().catch(() =>
+          rol === 'admin' ? [...CLAVES_PERMISOS, ...PERMISOS_POR_PERSONA] : [],
+        )
       }
 
       //  Ya tenia acceso y solo fallo la revision (sin senal al despertar

@@ -1213,7 +1213,9 @@
       "FILA_INVALIDA": "Hàng đó không tồn tại."
     },
     "fila": "Quét ở:",
-    "filaAdmin": "Quản trị viên quét ở cả hai hàng."
+    "filaAdmin": "Quản trị viên quét ở cả hai hàng.",
+    "atiende": "Phụ trách tình nguyện viên",
+    "atiendeAyuda": "Quét giờ vào và ra, đăng ký và gửi thẻ cho họ. Không xem hay sửa số giờ."
   },
   "filtros": {
     "buscar": "Tìm theo tên hoặc mã",
@@ -2061,7 +2063,13 @@
     "inactiva": "Thẻ này không còn hiệu lực.",
     "inactivaTexto": "Nếu bạn nghĩ đây là nhầm lẫn, hãy gọi nhà thờ số {{telefono}}.",
     "noEncontrada": "Chúng tôi không tìm thấy thẻ này. Hãy nhờ quản trị viên gửi lại đường dẫn.",
-    "sinConexion": "Không tải được thẻ. Hãy kiểm tra sóng và mở lại đường dẫn."
+    "sinConexion": "Không tải được thẻ. Hãy kiểm tra sóng và mở lại đường dẫn.",
+    "horas": {
+      "titulo": "Số giờ phục vụ của bạn",
+      "llevas_other": "Bạn đã có {{duracion}} trong {{count}} ngày.",
+      "todavia": "Bạn chưa có lần nào đủ giờ vào và ra. Khi được quét lúc đến và lúc về, số giờ sẽ hiện ở đây.",
+      "ayuda": "Chỉ tính những lần có cả giờ vào và giờ ra. Đây là 10 lần gần nhất."
+    }
   },
   "voluntarios": {
     "titulo": "Tình nguyện viên",
@@ -2122,8 +2130,9 @@
       "ayuda": "Không cần tài khoản: với tên của họ sẽ có thẻ với mã QR để lưu trong điện thoại hoặc in ra.",
       "nombre": "Tên",
       "contacto": "Điện thoại hoặc email (không bắt buộc)",
-      "contactoAyuda": "Chỉ để gửi thẻ cho họ.",
-      "boton": "Đăng ký và xem thẻ"
+      "contactoAyuda": "Số điện thoại (để gửi thẻ qua WhatsApp), email, hoặc cả hai cách nhau bằng dấu phẩy.",
+      "boton": "Đăng ký và xem thẻ",
+      "contactoEjemplo": "Ví dụ: 619 555 0101, juana@gmail.com"
     },
     "lista": {
       "titulo_other": "{{count}} tình nguyện viên đang hoạt động",
@@ -2150,7 +2159,39 @@
         "qr": "Đổi mã QR của {{nombre}}? Thẻ hiện tại sẽ không dùng được nữa và cần gửi thẻ mới cho họ.",
         "si_baja": "Có, ngưng hoạt động",
         "si_qr": "Có, đổi mã QR"
-      }
+      },
+      "faltan_other": "{{count}} tình nguyện viên chưa có thẻ.",
+      "verFaltan": "Xem là ai",
+      "mostrar": "Hiện",
+      "ordenar": "Sắp xếp",
+      "filtros": {
+        "activos": "Đang hoạt động ({{count}})",
+        "pendiente": "Chưa có thẻ ({{count}})",
+        "enviada": "Đã có thẻ ({{count}})",
+        "conTelefono": "Có điện thoại ({{count}})",
+        "conCorreo": "Có email ({{count}})",
+        "sinContacto": "Không có điện thoại hay email ({{count}})",
+        "adentro": "Đang ở trong ({{count}})",
+        "sinSalida": "Thiếu giờ ra ({{count}})",
+        "deBaja": "Đã ngưng hoạt động ({{count}})"
+      },
+      "ordenes": {
+        "recientes": "Mới nhất",
+        "antiguos": "Cũ nhất",
+        "nombre": "Theo tên (A–Z)",
+        "ultimaVez": "Đến gần đây nhất"
+      },
+      "seVen_other": "{{count}} trong danh sách",
+      "imprimir": "In thẻ của họ ({{count}})",
+      "nadieAsi": "Không có ai trong danh sách đó. Hãy thử bộ lọc khác hoặc xóa tìm kiếm.",
+      "contactoViejo": "Liên lạc cần sửa: «{{contacto}}». Chạm Sửa để sửa.",
+      "enviada": {
+        "whatsapp": "Đã gửi qua WhatsApp · {{dia}}",
+        "correo": "Đã gửi qua email · {{dia}}",
+        "impresa": "Đã phát thẻ giấy · {{dia}}"
+      },
+      "sinMandar": "Chưa gửi thẻ",
+      "mandar": "Gửi thẻ"
     },
     "horas": {
       "titulo": "Số giờ phục vụ",
@@ -2183,7 +2224,8 @@
         "dias": "Ngày",
         "horas": "Giờ",
         "sinSalida": "Không có giờ ra"
-      }
+      },
+      "constancia": "Giấy xác nhận giờ"
     },
     "errores": {
       "ERROR_DESCONOCIDO": "Không được. Hãy thử lại.",
@@ -2199,7 +2241,75 @@
       "HORAS_INVALIDAS": "Kiểm tra lại giờ: giờ ra phải sau giờ vào, và không quá 16 giờ.",
       "HORA_FUTURA": "Giờ ra không thể là giờ chưa tới.",
       "TRASLAPE": "Giờ đó trùng với một lần khác của người này.",
-      "RANGO_INVALIDO": "Kiểm tra lại ngày: «Từ» phải trước «Đến», và không quá một năm."
+      "RANGO_INVALIDO": "Kiểm tra lại ngày: «Từ» phải trước «Đến», và không quá một năm.",
+      "TELEFONO_INVALIDO": "Số điện thoại chưa đủ: cần 10 số (nếu ở Mexico, thêm +52 phía trước).",
+      "CORREO_INVALIDO": "Email chưa đủ: hãy kiểm tra phần sau dấu @.",
+      "MEDIO_INVALIDO": "Không ghi lại được việc gửi. Hãy thử lại."
+    },
+    "contacto": {
+      "whatsapp": "WhatsApp: {{telefono}}",
+      "correo": "Email: {{correo}}",
+      "pais": {
+        "US": "(Hoa Kỳ)",
+        "MX": "(Mexico)"
+      }
+    },
+    "envio": {
+      "titulo": "Gửi thẻ cho họ",
+      "noEnviada": "Chưa gửi.",
+      "enviada": {
+        "whatsapp": "Đã gửi qua WhatsApp lúc {{cuando}}.",
+        "correo": "Đã gửi qua email lúc {{cuando}}.",
+        "impresa": "Đã phát thẻ giấy lúc {{cuando}}."
+      },
+      "porWhatsApp": "Gửi qua WhatsApp đến {{telefono}}",
+      "porCorreo": "Gửi qua email đến {{correo}}",
+      "sinContacto": "Không có điện thoại hay email: hãy lưu hình hoặc in ra và đưa tận tay.",
+      "yaImpresa": "Tôi đã đưa thẻ giấy",
+      "pregunta": {
+        "whatsapp": "Tin nhắn WhatsApp đã gửi chưa?",
+        "correo": "Email đã gửi chưa?"
+      },
+      "si": "Rồi, đã gửi",
+      "no": "Chưa",
+      "asunto": "Thẻ tình nguyện viên · Cajita de Bendición",
+      "mensaje": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến và khi về: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!"
+    },
+    "cierre": {
+      "boton": "Ghi giờ ra cho những người còn ở trong",
+      "pregunta": "Họ về lúc mấy giờ?",
+      "ayuda": "Ai vào sau giờ đó vẫn ở trong.",
+      "confirmar_other": "Ghi giờ ra cho {{count}} người",
+      "listo_other": "Xong: {{count}} người có giờ ra lúc {{hora}}.",
+      "ninguno": "Không ai vào trước giờ đó: chưa ghi giờ ra cho ai."
     }
+  },
+  "constancia": {
+    "volver": "Quay lại Tình nguyện viên",
+    "cargando": "Đang chuẩn bị giấy xác nhận…",
+    "imprimir": "In hoặc lưu thành PDF",
+    "ayuda": "Khi in chỉ in tờ giấy này. Để có PDF, chọn «Lưu thành PDF» trong cửa sổ in.",
+    "titulo": "Giấy xác nhận giờ phục vụ",
+    "haceConstar": "Chúng tôi xác nhận rằng",
+    "sirvio": "đã phục vụ tình nguyện trong chương trình {{programa}} của {{iglesia}} từ {{desde}} đến {{hasta}}, tổng cộng",
+    "total_other": "{{duracion}} ({{horas}} giờ) trong {{count}} ngày.",
+    "col": {
+      "fecha": "Ngày",
+      "entrada": "Vào",
+      "salida": "Ra",
+      "tiempo": "Thời gian",
+      "total": "Tổng"
+    },
+    "expedida": "Cấp theo yêu cầu của người tình nguyện ngày {{fecha}}.",
+    "firma": "Họ tên và chữ ký",
+    "cargo": "Mục sư hoặc người phụ trách chương trình"
+  },
+  "imprimirCredenciales": {
+    "titulo_other": "{{count}} thẻ để in",
+    "ayuda": "Mỗi tờ giấy letter in được 8 thẻ: cắt theo đường chấm. Đây là những thẻ đang hiện trong danh sách; muốn thẻ khác, hãy quay lại và chọn bộ lọc khác.",
+    "imprimir": "In",
+    "marcarEntregadas": "Tôi đã phát thẻ giấy",
+    "entregadas_other": "Xong: đã ghi lại {{count}} thẻ được phát bằng giấy.",
+    "ninguna": "Không có thẻ nào để in với bộ lọc đó."
   }
 }

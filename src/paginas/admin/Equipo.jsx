@@ -7,7 +7,13 @@ import Paginacion from '../../componentes/Paginacion'
 import Tarjeta from '../../componentes/Tarjeta'
 import { mensajeCorreo } from '../../componentes/mensajesValidacion'
 import { horaSanDiego } from '../../datos/disponibilidad'
-import { guardarAcceso, guardarMiCodigo, listarEquipo, quitarAcceso } from '../../datos/equipo'
+import {
+  guardarAcceso,
+  guardarAtiendeVoluntarios,
+  guardarMiCodigo,
+  listarEquipo,
+  quitarAcceso,
+} from '../../datos/equipo'
 import { FILAS_PERSONAL, guardarFila } from '../../datos/filas'
 import { TAMANOS_PAGINA, coincideTexto, paginar } from '../../datos/filtros'
 import { validarCorreo } from '../../datos/validaciones'
@@ -224,6 +230,56 @@ function FilaDelMiembro({ persona, alCambiar }) {
   )
 }
 
+/**
+ * "Atiende voluntarios" (seccion 49): sin ser administrador, escanea la
+ * entrada y salida de los voluntarios, los registra y les manda su
+ * credencial. Es de esta persona y nada mas; el administrador ya lo hace.
+ */
+function AtiendeVoluntarios({ persona, alCambiar }) {
+  const { t } = useTranslation()
+  const [ocupado, setOcupado] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function cambiar(activo) {
+    setOcupado(true)
+    setError(null)
+    try {
+      await guardarAtiendeVoluntarios(persona.correo, activo)
+      alCambiar()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  if (persona.rol === 'admin') return null
+
+  return (
+    <div className="mt-2">
+      <label className="flex min-h-12 items-start gap-3" htmlFor={`atiende-${persona.correo}`}>
+        <input
+          checked={Boolean(persona.atiende_voluntarios)}
+          className="mt-1 h-6 w-6 shrink-0 accent-principal"
+          disabled={ocupado}
+          id={`atiende-${persona.correo}`}
+          onChange={(e) => cambiar(e.target.checked)}
+          type="checkbox"
+        />
+        <span>
+          <span className="block text-base font-semibold text-principal">{t('equipo.atiende')}</span>
+          <span className="text-base text-principal/70">{t('equipo.atiendeAyuda')}</span>
+        </span>
+      </label>
+      {error && (
+        <div className="mt-2">
+          <Aviso>{mensajeError(t, error)}</Aviso>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** Una persona del equipo: su rol, su estado y sus acciones. */
 function Miembro({ persona, alCambiar }) {
   const { t, i18n } = useTranslation()
@@ -320,6 +376,10 @@ function Miembro({ persona, alCambiar }) {
       {/* Sin la migracion de filas la base no manda "fila": no se ofrece. */}
       {persona.estado === 'activo' && persona.fila !== undefined && (
         <FilaDelMiembro alCambiar={alCambiar} persona={persona} />
+      )}
+      {/* Sin la migracion del 23 de octubre la base no lo manda: no se ofrece. */}
+      {persona.estado === 'activo' && persona.atiende_voluntarios !== undefined && (
+        <AtiendeVoluntarios alCambiar={alCambiar} persona={persona} />
       )}
 
       {preguntando && (

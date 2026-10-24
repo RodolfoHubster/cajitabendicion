@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { GRUPOS, SECCIONES, menuPorGrupos, seccionActual, seccionesVisibles } from './menu'
-import { CLAVES_PERMISOS } from '../datos/permisos'
+import { CLAVES_PERMISOS, PERMISOS_POR_PERSONA } from '../datos/permisos'
+
+const TODOS = [...CLAVES_PERMISOS, ...PERMISOS_POR_PERSONA]
 import en from '../i18n/en.json'
 import es from '../i18n/es.json'
 import vi from '../i18n/vi.json'
 
 describe('quién ve qué en el menú', () => {
   it('el administrador ve todas las secciones', () => {
-    expect(seccionesVisibles('admin', CLAVES_PERMISOS)).toHaveLength(SECCIONES.length)
+    expect(seccionesVisibles('admin', TODOS)).toHaveLength(SECCIONES.length)
   })
 
   it('un voluntario sin palomitas solo escanea, como antes', () => {
@@ -25,8 +27,20 @@ describe('quién ve qué en el menú', () => {
     expect(claves).not.toContain('equipo')
     expect(claves).not.toContain('horarios')
     expect(claves).not.toContain('permisos')
-    //  Las horas de los voluntarios (seccion 48) son del administrador.
+    //  Voluntarios no es una palomita para todos: es de cada persona (seccion 49).
     expect(claves).not.toContain('voluntarios')
+  })
+
+  it('quien "atiende voluntarios" ve Voluntarios, y nada más', () => {
+    expect(seccionesVisibles('voluntario', ['atender_voluntarios']).map((s) => s.clave)).toEqual([
+      'escanear',
+      'voluntarios',
+    ])
+  })
+
+  it('el administrador ve Voluntarios aunque la base todavía no mande esa palomita', () => {
+    expect(seccionesVisibles('admin', CLAVES_PERMISOS).map((s) => s.clave)).toContain('voluntarios')
+    expect(seccionesVisibles('admin', [])).toHaveLength(SECCIONES.length)
   })
 
   it('quien no es del personal no ve nada', () => {
@@ -40,7 +54,7 @@ describe('el menú por secciones', () => {
   })
 
   it('arriba lo del día de la entrega, con Escanear primero', () => {
-    const grupos = menuPorGrupos(seccionesVisibles('admin', CLAVES_PERMISOS))
+    const grupos = menuPorGrupos(seccionesVisibles('admin', TODOS))
     expect(grupos.map((g) => g.grupo)).toEqual(['dia', 'personas', 'preparar', 'numeros', 'administracion'])
     expect(grupos[0].secciones.map((s) => s.clave)).toEqual(['escanear', 'citasHoy', 'registrar', 'voluntarios'])
     expect(grupos[2].secciones.map((s) => s.clave)).toEqual(['horarios', 'avisos', 'codigosQr'])
@@ -111,7 +125,8 @@ describe('el menú y los textos', () => {
     const usadas = SECCIONES.filter((s) => s.permiso).map((s) => s.permiso)
 
     expect(usadas.length).toBeGreaterThan(0)
-    for (const clave of usadas) expect(CLAVES_PERMISOS).toContain(clave)
+    //  Las de cada persona (sección 49) también existen, aunque no estén en Permisos.
+    for (const clave of usadas) expect(TODOS).toContain(clave)
   })
 
   it('ninguna sección se queda sin candado', () => {

@@ -1,18 +1,29 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuPencil, LuQrCode, LuRefreshCw, LuUserPlus } from 'react-icons/lu'
+import { LuCircleCheck, LuMail, LuMessageCircle, LuPencil, LuPrinter, LuRefreshCw, LuSend, LuUserPlus } from 'react-icons/lu'
+import { useNavigate } from 'react-router-dom'
 import Boton from './Boton'
 import Campo from './Campo'
+import CampoContactoVoluntario from './CampoContactoVoluntario'
+import Selector from './Selector'
 import Tarjeta from './Tarjeta'
 import VentanaCredencial from './VentanaCredencial'
 import { EsqueletoLista } from './Esqueleto'
 import { horaDeMarca } from '../datos/filaAPie'
 import {
+  FILTROS,
+  ORDENES,
   activarVoluntario,
   buscarVoluntarios,
+  contactoEnTexto,
+  contarPorFiltro,
   editarVoluntario,
+  filtrarVoluntarios,
   nuevoQrVoluntario,
+  ordenarVoluntarios,
   registrarVoluntario,
+  separarContacto,
+  telefonoBonito,
 } from '../datos/voluntarios'
 
 const BOTON =
@@ -21,20 +32,32 @@ const BOTON =
 const BOTON_PELIGRO =
   'inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-50'
 
+/** '2026-10-23T13:05:00' -> '23 oct'. */
+function diaCorto(marca, idioma) {
+  return new Intl.DateTimeFormat(idioma, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+    new Date(`${String(marca).slice(0, 10)}T12:00:00Z`),
+  )
+}
+
 /**
- * Los voluntarios (seccion 48): registrarlos (nombre y, si quieren, un
- * telefono o correo), ver y mandar su credencial, cambiarles el nombre,
- * darlos de baja y cambiarles el QR si se perdio.
+ * Los voluntarios (secciones 48 y 49): registrarlos (nombre y, si quieren,
+ * telefono y correo), mandarles su credencial, ordenarlos y filtrarlos, e
+ * imprimir credenciales. Quien "atiende voluntarios" sin ser administrador
+ * registra, corrige y manda; dar de baja y cambiar el QR son del
+ * administrador (esAdmin).
  */
-export default function ListaVoluntarios({ voluntarios, alCambiar }) {
-  const { t } = useTranslation()
+export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
+  const { t, i18n } = useTranslation()
+  const navegar = useNavigate()
   const [nombre, setNombre] = useState('')
   const [contacto, setContacto] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState(null)
   const [aviso, setAviso] = useState(null)
   const [credencial, setCredencial] = useState(null)
-  const [filtro, setFiltro] = useState('')
+  const [busqueda, setBusqueda] = useState('')
+  const [filtro, setFiltro] = useState('activos')
+  const [orden, setOrden] = useState('recientes')
   //  { id, nombre, contacto } mientras se cambia.
   const [editando, setEditando] = useState(null)
   //  { voluntario, accion: 'baja' | 'qr' } mientras se pregunta.
@@ -48,7 +71,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
       const respuesta = await accion()
       if (avisar) setAviso(avisar)
       alCambiar()
-      return respuesta
+      return respuesta ?? true
     } catch (e) {
       setError(e.message)
       return null
@@ -57,20 +80,31 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
     }
   }
 
+  const separado = separarContacto(contacto)
+
   async function registrar(evento) {
     evento.preventDefault()
-    const nuevo = await hacer(() => registrarVoluntario(nombre, contacto), 'registrado')
+    if (separado.error) return
+    const nuevo = await hacer(
+      () => registrarVoluntario(nombre, { telefono: separado.telefono, correo: separado.correo }),
+      'registrado',
+    )
     if (nuevo) {
       setNombre('')
       setContacto('')
       //  Su credencial de una vez, para mandarsela o imprimirla.
-      setCredencial({ ...nuevo, activo: true })
+      setCredencial({ ...nuevo, activo: true, telefono: separado.telefono, correo: separado.correo })
     }
   }
 
   async function guardarEdicion(evento) {
     evento.preventDefault()
-    const listo = await hacer(() => editarVoluntario(editando.id, editando.nombre, editando.contacto), 'guardado')
+    const partes = separarContacto(editando.contacto)
+    if (partes.error) return
+    const listo = await hacer(
+      () => editarVoluntario(editando.id, editando.nombre, { telefono: partes.telefono, correo: partes.correo }),
+      'guardado',
+    )
     if (listo) setEditando(null)
   }
 
@@ -82,11 +116,13 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
       return
     }
     const token = await hacer(() => nuevoQrVoluntario(voluntario.id), 'nuevoQr')
-    if (token) setCredencial({ ...voluntario, token })
+    if (token) setCredencial({ ...voluntario, token, enviada_en: null, enviada_medio: null })
   }
 
   const lista = voluntarios ?? []
-  const vistos = filtro.trim() ? buscarVoluntarios(lista, filtro, lista.length) : lista
+  const cuentas = contarPorFiltro(lista)
+  const delFiltro = ordenarVoluntarios(filtrarVoluntarios(lista, filtro), orden)
+  const vistos = busqueda.trim() ? buscarVoluntarios(delFiltro, busqueda, delFiltro.length) : delFiltro
 
   return (
     <div className="space-y-4">
@@ -106,23 +142,15 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
             required
             value={nombre}
           />
-          <Campo
-            autoComplete="off"
-            etiqueta={t('voluntarios.registrar.contacto')}
-            id="voluntario-contacto"
-            maxLength={120}
-            onChange={(e) => setContacto(e.target.value)}
-            value={contacto}
-          />
-          <p className="-mt-1 text-base text-principal/70">{t('voluntarios.registrar.contactoAyuda')}</p>
-          <Boton disabled={ocupado || nombre.trim().length < 2} type="submit">
+          <CampoContactoVoluntario alCambiar={setContacto} id="voluntario-contacto" valor={contacto} />
+          <Boton disabled={ocupado || nombre.trim().length < 2 || Boolean(separado.error)} type="submit">
             {t('voluntarios.registrar.boton')}
           </Boton>
         </form>
       </Tarjeta>
 
       <Tarjeta>
-        <h2 className="text-xl font-bold">{t('voluntarios.lista.titulo', { count: lista.filter((v) => v.activo).length })}</h2>
+        <h2 className="text-xl font-bold">{t('voluntarios.lista.titulo', { count: cuentas.activos })}</h2>
 
         {aviso && (
           <p className="mt-2 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
@@ -135,15 +163,65 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
           </p>
         )}
 
-        {lista.length > 6 && (
-          <div className="mt-3">
-            <Campo
-              etiqueta={t('voluntarios.lista.buscar')}
-              id="filtro-voluntarios"
-              onChange={(e) => setFiltro(e.target.value)}
-              type="search"
-              value={filtro}
-            />
+        {/* Los que todavia no tienen su credencial: a un toque de verlos. */}
+        {cuentas.pendiente > 0 && filtro !== 'pendiente' && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-accion bg-accion/10 p-3">
+            <p className="flex items-center gap-2 text-base font-semibold text-principal">
+              <LuSend aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+              {t('voluntarios.lista.faltan', { count: cuentas.pendiente })}
+            </p>
+            <button className={BOTON} onClick={() => setFiltro('pendiente')} type="button">
+              {t('voluntarios.lista.verFaltan')}
+            </button>
+          </div>
+        )}
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Campo
+            etiqueta={t('voluntarios.lista.buscar')}
+            id="filtro-voluntarios"
+            onChange={(e) => setBusqueda(e.target.value)}
+            type="search"
+            value={busqueda}
+          />
+          <Selector
+            activo={filtro !== 'activos'}
+            etiqueta={t('voluntarios.lista.mostrar')}
+            id="voluntarios-filtro"
+            onChange={(e) => setFiltro(e.target.value)}
+            value={filtro}
+          >
+            {FILTROS.map((clave) => (
+              <option key={clave} value={clave}>
+                {t(`voluntarios.lista.filtros.${clave}`, { count: cuentas[clave] })}
+              </option>
+            ))}
+          </Selector>
+          <Selector
+            etiqueta={t('voluntarios.lista.ordenar')}
+            id="voluntarios-orden"
+            onChange={(e) => setOrden(e.target.value)}
+            value={orden}
+          >
+            {ORDENES.map((clave) => (
+              <option key={clave} value={clave}>
+                {t(`voluntarios.lista.ordenes.${clave}`)}
+              </option>
+            ))}
+          </Selector>
+        </div>
+
+        {vistos.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-base text-principal/80">{t('voluntarios.lista.seVen', { count: vistos.length })}</p>
+            <button
+              className={BOTON}
+              onClick={() => navegar('/admin/voluntarios/imprimir', { state: { ids: vistos.map((v) => v.id) } })}
+              type="button"
+            >
+              <LuPrinter aria-hidden="true" className="h-5 w-5 text-accion" />
+              {t('voluntarios.lista.imprimir', { count: vistos.length })}
+            </button>
           </div>
         )}
 
@@ -153,6 +231,8 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
           </div>
         ) : lista.length === 0 ? (
           <p className="mt-2 text-base text-principal/70">{t('voluntarios.lista.vacia')}</p>
+        ) : vistos.length === 0 ? (
+          <p className="mt-3 text-base text-principal/70">{t('voluntarios.lista.nadieAsi')}</p>
         ) : (
           <ul className="mt-3 divide-y divide-principal/10">
             {vistos.map((v) => (
@@ -167,15 +247,17 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
                       required
                       value={editando.nombre}
                     />
-                    <Campo
-                      etiqueta={t('voluntarios.registrar.contacto')}
+                    <CampoContactoVoluntario
+                      alCambiar={(valor) => setEditando({ ...editando, contacto: valor })}
                       id={`editar-contacto-${v.id}`}
-                      maxLength={120}
-                      onChange={(e) => setEditando({ ...editando, contacto: e.target.value })}
-                      value={editando.contacto}
+                      valor={editando.contacto}
                     />
                     <div className="flex flex-wrap gap-2">
-                      <button className={BOTON} disabled={ocupado || editando.nombre.trim().length < 2} type="submit">
+                      <button
+                        className={BOTON}
+                        disabled={ocupado || editando.nombre.trim().length < 2 || Boolean(separarContacto(editando.contacto).error)}
+                        type="submit"
+                      >
                         {t('voluntarios.lista.guardar')}
                       </button>
                       <button className={BOTON} onClick={() => setEditando(null)} type="button">
@@ -186,9 +268,23 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
                 ) : (
                   <>
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0">
+                      <div className="min-w-0 space-y-0.5">
                         <p className="font-semibold text-principal">{v.nombre}</p>
-                        {v.contacto && <p className="break-all text-base text-principal/70">{v.contacto}</p>}
+                        {v.telefono && (
+                          <p className="flex items-center gap-1.5 text-base text-principal/80">
+                            <LuMessageCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
+                            {telefonoBonito(v.telefono)}
+                          </p>
+                        )}
+                        {v.correo && (
+                          <p className="flex min-w-0 items-center gap-1.5 break-all text-base text-principal/80">
+                            <LuMail aria-hidden="true" className="h-4 w-4 shrink-0" />
+                            {v.correo}
+                          </p>
+                        )}
+                        {v.contacto_viejo && (
+                          <p className="text-base text-ya-recibio">{t('voluntarios.lista.contactoViejo', { contacto: v.contacto_viejo })}</p>
+                        )}
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {!v.activo && (
@@ -206,45 +302,57 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
                             {t('voluntarios.lista.sinSalida', { count: v.sin_salida })}
                           </span>
                         )}
+                        {v.activo &&
+                          (v.enviada_en ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-principal/10 px-3 py-1 text-base text-principal">
+                              <LuCircleCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-puede-pasar" />
+                              {t(`voluntarios.lista.enviada.${v.enviada_medio}`, { dia: diaCorto(v.enviada_en, i18n.language) })}
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-accion/25 px-3 py-1 text-base font-semibold text-principal">
+                              {t('voluntarios.lista.sinMandar')}
+                            </span>
+                          ))}
                       </div>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <button className={BOTON} onClick={() => setCredencial(v)} type="button">
-                        <LuQrCode aria-hidden="true" className="h-5 w-5 text-accion" />
-                        {t('voluntarios.lista.credencial')}
+                        <LuSend aria-hidden="true" className="h-5 w-5 text-accion" />
+                        {v.enviada_en ? t('voluntarios.lista.credencial') : t('voluntarios.lista.mandar')}
                       </button>
                       <button
                         className={BOTON}
-                        onClick={() => setEditando({ id: v.id, nombre: v.nombre, contacto: v.contacto ?? '' })}
+                        onClick={() => setEditando({ id: v.id, nombre: v.nombre, contacto: contactoEnTexto(v) })}
                         type="button"
                       >
                         <LuPencil aria-hidden="true" className="h-4 w-4" />
                         {t('voluntarios.lista.editar')}
                       </button>
-                      {v.activo ? (
-                        <>
-                          <button className={BOTON} onClick={() => setPreguntando({ voluntario: v, accion: 'qr' })} type="button">
-                            <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
-                            {t('voluntarios.lista.nuevoQr')}
-                          </button>
+                      {esAdmin &&
+                        (v.activo ? (
+                          <>
+                            <button className={BOTON} onClick={() => setPreguntando({ voluntario: v, accion: 'qr' })} type="button">
+                              <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
+                              {t('voluntarios.lista.nuevoQr')}
+                            </button>
+                            <button
+                              className={`${BOTON} text-ya-recibio`}
+                              onClick={() => setPreguntando({ voluntario: v, accion: 'baja' })}
+                              type="button"
+                            >
+                              {t('voluntarios.lista.darDeBaja')}
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            className={`${BOTON} text-ya-recibio`}
-                            onClick={() => setPreguntando({ voluntario: v, accion: 'baja' })}
+                            className={BOTON}
+                            disabled={ocupado}
+                            onClick={() => hacer(() => activarVoluntario(v.id, true), 'alta')}
                             type="button"
                           >
-                            {t('voluntarios.lista.darDeBaja')}
+                            {t('voluntarios.lista.darDeAlta')}
                           </button>
-                        </>
-                      ) : (
-                        <button
-                          className={BOTON}
-                          disabled={ocupado}
-                          onClick={() => hacer(() => activarVoluntario(v.id, true), 'alta')}
-                          type="button"
-                        >
-                          {t('voluntarios.lista.darDeAlta')}
-                        </button>
-                      )}
+                        ))}
                     </div>
 
                     {preguntando?.voluntario.id === v.id && (
@@ -274,7 +382,9 @@ export default function ListaVoluntarios({ voluntarios, alCambiar }) {
         )}
       </Tarjeta>
 
-      {credencial && <VentanaCredencial alCerrar={() => setCredencial(null)} voluntario={credencial} />}
+      {credencial && (
+        <VentanaCredencial alCerrar={() => setCredencial(null)} alEnviada={alCambiar} voluntario={credencial} />
+      )}
     </div>
   )
 }

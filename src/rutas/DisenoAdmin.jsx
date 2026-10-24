@@ -179,7 +179,7 @@ export default function DisenoAdmin() {
           <Outlet context={contexto} />
         </div>
 
-        <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden">{cuenta}</div>
+        <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden print:hidden">{cuenta}</div>
       </div>
 
       {guia && <GuiaDelPanel alCerrar={cerrarGuia} novedades={guia.novedades} pasos={guia.pasos} />}

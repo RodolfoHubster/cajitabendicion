@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuChevronDown, LuDownload, LuPlus } from 'react-icons/lu'
+import { LuChevronDown, LuDownload, LuFileText, LuPlus } from 'react-icons/lu'
+import { Link } from 'react-router-dom'
 import Campo from './Campo'
 import Selector from './Selector'
 import Tarjeta from './Tarjeta'
@@ -156,6 +157,11 @@ function DetalleVoluntario({ voluntarioId, desde, hasta, alCambiar }) {
   return (
     <div className="mt-2 space-y-2">
       {error && <AvisoError codigo={error} />}
+      {/* Para la escuela (servicio comunitario): una hoja con el total y la firma. */}
+      <Link className={BOTON} to={`/admin/voluntarios/constancia/${voluntarioId}?desde=${desde}&hasta=${hasta}`}>
+        <LuFileText aria-hidden="true" className="h-5 w-5 text-accion" />
+        {t('voluntarios.horas.constancia')}
+      </Link>
       <ul className="space-y-2">
         {(lista ?? []).map((a) => (
           <li className={`rounded-xl border p-3 ${a.estado === 'anulada' ? 'border-principal/10 opacity-70' : 'border-principal/15'}`} key={a.id}>

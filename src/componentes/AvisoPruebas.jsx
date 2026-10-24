@@ -45,7 +45,7 @@ export default function AvisoPruebas() {
 
   return (
     <div
-      className="sticky top-0 z-50 bg-[repeating-linear-gradient(45deg,#FACC15_0,#FACC15_14px,#111827_14px,#111827_28px)] px-3 py-1.5 text-center"
+      className="sticky top-0 z-50 print:hidden bg-[repeating-linear-gradient(45deg,#FACC15_0,#FACC15_14px,#111827_14px,#111827_28px)] px-3 py-1.5 text-center"
       ref={franja}
       role="note"
     >

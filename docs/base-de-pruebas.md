@@ -65,6 +65,16 @@ las pruebas a mano ni los scripts de concurrencia.
 Antes de cada tanda de pruebas a mano, vuelve a correr
 `datos-de-prueba.sql`: deja los códigos sin usar otra vez.
 
+- **Voluntarios de ejemplo (secciones 48 y 49):** después de
+  `datos-de-prueba.sql`, `migraciones/2026-10-20-voluntarios.sql` y
+  `migraciones/2026-10-23-voluntarios-envio-y-atiende.sql`, corre
+  `supabase/pruebas/voluntarios-de-prueba.sql`. Deja siete: Juana adentro
+  desde hace 3 horas (escanearla marca su salida), Marcos que ya vino y se
+  fue hoy, Pedro sin nada hoy (escanearlo marca su entrada), Lucía con una
+  salida olvidada para corregir, Sofía con una corregida y una anulada, Ana
+  recién registrada y Tomás dado de baja. Se puede volver a correr, y en una
+  base sin la marca de pruebas se niega.
+
 ## Los candados
 
 - `npm run dev:pruebas` **no arranca** si falta `.env.pruebas`, si le falta la

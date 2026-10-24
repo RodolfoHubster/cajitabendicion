@@ -1887,7 +1887,7 @@ begin
         v_cred ~ '^vol[0-9a-f]{48}$', v_cred);
       perform pg_temp.comprobar('Voluntarios: el nombre y el contacto quedan limpios',
         exists (select 1 from listar_voluntarios() l
-                 where l.id = v_vol and l.nombre = 'Juana Prueba' and l.contacto = '619 555 0101' and l.activo));
+                 where l.id = v_vol and l.nombre = 'Juana Prueba' and l.telefono = '+16195550101' and l.correo is null and l.activo));
       perform pg_temp.comprobar('Voluntarios: con el enlace de su credencial solo se ve su nombre',
         (select c.nombre = 'Juana Prueba' and c.activo from credencial_voluntario(v_cred) c));
 
@@ -2012,7 +2012,8 @@ begin
       perform pg_temp.comprobar('Alta: se vuelve a activar', activar_voluntario(v_vol, true));
       perform pg_temp.comprobar('Editar: se guarda', editar_voluntario(v_vol, 'Juana  Prueba López', ' ') = 'GUARDADO');
       perform pg_temp.comprobar('Editar: cambia el nombre, y el contacto vacío se quita',
-        exists (select 1 from listar_voluntarios() l where l.id = v_vol and l.nombre = 'Juana Prueba López' and l.contacto is null));
+        exists (select 1 from listar_voluntarios() l
+                 where l.id = v_vol and l.nombre = 'Juana Prueba López' and l.telefono is null and l.correo is null));
       perform pg_temp.comprobar('Escáner de la despensa: una credencial no es una cita',
         not exists (select 1 from consultar_cita(v_cred2)));
 
@@ -2038,13 +2039,139 @@ begin
         has_function_privilege('anon', 'credencial_voluntario(text)', 'execute')
         and not has_function_privilege('anon', 'marcar_asistencia(text, uuid)', 'execute')
         and not has_function_privilege('anon', 'listar_voluntarios()', 'execute')
-        and not has_function_privilege('anon', 'registrar_voluntario(text, text)', 'execute')
+        and not has_function_privilege('anon', 'registrar_voluntario(text, text, text, text)', 'execute')
         and not has_function_privilege('anon', 'horas_de_voluntarios(date, date)', 'execute')
         and not has_function_privilege('anon', 'corregir_asistencia(bigint, timestamp, timestamp, text)', 'execute')
         and not has_function_privilege('authenticated', 'revisar_horas_asistencia(uuid, timestamptz, timestamptz, bigint)', 'execute'));
+      -- ---------- Teléfono, correo, envío y quien atiende (sección 49) ----------
+      declare
+        v_ana  uuid;
+        v_p    uuid;
+        v_q    uuid;
+        v_n    int;
+        v_yo   text := (select u.email from auth.users u where u.id = v_admin);
+      begin
+        select r.id into v_ana
+          from registrar_voluntario(p_nombre => 'Ana Prueba', p_telefono => '+1 (619) 555-0199', p_correo => '  ANA.Prueba@Ejemplo.com ') r;
+        perform pg_temp.comprobar('Contacto: teléfono y correo quedan por separado y limpios',
+          exists (select 1 from listar_voluntarios() l
+                   where l.id = v_ana and l.telefono = '+16195550199' and l.correo = 'ana.prueba@ejemplo.com'
+                     and l.contacto_viejo is null));
+        perform pg_temp.comprobar('Contacto: como antes, todo junto, un 664 de 10 dígitos es de Tijuana',
+          (select c.telefono = '+526641234567' and c.correo is null from contacto_de_voluntario('664 123 4567', null, null) c));
+        perform pg_temp.comprobar('Contacto: como antes, con arroba es correo',
+          (select c.correo = 'x@y.com' and c.telefono is null from contacto_de_voluntario(' X@Y.com ', null, null) c));
+        perform pg_temp.esperar_error('Contacto: un teléfono corto no',
+          'select * from registrar_voluntario(p_nombre => ''Otra Persona'', p_telefono => ''123'')', 'TELEFONO_INVALIDO');
+        perform pg_temp.esperar_error('Contacto: un correo sin arroba no',
+          'select * from registrar_voluntario(p_nombre => ''Otra Persona'', p_correo => ''nada.com'')', 'CORREO_INVALIDO');
+        perform pg_temp.esperar_error('Contacto: como antes, algo que no es teléfono ni correo no',
+          'select * from registrar_voluntario(''Otra Persona'', ''pregúntale a Juana'')', 'TELEFONO_INVALIDO');
+
+        --  Mandarle su credencial.
+        perform pg_temp.comprobar('Envío: recién registrada, su credencial no se ha mandado',
+          (select l.enviada_en is null from listar_voluntarios() l where l.id = v_ana));
+        perform pg_temp.esperar_error('Envío: por un medio que no existe no',
+          format('select marcar_credencial_enviada(%L::uuid, ''paloma'')', v_ana), 'MEDIO_INVALIDO');
+        perform pg_temp.esperar_ok('Envío: se anota que se mandó por WhatsApp',
+          format('select marcar_credencial_enviada(%L::uuid, ''whatsapp'')', v_ana));
+        perform pg_temp.comprobar('Envío: la lista dice por dónde',
+          (select l.enviada_medio = 'whatsapp' and l.enviada_en is not null from listar_voluntarios() l where l.id = v_ana));
+        perform pg_temp.comprobar('Envío: queda quién la mandó',
+          exists (select 1 from credenciales_enviadas e where e.voluntario_id = v_ana and e.enviada_por = v_admin));
+        --  Como si se hubiera registrado y mandado hace rato: sigue contando...
+        update voluntarios set credencial_desde = now() - interval '2 minutes' where id = v_ana;
+        update credenciales_enviadas set enviada_en = now() - interval '1 minute' where voluntario_id = v_ana;
+        perform pg_temp.comprobar('Envío: lo mandado sigue contando mientras no cambie su QR',
+          (select l.enviada_en is not null from listar_voluntarios() l where l.id = v_ana));
+        --  ...hasta que se le cambia el QR.
+        perform nuevo_qr_voluntario(v_ana);
+        perform pg_temp.comprobar('Envío: con QR nuevo, lo que se mandó antes ya no cuenta',
+          (select l.enviada_en is null from listar_voluntarios() l where l.id = v_ana));
+
+        --  Sus horas con su enlace (Juana: 195 + 270 min, en 2 días; la anulada y la abierta no).
+        perform pg_temp.comprobar('Credencial: con su enlace ve sus días y sus horas',
+          (select c.dias = 2 and c.minutos = 465 from credencial_voluntario(v_cred2) c),
+          (select format('%s días, %s min', c.dias, c.minutos) from credencial_voluntario(v_cred2) c));
+        perform pg_temp.comprobar('Credencial: y cada visita completa, sin las anuladas ni las abiertas',
+          (select count(*) = 2 and sum(h.minutos) = 465 from historial_de_credencial(v_cred2) h));
+
+        --  Cerrar el día (no se prueba de madrugada: "hace 50 minutos" seria ayer).
+        if (now() at time zone 'America/Los_Angeles')::time >= time '01:00' then
+          select r.id into v_p from registrar_voluntario('Pablo Prueba') r;
+          select r.id into v_q from registrar_voluntario('Quique Prueba') r;
+          perform marcar_asistencia(null, v_p);
+          perform marcar_asistencia(null, v_q);
+          update asistencias_voluntarios set entrada_en = now() - interval '50 minutes' where voluntario_id = v_p;
+          update asistencias_voluntarios set entrada_en = now() - interval '10 minutes' where voluntario_id = v_q;
+          perform pg_temp.esperar_error('Cerrar el día: no a una hora que todavía no llega',
+            'select cerrar_dia_voluntarios(''23:59:59'')', 'HORA_FUTURA');
+          v_n := cerrar_dia_voluntarios(((now() at time zone 'America/Los_Angeles') - interval '30 minutes')::time);
+          perform pg_temp.comprobar('Cerrar el día: sale quien entró antes de esa hora, a esa hora',
+            v_n = 1 and (select a.estado = 'salio' and a.salida_en > now() - interval '31 minutes'
+                                                      and a.salida_en < now() - interval '29 minutes'
+                           from asistencias_voluntarios a where a.voluntario_id = v_p), v_n::text);
+          perform pg_temp.comprobar('Cerrar el día: quien entró después se queda adentro',
+            (select a.estado = 'dentro' from asistencias_voluntarios a where a.voluntario_id = v_q));
+          v_n := cerrar_dia_voluntarios();
+          perform pg_temp.comprobar('Cerrar el día: sin hora, salen ahora los que siguen adentro',
+            v_n = 1 and (select a.estado = 'salio' from asistencias_voluntarios a where a.voluntario_id = v_q), v_n::text);
+        end if;
+
+        --  "Atiende voluntarios": por persona, en Equipo y accesos.
+        perform pg_temp.esperar_error('Atiende: a quien no es del equipo no se le prende',
+          'select guardar_atiende_voluntarios(''nadie.cb@gmail.com'', true)', 'PERSONAL_NO_EXISTE');
+        perform pg_temp.comprobar('Atiende: el administrador se lo prende a alguien del equipo',
+          guardar_atiende_voluntarios(v_yo, true));
+        perform pg_temp.comprobar('Atiende: Equipo y accesos lo dice',
+          (select l.atiende_voluntarios from listar_personal() l where l.correo = v_yo));
+        update personal set rol = 'voluntario' where usuario_id = v_admin;
+        perform pg_temp.comprobar('Atiende: el panel lo sabe',
+          exists (select 1 from mis_permisos() p where p.clave = 'atender_voluntarios' and p.activo));
+        perform pg_temp.esperar_ok('Atiende: escanea entradas y salidas',
+          format('select * from marcar_asistencia(null, %L::uuid)', v_ana));
+        perform pg_temp.esperar_ok('Atiende: registra voluntarios',
+          'select * from registrar_voluntario(''Rita Prueba'', null, ''+16195550111'')');
+        perform pg_temp.esperar_ok('Atiende: manda credenciales',
+          format('select marcar_credencial_enviada(%L::uuid, ''correo'')', v_ana));
+        perform pg_temp.esperar_ok('Atiende: corrige el nombre o el contacto',
+          format('select editar_voluntario(%L::uuid, ''Ana Prueba Ruiz'', null, ''+16195550199'', null)', v_ana));
+        perform pg_temp.esperar_ok('Atiende: ve la lista de hoy', 'select * from asistencias_del_dia(null)');
+        perform pg_temp.esperar_error('Atiende: no ve las horas',
+          format('select * from horas_de_voluntarios(%L::date, %L::date)', v_hoy - 7, v_hoy), 'SIN_PERMISO');
+        perform pg_temp.esperar_error('Atiende: no da de baja',
+          format('select activar_voluntario(%L::uuid, false)', v_ana), 'SIN_PERMISO');
+        perform pg_temp.esperar_error('Atiende: no cambia el QR',
+          format('select nuevo_qr_voluntario(%L::uuid)', v_ana), 'SIN_PERMISO');
+        perform pg_temp.esperar_error('Atiende: no corrige ni anula asistencias',
+          'select anular_asistencia(1, ''Prueba'')', 'SIN_PERMISO');
+        perform pg_temp.esperar_error('Atiende: no se lo prende a nadie',
+          format('select guardar_atiende_voluntarios(%L, true)', v_yo), 'SIN_PERMISO');
+        update personal set atiende_voluntarios = false where usuario_id = v_admin;
+        perform pg_temp.esperar_error('Atiende: apagado, ya no escanea',
+          format('select * from marcar_asistencia(null, %L::uuid)', v_ana), 'SIN_PERMISO');
+        perform pg_temp.comprobar('Atiende: apagado, el panel ya no lo enseña',
+          not exists (select 1 from mis_permisos() p where p.clave = 'atender_voluntarios' and p.activo));
+        update personal set rol = 'admin' where usuario_id = v_admin;
+
+        perform set_config('request.jwt.claim.sub', '', true);
+        perform pg_temp.esperar_error('Envío: sin sesión no se anota nada',
+          format('select marcar_credencial_enviada(%L::uuid, ''correo'')', v_ana), 'SIN_SESION');
+        perform pg_temp.comprobar('Credencial: sin sesión sus horas sí se ven (es su enlace)',
+          exists (select 1 from historial_de_credencial(v_cred2)));
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform pg_temp.comprobar('Sección 49: desde el navegador sin cuenta solo se ven la credencial y sus horas',
+          has_function_privilege('anon', 'historial_de_credencial(text)', 'execute')
+          and not has_function_privilege('anon', 'marcar_credencial_enviada(uuid, text)', 'execute')
+          and not has_function_privilege('anon', 'cerrar_dia_voluntarios(time)', 'execute')
+          and not has_function_privilege('anon', 'guardar_atiende_voluntarios(text, boolean)', 'execute')
+          and not has_function_privilege('anon', 'editar_voluntario(uuid, text, text, text, text)', 'execute')
+          and not has_function_privilege('authenticated', 'contacto_de_voluntario(text, text, text)', 'execute')
+          and not has_function_privilege('authenticated', 'exigir_atender_voluntarios()', 'execute'));
+      end;
     exception when others then
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
-      update personal set rol = 'admin' where usuario_id = v_admin;
+      update personal set rol = 'admin', atiende_voluntarios = false where usuario_id = v_admin;
       perform pg_temp.comprobar('Voluntarios: las pruebas no terminaron', false, sqlerrm);
     end;
 
@@ -2177,8 +2304,9 @@ begin
 
     select count(*) into v_numero from mis_permisos() p where p.activo;
     select count(*) into v_numero2 from permisos;
+    --  Más "atender_voluntarios", que es por persona y no está en la tabla (sección 49).
     perform pg_temp.comprobar('Permisos: el administrador siempre las tiene todas',
-      v_numero = v_numero2, format('%s de %s', v_numero, v_numero2));
+      v_numero = v_numero2 + 1, format('%s de %s', v_numero, v_numero2 + 1));
 
     update personal set rol = 'voluntario' where usuario_id = v_admin;
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuClock, LuScanLine, LuUsers } from 'react-icons/lu'
+import { useOutletContext } from 'react-router-dom'
 import EntradaSalidaVoluntarios from '../../componentes/EntradaSalidaVoluntarios'
 import HorasVoluntarios from '../../componentes/HorasVoluntarios'
 import ListaVoluntarios from '../../componentes/ListaVoluntarios'
@@ -18,9 +19,16 @@ const PESTANAS = [
  * la credencial, la lista para registrarlos y darles su credencial, y sus
  * horas. Tres pestanas de un toque: el dia de la entrega casi todo es la
  * primera.
+ *
+ * Seccion 49: quien "atiende voluntarios" sin ser administrador ve
+ * Escanear y Lista (registrar, corregir, mandar credenciales); las Horas,
+ * dar de baja y cambiar el QR son del administrador.
  */
 export default function Voluntarios() {
   const { t } = useTranslation()
+  const { rol } = useOutletContext() ?? {}
+  const esAdmin = rol === 'admin'
+  const pestanas = PESTANAS.filter(({ clave }) => esAdmin || clave !== 'horas')
   const [pestana, setPestana] = useState('entrada')
   //  La lista se comparte: el escaner la usa para buscar a quien no trae su credencial.
   const [voluntarios, setVoluntarios] = useState(null)
@@ -52,10 +60,10 @@ export default function Voluntarios() {
 
         <div
           aria-label={t('voluntarios.titulo')}
-          className="mt-3 grid grid-cols-3 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10"
+          className={`mt-3 grid ${esAdmin ? 'grid-cols-3' : 'grid-cols-2'} gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10`}
           role="tablist"
         >
-          {PESTANAS.map(({ clave, Icono }) => {
+          {pestanas.map(({ clave, Icono }) => {
             const activa = clave === pestana
             return (
               <button
@@ -83,8 +91,8 @@ export default function Voluntarios() {
       </Tarjeta>
 
       {pestana === 'entrada' && <EntradaSalidaVoluntarios alCambiar={recargar} voluntarios={voluntarios} />}
-      {pestana === 'lista' && <ListaVoluntarios alCambiar={recargar} voluntarios={voluntarios} />}
-      {pestana === 'horas' && <HorasVoluntarios alCambiar={recargar} voluntarios={voluntarios} />}
+      {pestana === 'lista' && <ListaVoluntarios alCambiar={recargar} esAdmin={esAdmin} voluntarios={voluntarios} />}
+      {pestana === 'horas' && esAdmin && <HorasVoluntarios alCambiar={recargar} voluntarios={voluntarios} />}
     </div>
   )
 }

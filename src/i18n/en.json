@@ -1219,7 +1219,9 @@
       "FILA_INVALIDA": "That line does not exist."
     },
     "fila": "Scans in:",
-    "filaAdmin": "The administrator scans in both lines."
+    "filaAdmin": "The administrator scans in both lines.",
+    "atiende": "Helps with volunteers",
+    "atiendeAyuda": "Scans their check-in and check-out, registers them and sends their badge. Cannot see or fix hours."
   },
   "filtros": {
     "buscar": "Search by name or code",
@@ -2083,7 +2085,14 @@
     "inactiva": "This badge is no longer active.",
     "inactivaTexto": "If you think this is a mistake, call the church at {{telefono}}.",
     "noEncontrada": "We could not find this badge. Ask an admin to send you the link again.",
-    "sinConexion": "Your badge could not load. Check your signal and open the link again."
+    "sinConexion": "Your badge could not load. Check your signal and open the link again.",
+    "horas": {
+      "titulo": "Your service hours",
+      "llevas_one": "You have {{duracion}} in {{count}} day.",
+      "llevas_other": "You have {{duracion}} in {{count}} days.",
+      "todavia": "No complete visits yet. Once you are scanned when you arrive and when you leave, your hours will show here.",
+      "ayuda": "Only visits with check-in and check-out count. The last 10 are shown here."
+    }
   },
   "voluntarios": {
     "titulo": "Volunteers",
@@ -2145,8 +2154,9 @@
       "ayuda": "No account needed: with their name they get a badge with a QR to keep on their phone or print.",
       "nombre": "Name",
       "contacto": "Phone or email (optional)",
-      "contactoAyuda": "Only to send them their badge.",
-      "boton": "Register and see their badge"
+      "contactoAyuda": "Their phone (to send their badge by WhatsApp), their email, or both separated by a comma.",
+      "boton": "Register and see their badge",
+      "contactoEjemplo": "For example: 619 555 0101, juana@gmail.com"
     },
     "lista": {
       "titulo_one": "{{count}} active volunteer",
@@ -2175,7 +2185,41 @@
         "qr": "Change {{nombre}}'s QR? Their current badge stops working and you need to send them the new one.",
         "si_baja": "Yes, deactivate",
         "si_qr": "Yes, change QR"
-      }
+      },
+      "faltan_one": "{{count}} volunteer does not have their badge.",
+      "faltan_other": "{{count}} volunteers do not have their badge.",
+      "verFaltan": "See who",
+      "mostrar": "Show",
+      "ordenar": "Sort",
+      "filtros": {
+        "activos": "Active ({{count}})",
+        "pendiente": "Without their badge ({{count}})",
+        "enviada": "With their badge ({{count}})",
+        "conTelefono": "With phone ({{count}})",
+        "conCorreo": "With email ({{count}})",
+        "sinContacto": "No phone or email ({{count}})",
+        "adentro": "In right now ({{count}})",
+        "sinSalida": "Missing check-outs ({{count}})",
+        "deBaja": "Deactivated ({{count}})"
+      },
+      "ordenes": {
+        "recientes": "Newest",
+        "antiguos": "Oldest",
+        "nombre": "By name (A–Z)",
+        "ultimaVez": "Came most recently"
+      },
+      "seVen_one": "{{count}} in the list",
+      "seVen_other": "{{count}} in the list",
+      "imprimir": "Print their badges ({{count}})",
+      "nadieAsi": "Nobody in that list. Try another filter or clear the search.",
+      "contactoViejo": "Contact to fix: «{{contacto}}». Tap Edit to fix it.",
+      "enviada": {
+        "whatsapp": "Sent by WhatsApp · {{dia}}",
+        "correo": "Sent by email · {{dia}}",
+        "impresa": "Given on paper · {{dia}}"
+      },
+      "sinMandar": "Badge not sent",
+      "mandar": "Send badge"
     },
     "horas": {
       "titulo": "Service hours",
@@ -2210,7 +2254,8 @@
         "dias": "Days",
         "horas": "Hours",
         "sinSalida": "No check-out"
-      }
+      },
+      "constancia": "Hours letter"
     },
     "errores": {
       "ERROR_DESCONOCIDO": "It did not work. Try again.",
@@ -2226,7 +2271,80 @@
       "HORAS_INVALIDAS": "Check the times: check-out goes after check-in, and no more than 16 hours.",
       "HORA_FUTURA": "Check-out cannot be a time that has not come yet.",
       "TRASLAPE": "Those times overlap another visit of that person.",
-      "RANGO_INVALIDO": "Check the dates: «From» goes before «To», and no more than a year."
+      "RANGO_INVALIDO": "Check the dates: «From» goes before «To», and no more than a year.",
+      "TELEFONO_INVALIDO": "That phone is not complete: it needs 10 digits (with +52 in front if it is from Mexico).",
+      "CORREO_INVALIDO": "That email is not complete: check what comes after the @.",
+      "MEDIO_INVALIDO": "The sending could not be recorded. Try again."
+    },
+    "contacto": {
+      "whatsapp": "WhatsApp: {{telefono}}",
+      "correo": "Email: {{correo}}",
+      "pais": {
+        "US": "(United States)",
+        "MX": "(Mexico)"
+      }
+    },
+    "envio": {
+      "titulo": "Send their badge",
+      "noEnviada": "It has not been sent yet.",
+      "enviada": {
+        "whatsapp": "Sent by WhatsApp on {{cuando}}.",
+        "correo": "Sent by email on {{cuando}}.",
+        "impresa": "Handed out on paper on {{cuando}}."
+      },
+      "porWhatsApp": "Send by WhatsApp to {{telefono}}",
+      "porCorreo": "Send by email to {{correo}}",
+      "sinContacto": "No phone or email: save the image or print it and give it in person.",
+      "yaImpresa": "I gave it on paper",
+      "pregunta": {
+        "whatsapp": "Was the WhatsApp message sent?",
+        "correo": "Was the email sent?"
+      },
+      "si": "Yes, it was sent",
+      "no": "No, not yet",
+      "asunto": "Your volunteer badge · Cajita de Bendición",
+      "mensaje": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive and when you leave: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!"
+    },
+    "cierre": {
+      "boton": "Check out everyone still in",
+      "pregunta": "What time did they leave?",
+      "ayuda": "Anyone who checked in after that time stays in.",
+      "confirmar_one": "Check out {{count}}",
+      "confirmar_other": "Check out {{count}}",
+      "listo_one": "Done: {{count}} checked out at {{hora}}.",
+      "listo_other": "Done: {{count}} checked out at {{hora}}.",
+      "ninguno": "Nobody had checked in before that time: no one was checked out."
     }
+  },
+  "constancia": {
+    "volver": "Back to Volunteers",
+    "cargando": "Preparing the letter…",
+    "imprimir": "Print or save as PDF",
+    "ayuda": "Only the sheet prints. To get a PDF, choose «Save as PDF» in the print window.",
+    "titulo": "Volunteer service hours",
+    "haceConstar": "This letter certifies that",
+    "sirvio": "served as a volunteer in the {{programa}} program at {{iglesia}} between {{desde}} and {{hasta}}, for a total of",
+    "total_one": "{{duracion}} ({{horas}} hours) on {{count}} day.",
+    "total_other": "{{duracion}} ({{horas}} hours) on {{count}} days.",
+    "col": {
+      "fecha": "Date",
+      "entrada": "In",
+      "salida": "Out",
+      "tiempo": "Time",
+      "total": "Total"
+    },
+    "expedida": "Issued at the request of the volunteer on {{fecha}}.",
+    "firma": "Name and signature",
+    "cargo": "Pastor or program lead"
+  },
+  "imprimirCredenciales": {
+    "titulo_one": "{{count}} badge to print",
+    "titulo_other": "{{count}} badges to print",
+    "ayuda": "8 fit on a letter sheet: cut along the dotted line. These are the ones shown in the list; for others, go back and choose another filter.",
+    "imprimir": "Print",
+    "marcarEntregadas": "I handed them out on paper",
+    "entregadas_one": "Done: {{count}} was recorded as handed out on paper.",
+    "entregadas_other": "Done: {{count}} were recorded as handed out on paper.",
+    "ninguna": "No badges to print with that filter."
   }
 }
