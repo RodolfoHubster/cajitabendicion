@@ -2303,7 +2303,9 @@
       "si": "Sí, ya se envió",
       "no": "No, todavía no",
       "asunto": "Tu credencial de voluntario · Cajita de Bendición",
-      "mensaje": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar y al irte: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!"
+      "mensaje": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar y al irte: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!",
+      "correoWeb": "¿No se abre tu correo? Ábrelo en el navegador, ya escrito:",
+      "copiarMensaje": "Copiar el mensaje"
     },
     "cierre": {
       "boton": "Marcar salida a los que siguen adentro",

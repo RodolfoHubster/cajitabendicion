@@ -2273,7 +2273,9 @@
       "si": "Rồi, đã gửi",
       "no": "Chưa",
       "asunto": "Thẻ tình nguyện viên · Cajita de Bendición",
-      "mensaje": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến và khi về: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!"
+      "mensaje": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến và khi về: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!",
+      "correoWeb": "Không mở được ứng dụng email? Mở trong trình duyệt, đã viết sẵn:",
+      "copiarMensaje": "Sao chép tin nhắn"
     },
     "cierre": {
       "boton": "Ghi giờ ra cho những người còn ở trong",

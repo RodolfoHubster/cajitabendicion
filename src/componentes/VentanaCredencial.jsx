@@ -9,6 +9,8 @@ import { dibujarQRVoluntario } from '../datos/qrPase'
 import {
   enlaceCorreoCredencial,
   enlaceCredencial,
+  enlaceGmailCredencial,
+  enlaceOutlookCredencial,
   enlaceWhatsAppCredencial,
   marcarCredencialEnviada,
   mensajeCredencial,
@@ -88,7 +90,21 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
   const enlace = enlaceCredencial(voluntario.token)
   const mensaje = mensajeCredencial(t, voluntario.nombre, enlace)
   const whatsapp = enlaceWhatsAppCredencial(voluntario.telefono, mensaje)
-  const correo = enlaceCorreoCredencial(voluntario.correo, t('voluntarios.envio.asunto'), mensaje)
+  const asunto = t('voluntarios.envio.asunto')
+  const correo = enlaceCorreoCredencial(voluntario.correo, asunto, mensaje)
+  const gmail = enlaceGmailCredencial(voluntario.correo, asunto, mensaje)
+  const outlook = enlaceOutlookCredencial(voluntario.correo, asunto, mensaje)
+  const [mensajeCopiado, setMensajeCopiado] = useState(false)
+
+  async function copiarMensaje() {
+    try {
+      await navigator.clipboard.writeText(`${voluntario.correo}\n${asunto}\n\n${mensaje}`)
+      setMensajeCopiado(true)
+      setPreguntando('correo')
+    } catch {
+      setMensajeCopiado(false)
+    }
+  }
 
   async function guardar() {
     setGuardado(null)
@@ -204,6 +220,42 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
                     <LuMail aria-hidden="true" className="h-5 w-5" />
                     <span className="min-w-0 truncate">{t('voluntarios.envio.porCorreo', { correo: voluntario.correo })}</span>
                   </a>
+                )}
+                {/* En una computadora sin programa de correo, el boton de arriba
+                    solo hace que Windows pregunte con que abrirlo: estos abren el
+                    correo en el navegador, ya escrito. */}
+                {correo && (
+                  <div className="space-y-1">
+                    <p className="text-base text-principal/80">{t('voluntarios.envio.correoWeb')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        className="inline-flex min-h-12 items-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+                        href={gmail}
+                        onClick={() => setPreguntando('correo')}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Gmail
+                      </a>
+                      <a
+                        className="inline-flex min-h-12 items-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+                        href={outlook}
+                        onClick={() => setPreguntando('correo')}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Outlook
+                      </a>
+                      <button
+                        className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+                        onClick={copiarMensaje}
+                        type="button"
+                      >
+                        <LuCopy aria-hidden="true" className="h-4 w-4" />
+                        {mensajeCopiado ? t('personas.copiado') : t('voluntarios.envio.copiarMensaje')}
+                      </button>
+                    </div>
+                  </div>
                 )}
                 {!whatsapp && !correo && (
                   <>

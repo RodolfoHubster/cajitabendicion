@@ -308,6 +308,24 @@ export function enlaceCorreoCredencial(correo, asunto, mensaje) {
   return `mailto:${correo}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(mensaje)}`
 }
 
+/**
+ * El mismo correo, pero en Gmail o en Outlook del navegador. En una
+ * computadora sin programa de correo, "mailto:" solo hace que Windows
+ * pregunte con que abrirlo (23 de octubre de 2026).
+ */
+export function enlaceGmailCredencial(correo, asunto, mensaje) {
+  if (!correo) return null
+  const datos = new URLSearchParams({ view: 'cm', fs: '1', to: correo, su: asunto, body: mensaje })
+  return `https://mail.google.com/mail/?${datos.toString()}`
+}
+
+/** Outlook en el navegador (cuentas de Microsoft 365, como la de la iglesia, y Hotmail). */
+export function enlaceOutlookCredencial(correo, asunto, mensaje) {
+  if (!correo) return null
+  const datos = new URLSearchParams({ to: correo, subject: asunto, body: mensaje })
+  return `https://outlook.office.com/mail/deeplink/compose?${datos.toString()}`
+}
+
 /** Por donde se le mando: whatsapp, correo o impresa. */
 export function marcarCredencialEnviada(id, medio) {
   return llamar('marcar_credencial_enviada', { p_voluntario: id, p_medio: medio })

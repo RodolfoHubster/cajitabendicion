@@ -2303,7 +2303,9 @@
       "si": "Yes, it was sent",
       "no": "No, not yet",
       "asunto": "Your volunteer badge · Cajita de Bendición",
-      "mensaje": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive and when you leave: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!"
+      "mensaje": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive and when you leave: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!",
+      "correoWeb": "Email app not opening? Open it in the browser, already written:",
+      "copiarMensaje": "Copy the message"
     },
     "cierre": {
       "boton": "Check out everyone still in",

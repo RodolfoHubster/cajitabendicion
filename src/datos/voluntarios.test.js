@@ -17,6 +17,8 @@ import {
   editarVoluntario,
   enlaceCorreoCredencial,
   enlaceCredencial,
+  enlaceGmailCredencial,
+  enlaceOutlookCredencial,
   enlaceWhatsAppCredencial,
   esCredencial,
   esQrDeCita,
@@ -241,6 +243,17 @@ describe('mandar la credencial (sección 49)', () => {
   it('WhatsApp con el número y el mensaje ya escritos', () => {
     expect(enlaceWhatsAppCredencial('+1 619 555 0101', 'Hola y adiós')).toBe('https://wa.me/16195550101?text=Hola%20y%20adi%C3%B3s')
     expect(enlaceWhatsAppCredencial('', 'Hola')).toBeNull()
+  })
+
+  it('el correo también en Gmail u Outlook del navegador, con todo ya escrito', () => {
+    const gmail = new URL(enlaceGmailCredencial('a@b.com', 'Tu credencial', 'Hola y adiós'))
+    expect(gmail.origin).toBe('https://mail.google.com')
+    expect(Object.fromEntries(gmail.searchParams)).toEqual({ view: 'cm', fs: '1', to: 'a@b.com', su: 'Tu credencial', body: 'Hola y adiós' })
+    const outlook = new URL(enlaceOutlookCredencial('a@b.com', 'Tu credencial', 'Hola'))
+    expect(outlook.origin).toBe('https://outlook.office.com')
+    expect(Object.fromEntries(outlook.searchParams)).toEqual({ to: 'a@b.com', subject: 'Tu credencial', body: 'Hola' })
+    expect(enlaceGmailCredencial(null, 'x', 'y')).toBeNull()
+    expect(enlaceOutlookCredencial('', 'x', 'y')).toBeNull()
   })
 
   it('el correo con asunto y mensaje', () => {
