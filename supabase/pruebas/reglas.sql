@@ -2077,6 +2077,10 @@ begin
           format('select marcar_credencial_enviada(%L::uuid, ''whatsapp'')', v_ana));
         perform pg_temp.comprobar('Envío: la lista dice por dónde',
           (select l.enviada_medio = 'whatsapp' and l.enviada_en is not null from listar_voluntarios() l where l.id = v_ana));
+        perform pg_temp.esperar_ok('Envío: también por SMS, para quien no tiene WhatsApp',
+          format('select marcar_credencial_enviada(%L::uuid, ''sms'')', v_ana));
+        perform pg_temp.comprobar('Envío: la lista dice la última vez, por SMS',
+          (select l.enviada_medio = 'sms' from listar_voluntarios() l where l.id = v_ana));
         perform pg_temp.comprobar('Envío: queda quién la mandó',
           exists (select 1 from credenciales_enviadas e where e.voluntario_id = v_ana and e.enviada_por = v_admin));
         --  Como si se hubiera registrado y mandado hace rato: sigue contando...

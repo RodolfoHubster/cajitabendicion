@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleCheck, LuCopy, LuDownload, LuHandHeart, LuMail, LuMessageCircle, LuShieldAlert, LuX } from 'react-icons/lu'
+import {
+  LuCircleCheck,
+  LuCopy,
+  LuDownload,
+  LuHandHeart,
+  LuMail,
+  LuMessageCircle,
+  LuMessageSquareText,
+  LuShieldAlert,
+  LuX,
+} from 'react-icons/lu'
 import { EsqueletoQR } from './Esqueleto'
 import { dibujarTarjetaCredencial, nombreArchivoCredencial } from '../datos/credencial'
 import { horaDeMarca } from '../datos/filaAPie'
@@ -11,6 +21,7 @@ import {
   enlaceCredencial,
   enlaceGmailCredencial,
   enlaceOutlookCredencial,
+  enlaceSmsCredencial,
   enlaceWhatsAppCredencial,
   marcarCredencialEnviada,
   mensajeCredencial,
@@ -31,7 +42,8 @@ function cuando(marca, idioma) {
 /**
  * La credencial de un voluntario, desde el panel (secciones 48 y 49): su QR
  * para guardarlo o imprimirlo, y mandarsela por WhatsApp o por correo. Se
- * manda desde el telefono de quien la manda, con el mensaje ya escrito,
+ * manda desde el telefono de quien la manda (WhatsApp, SMS para quien no
+ * tiene WhatsApp, o correo), con el mensaje ya escrito,
  * como las invitaciones de "sin cita": nada sale solo. Al volver, se
  * pregunta si se envio; con "Si" queda anotado por donde y cuando.
  *
@@ -90,6 +102,8 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
   const enlace = enlaceCredencial(voluntario.token)
   const mensaje = mensajeCredencial(t, voluntario.nombre, enlace)
   const whatsapp = enlaceWhatsAppCredencial(voluntario.telefono, mensaje)
+  //  Para quien no tiene WhatsApp: un mensaje de texto normal.
+  const sms = enlaceSmsCredencial(voluntario.telefono, mensaje)
   const asunto = t('voluntarios.envio.asunto')
   const correo = enlaceCorreoCredencial(voluntario.correo, asunto, mensaje)
   const gmail = enlaceGmailCredencial(voluntario.correo, asunto, mensaje)
@@ -213,6 +227,12 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
                   >
                     <LuMessageCircle aria-hidden="true" className="h-5 w-5" />
                     {t('voluntarios.envio.porWhatsApp', { telefono: telefonoBonito(voluntario.telefono) })}
+                  </a>
+                )}
+                {sms && (
+                  <a className={BOTON} href={sms} onClick={() => setPreguntando('sms')}>
+                    <LuMessageSquareText aria-hidden="true" className="h-5 w-5" />
+                    {t('voluntarios.envio.porSms')}
                   </a>
                 )}
                 {correo && (

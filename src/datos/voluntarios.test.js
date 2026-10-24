@@ -19,6 +19,7 @@ import {
   enlaceCredencial,
   enlaceGmailCredencial,
   enlaceOutlookCredencial,
+  enlaceSmsCredencial,
   enlaceWhatsAppCredencial,
   esCredencial,
   esQrDeCita,
@@ -254,6 +255,11 @@ describe('mandar la credencial (sección 49)', () => {
     expect(Object.fromEntries(outlook.searchParams)).toEqual({ to: 'a@b.com', subject: 'Tu credencial', body: 'Hola' })
     expect(enlaceGmailCredencial(null, 'x', 'y')).toBeNull()
     expect(enlaceOutlookCredencial('', 'x', 'y')).toBeNull()
+  })
+
+  it('SMS con el número y el mensaje ya escritos, para quien no tiene WhatsApp', () => {
+    expect(enlaceSmsCredencial('+1 619 555 0101', 'Hola y adiós')).toBe('sms:+16195550101?&body=Hola%20y%20adi%C3%B3s')
+    expect(enlaceSmsCredencial(null, 'Hola')).toBeNull()
   })
 
   it('el correo con asunto y mensaje', () => {

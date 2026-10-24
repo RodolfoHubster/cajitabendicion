@@ -8318,7 +8318,7 @@ begin
       select e.enviada_en, e.medio
         from credenciales_enviadas e
        where e.voluntario_id = v.id and e.enviada_en >= v.credencial_desde
-       order by e.enviada_en desc
+       order by e.enviada_en desc, e.id desc
        limit 1
     ) env on true
    order by v.activo desc, v.nombre;
@@ -8836,7 +8836,8 @@ grant  execute on function asistencias_de_voluntario(uuid, date, date) to authen
 --    telefono va con lada ("+16195550101"), listo para WhatsApp.
 --  * La credencial se manda uno por uno desde el telefono de quien la
 --    manda (WhatsApp o correo, con el mensaje ya escrito), igual que las
---    invitaciones de "sin cita": nada se manda solo. Al confirmar que se
+--    invitaciones de "sin cita" (WhatsApp, SMS para quien no tiene
+--    WhatsApp, o correo): nada se manda solo. Al confirmar que se
 --    envio, queda anotado por donde, cuando y quien (credenciales_enviadas).
 --    Al cambiarle el QR, lo enviado antes ya no cuenta.
 --  * "Atiende voluntarios": un ajuste POR PERSONA en Equipo y accesos (no
@@ -8932,14 +8933,20 @@ revoke execute on function contacto_de_voluntario(text, text, text) from public,
 create table if not exists credenciales_enviadas (
   id            bigint generated always as identity primary key,
   voluntario_id uuid not null references voluntarios(id) on delete restrict,
-  --  whatsapp o correo, o impresa (se la dieron en papel).
-  medio         text not null check (medio in ('whatsapp', 'correo', 'impresa')),
+  --  whatsapp, sms (quien no tiene WhatsApp) o correo, o impresa (se la
+  --  dieron en papel).
+  medio         text not null check (medio in ('whatsapp', 'sms', 'correo', 'impresa')),
   enviada_en    timestamptz not null default now(),
   enviada_por   uuid
 );
 
 create index if not exists idx_credenciales_enviadas on credenciales_enviadas (voluntario_id, enviada_en);
 alter table credenciales_enviadas enable row level security;
+
+--  Por si la tabla ya existia sin "sms" (se agrego el mismo 23 de octubre).
+alter table credenciales_enviadas drop constraint if exists credenciales_enviadas_medio_check;
+alter table credenciales_enviadas add constraint credenciales_enviadas_medio_check
+  check (medio in ('whatsapp', 'sms', 'correo', 'impresa'));
 
 --  Lo anota quien la mando, al confirmar que si se envio. Desde una pagina
 --  no se puede saber si el mensaje salio: por eso lo confirma una persona.
@@ -8955,7 +8962,7 @@ declare
 begin
   perform exigir_atender_voluntarios();
 
-  if p_medio is null or p_medio not in ('whatsapp', 'correo', 'impresa') then
+  if p_medio is null or p_medio not in ('whatsapp', 'sms', 'correo', 'impresa') then
     raise exception 'MEDIO_INVALIDO';
   end if;
 

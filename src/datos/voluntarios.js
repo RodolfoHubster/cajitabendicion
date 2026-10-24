@@ -302,6 +302,17 @@ export function enlaceWhatsAppCredencial(telefono, mensaje) {
   return `https://wa.me/${digitos}?text=${encodeURIComponent(mensaje)}`
 }
 
+/**
+ * Abre los mensajes de texto (SMS) del telefono con el numero y el mensaje
+ * ya escritos, para quien no tiene WhatsApp. "?&body=" lo entienden el
+ * iPhone y Android.
+ */
+export function enlaceSmsCredencial(telefono, mensaje) {
+  const digitos = String(telefono ?? '').replace(/\D/g, '')
+  if (digitos.length < 8) return null
+  return `sms:+${digitos}?&body=${encodeURIComponent(mensaje)}`
+}
+
 /** Abre el correo del telefono con el asunto y el mensaje ya escritos. */
 export function enlaceCorreoCredencial(correo, asunto, mensaje) {
   if (!correo) return null
@@ -326,7 +337,7 @@ export function enlaceOutlookCredencial(correo, asunto, mensaje) {
   return `https://outlook.office.com/mail/deeplink/compose?${datos.toString()}`
 }
 
-/** Por donde se le mando: whatsapp, correo o impresa. */
+/** Por donde se le mando: whatsapp, sms, correo o impresa. */
 export function marcarCredencialEnviada(id, medio) {
   return llamar('marcar_credencial_enviada', { p_voluntario: id, p_medio: medio })
 }

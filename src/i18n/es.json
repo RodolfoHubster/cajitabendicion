@@ -2216,7 +2216,8 @@
       "enviada": {
         "whatsapp": "Enviada por WhatsApp · {{dia}}",
         "correo": "Enviada por correo · {{dia}}",
-        "impresa": "Entregada impresa · {{dia}}"
+        "impresa": "Entregada impresa · {{dia}}",
+        "sms": "Enviada por SMS · {{dia}}"
       },
       "sinMandar": "Credencial sin mandar",
       "mandar": "Mandar credencial"
@@ -2290,7 +2291,8 @@
       "enviada": {
         "whatsapp": "Se le mandó por WhatsApp el {{cuando}}.",
         "correo": "Se le mandó por correo el {{cuando}}.",
-        "impresa": "Se le dio impresa el {{cuando}}."
+        "impresa": "Se le dio impresa el {{cuando}}.",
+        "sms": "Se le mandó por SMS el {{cuando}}."
       },
       "porWhatsApp": "Enviar por WhatsApp a {{telefono}}",
       "porCorreo": "Enviar por correo a {{correo}}",
@@ -2298,14 +2300,16 @@
       "yaImpresa": "Ya se la di impresa",
       "pregunta": {
         "whatsapp": "¿Se envió el mensaje por WhatsApp?",
-        "correo": "¿Se envió el correo?"
+        "correo": "¿Se envió el correo?",
+        "sms": "¿Se envió el mensaje de texto (SMS)?"
       },
       "si": "Sí, ya se envió",
       "no": "No, todavía no",
       "asunto": "Tu credencial de voluntario · Cajita de Bendición",
       "mensaje": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar y al irte: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!",
       "correoWeb": "¿No se abre tu correo? Ábrelo en el navegador, ya escrito:",
-      "copiarMensaje": "Copiar el mensaje"
+      "copiarMensaje": "Copiar el mensaje",
+      "porSms": "Enviar por SMS (no tiene WhatsApp)"
     },
     "cierre": {
       "boton": "Marcar salida a los que siguen adentro",

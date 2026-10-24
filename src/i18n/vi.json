@@ -2188,7 +2188,8 @@
       "enviada": {
         "whatsapp": "Đã gửi qua WhatsApp · {{dia}}",
         "correo": "Đã gửi qua email · {{dia}}",
-        "impresa": "Đã phát thẻ giấy · {{dia}}"
+        "impresa": "Đã phát thẻ giấy · {{dia}}",
+        "sms": "Đã gửi bằng SMS · {{dia}}"
       },
       "sinMandar": "Chưa gửi thẻ",
       "mandar": "Gửi thẻ"
@@ -2260,7 +2261,8 @@
       "enviada": {
         "whatsapp": "Đã gửi qua WhatsApp lúc {{cuando}}.",
         "correo": "Đã gửi qua email lúc {{cuando}}.",
-        "impresa": "Đã phát thẻ giấy lúc {{cuando}}."
+        "impresa": "Đã phát thẻ giấy lúc {{cuando}}.",
+        "sms": "Đã gửi bằng SMS lúc {{cuando}}."
       },
       "porWhatsApp": "Gửi qua WhatsApp đến {{telefono}}",
       "porCorreo": "Gửi qua email đến {{correo}}",
@@ -2268,14 +2270,16 @@
       "yaImpresa": "Tôi đã đưa thẻ giấy",
       "pregunta": {
         "whatsapp": "Tin nhắn WhatsApp đã gửi chưa?",
-        "correo": "Email đã gửi chưa?"
+        "correo": "Email đã gửi chưa?",
+        "sms": "Tin nhắn SMS đã gửi chưa?"
       },
       "si": "Rồi, đã gửi",
       "no": "Chưa",
       "asunto": "Thẻ tình nguyện viên · Cajita de Bendición",
       "mensaje": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến và khi về: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!",
       "correoWeb": "Không mở được ứng dụng email? Mở trong trình duyệt, đã viết sẵn:",
-      "copiarMensaje": "Sao chép tin nhắn"
+      "copiarMensaje": "Sao chép tin nhắn",
+      "porSms": "Gửi bằng tin nhắn SMS (không có WhatsApp)"
     },
     "cierre": {
       "boton": "Ghi giờ ra cho những người còn ở trong",

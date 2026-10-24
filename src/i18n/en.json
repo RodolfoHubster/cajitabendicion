@@ -2216,7 +2216,8 @@
       "enviada": {
         "whatsapp": "Sent by WhatsApp · {{dia}}",
         "correo": "Sent by email · {{dia}}",
-        "impresa": "Given on paper · {{dia}}"
+        "impresa": "Given on paper · {{dia}}",
+        "sms": "Sent by SMS · {{dia}}"
       },
       "sinMandar": "Badge not sent",
       "mandar": "Send badge"
@@ -2290,7 +2291,8 @@
       "enviada": {
         "whatsapp": "Sent by WhatsApp on {{cuando}}.",
         "correo": "Sent by email on {{cuando}}.",
-        "impresa": "Handed out on paper on {{cuando}}."
+        "impresa": "Handed out on paper on {{cuando}}.",
+        "sms": "Sent by text (SMS) on {{cuando}}."
       },
       "porWhatsApp": "Send by WhatsApp to {{telefono}}",
       "porCorreo": "Send by email to {{correo}}",
@@ -2298,14 +2300,16 @@
       "yaImpresa": "I gave it on paper",
       "pregunta": {
         "whatsapp": "Was the WhatsApp message sent?",
-        "correo": "Was the email sent?"
+        "correo": "Was the email sent?",
+        "sms": "Was the text message (SMS) sent?"
       },
       "si": "Yes, it was sent",
       "no": "No, not yet",
       "asunto": "Your volunteer badge · Cajita de Bendición",
       "mensaje": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive and when you leave: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!",
       "correoWeb": "Email app not opening? Open it in the browser, already written:",
-      "copiarMensaje": "Copy the message"
+      "copiarMensaje": "Copy the message",
+      "porSms": "Send by text (SMS, no WhatsApp)"
     },
     "cierre": {
       "boton": "Check out everyone still in",
