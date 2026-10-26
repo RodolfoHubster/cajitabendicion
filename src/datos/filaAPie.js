@@ -102,6 +102,31 @@ export function estadoFilaAPie(fila) {
 }
 
 /** Su turno en vivo: { turno, estado, saltado, actual, antes, atendidos, en_espera, fecha, hora, cerrada, anulado }, o null. */
+/**
+ * La fila a pie de hoy, para cualquiera (seccion 51): { hora, abre_en,
+ * abierta, cerrada, terminada, actual, ultimo, atendidos, en_espera, total },
+ * o null si hoy no hay. Solo numeros.
+ */
+export async function filaAPieEnVivo() {
+  return primeraFila(await llamar('fila_a_pie_en_vivo', {}))
+}
+
+/**
+ * Los numeros alrededor del que estan llamando, en orden: el ultimo que
+ * recibio, el que llaman y el que sigue. En /fila se ven como una fila que
+ * avanza y no como un boleto: un numero grande solo, en naranja, mucha gente
+ * lo tomaba por el suyo (26 de octubre de 2026).
+ */
+export function fichasDeLaFila(fila) {
+  const fichas = new Map()
+  if (fila.ultimo != null) fichas.set(fila.ultimo, 'recibio')
+  if (fila.actual != null) {
+    fichas.set(fila.actual, 'llamando')
+    if (fila.actual + 1 <= fila.total && !fichas.has(fila.actual + 1)) fichas.set(fila.actual + 1, 'sigue')
+  }
+  return [...fichas].sort(([a], [b]) => a - b).map(([numero, tipo]) => ({ numero, tipo }))
+}
+
 export async function turnoDeCita(token) {
   return primeraFila(await llamar('turno_de_cita', { p_token: token }))
 }

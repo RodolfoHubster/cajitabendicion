@@ -17,12 +17,14 @@ import { avisoQueToca } from '../datos/turnoAPie'
  * turnoInicial: el que ya se sabe (de consultar_cita), para no esperar la
  * primera respuesta. alCambiar(datos): para que la pagina sepa cuando ya
  * recibio. accionPerdido: lo que se ofrece si su turno se anulo porque
- * llego tarde (en /turno, "Sacar un turno nuevo"; seccion 46).
+ * llego tarde (en /turno, "Sacar un turno nuevo"; seccion 46). enMedio: lo
+ * que va entre el numero y como va la fila (en /turno, su QR y su codigo:
+ * asi el numero, el QR y el codigo caben en una sola captura).
  *
  * Cuando faltan 3 y cuando le toca, el telefono suena y vibra (vibrar, solo
  * en Android). Mientras espera, la pantalla no se apaga sola.
  */
-export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambiar, accionPerdido = null }) {
+export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambiar, accionPerdido = null, enMedio = null }) {
   const { t } = useTranslation()
   const [datos, setDatos] = useState(null)
   const anterior = useRef(null)
@@ -58,6 +60,7 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
     <div className="rounded-2xl border-4 border-accion bg-accion/10 p-4 text-center" aria-live="polite">
       <p className="text-lg font-bold uppercase tracking-wide text-principal/80">{t('turno.tuTurno')}</p>
       <p className="font-titulo text-7xl font-bold leading-none text-principal">{turno ?? '—'}</p>
+      {enMedio}
 
       {!esHoy && datos && !terminado && (
         <p className="mt-3 text-base text-principal/80">{t('turno.otroDia')}</p>

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
-import { LuBellRing, LuCheck, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
+import { LuBellRing, LuCheck, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert, LuUsers } from 'react-icons/lu'
+import { Link } from 'react-router-dom'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
 import Boton from '../../componentes/Boton'
 import CampoCodigo from '../../componentes/CampoCodigo'
@@ -282,11 +283,31 @@ export default function Turno() {
     //  Anulado (seccion 46): ni su numero ni su QR sirven ya; no se ensenan.
     const anulado = situacion?.tipo === 'anulado'
 
+    //  El numero arriba, el QR en medio y el codigo abajo: todo en una
+    //  sola captura de pantalla (26 de octubre de 2026). Lo demas, despues.
+    const credencial = !anulado && (
+      <div className="mt-3 space-y-2">
+        {qr ? (
+          <img
+            alt={t('confirmacion.qrAlt')}
+            className="aparecer mx-auto w-full max-w-[14rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
+            src={qr}
+          />
+        ) : (
+          <Hueso className="mx-auto h-56 w-56 max-w-full" />
+        )}
+        <div className="rounded-xl border-2 border-dashed border-principal/25 bg-superficie px-3 py-2">
+          <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+          <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
+        </div>
+      </div>
+    )
+
     return (
       <div className="space-y-4">
-        <Tarjeta>
-          {encabezado}
+        <Tarjeta className="!p-3 sm:!p-5">
           <TurnoEnVivo
+            enMedio={credencial}
             accionPerdido={
               <button
                 className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-lg font-bold text-sobre-accion shadow-sm"
@@ -303,34 +324,18 @@ export default function Turno() {
             turnoInicial={miTurno.turno}
           />
 
-          {!anulado && (
-            <>
-            {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
-                pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
-            <p className="mt-3 rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
+        </Tarjeta>
+
+        {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
+            pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
+        {!anulado && (
+          <Tarjeta>
+            <p className="rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
               {t('turnoAPie.anotalo', { turno: miTurno.turno })}
             </p>
-
-            <div className="mt-4">
-              {qr ? (
-                <img
-                  alt={t('confirmacion.qrAlt')}
-                  className="aparecer mx-auto w-full max-w-[16rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
-                  src={qr}
-                />
-              ) : (
-                <Hueso className="mx-auto h-64 w-64 max-w-full" />
-              )}
-            </div>
-
-            <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-3 text-center">
-              <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-              <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
-              <p className="mt-1 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
-            </div>
-            </>
-          )}
-        </Tarjeta>
+            <p className="mt-3 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
+          </Tarjeta>
+        )}
 
         <Tarjeta>{avisos}</Tarjeta>
 
@@ -580,6 +585,15 @@ export default function Turno() {
             {t(`turnoAPie.errores.${error}`, { defaultValue: t('turnoAPie.errores.ERROR_DESCONOCIDO') })}
           </p>
         )}
+
+        {/* Sin turno tambien se puede ver como va la fila (seccion 51). */}
+        <Link
+          className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 px-4 text-lg font-semibold text-principal transition hover:border-principal"
+          to="/fila"
+        >
+          <LuUsers aria-hidden="true" className="h-6 w-6 text-accion" />
+          {t('turnoAPie.verFila')}
+        </Link>
       </Tarjeta>
 
       <Tarjeta>{avisos}</Tarjeta>

@@ -2,6 +2,7 @@ import { Navigate, Route } from 'react-router-dom'
 import Calendario from '../paginas/publico/Calendario'
 import CambiarHorario from '../paginas/publico/CambiarHorario'
 import Credencial from '../paginas/publico/Credencial'
+import FilaEnVivo from '../paginas/publico/FilaEnVivo'
 import Confirmacion from '../paginas/publico/Confirmacion'
 import Horarios from '../paginas/publico/Horarios'
 import Inicio from '../paginas/publico/Inicio'
@@ -18,6 +19,7 @@ export default function RutasPublicas() {
       <Route element={<Calendario />} path="/calendario" />
       {/* El QR general de la entrada lleva a /turno: turno a pie sin datos. */}
       <Route element={<Turno />} path="/turno" />
+      <Route element={<FilaEnVivo />} path="/fila" />
       <Route element={<Navigate replace to="/turno" />} path="/a-pie" />
       <Route element={<Horarios />} path="/horarios/:fecha" />
       <Route element={<Registro />} path="/registro" />

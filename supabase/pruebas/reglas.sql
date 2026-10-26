@@ -3085,6 +3085,23 @@ begin
       perform pg_temp.comprobar('Panel de turnos: los turnos sin datos salen sin su código',
         v_numero > 0 and i = 0, format('%s turnos sin datos, %s con código', v_numero, i));
 
+      --  La fila en vivo (sección 51): los mismos números que ve la voluntaria.
+      perform pg_temp.comprobar('Fila en vivo: el turno que va, los que esperan, los que recibieron y el total',
+        (select f.actual is not distinct from (v_json->'actual'->>'turno')::int
+            and f.ultimo is not distinct from (v_json->'ultimo'->>'turno')::int
+            and f.en_espera = (v_json->>'en_espera')::int
+            and f.atendidos = (v_json->>'atendidos')::int
+            and f.total = (v_json->>'total')::int
+           from fila_a_pie_en_vivo() f),
+        (select format('va %s, último %s, esperan %s, recibieron %s, total %s', f.actual, f.ultimo, f.en_espera, f.atendidos, f.total)
+           from fila_a_pie_en_vivo() f));
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.comprobar('Fila en vivo: se ve sin cuenta',
+        exists (select 1 from fila_a_pie_en_vivo() f where f.total > 0));
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.comprobar('Fila en vivo: el navegador sin cuenta la puede pedir',
+        has_function_privilege('anon', 'fila_a_pie_en_vivo()', 'execute'));
+
       --  La lista del escáner de carros.
       perform pg_temp.esperar_error('Lista del escáner: en la fila a pie no se ve la gente de carros',
         'select * from lista_para_escaneo()', 'OTRA_FILA');

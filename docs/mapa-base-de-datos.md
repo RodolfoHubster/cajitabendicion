@@ -222,6 +222,12 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## La fila a pie en vivo (sección 51)
+
+| Objeto | Qué hace |
+|---|---|
+| `fila_a_pie_en_vivo()` | Pública, sin cuenta (página `/fila`): el turno que va, el último que recibió, cuántos esperan, cuántos recibieron y cuántos turnos se dieron hoy, y si ya abrió, cerró o terminó. Solo números: nunca nombres, códigos ni señas. |
+
 ## Pases preferentes (sección 50)
 
 | Objeto | Qué hace |

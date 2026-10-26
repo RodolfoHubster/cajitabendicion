@@ -2052,7 +2052,8 @@
       "boton": "Chuyển sang đi bộ",
       "cancelar": "Tôi không có lịch hẹn đi xe",
       "CODIGO_CARRO_NO_EXISTE": "Không tìm thấy lịch hẹn đi xe hôm nay với mã đó. Hãy kiểm tra lại các chữ số."
-    }
+    },
+    "verFila": "Xem hàng chờ trực tiếp"
   },
   "codigoDelDia": {
     "casilla": "Yêu cầu mã của hôm nay",
@@ -2354,5 +2355,27 @@
     "etiqueta": "Ưu tiên",
     "voluntario": "Không cần xếp hàng. Kiểm tra đúng người trước khi phát.",
     "persona": "Bạn không cần xếp hàng: đưa mã QR này cho tình nguyện viên."
+  },
+  "filaEnVivo": {
+    "titulo": "Hàng đi bộ trực tiếp",
+    "subtitulo": "Xem hàng đang đi tới đâu. Không cần có số.",
+    "cargando": "Đang kiểm tra hàng…",
+    "noHay": "Hôm nay không có hàng đi bộ.",
+    "porAbrir": "Chưa bắt đầu: phát số lúc {{hora}}.",
+    "terminada_other": "Hàng hôm nay đã kết thúc: {{count}} người đã nhận thực phẩm. Cảm ơn!",
+    "asiVa": "Hàng chờ hiện tại",
+    "noEsTuyo": "Đây là số của người khác, không phải số của bạn.",
+    "tuNumero": "Số của bạn là {{turno}}.",
+    "recibio": "Đã nhận",
+    "llamando": "Đang gọi",
+    "sigue": "Kế tiếp",
+    "nadieEspera": "Hiện không có ai đang chờ.",
+    "esperando": "Đang chờ",
+    "recibieron": "Đã nhận",
+    "dados": "Số đã phát",
+    "yaNoSeDan": "Hôm nay không phát thêm số mới.",
+    "sinSenal": "Không có sóng: đây là thông tin mới nhất. Sẽ cập nhật khi có kết nối lại.",
+    "miTurno": "Xem số của tôi ({{turno}})",
+    "sacar": "Lấy số của tôi"
   }
 }

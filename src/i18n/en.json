@@ -2075,7 +2075,8 @@
       "boton": "Switch to walking",
       "cancelar": "I didn't have a car appointment",
       "CODIGO_CARRO_NO_EXISTE": "We couldn't find a car appointment for today with that code. Check the digits."
-    }
+    },
+    "verFila": "See the line live"
   },
   "codigoDelDia": {
     "casilla": "Ask for today's code",
@@ -2390,5 +2391,28 @@
     "etiqueta": "Priority",
     "voluntario": "Skips the line. Check it is the right person before handing out.",
     "persona": "You skip the line: show this QR to a volunteer."
+  },
+  "filaEnVivo": {
+    "titulo": "Walk-in line, live",
+    "subtitulo": "See how the line is moving. You do not need a number.",
+    "cargando": "Checking the line…",
+    "noHay": "There is no walk-in line today.",
+    "porAbrir": "It has not started yet: numbers open at {{hora}}.",
+    "terminada_one": "Today's line has ended: {{count}} person received their groceries. Thank you!",
+    "terminada_other": "Today's line has ended: {{count}} people received their groceries. Thank you!",
+    "asiVa": "The line right now",
+    "noEsTuyo": "These numbers belong to other people, not to you.",
+    "tuNumero": "Your number is {{turno}}.",
+    "recibio": "Served",
+    "llamando": "Calling",
+    "sigue": "Next",
+    "nadieEspera": "Nobody is waiting right now.",
+    "esperando": "Waiting",
+    "recibieron": "Served",
+    "dados": "Numbers",
+    "yaNoSeDan": "No new numbers are being given today.",
+    "sinSenal": "No signal: this is the latest we know. It will update when the connection is back.",
+    "miTurno": "See my number ({{turno}})",
+    "sacar": "Get my number"
   }
 }

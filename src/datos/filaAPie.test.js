@@ -31,6 +31,8 @@ import {
   qrDeTurno,
   turnosAPieDeHoy,
   filaDeTurnos,
+  filaAPieEnVivo,
+  fichasDeLaFila,
   guardarFilaAPie,
   miFilaDeHoy,
   proximaFilaAPie,
@@ -457,5 +459,45 @@ describe('el administrador arma la fila del día', () => {
 
     supabase.rpc.mockResolvedValue({ data: null, error: { message: 'BLOQUE_CON_CITAS' } })
     await expect(quitarFilaAPie('2026-09-28')).rejects.toThrow('BLOQUE_CON_CITAS')
+  })
+})
+
+describe('la fila en vivo, para cualquiera (sección 51)', () => {
+  it('pide los números de hoy; sin fila, null', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ actual: 12, ultimo: 11, atendidos: 11, en_espera: 7, total: 19 }], error: null })
+    await expect(filaAPieEnVivo()).resolves.toMatchObject({ actual: 12, en_espera: 7 })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('fila_a_pie_en_vivo', {})
+    supabase.rpc.mockResolvedValue({ data: [], error: null })
+    await expect(filaAPieEnVivo()).resolves.toBeNull()
+  })
+})
+
+describe('la tira de números de /fila', () => {
+  it('el último que recibió, el que llaman y el que sigue, en orden', () => {
+    expect(fichasDeLaFila({ ultimo: 16, actual: 17, total: 25 })).toEqual([
+      { numero: 16, tipo: 'recibio' },
+      { numero: 17, tipo: 'llamando' },
+      { numero: 18, tipo: 'sigue' },
+    ])
+  })
+
+  it('no inventa un turno que no se ha dado', () => {
+    expect(fichasDeLaFila({ ultimo: 24, actual: 25, total: 25 })).toEqual([
+      { numero: 24, tipo: 'recibio' },
+      { numero: 25, tipo: 'llamando' },
+    ])
+  })
+
+  it('si alguien pasó antes de su número, la tira sigue en orden', () => {
+    expect(fichasDeLaFila({ ultimo: 18, actual: 17, total: 25 })).toEqual([
+      { numero: 17, tipo: 'llamando' },
+      { numero: 18, tipo: 'recibio' },
+    ])
+  })
+
+  it('sin nadie esperando, solo el último; recién abierta, solo el primero', () => {
+    expect(fichasDeLaFila({ ultimo: 25, actual: null, total: 25 })).toEqual([{ numero: 25, tipo: 'recibio' }])
+    expect(fichasDeLaFila({ ultimo: null, actual: 1, total: 1 })).toEqual([{ numero: 1, tipo: 'llamando' }])
+    expect(fichasDeLaFila({ ultimo: null, actual: null, total: 0 })).toEqual([])
   })
 })

@@ -2075,7 +2075,8 @@
       "boton": "Cambiarme a pie",
       "cancelar": "No tenía cita en carro",
       "CODIGO_CARRO_NO_EXISTE": "No encontramos una cita en carro para hoy con ese código. Revisa los números."
-    }
+    },
+    "verFila": "Ver la fila en vivo"
   },
   "codigoDelDia": {
     "casilla": "Pedir código del día",
@@ -2390,5 +2391,28 @@
     "etiqueta": "Preferente",
     "voluntario": "Pasa sin fila. Revisa que sea la persona antes de entregar.",
     "persona": "Pasas sin hacer fila: enséñale este QR a un voluntario."
+  },
+  "filaEnVivo": {
+    "titulo": "Fila a pie en vivo",
+    "subtitulo": "Mira cómo avanza la fila. No necesitas tener turno.",
+    "cargando": "Revisando la fila…",
+    "noHay": "Hoy no hay fila a pie.",
+    "porAbrir": "Todavía no empieza: los turnos se abren a las {{hora}}.",
+    "terminada_one": "La fila de hoy ya terminó: {{count}} persona recibió su despensa. ¡Gracias!",
+    "terminada_other": "La fila de hoy ya terminó: {{count}} personas recibieron su despensa. ¡Gracias!",
+    "asiVa": "Así va la fila",
+    "noEsTuyo": "Estos números son de otras personas, no son el tuyo.",
+    "tuNumero": "Tu número es el {{turno}}.",
+    "recibio": "Ya recibió",
+    "llamando": "Llamando",
+    "sigue": "Sigue",
+    "nadieEspera": "Ahorita no hay nadie esperando.",
+    "esperando": "Esperan",
+    "recibieron": "Recibieron",
+    "dados": "Turnos",
+    "yaNoSeDan": "Ya no se dan turnos nuevos hoy.",
+    "sinSenal": "Sin señal: esto es lo último que se supo. Se actualiza cuando vuelva la conexión.",
+    "miTurno": "Ver mi turno ({{turno}})",
+    "sacar": "Sacar mi turno"
   }
 }
