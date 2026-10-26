@@ -13,6 +13,7 @@ import LectorQR from '../../componentes/LectorQR'
 import LlegoTarde from '../../componentes/LlegoTarde'
 import ListaDelDia from '../../componentes/ListaDelDia'
 import PanelTurnos from '../../componentes/PanelTurnos'
+import SelloPreferente from '../../componentes/SelloPreferente'
 import SelloVip from '../../componentes/SelloVip'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
@@ -725,6 +726,7 @@ export default function Escanear() {
             {!previaEspecial && !citaDeOtroDia && (
               <div className="rounded-xl border border-principal/20 p-4">
                 {previa.pase && previa.vip && <SelloVip className="mb-3" />}
+                {previa.pase && previa.preferente && <SelloPreferente className="mb-3" />}
                 {previa.pase && (
                   <p className="mb-2 inline-block rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
                     {t('escaneo.pase')}
@@ -742,6 +744,15 @@ export default function Escanear() {
                   {previa.codigo_corto}
                   {previa.hora ? ` · ${formatearHora(previa.hora)}` : ''}
                 </p>
+                {/* Preferente (seccion 50): la nota para reconocerla, en grande. */}
+                {previa.pase && previa.nota && (
+                  <p className="mt-3 rounded-xl border-2 border-accion bg-accion/10 p-3 text-lg font-semibold text-principal">
+                    {t('escaneo.preferente.nota', { nota: previa.nota })}
+                  </p>
+                )}
+                {previa.pase && previa.preferente && previa.activo && (
+                  <p className="mt-2 text-base font-semibold text-principal">{t('escaneo.preferente.revisa')}</p>
+                )}
                 <p className="mt-2 text-base text-principal/70">
                   {previa.pase
                     ? t(previa.activo ? 'escaneo.estadoPrevio.pase' : 'escaneo.estadoPrevio.paseRevocado')
@@ -755,7 +766,11 @@ export default function Escanear() {
 
             {!previaEspecial && !citaDeOtroDia && !llegoTarde && !(previa.pase && !previa.activo) && (
               <Boton className="mt-4" disabled={ocupado} onClick={registrarPrevia}>
-                {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
+                {ocupado
+                  ? t('escaneo.registrando')
+                  : previa.pase && previa.preferente
+                    ? t('escaneo.preferente.entregar')
+                    : t('escaneo.registrarEntrega')}
               </Boton>
             )}
 

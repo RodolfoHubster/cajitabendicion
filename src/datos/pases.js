@@ -14,7 +14,15 @@ import { supabase } from '../lib/supabase'
  */
 
 // Errores de negocio que la base lanza como texto.
-export const CODIGOS_PASE = ['PERSONA_NO_EXISTE', 'PASE_NO_EXISTE', 'PASE_YA_REVOCADO']
+export const CODIGOS_PASE = [
+  'PERSONA_NO_EXISTE',
+  'PASE_NO_EXISTE',
+  'PASE_YA_REVOCADO',
+  //  Seccion 50.
+  'NOMBRE_INVALIDO',
+  'TELEFONO_INVALIDO',
+  'NOTA_MUY_LARGA',
+]
 
 async function llamar(funcion, parametros) {
   const { data, error } = await supabase.rpc(funcion, parametros)
@@ -38,6 +46,29 @@ export async function crearPase(codigo, motivo = null, { vip = false } = {}) {
   //  VIP es aparte: solo lo puede poner el administrador (seccion 40).
   if (vip) await marcarPaseVip(codigo, true)
   return pase
+}
+
+/**
+ * Pase PREFERENTE (seccion 50): tercera edad o movilidad reducida. Con solo
+ * su nombre, telefono con lada opcional ('+16195550101') y una nota para
+ * reconocerla. Devuelve { codigo_corto, nombre, token }.
+ */
+export async function crearPasePreferente(nombre, { telefono = null, nota = null } = {}) {
+  return primera(
+    await llamar('crear_pase_preferente', {
+      p_nombre: nombre,
+      p_telefono: telefono || null,
+      p_nota: String(nota ?? '').trim() || null,
+    }),
+  )
+}
+
+/**
+ * Volver preferente (o ya no) el pase de alguien. nota: null la deja como
+ * estaba; '' la quita.
+ */
+export function marcarPasePreferente(codigo, preferente, nota = null) {
+  return llamar('marcar_pase_preferente', { p_codigo: codigo, p_preferente: Boolean(preferente), p_nota: nota })
 }
 
 /** Pase VIP: dorado y pasa directo, sin fila. Solo el administrador. */

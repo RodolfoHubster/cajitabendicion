@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
-import { LuBellRing, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
+import { LuBellRing, LuCheck, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert } from 'react-icons/lu'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
 import Boton from '../../componentes/Boton'
 import CampoCodigo from '../../componentes/CampoCodigo'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
+import { avisosPublicos, textoDeAviso } from '../../datos/avisos'
 import { dibujarQR } from '../../datos/cita'
 import { formatearHora, segundosHasta } from '../../datos/disponibilidad'
 import {
@@ -30,6 +31,8 @@ import {
   traeTurno,
 } from '../../datos/turnoAPie'
 
+//  Las reglas de respaldo: si la base no responde o la seccion esta vacia.
+//  Las de verdad son las de "Textos y reglas > Reglas > Fila a pie".
 const AVISOS = ['sinDatos', 'soloHoy', 'abierta', 'teLlaman', 'cadaQuien']
 const ICONO_AVISO = { sinDatos: LuShieldCheck, soloHoy: LuTicket, abierta: LuBellRing, teLlaman: LuTriangleAlert, cadaQuien: LuHandHeart }
 
@@ -56,7 +59,7 @@ const FRENO_SEGUNDOS = 300
  * cuanto falta: el boton aparece solo a esa hora, sin recargar.
  */
 export default function Turno() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const hoy = hoyLocal()
 
   //  El turno de hoy de este telefono, si ya lo saco.
@@ -89,6 +92,23 @@ export default function Turno() {
   //  Frenado por intentos fallidos: hasta cuando (y la hora, para la cuenta regresiva).
   const [frenoHasta, setFrenoHasta] = useState(0)
   const [ahora, setAhora] = useState(0)
+  //  Las reglas que el pastor edita en Textos y reglas (registro_a_pie).
+  //  null: preguntando; []: no hay o no respondio (salen las de respaldo).
+  const [reglas, setReglas] = useState(null)
+
+  useEffect(() => {
+    let vigente = true
+    avisosPublicos('registro_a_pie')
+      .then((lista) => {
+        if (vigente) setReglas(lista)
+      })
+      .catch(() => {
+        if (vigente) setReglas([])
+      })
+    return () => {
+      vigente = false
+    }
+  }, [])
 
   useEffect(() => {
     if (miTurno) return undefined
@@ -223,7 +243,16 @@ export default function Turno() {
     </div>
   )
 
-  const avisos = (
+  const avisos = reglas?.length ? (
+    <ul className="space-y-2">
+      {reglas.map((regla) => (
+        <li className="flex items-start gap-3 rounded-xl bg-principal/5 p-3 text-base text-principal" key={regla.id}>
+          <LuCheck aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+          {textoDeAviso(regla, i18n.language)}
+        </li>
+      ))}
+    </ul>
+  ) : reglas === null ? null : (
     <ul className="space-y-2">
       {AVISOS.map((clave) => {
         const Icono = ICONO_AVISO[clave]

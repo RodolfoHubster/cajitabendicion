@@ -29,6 +29,7 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
 | Su cita está cancelada | «Cita cancelada». | No procede. |
 | Pase permanente | Verde «Puede pasar (pase)»; el VIP sale en dorado. | Entrega la caja. |
 | Pase retirado | «Pase retirado». | No procede. |
+| Pase preferente (tercera edad, movilidad reducida) | «Preferente», su nombre y su nota para reconocerla («andadera azul…»). **No se entrega solo.** | Revisa que sea la persona y toca «Sí es la persona, entregar». Pasa sin fila. |
 | El QR no se deja leer | — | «Buscar por nombre o código», toca a la persona y «Registrar entrega». |
 | Llega sin cita | — | «Entró sin cita» en el panel, si tienes ese permiso. |
 

@@ -33,6 +33,8 @@ export const COLUMNAS = [
   'intentos_repetidos',
   'cambios_a_pie',
   'turnos_anulados',
+  //  Seccion 50: de las cajas con pase, las de pases preferentes.
+  'con_pase_preferente',
 ]
 
 const NUMERICAS = COLUMNAS.filter((columna) => columna !== 'fecha')

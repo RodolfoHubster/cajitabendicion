@@ -242,6 +242,11 @@
         "recibio": "Đã nhận lúc {{hora}}",
         "anulado": "Đã hủy lúc {{hora}}"
       }
+    },
+    "preferente": {
+      "nota": "Để nhận ra: {{nota}}",
+      "revisa": "Có đúng người không? Kiểm tra tên và ghi chú trước khi phát.",
+      "entregar": "Đúng người, phát"
     }
   },
   "pase": {
@@ -312,7 +317,29 @@
       "no": "Chưa, đăng ký ở đây"
     },
     "registrarAqui": "Thông tin của họ, giống như ở Đăng ký người. Khi xong, họ sẽ nhận thẻ.",
-    "registrarYDar": "Đăng ký và cấp thẻ"
+    "registrarYDar": "Đăng ký và cấp thẻ",
+    "preferente": {
+      "titulo": "Thẻ ưu tiên (người cao tuổi, đi lại khó khăn)",
+      "ayuda": "Cho người dùng khung tập đi hoặc xe lăn, hoặc đi lại khó khăn: chỉ cần tên, không cần đăng ký hay xếp hàng. Khi quét, tình nguyện viên thấy tên và ghi chú, và xác nhận đúng người trước khi phát.",
+      "abrir": "Cấp thẻ ưu tiên",
+      "nombre": "Tên",
+      "faltaNombre": "Hãy nhập tên.",
+      "telefono": "Điện thoại (không bắt buộc)",
+      "telefonoMal": "Số điện thoại chưa đủ: cần 10 số (nếu ở Mexico, thêm +52 phía trước).",
+      "nota": "Ghi chú để nhận ra (không bắt buộc)",
+      "notaEjemplo": "Ví dụ: khung tập đi màu xanh, đi cùng cháu trai Luis",
+      "boton": "Cấp thẻ ưu tiên",
+      "dado": "Xong: {{codigo}} đã có thẻ ưu tiên.",
+      "hacer": "Chuyển thành ưu tiên",
+      "quitar": "Bỏ ưu tiên",
+      "editarNota": "Ghi chú",
+      "notaDe": "Thẻ ưu tiên của {{codigo}}: ghi chú để nhận ra",
+      "guardar": "Lưu",
+      "puesto": "Xong: {{codigo}} đã là ưu tiên.",
+      "quitado": "Xong: {{codigo}} không còn ưu tiên.",
+      "notaEnLista": "Ghi chú: {{nota}}",
+      "cuantos_other": "{{count}} ưu tiên"
+    }
   },
   "panel": {
     "cargando": "Đang tải dữ liệu trong ngày…",
@@ -1079,7 +1106,8 @@
       "TELEFONO_INVALIDO": "Số điện thoại không hợp lệ. Hãy kiểm tra mã quốc gia và số.",
       "FECHA_FUTURA": "Ngày đó vẫn chưa đến.",
       "ACOMPANANTE_SIN_CAMBIO": "Bạn đi chung xe: giờ của bạn là giờ của người lái. Nếu họ đổi giờ, giờ của bạn cũng đổi theo.",
-      "A_PIE_SIN_CAMBIO": "Ở hàng đi bộ không đổi giờ: hãy lấy số mới trong ngày đó."
+      "A_PIE_SIN_CAMBIO": "Ở hàng đi bộ không đổi giờ: hãy lấy số mới trong ngày đó.",
+      "NOTA_MUY_LARGA": "Ghi chú quá dài: tối đa 200 chữ."
     }
   },
   "sinCita": {
@@ -1298,7 +1326,8 @@
       "intentos_repetidos": "Quét lặp lại",
       "cambios_a_pie": "Chuyển sang đi bộ",
       "con_pase": "Có thẻ",
-      "turnos_anulados": "Số đã hủy"
+      "turnos_anulados": "Số đã hủy",
+      "con_pase_preferente": "Có thẻ ưu tiên"
     },
     "errores": {
       "RANGO_INVALIDO": "Ngày «Từ» phải trùng hoặc trước ngày «Đến».",
@@ -1396,7 +1425,8 @@
     "respaldo3": "Bạn chỉ có thể đổi giờ một lần.",
     "tituloAPie": "Trước khi lấy số, hãy đọc điều này",
     "respaldoAPie1": "Mỗi người từ 18 tuổi trở lên cần có số và mã riêng.",
-    "respaldoAPie2": "Hãy chờ ở gần. Khi gọi đến số của bạn, hãy đến và đưa mã."
+    "respaldoAPie2": "Hãy chờ ở gần. Khi gọi đến số của bạn, hãy đến và đưa mã.",
+    "dondeAPie": "Hiện trên trang lấy số xếp hàng đi bộ (mã QR trên bảng)."
   },
   "avisos": {
     "titulo": "Văn bản và quy định",
@@ -1484,7 +1514,9 @@
       "preguntas": "Hiện ở trang «Câu hỏi thường gặp».",
       "quienes": "Hiện ở trang «Về chúng tôi»."
     },
-    "verComoLaGente": "Xem như mọi người thấy"
+    "verComoLaGente": "Xem như mọi người thấy",
+    "traduccionVieja": "Bạn đã đổi tiếng Tây Ban Nha, nhưng tiếng Anh và tiếng Việt vẫn là nội dung cũ: ai xem trang bằng các ngôn ngữ đó sẽ không thấy thay đổi. Hãy sửa ở «Bản dịch» bên dưới, hoặc xóa để hiện tiếng Tây Ban Nha.",
+    "quitarTraducciones": "Xóa bản dịch cũ"
   },
   "preguntas": {
     "titulo": "Câu hỏi thường gặp",
@@ -2317,5 +2349,10 @@
     "marcarEntregadas": "Tôi đã phát thẻ giấy",
     "entregadas_other": "Xong: đã ghi lại {{count}} thẻ được phát bằng giấy.",
     "ninguna": "Không có thẻ nào để in với bộ lọc đó."
+  },
+  "preferente": {
+    "etiqueta": "Ưu tiên",
+    "voluntario": "Không cần xếp hàng. Kiểm tra đúng người trước khi phát.",
+    "persona": "Bạn không cần xếp hàng: đưa mã QR này cho tình nguyện viên."
   }
 }

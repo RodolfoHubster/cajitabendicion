@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaWheelchair } from 'react-icons/fa6'
 import { LuCrown, LuPlus, LuRefreshCw, LuStar, LuTrash2, LuUserPlus } from 'react-icons/lu'
 import { Link, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
@@ -10,7 +11,16 @@ import Tarjeta from '../../componentes/Tarjeta'
 import VentanaPase from '../../componentes/VentanaPase'
 import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import { aFechaLocal } from '../../datos/disponibilidad'
-import { crearPase, listarPases, marcarPaseVip, renovarPase, revocarPase } from '../../datos/pases'
+import {
+  crearPase,
+  crearPasePreferente,
+  listarPases,
+  marcarPasePreferente,
+  marcarPaseVip,
+  renovarPase,
+  revocarPase,
+} from '../../datos/pases'
+import { separarContacto, telefonoBonito } from '../../datos/voluntarios'
 import { EsqueletoLista } from '../../componentes/Esqueleto'
 import RegistrarPersona from './RegistrarPersona'
 
@@ -58,6 +68,11 @@ export default function Pases() {
   const [aviso, setAviso] = useState(null)
   // El QR se ve en una ventana del panel, no en otra pagina.
   const [verPase, setVerPase] = useState(null)
+  //  El pase preferente (seccion 50): null cerrado, o lo que se va escribiendo.
+  const [preferente, setPreferente] = useState(null)
+  const [intentoPreferente, setIntentoPreferente] = useState(false)
+  //  { codigo, nota } mientras se escribe la nota de un pase de la lista.
+  const [notaDe, setNotaDe] = useState(null)
 
   // Se vuelve a pedir la lista despues de cada cambio.
   const [recarga, setRecarga] = useState(0)
@@ -172,6 +187,52 @@ export default function Pases() {
     }
   }
 
+  //  Seccion 50: el telefono es opcional, pero si se escribe tiene que estar completo.
+  const telefonoPreferente = separarContacto(preferente?.telefono ?? '')
+  const telefonoMal =
+    Boolean(preferente?.telefono.trim()) && (!telefonoPreferente.telefono || Boolean(telefonoPreferente.correo))
+  const nombreMal = (preferente?.nombre.trim().length ?? 0) < 2
+
+  async function darPreferente(evento) {
+    evento.preventDefault()
+    setIntentoPreferente(true)
+    setError(null)
+    setAviso(null)
+    if (nombreMal || telefonoMal) return
+    setOcupado(true)
+    try {
+      const pase = await crearPasePreferente(preferente.nombre, {
+        telefono: telefonoPreferente.telefono,
+        nota: preferente.nota,
+      })
+      setAviso({ codigo: pase.codigo_corto, texto: t('pases.preferente.dado', { codigo: pase.codigo_corto }), token: pase.token })
+      setPreferente(null)
+      setIntentoPreferente(false)
+      setRecarga((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  //  Volverlo preferente (con su nota) o quitarselo.
+  async function guardarPreferente(codigo, hacer, nota = null) {
+    setError(null)
+    setAviso(null)
+    setOcupado(true)
+    try {
+      await marcarPasePreferente(codigo, hacer, nota)
+      setAviso({ codigo, texto: t(hacer ? 'pases.preferente.puesto' : 'pases.preferente.quitado', { codigo }) })
+      setNotaDe(null)
+      setRecarga((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
   const texto = busqueda.trim().toLowerCase()
   const filtrados = (pases ?? []).filter(
     (pase) =>
@@ -183,6 +244,7 @@ export default function Pases() {
 
   const activos = (pases ?? []).filter((pase) => pase.activo).length
   const vips = (pases ?? []).filter((pase) => pase.activo && pase.vip).length
+  const preferentes = (pases ?? []).filter((pase) => pase.activo && pase.preferente).length
 
   return (
     <Tarjeta>
@@ -273,6 +335,77 @@ export default function Pases() {
         )}
       </section>
 
+      {/* Seccion 50: tercera edad o movilidad reducida. Solo su nombre y una
+          nota para reconocerla; pasa sin fila y se revisa al escanear. */}
+      <section className="mb-6 space-y-3 rounded-2xl border-2 border-principal/30 p-4">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-principal">
+          <FaWheelchair aria-hidden="true" className="h-5 w-5" />
+          {t('pases.preferente.titulo')}
+        </h2>
+        <p className="text-base text-principal/80">{t('pases.preferente.ayuda')}</p>
+
+        {preferente === null ? (
+          <button
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+            onClick={() => {
+              setIntentoPreferente(false)
+              setPreferente({ nombre: '', telefono: '', nota: '' })
+            }}
+            type="button"
+          >
+            <LuPlus aria-hidden="true" className="h-5 w-5 text-accion" />
+            {t('pases.preferente.abrir')}
+          </button>
+        ) : (
+          <form className="aparecer space-y-3" noValidate onSubmit={darPreferente}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Campo
+                autoComplete="off"
+                error={intentoPreferente && nombreMal ? t('pases.preferente.faltaNombre') : undefined}
+                etiqueta={t('pases.preferente.nombre')}
+                id="preferente-nombre"
+                maxLength={80}
+                onChange={(e) => setPreferente({ ...preferente, nombre: e.target.value })}
+                value={preferente.nombre}
+              />
+              <Campo
+                autoComplete="off"
+                error={telefonoMal ? t('pases.preferente.telefonoMal') : undefined}
+                etiqueta={t('pases.preferente.telefono')}
+                id="preferente-telefono"
+                inputMode="tel"
+                onChange={(e) => setPreferente({ ...preferente, telefono: e.target.value })}
+                placeholder="619 555 0101"
+                value={preferente.telefono}
+              />
+            </div>
+            {telefonoPreferente.telefono && !telefonoMal && (
+              <p className="text-base font-semibold text-puede-pasar">
+                {t('voluntarios.contacto.whatsapp', { telefono: telefonoBonito(telefonoPreferente.telefono) })}
+              </p>
+            )}
+            <Campo
+              autoComplete="off"
+              etiqueta={t('pases.preferente.nota')}
+              id="preferente-nota"
+              maxLength={200}
+              onChange={(e) => setPreferente({ ...preferente, nota: e.target.value })}
+              placeholder={t('pases.preferente.notaEjemplo')}
+              value={preferente.nota}
+            />
+            <div className="flex flex-wrap gap-2">
+              <Boton className="sm:w-auto sm:px-6" disabled={ocupado} type="submit">
+                <FaWheelchair aria-hidden="true" className="h-5 w-5" />
+                {ocupado ? t('pases.guardando') : t('pases.preferente.boton')}
+              </Boton>
+              <Boton className="sm:w-auto sm:px-6" onClick={() => setPreferente(null)} type="button" variant="secondary">
+                {t('pases.no')}
+              </Boton>
+            </div>
+          </form>
+        )}
+      </section>
+
       {error && (
         <p className="mb-4 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
           {t(`citas.errores.${error}`, { defaultValue: t('citas.errores.ERROR_DESCONOCIDO') })}
@@ -315,6 +448,7 @@ export default function Pases() {
           <p className="mb-3 text-base text-principal/70">
             {t('pases.activos', { count: activos })}
             {vips > 0 && ` · ${t('pases.vips', { count: vips })}`}
+            {preferentes > 0 && ` · ${t('pases.preferente.cuantos', { count: preferentes })}`}
           </p>
 
           <div className="relative overflow-x-auto">
@@ -343,6 +477,15 @@ export default function Pases() {
                           <LuCrown aria-hidden="true" className="h-3.5 w-3.5 text-[#B8860B]" />
                           VIP
                         </span>
+                      )}
+                      {pase.preferente && (
+                        <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-principal px-2 text-chica font-bold text-principal">
+                          <FaWheelchair aria-hidden="true" className="h-3.5 w-3.5" />
+                          {t('preferente.etiqueta')}
+                        </span>
+                      )}
+                      {pase.nota && (
+                        <span className="block text-base text-principal/70">{t('pases.preferente.notaEnLista', { nota: pase.nota })}</span>
                       )}
                       {!pase.activo && (
                         <span className="block text-base text-principal/70">
@@ -373,6 +516,23 @@ export default function Pases() {
                                 type="button"
                               >
                                 {pase.vip ? t('pases.quitarVip') : t('pases.hacerVip')}
+                              </button>
+                            )}
+                            <button
+                              className={`${BOTON_TEXTO} text-principal`}
+                              onClick={() => setNotaDe({ codigo: pase.codigo_corto, nota: pase.nota ?? '' })}
+                              type="button"
+                            >
+                              {pase.preferente ? t('pases.preferente.editarNota') : t('pases.preferente.hacer')}
+                            </button>
+                            {pase.preferente && (
+                              <button
+                                className={`${BOTON_TEXTO} text-principal`}
+                                disabled={ocupado}
+                                onClick={() => guardarPreferente(pase.codigo_corto, false)}
+                                type="button"
+                              >
+                                {t('pases.preferente.quitar')}
                               </button>
                             )}
                             <button
@@ -445,6 +605,35 @@ export default function Pases() {
               {ocupado ? t('pases.guardando') : t(`pases.si.${confirmando.accion}`)}
             </Boton>
             <Boton onClick={() => setConfirmando(null)} variant="secondary">
+              {t('pases.no')}
+            </Boton>
+          </div>
+        </div>
+      )}
+      {/* Volverlo preferente, o cambiar su nota (seccion 50). */}
+      {notaDe && (
+        <div
+          aria-labelledby="nota-pase"
+          className="mt-4 space-y-3 rounded-xl border border-principal/25 bg-principal/5 p-4"
+          role="dialog"
+        >
+          <p className="flex items-center gap-2 text-base font-semibold text-principal" id="nota-pase">
+            <FaWheelchair aria-hidden="true" className="h-5 w-5 shrink-0" />
+            {t('pases.preferente.notaDe', { codigo: notaDe.codigo })}
+          </p>
+          <Campo
+            etiqueta={t('pases.preferente.nota')}
+            id="nota-de-pase"
+            maxLength={200}
+            onChange={(e) => setNotaDe({ ...notaDe, nota: e.target.value })}
+            placeholder={t('pases.preferente.notaEjemplo')}
+            value={notaDe.nota}
+          />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Boton disabled={ocupado} onClick={() => guardarPreferente(notaDe.codigo, true, notaDe.nota)}>
+              {ocupado ? t('pases.guardando') : t('pases.preferente.guardar')}
+            </Boton>
+            <Boton onClick={() => setNotaDe(null)} variant="secondary">
               {t('pases.no')}
             </Boton>
           </div>

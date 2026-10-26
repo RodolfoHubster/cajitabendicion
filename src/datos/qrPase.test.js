@@ -107,6 +107,9 @@ describe('el sello en medio del QR', () => {
     expect(ICONOS_FILA.carro.color).toBe('#1B3A6B')
     expect(ICONOS_FILA.a_pie.color).toBe('#F5A03C')
     expect(ICONOS_FILA.vip.color).toBe('#B8860B')
+    //  El preferente (seccion 50): el simbolo de accesibilidad, en azul.
+    expect(ICONOS_FILA.preferente.color).toBe('#1F5FA8')
+    expect(ICONOS_FILA.preferente.trazo.length).toBeGreaterThan(100)
   })
 
   it('el dorado de los cuadritos contrasta con el blanco tanto como hace falta para leerse', () => {

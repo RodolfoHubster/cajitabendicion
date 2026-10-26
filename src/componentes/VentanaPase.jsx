@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaWheelchair } from 'react-icons/fa6'
 import { LuCopy, LuCrown, LuDownload, LuShieldAlert, LuStar, LuX } from 'react-icons/lu'
 import { EsqueletoQR } from './Esqueleto'
 import { BORDE_ORO, FONDO_ORO } from './SelloVip'
@@ -34,7 +35,7 @@ export default function VentanaPase({ token, alCerrar }) {
     paseDeCodigo(token)
       .then(async (datos) => {
         if (!datos) throw new Error('PASE_NO_EXISTE')
-        const imagen = await dibujarQRPase(token, { vip: Boolean(datos.vip) })
+        const imagen = await dibujarQRPase(token, { vip: Boolean(datos.vip), preferente: Boolean(datos.preferente) })
         if (!vigente) return
         setPase(datos)
         setQr(imagen)
@@ -59,7 +60,7 @@ export default function VentanaPase({ token, alCerrar }) {
       textos: {
         programa: ORGANIZACION.programa,
         iglesia: ORGANIZACION.iglesia,
-        lista: pase.vip ? t('vip.etiqueta') : t('pase.etiqueta'),
+        lista: pase.preferente ? t('preferente.etiqueta') : pase.vip ? t('vip.etiqueta') : t('pase.etiqueta'),
         fecha: t('pase.titulo'),
         hora: t('pase.dias'),
         siNoSeLee: t('confirmacion.siNoSeLee'),
@@ -121,17 +122,20 @@ export default function VentanaPase({ token, alCerrar }) {
         >
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-base font-bold text-principal">
-              {pase?.vip ? (
+              {pase?.preferente ? (
+                <FaWheelchair aria-hidden="true" className="h-5 w-5" />
+              ) : pase?.vip ? (
                 <LuCrown aria-hidden="true" className="h-5 w-5 text-[#B8860B]" />
               ) : (
                 <LuStar aria-hidden="true" className="h-5 w-5" />
               )}
-              {pase?.vip ? t('vip.etiqueta') : t('pase.etiqueta')}
+              {pase?.preferente ? t('preferente.etiqueta') : pase?.vip ? t('vip.etiqueta') : t('pase.etiqueta')}
             </p>
             <h2 className="truncate text-xl font-bold text-principal" id="ventana-pase-titulo">
               {pase?.nombre ?? t('pase.titulo')}
             </h2>
             {pase && <p className="font-titulo text-lg font-bold text-principal/70">{pase.codigo_corto}</p>}
+            {pase?.nota && <p className="text-base text-principal/80">{t('pases.preferente.notaEnLista', { nota: pase.nota })}</p>}
           </div>
           <button
             aria-label={t('detalle.cerrar')}

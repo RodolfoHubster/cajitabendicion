@@ -222,6 +222,20 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Pases preferentes (sección 50)
+
+| Objeto | Qué hace |
+|---|---|
+| `pases.preferente`, `pases.nota` | Tercera edad o movilidad reducida: pasa sin fila. La nota sirve para reconocerla al escanear ("andadera azul, viene con su nieto"). |
+| `crear_pase_preferente(nombre, telefono, nota)` | Con solo el nombre (teléfono con lada y nota, opcionales): crea la persona sin domicilio, con su código CB, y su pase preferente. Palomita `dar_pases`. `NOMBRE_INVALIDO`, `TELEFONO_INVALIDO`, `NOTA_MUY_LARGA`. |
+| `marcar_pase_preferente(codigo, preferente, nota)` | Vuelve preferente (o ya no) un pase que ya existe. Nota nula: se queda; vacía: se quita. |
+| `pase_por_token()` | Ahora trae `preferente` y `nota`; la nota solo si quien pregunta es del equipo. |
+| `reporte_por_dias()` | `con_pase_preferente`: de las cajas con pase, las de pases preferentes. |
+
+Al escanear un pase preferente la pantalla no entrega sola: enseña su nombre y su
+nota, y quien escanea toca "Sí es la persona, entregar". La base entrega igual que
+cualquier pase (`registrar_entrega()` no cambió).
+
 ## Voluntarios: teléfono y correo, envío y quien los atiende (sección 49)
 
 | Objeto | Qué hace |

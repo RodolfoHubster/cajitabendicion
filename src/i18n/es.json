@@ -237,6 +237,11 @@
         "recibio": "Ya recibió a las {{hora}}",
         "anulado": "Turno anulado a las {{hora}}"
       }
+    },
+    "preferente": {
+      "nota": "Para reconocerla: {{nota}}",
+      "revisa": "¿Es la persona? Revisa su nombre y la nota antes de entregar.",
+      "entregar": "Sí es la persona, entregar"
     }
   },
   "pase": {
@@ -308,7 +313,30 @@
       "no": "No, registrarla aquí"
     },
     "registrarAqui": "Sus datos, como en Registrar persona. Al terminar, se le da su pase.",
-    "registrarYDar": "Registrar y dar el pase"
+    "registrarYDar": "Registrar y dar el pase",
+    "preferente": {
+      "titulo": "Pase preferente (tercera edad, movilidad reducida)",
+      "ayuda": "Para quien usa andadera o silla de ruedas, o se le complica moverse: con su nombre basta, sin registrarse ni hacer fila. Al escanearlo, el voluntario ve su nombre y la nota, y confirma que es la persona antes de entregar.",
+      "abrir": "Dar un pase preferente",
+      "nombre": "Nombre",
+      "faltaNombre": "Escribe su nombre.",
+      "telefono": "Teléfono (opcional)",
+      "telefonoMal": "Ese teléfono no está completo: van 10 números (si es de México, con +52 adelante).",
+      "nota": "Nota para reconocerla (opcional)",
+      "notaEjemplo": "Por ejemplo: andadera azul, viene con su nieto Luis",
+      "boton": "Dar pase preferente",
+      "dado": "Listo: {{codigo}} tiene su pase preferente.",
+      "hacer": "Hacer preferente",
+      "quitar": "Quitar preferente",
+      "editarNota": "Nota",
+      "notaDe": "Pase preferente de {{codigo}}: nota para reconocerla",
+      "guardar": "Guardar",
+      "puesto": "Listo: {{codigo}} es preferente.",
+      "quitado": "Listo: {{codigo}} ya no es preferente.",
+      "notaEnLista": "Nota: {{nota}}",
+      "cuantos_one": "{{count}} preferente",
+      "cuantos_other": "{{count}} preferentes"
+    }
   },
   "panel": {
     "cargando": "Cargando el día…",
@@ -1085,7 +1113,8 @@
       "TELEFONO_INVALIDO": "El teléfono no es válido. Revisa la lada y el número.",
       "FECHA_FUTURA": "Esa fecha todavía no llega.",
       "ACOMPANANTE_SIN_CAMBIO": "Vienes en el carro de alguien: tu hora es la de quien maneja. Si cambia su horario, cambia también el tuyo.",
-      "A_PIE_SIN_CAMBIO": "En la fila a pie no se cambia de horario: se saca un turno nuevo ese día."
+      "A_PIE_SIN_CAMBIO": "En la fila a pie no se cambia de horario: se saca un turno nuevo ese día.",
+      "NOTA_MUY_LARGA": "La nota es muy larga: máximo 200 letras."
     }
   },
   "sinCita": {
@@ -1304,7 +1333,8 @@
       "intentos_repetidos": "Intentos repetidos",
       "cambios_a_pie": "Se cambiaron a pie",
       "con_pase": "Con pase",
-      "turnos_anulados": "Turnos anulados"
+      "turnos_anulados": "Turnos anulados",
+      "con_pase_preferente": "Con pase preferente"
     },
     "errores": {
       "RANGO_INVALIDO": "La fecha «Desde» debe ser igual o anterior a «Hasta».",
@@ -1403,7 +1433,8 @@
     "respaldo3": "Puedes cambiar tu horario una sola vez.",
     "tituloAPie": "Antes de sacar tu turno, lee esto",
     "respaldoAPie1": "Cada persona de 18 años o más necesita su propio turno y su propio código.",
-    "respaldoAPie2": "Espera cerca. Cuando digan tu número, acércate y muestra tu código."
+    "respaldoAPie2": "Espera cerca. Cuando digan tu número, acércate y muestra tu código.",
+    "dondeAPie": "Se leen en la página para sacar turno a pie (el QR del cartel)."
   },
   "avisos": {
     "titulo": "Textos y reglas",
@@ -1491,7 +1522,9 @@
       "preguntas": "Se ven en la página «Preguntas frecuentes».",
       "quienes": "Se ve en la página «Quiénes somos»."
     },
-    "verComoLaGente": "Ver como la gente"
+    "verComoLaGente": "Ver como la gente",
+    "traduccionVieja": "Cambiaste el español, pero el inglés y el vietnamita siguen diciendo lo de antes: quien vea la página en esos idiomas no verá el cambio. Corrígelos abajo en «Traducciones», o quítalos para que salga en español.",
+    "quitarTraducciones": "Quitar las traducciones viejas"
   },
   "preguntas": {
     "titulo": "Preguntas frecuentes",
@@ -2352,5 +2385,10 @@
     "entregadas_one": "Listo: quedó anotado que {{count}} se entregó impresa.",
     "entregadas_other": "Listo: quedó anotado que {{count}} se entregaron impresas.",
     "ninguna": "No hay credenciales que imprimir con ese filtro."
+  },
+  "preferente": {
+    "etiqueta": "Preferente",
+    "voluntario": "Pasa sin fila. Revisa que sea la persona antes de entregar.",
+    "persona": "Pasas sin hacer fila: enséñale este QR a un voluntario."
   }
 }

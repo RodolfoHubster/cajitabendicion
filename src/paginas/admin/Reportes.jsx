@@ -32,9 +32,18 @@ import {
 const COLUMNAS_TABLA = ['capacidad', 'con_cita', 'recibieron', 'no_asistieron', 'pendientes', 'canceladas', 'sin_cita', 'cajas']
 
 //  En el detalle de un dia, a pie se dice distinto: son turnos.
-const CUENTAS_DETALLE = ['con_cita', 'recibieron', 'no_asistieron', 'sin_cita', 'con_pase', 'cajas']
+const CUENTAS_DETALLE = ['con_cita', 'recibieron', 'no_asistieron', 'sin_cita', 'con_pase', 'con_pase_preferente', 'cajas']
 //  A pie, tambien los turnos que se anularon porque llegaron tarde (seccion 46).
-const CUENTAS_A_PIE = ['con_cita', 'recibieron', 'no_asistieron', 'turnos_anulados', 'sin_cita', 'con_pase', 'cajas']
+const CUENTAS_A_PIE = [
+  'con_cita',
+  'recibieron',
+  'no_asistieron',
+  'turnos_anulados',
+  'sin_cita',
+  'con_pase',
+  'con_pase_preferente',
+  'cajas',
+]
 const ETIQUETA_A_PIE = { con_cita: 'reportes.detalle.turnos', no_asistieron: 'reportes.detalle.perdieron' }
 const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking }
 

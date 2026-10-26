@@ -7,8 +7,10 @@ import { supabase } from '../lib/supabase'
 import {
   CODIGOS_PASE,
   crearPase,
+  crearPasePreferente,
   entregasPaseDelDia,
   listarPases,
+  marcarPasePreferente,
   marcarPaseVip,
   paseDeCodigo,
   renovarPase,
@@ -20,6 +22,34 @@ beforeEach(() => {
 })
 
 describe('dar el pase', () => {
+  it('un pase preferente se da con su nombre, teléfono opcional y su nota (sección 50)', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-50123', nombre: 'Doña Lupe', token: 'abc' }], error: null })
+    await expect(crearPasePreferente('Doña Lupe', { telefono: '+16195550177', nota: '  Andadera azul ' })).resolves.toEqual({
+      codigo_corto: 'CB-50123',
+      nombre: 'Doña Lupe',
+      token: 'abc',
+    })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('crear_pase_preferente', {
+      p_nombre: 'Doña Lupe',
+      p_telefono: '+16195550177',
+      p_nota: 'Andadera azul',
+    })
+    await crearPasePreferente('Doña Lupe')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('crear_pase_preferente', { p_nombre: 'Doña Lupe', p_telefono: null, p_nota: null })
+  })
+
+  it('volver preferente un pase, con o sin cambiar su nota', async () => {
+    supabase.rpc.mockResolvedValue({ data: true, error: null })
+    await marcarPasePreferente('CB-4871', true, 'Silla de ruedas')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('marcar_pase_preferente', {
+      p_codigo: 'CB-4871',
+      p_preferente: true,
+      p_nota: 'Silla de ruedas',
+    })
+    await marcarPasePreferente('CB-4871', false)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('marcar_pase_preferente', { p_codigo: 'CB-4871', p_preferente: false, p_nota: null })
+  })
+
   it('un pase VIP: se da el pase y luego se marca VIP', async () => {
     supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-6280', nombre: 'Óscar', token: 't' }], error: null })
     await crearPase('CB-6280', 'Suscriptor VIP', { vip: true })

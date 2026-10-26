@@ -275,7 +275,9 @@ export function queEsElQR(texto, aqui = globalThis.location?.hostname ?? '') {
  */
 export function entregaDirecta(previa, { hoy, fila }) {
   if (!previa || previa.resultado || previa.porCodigo) return false
-  if (previa.pase) return Boolean(previa.activo)
+  //  El pase preferente (seccion 50) no: quien escanea revisa su nombre y
+  //  su nota, y confirma que es la persona.
+  if (previa.pase) return Boolean(previa.activo) && !previa.preferente
   //  A pie (seccion 46): a quien lo llamaron y no estaba, o con el turno
   //  anulado, no se le entrega solo. Quien escanea ve cuanto tardo y decide.
   if (previa.saltado_en || previa.anulado) return false

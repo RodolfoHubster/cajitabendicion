@@ -234,11 +234,16 @@ function Marco({ seccion, children }) {
           {seccion === 'registro_a_pie' ? t('reglas.tituloAPie') : t('reglas.titulo')}
         </p>
         {children}
-        {/* La casilla que la gente tiene que marcar, de muestra. */}
-        <p className="mt-3 flex items-center gap-3 text-base font-semibold text-principal/70">
-          <span aria-hidden="true" className="h-6 w-6 shrink-0 rounded border-2 border-principal/40" />
-          {t('reglas.casilla')}
-        </p>
+        {/* La casilla que la gente tiene que marcar, de muestra. A pie no
+            hay casilla: se leen en la pagina para sacar turno. */}
+        {seccion === 'registro' ? (
+          <p className="mt-3 flex items-center gap-3 text-base font-semibold text-principal/70">
+            <span aria-hidden="true" className="h-6 w-6 shrink-0 rounded border-2 border-principal/40" />
+            {t('reglas.casilla')}
+          </p>
+        ) : (
+          <p className="mt-3 text-base text-principal/70">{t('reglas.dondeAPie')}</p>
+        )}
       </div>
     )
   }
@@ -492,6 +497,18 @@ function EditorAviso({ inicial, alGuardar, alCancelar }) {
 
   const cambiar = (campo) => (e) => setEdicion({ ...edicion, [campo]: e.target.value })
 
+  //  Se cambio el espanol de uno que ya estaba traducido, y la traduccion se
+  //  quedo igual: en ingles o vietnamita se seguiria leyendo lo de antes.
+  const cambioEspanol =
+    edicion.textoEs.trim() !== inicial.textoEs.trim() || edicion.tituloEs.trim() !== inicial.tituloEs.trim()
+  const traduccionIgual =
+    edicion.textoEn === inicial.textoEn &&
+    edicion.textoVi === inicial.textoVi &&
+    edicion.tituloEn === inicial.tituloEn &&
+    edicion.tituloVi === inicial.tituloVi
+  const teniaTraduccion = Boolean(inicial.textoEn || inicial.textoVi || inicial.tituloEn || inicial.tituloVi)
+  const traduccionVieja = teniaTraduccion && cambioEspanol && traduccionIgual
+
   async function guardar(evento) {
     evento.preventDefault()
     setGuardando(true)
@@ -518,6 +535,22 @@ function EditorAviso({ inicial, alGuardar, alCancelar }) {
         ref={texto}
         value={edicion.textoEs}
       />
+
+      {traduccionVieja && (
+        <div className="space-y-2 rounded-xl border-2 border-accion bg-accion/10 p-3" role="status">
+          <p className="text-base font-semibold text-principal">{t('avisos.traduccionVieja')}</p>
+          <button
+            className="inline-flex min-h-12 items-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+            onClick={() => {
+              setEdicion({ ...edicion, textoEn: '', textoVi: '', tituloEn: '', tituloVi: '' })
+              setConTraducciones(true)
+            }}
+            type="button"
+          >
+            {t('avisos.quitarTraducciones')}
+          </button>
+        </div>
+      )}
 
       <button
         aria-expanded={conTraducciones}

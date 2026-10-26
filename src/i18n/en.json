@@ -237,6 +237,11 @@
         "recibio": "Received at {{hora}}",
         "anulado": "Voided at {{hora}}"
       }
+    },
+    "preferente": {
+      "nota": "How to recognize them: {{nota}}",
+      "revisa": "Is it the right person? Check the name and the note before handing out.",
+      "entregar": "Yes, it is them, hand out"
     }
   },
   "pase": {
@@ -308,7 +313,30 @@
       "no": "No, register them here"
     },
     "registrarAqui": "Their information, as in Register a person. When done, they get their pass.",
-    "registrarYDar": "Register and give the pass"
+    "registrarYDar": "Register and give the pass",
+    "preferente": {
+      "titulo": "Priority pass (seniors, limited mobility)",
+      "ayuda": "For people who use a walker or wheelchair, or have trouble getting around: just their name, no registration or line. When scanned, the volunteer sees their name and the note and confirms it is them before handing out.",
+      "abrir": "Give a priority pass",
+      "nombre": "Name",
+      "faltaNombre": "Type their name.",
+      "telefono": "Phone (optional)",
+      "telefonoMal": "That phone is not complete: it needs 10 digits (with +52 in front if it is from Mexico).",
+      "nota": "Note to recognize them (optional)",
+      "notaEjemplo": "For example: blue walker, comes with her grandson Luis",
+      "boton": "Give priority pass",
+      "dado": "Done: {{codigo}} has a priority pass.",
+      "hacer": "Make priority",
+      "quitar": "Remove priority",
+      "editarNota": "Note",
+      "notaDe": "Priority pass for {{codigo}}: note to recognize them",
+      "guardar": "Save",
+      "puesto": "Done: {{codigo}} is priority.",
+      "quitado": "Done: {{codigo}} is no longer priority.",
+      "notaEnLista": "Note: {{nota}}",
+      "cuantos_one": "{{count}} priority",
+      "cuantos_other": "{{count}} priority"
+    }
   },
   "panel": {
     "cargando": "Loading today…",
@@ -1085,7 +1113,8 @@
       "TELEFONO_INVALIDO": "The phone number is not valid. Check the country code and the number.",
       "FECHA_FUTURA": "That date has not arrived yet.",
       "ACOMPANANTE_SIN_CAMBIO": "You are coming in someone else's car: your time is the driver's. If they change their time, yours changes too.",
-      "A_PIE_SIN_CAMBIO": "In the walk-up line the time does not change: get a new number that day."
+      "A_PIE_SIN_CAMBIO": "In the walk-up line the time does not change: get a new number that day.",
+      "NOTA_MUY_LARGA": "The note is too long: 200 letters at most."
     }
   },
   "sinCita": {
@@ -1304,7 +1333,8 @@
       "intentos_repetidos": "Repeated attempts",
       "cambios_a_pie": "Switched to walking",
       "con_pase": "With pass",
-      "turnos_anulados": "Voided numbers"
+      "turnos_anulados": "Voided numbers",
+      "con_pase_preferente": "With priority pass"
     },
     "errores": {
       "RANGO_INVALIDO": "The “From” date must be on or before “To”.",
@@ -1403,7 +1433,8 @@
     "respaldo3": "You can change your time only once.",
     "tituloAPie": "Before you get your number, read this",
     "respaldoAPie1": "Each person 18 or older needs their own number and their own code.",
-    "respaldoAPie2": "Wait nearby. When your number is called, come up and show your code."
+    "respaldoAPie2": "Wait nearby. When your number is called, come up and show your code.",
+    "dondeAPie": "Shown on the page to get a walk-in number (the QR on the sign)."
   },
   "avisos": {
     "titulo": "Texts and rules",
@@ -1491,7 +1522,9 @@
       "preguntas": "Shown on the “Frequently asked questions” page.",
       "quienes": "Shown on the “About us” page."
     },
-    "verComoLaGente": "See it as people do"
+    "verComoLaGente": "See it as people do",
+    "traduccionVieja": "You changed the Spanish, but the English and Vietnamese still say the old text: anyone viewing the page in those languages will not see the change. Fix them below in «Translations», or remove them so the Spanish shows.",
+    "quitarTraducciones": "Remove the old translations"
   },
   "preguntas": {
     "titulo": "Frequently asked questions",
@@ -2352,5 +2385,10 @@
     "entregadas_one": "Done: {{count}} was recorded as handed out on paper.",
     "entregadas_other": "Done: {{count}} were recorded as handed out on paper.",
     "ninguna": "No badges to print with that filter."
+  },
+  "preferente": {
+    "etiqueta": "Priority",
+    "voluntario": "Skips the line. Check it is the right person before handing out.",
+    "persona": "You skip the line: show this QR to a volunteer."
   }
 }

@@ -1756,6 +1756,73 @@ begin
     perform pg_temp.esperar_error('Pase: revocar uno que no existe',
       'select revocar_pase(''CB-PRB3'', null)', 'PASE_NO_EXISTE');
 
+    -- ---------- Pases preferentes (sección 50) ----------
+    declare
+      v_pref  record;
+      v_tok   text;
+      v_cod   text;
+    begin
+      perform pg_temp.esperar_error('Preferente: sin nombre no',
+        'select * from crear_pase_preferente('' '')', 'NOMBRE_INVALIDO');
+      perform pg_temp.esperar_error('Preferente: un teléfono a medias no',
+        'select * from crear_pase_preferente(''Doña Prueba'', ''123'')', 'TELEFONO_INVALIDO');
+      perform pg_temp.esperar_error('Preferente: una nota larguísima no',
+        format('select * from crear_pase_preferente(''Doña Prueba'', null, %L)', repeat('x', 201)), 'NOTA_MUY_LARGA');
+
+      select * into v_pref from crear_pase_preferente('  Doña   Prueba Andadera ', '+16195550177', ' Andadera azul,  viene con su nieto ');
+      v_tok := v_pref.token;
+      v_cod := v_pref.codigo_corto;
+      perform pg_temp.comprobar('Preferente: con solo su nombre se le da su pase y su código CB',
+        v_cod ~ '^CB-\d{5}$' and v_pref.nombre = 'Doña Prueba Andadera' and v_tok is not null, v_cod);
+      perform pg_temp.comprobar('Preferente: sin domicilio, y con su teléfono',
+        exists (select 1 from personas p where p.codigo_corto = v_cod and p.sin_domicilio and p.telefono = '+16195550177'));
+      perform pg_temp.comprobar('Preferente: el escáner la ve preferente y con su nota',
+        (select pa.preferente and pa.nota = 'Andadera azul, viene con su nieto' and pa.activo from pase_por_token(v_tok) pa));
+      perform pg_temp.comprobar('Preferente: la lista de Pases lo dice',
+        (select l.preferente and l.nota is not null and l.motivo = 'Preferente' from listar_pases() l where l.codigo_corto = v_cod));
+
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.comprobar('Preferente: quien abre el enlace ve su pase, pero no la nota',
+        (select pa.preferente and pa.nota is null from pase_por_token(v_tok) pa));
+      perform pg_temp.esperar_error('Preferente: sin sesión no se da',
+        'select * from crear_pase_preferente(''Otra Prueba'')', 'SIN_SESION');
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+      select r.resultado into v_texto from registrar_entrega(v_tok) r;
+      perform pg_temp.comprobar('Preferente: se le entrega como a cualquier pase', v_texto = 'VALIDO_PASE', v_texto);
+      perform pg_temp.comprobar('Preferente: en Reportes se cuenta aparte, y también dentro de "con pase"',
+        (select r.con_pase_preferente >= 1 and r.con_pase >= r.con_pase_preferente
+           from reporte_por_dias(v_hoy, v_hoy) r));
+      perform pg_temp.comprobar('Preferente: no le crea cita ni aparta lugar',
+        not exists (select 1 from citas c join personas p on p.id = c.persona_id where p.codigo_corto = v_cod));
+
+      --  A alguien que ya tenía pase se le vuelve preferente (y se le quita).
+      perform pg_temp.comprobar('Preferente: un pase de antes se vuelve preferente con su nota',
+        marcar_pase_preferente('cb-prp1', true, 'Silla de ruedas'));
+      perform pg_temp.comprobar('Preferente: y queda la nota',
+        (select l.preferente and l.nota = 'Silla de ruedas' from listar_pases() l where l.codigo_corto = 'CB-PRP1'));
+      perform pg_temp.comprobar('Preferente: se le quita', not marcar_pase_preferente('CB-PRP1', false));
+      perform pg_temp.comprobar('Preferente: quitarlo sin tocar la nota la conserva',
+        (select not l.preferente and l.nota = 'Silla de ruedas' from listar_pases() l where l.codigo_corto = 'CB-PRP1'));
+      perform marcar_pase_preferente('CB-PRP1', false, '');
+      perform pg_temp.comprobar('Preferente: con la nota vacía se quita',
+        (select l.nota is null from listar_pases() l where l.codigo_corto = 'CB-PRP1'));
+      perform pg_temp.esperar_error('Preferente: a quien no tiene pase no',
+        'select marcar_pase_preferente(''CB-NOEXISTE'', true)', 'PASE_NO_EXISTE');
+
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Preferente: un voluntario sin la palomita de pases no lo da',
+        'select * from crear_pase_preferente(''Otra Prueba'')', 'SIN_PERMISO');
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      perform pg_temp.comprobar('Preferente: desde el navegador sin cuenta no se da ni se cambia',
+        not has_function_privilege('anon', 'crear_pase_preferente(text, text, text)', 'execute')
+        and not has_function_privilege('anon', 'marcar_pase_preferente(text, boolean, text)', 'execute'));
+    exception when others then
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform pg_temp.comprobar('Preferente: las pruebas no terminaron', false, sqlerrm);
+    end;
+
     -- ---------- La ficha completa de una persona ----------
     --  Se toma a alguien registrado desde el panel, con domicilio de Tijuana.
     select p.codigo_corto into v_texto
@@ -1879,6 +1946,10 @@ begin
       v_asis  bigint;
       v_asis2 bigint;
       v_asis3 bigint;
+      --  Cuanto duro su primera visita: 195 minutos, o menos si es de
+      --  madrugada, para que su entrada siga siendo de hoy.
+      v_min   int := greatest(3, least(195,
+                 floor(extract(epoch from (now() at time zone 'America/Los_Angeles')::time) / 60)::int - 8));
     begin
       perform pg_temp.esperar_error('Voluntarios: sin nombre no se registra',
         'select * from registrar_voluntario(''  '')', 'NOMBRE_INVALIDO');
@@ -1906,10 +1977,10 @@ begin
         format('insert into asistencias_voluntarios (voluntario_id) values (%L)', v_vol), 'idx_asistencia_abierta');
 
       --  Salida.
-      update asistencias_voluntarios set entrada_en = now() - interval '3 hours 15 minutes' where id = v_asis;
+      update asistencias_voluntarios set entrada_en = now() - make_interval(mins => v_min) where id = v_asis;
       select * into v_m from marcar_asistencia(v_cred);
       perform pg_temp.comprobar('Salida: el siguiente escaneo es su salida, con sus horas',
-        v_m.resultado = 'SALIDA' and v_m.minutos = 195 and v_m.asistencia_id = v_asis,
+        v_m.resultado = 'SALIDA' and v_m.minutos = v_min and v_m.asistencia_id = v_asis,
         format('%s %s', v_m.resultado, v_m.minutos));
       select * into v_m from marcar_asistencia(v_cred);
       perform pg_temp.comprobar('Salida: leída otra vez enseguida no lo vuelve a meter', v_m.resultado = 'YA_SALIO', v_m.resultado);
@@ -1919,7 +1990,7 @@ begin
       select * into v_m from marcar_asistencia(null, v_vol);
       perform pg_temp.comprobar('Sin credencial: el administrador lo busca y le marca la salida', v_m.resultado = 'SALIDA', v_m.resultado);
       update asistencias_voluntarios
-         set entrada_en = now() - interval '3 hours 25 minutes', salida_en = now() - interval '10 minutes'
+         set entrada_en = now() - make_interval(mins => v_min + 3), salida_en = now() - interval '3 minutes'
        where id = v_asis;
       perform pg_temp.esperar_error('Deshacer: pasado el plazo ya no',
         format('select deshacer_asistencia(%s)', v_asis), 'FUERA_DE_PLAZO');
@@ -1946,7 +2017,7 @@ begin
         format('select deshacer_asistencia(%s)', v_m.asistencia_id), 'FUERA_DE_PLAZO');
       select * into v_m from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol;
       perform pg_temp.comprobar('Horas: solo suman las completas; la de hoy y la sin salida no',
-        v_m.minutos = 195 and v_m.dias = 1 and v_m.sin_salida = 1,
+        v_m.minutos = v_min and v_m.dias = 1 and v_m.sin_salida = 1,
         format('%s min, %s días, %s sin salida', v_m.minutos, v_m.dias, v_m.sin_salida));
 
       --  Corregir.
@@ -1963,7 +2034,7 @@ begin
         corregir_asistencia(v_asis2, (v_hoy - 2) + time '09:00', (v_hoy - 2) + time '13:30', 'Se fue sin marcar') = 'CORREGIDA');
       select * into v_m from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol;
       perform pg_temp.comprobar('Corregir: ya suma sus horas',
-        v_m.minutos = 195 + 270 and v_m.dias = 2 and v_m.sin_salida = 0,
+        v_m.minutos = v_min + 270 and v_m.dias = 2 and v_m.sin_salida = 0,
         format('%s min, %s días, %s sin salida', v_m.minutos, v_m.dias, v_m.sin_salida));
       perform pg_temp.comprobar('Corregir: queda quién, cuándo y por qué',
         exists (select 1 from asistencias_voluntarios a
@@ -1985,11 +2056,11 @@ begin
                v_vol, (v_hoy - 3) + time '10:00', (v_hoy - 3) + time '12:00'), 'MOTIVO_REQUERIDO');
       v_asis3 := agregar_asistencia(v_vol, (v_hoy - 3) + time '10:00', (v_hoy - 3) + time '12:00', 'Olvidó su credencial');
       perform pg_temp.comprobar('Agregar: suma sus horas',
-        (select h.minutos = 195 + 270 + 120 and h.dias = 3 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
+        (select h.minutos = v_min + 270 + 120 and h.dias = 3 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
       perform pg_temp.esperar_error('Anular: sin motivo no', format('select anular_asistencia(%s, '''')', v_asis3), 'MOTIVO_REQUERIDO');
       perform pg_temp.comprobar('Anular: con motivo se anula', anular_asistencia(v_asis3, 'Fue por error') = 'ANULADA');
       perform pg_temp.comprobar('Anular: una asistencia equivocada deja de sumar',
-        (select h.minutos = 195 + 270 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
+        (select h.minutos = v_min + 270 from horas_de_voluntarios(v_hoy - 7, v_hoy) h where h.voluntario_id = v_vol));
       perform pg_temp.comprobar('Anular: en el detalle sigue, como anulada',
         (select d.estado = 'anulada' from asistencias_de_voluntario(v_vol, v_hoy - 7, v_hoy) d where d.id = v_asis3));
       perform pg_temp.esperar_error('Horas: un rango al revés no',
@@ -2093,12 +2164,12 @@ begin
         perform pg_temp.comprobar('Envío: con QR nuevo, lo que se mandó antes ya no cuenta',
           (select l.enviada_en is null from listar_voluntarios() l where l.id = v_ana));
 
-        --  Sus horas con su enlace (Juana: 195 + 270 min, en 2 días; la anulada y la abierta no).
+        --  Sus horas con su enlace (Juana: v_min + 270 min, en 2 días; la anulada y la abierta no).
         perform pg_temp.comprobar('Credencial: con su enlace ve sus días y sus horas',
-          (select c.dias = 2 and c.minutos = 465 from credencial_voluntario(v_cred2) c),
+          (select c.dias = 2 and c.minutos = v_min + 270 from credencial_voluntario(v_cred2) c),
           (select format('%s días, %s min', c.dias, c.minutos) from credencial_voluntario(v_cred2) c));
         perform pg_temp.comprobar('Credencial: y cada visita completa, sin las anuladas ni las abiertas',
-          (select count(*) = 2 and sum(h.minutos) = 465 from historial_de_credencial(v_cred2) h));
+          (select count(*) = 2 and sum(h.minutos) = v_min + 270 from historial_de_credencial(v_cred2) h));
 
         --  Cerrar el día (no se prueba de madrugada: "hace 50 minutos" seria ayer).
         if (now() at time zone 'America/Los_Angeles')::time >= time '01:00' then

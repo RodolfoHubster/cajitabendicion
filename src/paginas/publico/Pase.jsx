@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FaWheelchair } from 'react-icons/fa6'
 import { LuCircleX, LuCrown, LuDownload, LuStar } from 'react-icons/lu'
+import SelloPreferente from '../../componentes/SelloPreferente'
 import { Link, useParams } from 'react-router-dom'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import SelloVip, { BORDE_ORO, FONDO_ORO } from '../../componentes/SelloVip'
@@ -38,7 +40,10 @@ export default function Pase() {
     // El codigo del pase lleva el techo en el centro: se distingue de
     // uno de cita nada mas de verlo. El VIP va dorado, con corona.
     paseDeCodigo(token)
-      .then(async (datos) => [datos, datos ? await dibujarQRPase(token, { vip: Boolean(datos.vip) }) : null])
+      .then(async (datos) => [
+        datos,
+        datos ? await dibujarQRPase(token, { vip: Boolean(datos.vip), preferente: Boolean(datos.preferente) }) : null,
+      ])
       .then(([datos, imagen]) => {
         if (!vigente) return
         if (!datos) {
@@ -72,7 +77,7 @@ export default function Pase() {
       textos: {
         programa: ORGANIZACION.programa,
         iglesia: ORGANIZACION.iglesia,
-        lista: pase.vip ? t('vip.etiqueta') : t('pase.etiqueta'),
+        lista: pase.preferente ? t('preferente.etiqueta') : pase.vip ? t('vip.etiqueta') : t('pase.etiqueta'),
         fecha: t('pase.titulo'),
         hora: t('pase.dias'),
         siNoSeLee: t('confirmacion.siNoSeLee'),
@@ -137,12 +142,14 @@ export default function Pase() {
     <Tarjeta className="overflow-hidden p-0">
       <div className={`px-5 py-4 ${pase.vip ? FONDO_ORO : 'bg-accion/20'}`}>
         <p className="flex items-center gap-2 text-lg font-bold text-principal">
-          {pase.vip ? (
+          {pase.preferente ? (
+            <FaWheelchair aria-hidden="true" className="h-6 w-6" />
+          ) : pase.vip ? (
             <LuCrown aria-hidden="true" className="h-6 w-6 text-[#B8860B]" />
           ) : (
             <LuStar aria-hidden="true" className="h-6 w-6" />
           )}
-          {pase.vip ? t('vip.etiqueta') : t('pase.etiqueta')}
+          {pase.preferente ? t('preferente.etiqueta') : pase.vip ? t('vip.etiqueta') : t('pase.etiqueta')}
         </p>
         <h1 className="mt-1 text-2xl font-bold">{t('pase.titulo')}</h1>
         <p className="font-titulo text-xl font-bold text-principal">{t('pase.dias')}</p>
@@ -150,6 +157,7 @@ export default function Pase() {
 
       <div className="p-5">
         {pase.vip && <SelloVip className="mb-4" para="persona" />}
+        {pase.preferente && <SelloPreferente className="mb-4" para="persona" />}
         <img
           alt={t('confirmacion.qrAlt')}
           className={`mx-auto w-full max-w-[17.5rem] rounded-xl bg-white p-2 shadow-sm ${

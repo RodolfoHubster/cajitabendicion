@@ -238,6 +238,8 @@ describe('entregaDirecta (escanear = entregar, en el caso de todos los días)', 
 
   it('pase vigente sí; pase revocado no', () => {
     expect(entregaDirecta({ pase: true, activo: true, nombre: 'Ana' }, { hoy: HOY, fila: 'carro' })).toBe(true)
+    //  El preferente (seccion 50) no se entrega solo: se revisa que sea la persona.
+    expect(entregaDirecta({ pase: true, activo: true, preferente: true, nombre: 'Ana' }, { hoy: HOY, fila: 'carro' })).toBe(false)
     expect(entregaDirecta({ pase: true, activo: false, nombre: 'Ana' }, { hoy: HOY, fila: 'carro' })).toBe(false)
   })
 

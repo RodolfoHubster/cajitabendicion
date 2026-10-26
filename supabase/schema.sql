@@ -3267,7 +3267,8 @@ grant  execute on function definir_mi_codigo_autorizacion(text) to authenticated
 --  Maximo 366 dias por consulta. Solo admin.
 drop function if exists reporte_por_dias(date, date);
 
---  Le crecio cambios_a_pie (seccion 42), y turnos_anulados (seccion 46).
+--  Le crecio cambios_a_pie (seccion 42), turnos_anulados (seccion 46) y
+--  con_pase_preferente (seccion 50).
 drop function if exists reporte_por_dias(date, date, text);
 
 create or replace function reporte_por_dias(p_desde date, p_hasta date, p_fila text default null)
@@ -3288,7 +3289,9 @@ returns table (
   --  pie (seccion 42): cuantos prefirieron no esperar en carro.
   cambios_a_pie      int,
   --  Turnos a pie que la voluntaria anulo porque llegaron tarde (seccion 46).
-  turnos_anulados    int
+  turnos_anulados    int,
+  --  De las cajas con pase, las de pases preferentes (seccion 50).
+  con_pase_preferente int
 )
 language plpgsql
 stable
@@ -3392,6 +3395,14 @@ begin
      where c.turno_anulado_en is not null and b.fecha between p_desde and p_hasta
        and (p_fila is null or p_fila = 'a_pie')
      group by b.fecha
+  ),
+  preferentes as (
+    select e.fecha as dia, count(*)::int as n
+      from entregas_pase e
+      join pases pa on pa.id = e.pase_id
+     where pa.preferente and e.fecha between p_desde and p_hasta
+       and (p_fila is null or e.fila = p_fila)
+     group by e.fecha
   )
   select d.dia,
          coalesce(cu.n, 0),
@@ -3409,7 +3420,8 @@ begin
          coalesce(en.n, 0) + coalesce(sc.n, 0) + coalesce(pa.n, 0),
          coalesce(re.n, 0),
          coalesce(ca.n, 0),
-         coalesce(an.n, 0)
+         coalesce(an.n, 0),
+         coalesce(pr.n, 0)
     from dias d
     left join cupos        cu on cu.dia = d.dia
     left join agenda       ag on ag.dia = d.dia
@@ -3419,6 +3431,7 @@ begin
     left join repetidos    re on re.dia = d.dia
     left join cambios      ca on ca.dia = d.dia
     left join anulados     an on an.dia = d.dia
+    left join preferentes  pr on pr.dia = d.dia
    order by d.dia;
 end;
 $$;
@@ -4172,6 +4185,13 @@ create table if not exists pases (
   vip_por           uuid,
   vip_desde         timestamptz,
 
+  --  Preferente (seccion 50): tercera edad o movilidad reducida. Pasa sin
+  --  fila y, al escanear, quien escanea ve su nota y confirma que es ella.
+  preferente        boolean not null default false,
+  --  Para reconocerla al escanear ("andadera azul, viene con su nieto Luis").
+  --  Solo la ve el equipo.
+  nota              text,
+
   --  Revocar no borra: queda quien lo quito, cuando y por que.
   revocado_por      uuid,
   revocado_en       timestamptz,
@@ -4382,7 +4402,9 @@ returns table (
   motivo_revocacion text,
   cajas_entregadas  int,
   ultima_entrega    date,
-  vip               boolean
+  vip               boolean,
+  preferente        boolean,
+  nota              text
 )
 language plpgsql
 stable
@@ -4407,7 +4429,9 @@ begin
          pa.motivo_revocacion,
          (select count(*)::int from entregas_pase e where e.pase_id = pa.id),
          (select max(e.fecha) from entregas_pase e where e.pase_id = pa.id),
-         pa.vip
+         pa.vip,
+         pa.preferente,
+         pa.nota
     from pases pa
     join personas p on p.id = pa.persona_id
     left join auth.users u on u.id = pa.creado_por
@@ -4466,7 +4490,10 @@ returns table (
   nombre       text,
   codigo_corto text,
   activo       boolean,
-  vip          boolean
+  vip          boolean,
+  --  Seccion 50. La nota, solo para el equipo: quien abre el enlace no la ve.
+  preferente   boolean,
+  nota         text
 )
 language sql
 stable
@@ -4474,7 +4501,9 @@ security definer
 set search_path = public, extensions, pg_temp
 set timezone    = 'America/Los_Angeles'
 as $$
-  select p.nombre, p.codigo_corto, pa.activo, pa.vip
+  select p.nombre, p.codigo_corto, pa.activo, pa.vip, pa.preferente,
+         case when exists (select 1 from personal pe where pe.usuario_id = auth.uid() and pe.activo)
+              then pa.nota end
     from pases pa
     join personas p on p.id = pa.persona_id
    where pa.token = p_token;
@@ -4828,29 +4857,33 @@ select v.seccion, v.orden, v.texto_es, v.texto_en, v.texto_vi
 --  Antes de sacar turno a pie se leen estas, no las de carros: a pie no hay
 --  horario que cambiar, ni cajuela, ni cita que cancelar. Solo si esa
 --  seccion esta vacia, para no pisarle al pastor lo que haya escrito.
+--
+--  Desde el 26 de octubre de 2026 son las de la pagina /turno (turnos sin
+--  datos, seccion 42), que ahora las lee de aqui: antes las traia fijas y lo
+--  que se editaba en "Textos y reglas" no se veia en ningun lado.
 insert into avisos (seccion, orden, texto_es, texto_en, texto_vi)
 select 'registro_a_pie', v.orden, v.texto_es, v.texto_en, v.texto_vi
   from (values
     (1,
-     'Cada persona de 18 años o más que vaya a recibir una caja necesita su propio turno y su propio código.',
-     'Each person 18 or older who will receive a box needs their own number and their own code.',
-     'Mỗi người từ 18 tuổi trở lên nhận thùng cần có số và mã riêng.'),
+     'No te pedimos nombre, edad ni teléfono. Nada de esto se guarda ni se comparte.',
+     'We do not ask for your name, age or phone number. None of this is saved or shared.',
+     'Chúng tôi không hỏi tên, tuổi hay số điện thoại. Không có gì được lưu hay chia sẻ.'),
     (2,
-     'Solo puedes sacar un turno por cada día de entrega.',
-     'You can only get one number per delivery day.',
-     'Mỗi ngày phát bạn chỉ được lấy một số.'),
+     'Tu turno es solo para hoy y es para una despensa.',
+     'Your number is for today only and for one box.',
+     'Số của bạn chỉ dùng hôm nay và cho một thùng.'),
     (3,
-     'Tu código sirve para una sola caja y se usa una sola vez.',
-     'Your code is good for one box and can be used only once.',
-     'Mã của bạn chỉ dùng cho một thùng và chỉ dùng được một lần.'),
+     'Deja esta página abierta: aquí ves qué turno va, y tu teléfono suena cuando falten 3 y cuando te toque.',
+     'Keep this page open: you can see which number is being served, and your phone rings when you are 3 away and when it is your turn.',
+     'Hãy để trang này mở: bạn thấy số đang được gọi, và điện thoại sẽ kêu khi còn 3 người và khi đến lượt bạn.'),
     (4,
-     'Trae tu código listo, en el teléfono o impreso. Si no se deja leer, da tu número CB.',
-     'Have your code ready, on your phone or printed. If it will not scan, give your CB number.',
-     'Hãy chuẩn bị sẵn mã, trên điện thoại hoặc in ra. Nếu không quét được, hãy đọc số CB của bạn.'),
+     'Si te llaman y no estás, acércate en cuanto puedas. Si tardas mucho, tu turno se anula y tendrás que sacar uno nuevo, al final de la fila.',
+     'If your number is called and you''re not here, come over as soon as you can. If you take too long, your number is voided and you''ll need to get a new one, at the end of the line.',
+     'Nếu được gọi mà bạn không có mặt, hãy đến ngay khi có thể. Nếu đến quá trễ, số của bạn sẽ bị hủy và bạn phải lấy số mới, ở cuối hàng.'),
     (5,
-     'Espera cerca. Cuando digan tu número, acércate y muestra tu código.',
-     'Wait nearby. When your number is called, come up and show your code.',
-     'Hãy chờ ở gần. Khi gọi đến số của bạn, hãy đến và đưa mã.')
+     'Cada adulto saca su propio turno. Si no tienes teléfono, pídeselo a una voluntaria.',
+     'Each adult gets their own number. If you do not have a phone, ask a volunteer.',
+     'Mỗi người lớn lấy số riêng. Nếu không có điện thoại, hãy nhờ tình nguyện viên.')
   ) as v(orden, texto_es, texto_en, texto_vi)
  where not exists (select 1 from avisos a where a.seccion = 'registro_a_pie');
 
@@ -9077,3 +9110,118 @@ $$;
 
 revoke execute on function guardar_atiende_voluntarios(text, boolean) from public, anon;
 grant  execute on function guardar_atiende_voluntarios(text, boolean) to authenticated;
+
+
+-- ============================================================
+--  50. PASES PREFERENTES (MOVILIDAD REDUCIDA)
+-- ============================================================
+--  Pedido del 24 de octubre de 2026: personas de la tercera edad, con
+--  andadera o que se les complica moverse. Sacar cita cada semana o hacer
+--  fila les cuesta; reciben un pase permanente PREFERENTE.
+--
+--  * Es un pase como los de la seccion 29: QR permanente, una caja por dia
+--    de entrega, no aparta lugar del cupo, y se puede encontrar por su
+--    codigo CB si el QR no se lee.
+--  * Para darlo basta su nombre (telefono opcional) y una nota para
+--    reconocerla ("andadera azul, viene con su nieto Luis"): sin domicilio
+--    ni registro completo (crear_pase_preferente). A alguien que ya tiene
+--    pase tambien se le puede volver preferente (marcar_pase_preferente).
+--  * Al escanearlo NO se entrega solo: el escaner ensena su nombre y su
+--    nota, y quien escanea confirma que es la persona (eso es de la
+--    pantalla; la base entrega igual que cualquier pase).
+--  * La nota solo la ve el equipo, no quien abre el enlace del pase.
+--  * En Reportes, sus cajas se cuentan aparte (con_pase_preferente), y
+--    tambien dentro de "con pase" y del total, como siempre.
+
+--  Darle su pase preferente con lo minimo: nombre, telefono (con lada,
+--  opcional) y la nota. Se le crea su codigo CB.
+create or replace function crear_pase_preferente(p_nombre text, p_telefono text default null, p_nota text default null)
+returns table (codigo_corto text, nombre text, token text)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+#variable_conflict use_column
+declare
+  v_nombre   text := regexp_replace(trim(coalesce(p_nombre, '')), '\s+', ' ', 'g');
+  v_telefono text := nullif(regexp_replace(coalesce(p_telefono, ''), '[^0-9+]', '', 'g'), '');
+  v_nota     text := nullif(regexp_replace(trim(coalesce(p_nota, '')), '\s+', ' ', 'g'), '');
+  v_persona  personas;
+  v_pase     pases;
+  v_codigo   text;
+  v_intentos int := 0;
+begin
+  perform exigir_permiso('dar_pases');
+
+  if char_length(v_nombre) not between 2 and 80 then
+    raise exception 'NOMBRE_INVALIDO';
+  end if;
+  if v_telefono is not null and v_telefono !~ '^\+[0-9]{8,15}$' then
+    raise exception 'TELEFONO_INVALIDO';
+  end if;
+  if char_length(v_nota) > 200 then
+    raise exception 'NOTA_MUY_LARGA';
+  end if;
+
+  --  Su codigo CB, como en el registro (5 numeros): si sale repetido, otro.
+  loop
+    v_codigo := 'CB-' || (10000 + floor(random() * 90000))::int::text;
+    begin
+      insert into personas (codigo_corto, nombre, telefono, sin_domicilio)
+      values (v_codigo, v_nombre, v_telefono, true)
+      returning * into v_persona;
+      exit;
+    exception when unique_violation then
+      v_intentos := v_intentos + 1;
+      if v_intentos > 50 then
+        raise exception 'SIN_CODIGOS_DISPONIBLES';
+      end if;
+    end;
+  end loop;
+
+  insert into pases (persona_id, token, motivo, creado_por, preferente, nota)
+  values (v_persona.id, encode(gen_random_bytes(24), 'hex'), 'Preferente', auth.uid(), true, v_nota)
+  returning * into v_pase;
+
+  return query select v_persona.codigo_corto, v_persona.nombre, v_pase.token;
+end;
+$$;
+
+revoke execute on function crear_pase_preferente(text, text, text) from public, anon;
+grant  execute on function crear_pase_preferente(text, text, text) to authenticated;
+
+
+--  Volver preferente (o ya no) el pase de alguien, y cambiar su nota.
+--  p_nota nula deja la que tenia; vacia la quita.
+create or replace function marcar_pase_preferente(p_codigo text, p_preferente boolean, p_nota text default null)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_nota text := regexp_replace(trim(coalesce(p_nota, '')), '\s+', ' ', 'g');
+begin
+  perform exigir_permiso('dar_pases');
+
+  if char_length(v_nota) > 200 then
+    raise exception 'NOTA_MUY_LARGA';
+  end if;
+
+  update pases pa
+     set preferente = coalesce(p_preferente, false),
+         nota       = case when p_nota is null then pa.nota else nullif(v_nota, '') end
+    from personas p
+   where p.id = pa.persona_id
+     and upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo);
+
+  if not found then
+    raise exception 'PASE_NO_EXISTE';
+  end if;
+
+  return coalesce(p_preferente, false);
+end;
+$$;
+
+revoke execute on function marcar_pase_preferente(text, boolean, text) from public, anon;
+grant  execute on function marcar_pase_preferente(text, boolean, text) to authenticated;
