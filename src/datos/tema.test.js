@@ -175,6 +175,8 @@ describe('los colores respetan el modo oscuro', () => {
     //  Las hojas para imprimir (seccion 49): papel blanco en cualquier modo.
     'paginas/admin/ConstanciaHoras.jsx': 1,
     'paginas/admin/ImprimirCredenciales.jsx': 1,
+    //  El circulo del logo en el video de Cajita de Bendicion.
+    'componentes/PresentacionCajita.jsx': 1,
   }
 
   it('bg-white solo donde va un QR o el logo; lo demás es bg-superficie', async () => {

@@ -2579,5 +2579,49 @@
     "sinSenal": "No signal: this is the latest we know. It will update when the connection is back.",
     "miTurno": "See my number ({{turno}})",
     "sacar": "Get my number"
+  },
+  "video": {
+    "titulo": "What is Cajita de Bendición?",
+    "presentacion": "video",
+    "idioma": "Language",
+    "hazTuCita": "Book your appointment",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Free groceries on Mondays and Thursdays. A ministry of {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "How are you coming?",
+      "texto": "By car, you book an appointment and choose your time. On foot, on delivery day you get a number with your phone.",
+      "carro": "By car",
+      "aPie": "On foot"
+    },
+    "cita": {
+      "titulo": "Book from your phone",
+      "texto": "Choose the day and time. No account or password needed.",
+      "lunes": "Monday",
+      "jueves": "Thursday"
+    },
+    "codigo": {
+      "titulo": "Save your code",
+      "texto": "You get a QR code and a number. Take a screenshot."
+    },
+    "despensa": {
+      "titulo": "Arrive and get your groceries",
+      "texto": "Show your code when you arrive and get your box. Each person 18 or older books their own appointment.",
+      "unaCaja": "1 box per adult"
+    },
+    "privado": {
+      "titulo": "Free and private",
+      "texto": "No donation is required. Your information is not shared with anyone, including the authorities."
+    },
+    "final": {
+      "titulo": "Book your appointment",
+      "texto": "By car with an appointment, or on foot with a number. Tap the button to start."
+    },
+    "otraVez": "Watch again",
+    "anterior": "Previous",
+    "siguiente": "Next",
+    "pausar": "Pause",
+    "seguir": "Play"
   }
 }

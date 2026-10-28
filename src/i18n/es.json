@@ -2579,5 +2579,49 @@
     "sinSenal": "Sin señal: esto es lo último que se supo. Se actualiza cuando vuelva la conexión.",
     "miTurno": "Ver mi turno ({{turno}})",
     "sacar": "Sacar mi turno"
+  },
+  "video": {
+    "titulo": "¿Qué es Cajita de Bendición?",
+    "presentacion": "video",
+    "idioma": "Idioma",
+    "hazTuCita": "Haz tu cita",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Despensa gratuita los lunes y jueves. Un ministerio de {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "¿Cómo vienes?",
+      "texto": "En carro, haces tu cita y escoges tu hora. A pie, el día de la entrega sacas tu turno con tu teléfono.",
+      "carro": "En carro",
+      "aPie": "A pie"
+    },
+    "cita": {
+      "titulo": "Haz tu cita desde tu teléfono",
+      "texto": "Escoge el día y la hora. No necesitas cuenta ni contraseña.",
+      "lunes": "Lunes",
+      "jueves": "Jueves"
+    },
+    "codigo": {
+      "titulo": "Guarda tu código",
+      "texto": "Te damos un código QR y un número. Tómale captura de pantalla."
+    },
+    "despensa": {
+      "titulo": "Llega y recibe tu despensa",
+      "texto": "Enseña tu código al llegar y recibes tu caja. Cada persona de 18 años o más hace su propia cita.",
+      "unaCaja": "1 caja por persona adulta"
+    },
+    "privado": {
+      "titulo": "Gratis y privado",
+      "texto": "No se pide ninguna donación. Tu información no se comparte con nadie, tampoco con las autoridades."
+    },
+    "final": {
+      "titulo": "Haz tu cita",
+      "texto": "En carro con cita, o a pie con turno. Toca el botón para empezar."
+    },
+    "otraVez": "Ver otra vez",
+    "anterior": "Anterior",
+    "siguiente": "Siguiente",
+    "pausar": "Pausar",
+    "seguir": "Seguir"
   }
 }

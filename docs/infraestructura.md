@@ -35,6 +35,12 @@ razones:
 un subdominio. En la página principal solo se agrega un botón "Hacer una cita"
 que apunta a `citas.casadealabanzasd.com`.
 
+El 27 de octubre de 2026 se volvió a plantear rehacer el sitio con nuestras
+herramientas y se mantuvo la decisión. Lo que pidió el pastor (un video de
+Cajita de Bendición que se abra en la página de la iglesia) se resolvió sin
+tocar el dominio: una línea de código en el editor de GoDaddy que carga el
+video desde el sistema. Pasos en [godaddy-video.md](godaddy-video.md).
+
 ---
 
 ## GoDaddy

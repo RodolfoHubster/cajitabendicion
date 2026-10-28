@@ -57,10 +57,26 @@ export default {
           '0%, 100%': { opacity: '0.55', transform: 'scale(1)' },
           '50%': { opacity: '0.8', transform: 'scale(1.08)' },
         },
+        //  El video de Cajita de Bendicion (componentes/PresentacionCajita.jsx).
+        flotar: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-8px)' },
+        },
+        latido: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.08)' },
+        },
+        escanear: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(9rem)' },
+        },
       },
       animation: {
         aparecer: 'aparecer 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
         brillo: 'brillo 7s ease-in-out infinite',
+        flotar: 'flotar 3s ease-in-out infinite',
+        latido: 'latido 1.6s ease-in-out infinite',
+        escanear: 'escanear 2.4s ease-in-out infinite',
       },
     },
   },

@@ -2530,5 +2530,49 @@
     "sinSenal": "Không có sóng: đây là thông tin mới nhất. Sẽ cập nhật khi có kết nối lại.",
     "miTurno": "Xem số của tôi ({{turno}})",
     "sacar": "Lấy số của tôi"
+  },
+  "video": {
+    "titulo": "Cajita de Bendición là gì?",
+    "presentacion": "video",
+    "idioma": "Ngôn ngữ",
+    "hazTuCita": "Đặt lịch hẹn",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Thực phẩm miễn phí vào thứ Hai và thứ Năm. Một mục vụ của {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "Bạn đến bằng cách nào?",
+      "texto": "Đi xe hơi: đặt lịch hẹn và chọn giờ. Đi bộ: vào ngày phát, lấy số bằng điện thoại.",
+      "carro": "Xe hơi",
+      "aPie": "Đi bộ"
+    },
+    "cita": {
+      "titulo": "Đặt lịch bằng điện thoại",
+      "texto": "Chọn ngày và giờ. Không cần tài khoản hay mật khẩu.",
+      "lunes": "Thứ Hai",
+      "jueves": "Thứ Năm"
+    },
+    "codigo": {
+      "titulo": "Lưu mã của bạn",
+      "texto": "Bạn nhận được một mã QR và một con số. Hãy chụp màn hình."
+    },
+    "despensa": {
+      "titulo": "Đến và nhận thực phẩm",
+      "texto": "Đưa mã khi đến và nhận thùng. Mỗi người từ 18 tuổi trở lên tự đặt lịch hẹn của mình.",
+      "unaCaja": "Mỗi người lớn 1 thùng"
+    },
+    "privado": {
+      "titulo": "Miễn phí và riêng tư",
+      "texto": "Không cần quyên góp. Thông tin của bạn không chia sẻ với ai, kể cả chính quyền."
+    },
+    "final": {
+      "titulo": "Đặt lịch hẹn",
+      "texto": "Đi xe hơi thì đặt lịch, đi bộ thì lấy số. Chạm nút để bắt đầu."
+    },
+    "otraVez": "Xem lại",
+    "anterior": "Trước",
+    "siguiente": "Tiếp",
+    "pausar": "Tạm dừng",
+    "seguir": "Phát"
   }
 }

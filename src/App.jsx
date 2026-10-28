@@ -1,6 +1,7 @@
 import AvisoDemo from './componentes/AvisoDemo'
 import AvisoIdioma from './componentes/AvisoIdioma'
 import AvisoPruebas from './componentes/AvisoPruebas'
+import Video from './paginas/publico/Video'
 import Encabezado from './componentes/Encabezado'
 import Pie from './componentes/Pie'
 import RedDeSeguridad from './componentes/RedDeSeguridad'
@@ -15,6 +16,10 @@ export default function App() {
   const { pathname } = useLocation()
   // En el panel se anima solo la pagina, no el menu (DisenoAdmin.jsx).
   const enPanel = (pathname.startsWith('/admin') && pathname !== '/admin/login') || pathname === '/escanear'
+
+  //  El video para la pagina de la iglesia: a pantalla completa, sin el
+  //  encabezado ni el pie (se ve encima de otra pagina).
+  if (pathname === '/video') return <Video />
 
   return (
     <div className="min-h-screen bg-fondo text-principal">
