@@ -2265,7 +2265,8 @@
         "adentro": "Đang ở trong ({{count}})",
         "sinSalida": "Thiếu giờ ra ({{count}})",
         "deBaja": "Đã ngưng hoạt động ({{count}})",
-        "sinVenir": "Không đến trong 30 ngày ({{count}})"
+        "sinVenir": "Không đến trong 30 ngày ({{count}})",
+        "todos": "Tất cả, kể cả người đã ngưng ({{count}})"
       },
       "ordenes": {
         "recientes": "Mới nhất",
@@ -2286,7 +2287,11 @@
       "sinMandar": "Chưa gửi thẻ",
       "mandar": "Gửi thẻ",
       "visitas_other": "Đã đến {{count}} ngày · {{ultimos}} trong 30 ngày qua",
-      "nuncaVino": "Chưa đến lần nào"
+      "nuncaVino": "Chưa đến lần nào",
+      "marcados_other": "Đã chọn {{count}} để in",
+      "marcarTodos": "Chọn tất cả ({{count}})",
+      "quitarMarcas": "Bỏ chọn",
+      "marcarUno": "Chọn {{nombre}} để in thẻ"
     },
     "horas": {
       "titulo": "Số giờ phục vụ",

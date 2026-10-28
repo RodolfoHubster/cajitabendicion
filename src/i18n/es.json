@@ -2293,7 +2293,8 @@
         "adentro": "Adentro ahora ({{count}})",
         "sinSalida": "Con salidas sin marcar ({{count}})",
         "deBaja": "Dados de baja ({{count}})",
-        "sinVenir": "Sin venir en 30 días ({{count}})"
+        "sinVenir": "Sin venir en 30 días ({{count}})",
+        "todos": "Todos, también los dados de baja ({{count}})"
       },
       "ordenes": {
         "recientes": "Los más recientes",
@@ -2316,7 +2317,12 @@
       "mandar": "Mandar credencial",
       "visitas_one": "Vino {{count}} día · {{ultimos}} en los últimos 30",
       "visitas_other": "Vino {{count}} días · {{ultimos}} en los últimos 30",
-      "nuncaVino": "Todavía no ha venido"
+      "nuncaVino": "Todavía no ha venido",
+      "marcados_one": "{{count}} marcado para imprimir",
+      "marcados_other": "{{count}} marcados para imprimir",
+      "marcarTodos": "Marcar a todos ({{count}})",
+      "quitarMarcas": "Quitar las marcas",
+      "marcarUno": "Marcar a {{nombre}} para imprimir su credencial"
     },
     "horas": {
       "titulo": "Horas de servicio",

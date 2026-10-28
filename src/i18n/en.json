@@ -2293,7 +2293,8 @@
         "adentro": "In right now ({{count}})",
         "sinSalida": "Missing check-outs ({{count}})",
         "deBaja": "Deactivated ({{count}})",
-        "sinVenir": "Not here in 30 days ({{count}})"
+        "sinVenir": "Not here in 30 days ({{count}})",
+        "todos": "Everyone, including deactivated ({{count}})"
       },
       "ordenes": {
         "recientes": "Newest",
@@ -2316,7 +2317,12 @@
       "mandar": "Send badge",
       "visitas_one": "Came {{count}} day · {{ultimos}} in the last 30",
       "visitas_other": "Came {{count}} days · {{ultimos}} in the last 30",
-      "nuncaVino": "Has not come yet"
+      "nuncaVino": "Has not come yet",
+      "marcados_one": "{{count}} selected to print",
+      "marcados_other": "{{count}} selected to print",
+      "marcarTodos": "Select all ({{count}})",
+      "quitarMarcas": "Clear selection",
+      "marcarUno": "Select {{nombre}} to print their badge"
     },
     "horas": {
       "titulo": "Service hours",

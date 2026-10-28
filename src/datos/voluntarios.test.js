@@ -460,3 +460,14 @@ describe('solo la entrada, pasar lista y nota (sección 52)', () => {
     expect(mensajeCredencial(t, 'Ana', 'x', true)).toBe('voluntarios.envio.mensajeSoloEntrada')
   })
 })
+
+describe('"todos" en la lista', () => {
+  it('trae a los activos y a los dados de baja', () => {
+    const lista = [
+      { id: '1', activo: true },
+      { id: '2', activo: false },
+    ]
+    expect(filtrarVoluntarios(lista, 'todos').map((v) => v.id)).toEqual(['1', '2'])
+    expect(contarPorFiltro(lista)).toMatchObject({ activos: 1, todos: 2, deBaja: 1 })
+  })
+})

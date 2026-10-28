@@ -387,6 +387,7 @@ export function ordenarVoluntarios(lista, orden = 'recientes') {
 
 export const FILTROS = [
   'activos',
+  'todos',
   'pendiente',
   'enviada',
   'conTelefono',
@@ -413,6 +414,8 @@ export function filtrarVoluntarios(lista, filtro = 'activos') {
     sinSalida: (v) => v.sin_salida > 0,
   }[filtro]
   if (filtro === 'deBaja') return (lista ?? []).filter((v) => !v.activo)
+  //  Activos y dados de baja (27 de octubre de 2026).
+  if (filtro === 'todos') return [...(lista ?? [])]
   return (lista ?? []).filter((v) => v.activo && (prueba ? prueba(v) : true))
 }
 

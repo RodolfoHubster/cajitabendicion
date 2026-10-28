@@ -8,6 +8,8 @@ import {
   LuPrinter,
   LuRefreshCw,
   LuSend,
+  LuSquare,
+  LuSquareCheck,
   LuStickyNote,
   LuTriangleAlert,
   LuUserPlus,
@@ -68,6 +70,8 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
   const [nombre, setNombre] = useState('')
   const [contacto, setContacto] = useState('')
   const [nota, setNota] = useState('')
+  //  Los marcados para imprimir sus credenciales (27 de octubre de 2026).
+  const [marcados, setMarcados] = useState(() => new Set())
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState(null)
   const [aviso, setAviso] = useState(null)
@@ -145,9 +149,19 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
   const lista = voluntarios ?? []
   const cuentas = contarPorFiltro(lista)
   const delFiltro = ordenarVoluntarios(filtrarVoluntarios(lista, filtro), orden)
+  const vistos = busqueda.trim() ? buscarVoluntarios(delFiltro, busqueda, delFiltro.length) : delFiltro
+  const todosMarcados = vistos.length > 0 && vistos.every((v) => marcados.has(v.id))
+  const paraImprimir = marcados.size > 0 ? lista.filter((v) => marcados.has(v.id)) : vistos
+
+  function marcar(id) {
+    const nuevos = new Set(marcados)
+    if (nuevos.has(id)) nuevos.delete(id)
+    else nuevos.add(id)
+    setMarcados(nuevos)
+  }
+
   const repetido = nombreRepetido(lista, nombre)
   const repetidoAlEditar = editando ? nombreRepetido(lista, editando.nombre, editando.id) : null
-  const vistos = busqueda.trim() ? buscarVoluntarios(delFiltro, busqueda, delFiltro.length) : delFiltro
 
   return (
     <div className="space-y-4">
@@ -251,17 +265,32 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
           </Selector>
         </div>
 
+        {/* Imprimir: los marcados o, sin marcas, todos los que se ven. */}
         {vistos.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-base text-principal/80">{t('voluntarios.lista.seVen', { count: vistos.length })}</p>
-            <button
-              className={BOTON}
-              onClick={() => navegar('/admin/voluntarios/imprimir', { state: { ids: vistos.map((v) => v.id) } })}
-              type="button"
-            >
-              <LuPrinter aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('voluntarios.lista.imprimir', { count: vistos.length })}
-            </button>
+            <p className="text-base text-principal/80">
+              {marcados.size > 0
+                ? t('voluntarios.lista.marcados', { count: marcados.size })
+                : t('voluntarios.lista.seVen', { count: vistos.length })}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={BOTON}
+                onClick={() => setMarcados(todosMarcados ? new Set() : new Set([...marcados, ...vistos.map((v) => v.id)]))}
+                type="button"
+              >
+                {todosMarcados ? <LuSquare aria-hidden="true" className="h-5 w-5" /> : <LuSquareCheck aria-hidden="true" className="h-5 w-5" />}
+                {todosMarcados ? t('voluntarios.lista.quitarMarcas') : t('voluntarios.lista.marcarTodos', { count: vistos.length })}
+              </button>
+              <button
+                className={BOTON}
+                onClick={() => navegar('/admin/voluntarios/imprimir', { state: { ids: paraImprimir.map((v) => v.id) } })}
+                type="button"
+              >
+                <LuPrinter aria-hidden="true" className="h-5 w-5 text-accion" />
+                {t('voluntarios.lista.imprimir', { count: paraImprimir.length })}
+              </button>
+            </div>
           </div>
         )}
 
@@ -324,7 +353,16 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                   <>
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0 space-y-0.5">
-                        <p className="font-semibold text-principal">{v.nombre}</p>
+                        <label className="flex min-h-10 cursor-pointer items-center gap-3 font-semibold text-principal">
+                          <input
+                            aria-label={t('voluntarios.lista.marcarUno', { nombre: v.nombre })}
+                            checked={marcados.has(v.id)}
+                            className="h-6 w-6 shrink-0 accent-principal"
+                            onChange={() => marcar(v.id)}
+                            type="checkbox"
+                          />
+                          {v.nombre}
+                        </label>
                         {v.telefono && (
                           <p className="flex items-center gap-1.5 text-base text-principal/80">
                             <LuMessageCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
