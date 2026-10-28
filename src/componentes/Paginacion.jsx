@@ -9,7 +9,8 @@ const ACTUAL = `${BASE} border-marca bg-marca text-white`
 
 /**
  * Pie de una lista larga: cuantas se ven, cambiar de pagina y cuantas por
- * pagina. "resultado" es lo que devuelve paginar().
+ * pagina. "resultado" es lo que devuelve paginar(). tamanos: cuantas por
+ * pagina se pueden escoger (en Pases empieza en 10).
  */
 export default function Paginacion({
   id,
@@ -19,6 +20,7 @@ export default function Paginacion({
   totalSinFiltro,
   alCambiarPagina,
   alCambiarPorPagina,
+  tamanos = TAMANOS_PAGINA,
 }) {
   const { t } = useTranslation()
   const { pagina, totalPaginas, total, desde, hasta } = resultado
@@ -93,7 +95,7 @@ export default function Paginacion({
           </>
         )}
 
-        {total > TAMANOS_PAGINA[0] && (
+        {total > tamanos[0] && (
           <label className="flex items-center gap-2" htmlFor={`${id}-por-pagina`}>
             <span className="text-base text-principal/70">{t('filtros.porPagina')}</span>
             <select
@@ -102,7 +104,7 @@ export default function Paginacion({
               onChange={(e) => alCambiarPorPagina(Number(e.target.value))}
               value={porPagina}
             >
-              {TAMANOS_PAGINA.map((tamano) => (
+              {tamanos.map((tamano) => (
                 <option key={tamano} value={tamano}>
                   {tamano}
                 </option>

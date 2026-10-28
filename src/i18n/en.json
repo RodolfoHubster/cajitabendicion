@@ -351,6 +351,32 @@
       "notaEnLista": "Note: {{nota}}",
       "cuantos_one": "{{count}} priority",
       "cuantos_other": "{{count}} priority"
+    },
+    "filtros": {
+      "titulo": "Which passes to show",
+      "todos": "All ({{count}})",
+      "comunes": "Permanent ({{count}})",
+      "vip": "VIP ({{count}})",
+      "preferentes": "Priority ({{count}})",
+      "quitados": "Removed ({{count}})"
+    },
+    "entrega": {
+      "boton": "Mark delivery",
+      "titulo": "Mark the delivery for {{nombre}} ({{codigo}})",
+      "ayuda": "For when they got their box and the pass was not scanned. It counts the same as a scan: one box per day.",
+      "dia": "Delivery day",
+      "hoyEs": "Today, {{dia}}",
+      "sinDias": "There are no delivery days to choose from.",
+      "fila": "Which line",
+      "filas": {
+        "carro": "Cars",
+        "a_pie": "Walk-in"
+      },
+      "motivo": "Reason (optional)",
+      "motivoEjemplo": "For example: got the pass and the box together",
+      "si": "Yes, mark the delivery",
+      "lista": "Done: the box for {{nombre}} on {{dia}} is marked.",
+      "hoy": "Received today"
     }
   },
   "panel": {
@@ -1129,7 +1155,11 @@
       "FECHA_FUTURA": "That date has not arrived yet.",
       "ACOMPANANTE_SIN_CAMBIO": "You are coming in someone else's car: your time is the driver's. If they change their time, yours changes too.",
       "A_PIE_SIN_CAMBIO": "In the walk-up line the time does not change: get a new number that day.",
-      "NOTA_MUY_LARGA": "The note is too long: 200 letters at most."
+      "NOTA_MUY_LARGA": "The note is too long: 200 letters at most.",
+      "FILA_INVALIDA": "Choose the line: cars or walk-in.",
+      "NO_ES_DIA_DE_ENTREGA": "There was no delivery that day (or it was canceled).",
+      "PASE_REVOCADO": "That day this person no longer had their pass.",
+      "PASE_YA_ENTREGADO": "They already received their box with this pass that day: one box per day."
     }
   },
   "sinCita": {

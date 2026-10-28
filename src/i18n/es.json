@@ -351,6 +351,32 @@
       "notaEnLista": "Nota: {{nota}}",
       "cuantos_one": "{{count}} preferente",
       "cuantos_other": "{{count}} preferentes"
+    },
+    "filtros": {
+      "titulo": "Qué pases ver",
+      "todos": "Todos ({{count}})",
+      "comunes": "Permanentes ({{count}})",
+      "vip": "VIP ({{count}})",
+      "preferentes": "Preferentes ({{count}})",
+      "quitados": "Quitados ({{count}})"
+    },
+    "entrega": {
+      "boton": "Marcar entrega",
+      "titulo": "Marcar la entrega de {{nombre}} ({{codigo}})",
+      "ayuda": "Para cuando se le dio su caja y no se escaneó su pase. Cuenta igual que si lo hubieran escaneado: una caja por día.",
+      "dia": "Día de entrega",
+      "hoyEs": "Hoy, {{dia}}",
+      "sinDias": "No hay días de entrega para escoger.",
+      "fila": "En qué fila",
+      "filas": {
+        "carro": "Carros",
+        "a_pie": "A pie"
+      },
+      "motivo": "Motivo (opcional)",
+      "motivoEjemplo": "Por ejemplo: se le dio el pase y la caja juntos",
+      "si": "Sí, marcar la entrega",
+      "lista": "Listo: quedó marcada la caja de {{nombre}} del {{dia}}.",
+      "hoy": "Recibió hoy"
     }
   },
   "panel": {
@@ -1129,7 +1155,11 @@
       "FECHA_FUTURA": "Esa fecha todavía no llega.",
       "ACOMPANANTE_SIN_CAMBIO": "Vienes en el carro de alguien: tu hora es la de quien maneja. Si cambia su horario, cambia también el tuyo.",
       "A_PIE_SIN_CAMBIO": "En la fila a pie no se cambia de horario: se saca un turno nuevo ese día.",
-      "NOTA_MUY_LARGA": "La nota es muy larga: máximo 200 letras."
+      "NOTA_MUY_LARGA": "La nota es muy larga: máximo 200 letras.",
+      "FILA_INVALIDA": "Escoge la fila: carros o a pie.",
+      "NO_ES_DIA_DE_ENTREGA": "Ese día no hubo entrega (o se canceló).",
+      "PASE_REVOCADO": "Ese día esta persona ya no tenía su pase.",
+      "PASE_YA_ENTREGADO": "Ese día ya recibió su caja con este pase: una sola caja por día."
     }
   },
   "sinCita": {

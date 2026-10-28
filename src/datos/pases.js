@@ -22,6 +22,12 @@ export const CODIGOS_PASE = [
   'NOMBRE_INVALIDO',
   'TELEFONO_INVALIDO',
   'NOTA_MUY_LARGA',
+  //  Seccion 53: marcar la entrega a mano.
+  'FECHA_FUTURA',
+  'FILA_INVALIDA',
+  'NO_ES_DIA_DE_ENTREGA',
+  'PASE_REVOCADO',
+  'PASE_YA_ENTREGADO',
 ]
 
 async function llamar(funcion, parametros) {
@@ -103,4 +109,67 @@ export async function entregasPaseDelDia(fecha = null) {
 /** Lo que ve la persona en la pantalla de su pase. */
 export async function paseDeCodigo(token) {
   return primera(await llamar('pase_por_token', { p_token: token }))
+}
+
+// ------------------------------------------------------------
+//  Seccion 53: filtros y la entrega a mano
+// ------------------------------------------------------------
+
+/**
+ * La caja de un pase que no se escaneo (solo el administrador), en un dia
+ * de entrega: fecha '2026-10-26', fila 'carro' o 'a_pie', motivo opcional.
+ */
+export function marcarEntregaPase(codigo, { fecha, fila = 'carro', motivo = null } = {}) {
+  return llamar('marcar_entrega_pase', {
+    p_codigo: codigo,
+    p_fecha: fecha,
+    p_fila: fila,
+    p_motivo: String(motivo ?? '').trim() || null,
+  })
+}
+
+export const FILTROS_PASES = ['todos', 'comunes', 'vip', 'preferentes', 'quitados']
+
+/** Los pases de un filtro. comunes: activos, ni VIP ni preferentes. */
+export function filtrarPases(lista, filtro = 'todos') {
+  const prueba =
+    {
+      comunes: (p) => p.activo && !p.vip && !p.preferente,
+      vip: (p) => p.activo && p.vip,
+      preferentes: (p) => p.activo && p.preferente,
+      quitados: (p) => !p.activo,
+    }[filtro] ?? (() => true)
+  return (lista ?? []).filter(prueba)
+}
+
+/** Cuantos hay en cada filtro. */
+export function contarPases(lista) {
+  return Object.fromEntries(FILTROS_PASES.map((filtro) => [filtro, filtrarPases(lista, filtro).length]))
+}
+
+/** Buscar por nombre (sin acentos), codigo o telefono. */
+export function buscarPases(lista, texto) {
+  const limpiar = (s) =>
+    String(s ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+  const buscado = limpiar(texto)
+  if (!buscado) return lista ?? []
+  const digitos = buscado.replace(/\D/g, '')
+  return (lista ?? []).filter(
+    (p) =>
+      limpiar(p.nombre).includes(buscado) ||
+      limpiar(p.codigo_corto).includes(buscado) ||
+      (digitos.length >= 3 && String(p.telefono ?? '').includes(digitos)),
+  )
+}
+
+/** Los dias en que se puede marcar una entrega: hasta hoy y sin los cancelados, el mas nuevo primero. */
+export function diasParaMarcar(fechas, hoy) {
+  return (fechas ?? [])
+    .filter((f) => f.fecha <= hoy && !f.cerrado)
+    .map((f) => f.fecha)
+    .sort((a, b) => b.localeCompare(a))
 }

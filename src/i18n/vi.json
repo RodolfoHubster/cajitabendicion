@@ -354,6 +354,32 @@
       "quitado": "Xong: {{codigo}} không còn ưu tiên.",
       "notaEnLista": "Ghi chú: {{nota}}",
       "cuantos_other": "{{count}} ưu tiên"
+    },
+    "filtros": {
+      "titulo": "Xem loại thẻ nào",
+      "todos": "Tất cả ({{count}})",
+      "comunes": "Thẻ thường trực ({{count}})",
+      "vip": "VIP ({{count}})",
+      "preferentes": "Ưu tiên ({{count}})",
+      "quitados": "Đã thu hồi ({{count}})"
+    },
+    "entrega": {
+      "boton": "Ghi nhận đã phát",
+      "titulo": "Ghi nhận đã phát cho {{nombre}} ({{codigo}})",
+      "ayuda": "Dùng khi đã phát thùng mà không quét thẻ. Tính như đã quét: mỗi ngày một thùng.",
+      "dia": "Ngày phát",
+      "hoyEs": "Hôm nay, {{dia}}",
+      "sinDias": "Không có ngày phát nào để chọn.",
+      "fila": "Hàng nào",
+      "filas": {
+        "carro": "Xe hơi",
+        "a_pie": "Đi bộ"
+      },
+      "motivo": "Lý do (không bắt buộc)",
+      "motivoEjemplo": "Ví dụ: nhận thẻ và thùng cùng lúc",
+      "si": "Có, ghi nhận đã phát",
+      "lista": "Xong: đã ghi nhận thùng của {{nombre}} ngày {{dia}}.",
+      "hoy": "Đã nhận hôm nay"
     }
   },
   "panel": {
@@ -1122,7 +1148,11 @@
       "FECHA_FUTURA": "Ngày đó vẫn chưa đến.",
       "ACOMPANANTE_SIN_CAMBIO": "Bạn đi chung xe: giờ của bạn là giờ của người lái. Nếu họ đổi giờ, giờ của bạn cũng đổi theo.",
       "A_PIE_SIN_CAMBIO": "Ở hàng đi bộ không đổi giờ: hãy lấy số mới trong ngày đó.",
-      "NOTA_MUY_LARGA": "Ghi chú quá dài: tối đa 200 chữ."
+      "NOTA_MUY_LARGA": "Ghi chú quá dài: tối đa 200 chữ.",
+      "FILA_INVALIDA": "Hãy chọn hàng: xe hơi hoặc đi bộ.",
+      "NO_ES_DIA_DE_ENTREGA": "Hôm đó không có phát (hoặc đã hủy).",
+      "PASE_REVOCADO": "Hôm đó người này không còn thẻ.",
+      "PASE_YA_ENTREGADO": "Hôm đó đã nhận thùng bằng thẻ này: mỗi ngày một thùng."
     }
   },
   "sinCita": {

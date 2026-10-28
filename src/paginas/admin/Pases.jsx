@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaWheelchair } from 'react-icons/fa6'
-import { LuCrown, LuPlus, LuRefreshCw, LuStar, LuTrash2, LuUserPlus } from 'react-icons/lu'
+import { LuCrown, LuPackageCheck, LuPlus, LuRefreshCw, LuStar, LuTrash2, LuUserPlus } from 'react-icons/lu'
 import { Link, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import Campo from '../../componentes/Campo'
 import CasillaVip from '../../componentes/CasillaVip'
+import Paginacion from '../../componentes/Paginacion'
 import { BORDE_ORO, FONDO_ORO } from '../../componentes/SelloVip'
 import Tarjeta from '../../componentes/Tarjeta'
 import VentanaPase from '../../componentes/VentanaPase'
 import { normalizarCodigoCorto, pareceCodigoCorto } from '../../datos/codigoCorto'
 import { aFechaLocal } from '../../datos/disponibilidad'
+import { fechasDeEntrega } from '../../datos/fechasEntrega'
+import { paginar } from '../../datos/filtros'
+import { hoyLocal } from '../../datos/panel'
 import {
+  FILTROS_PASES,
+  buscarPases,
+  contarPases,
   crearPase,
   crearPasePreferente,
+  diasParaMarcar,
+  filtrarPases,
   listarPases,
+  marcarEntregaPase,
   marcarPasePreferente,
   marcarPaseVip,
   renovarPase,
@@ -26,6 +36,9 @@ import RegistrarPersona from './RegistrarPersona'
 
 const BOTON_TEXTO =
   'min-h-10 whitespace-nowrap px-2 text-base font-semibold underline underline-offset-4'
+
+//  Seccion 53: cuantos se ven por pagina (de arranque, 10).
+const TAMANOS_PASES = [10, 25, 50, 100]
 
 /**
  * Los pases permanentes: verlos, renovarles el codigo, quitarlos y
@@ -39,6 +52,10 @@ const BOTON_TEXTO =
  * si no, se registra aqui mismo (los datos de Registrar persona, sin fecha
  * ni horario). En los dos caminos, la casilla VIP en dorado. El pase sirve
  * en la fila de carros y en la de a pie.
+ *
+ * Seccion 53: filtros (comunes, VIP, preferentes, quitados), 10 por pagina
+ * de arranque, y el administrador marca a mano la caja de un pase que no se
+ * escaneo, escogiendo el dia de entrega.
  */
 export default function Pases() {
   const { t, i18n } = useTranslation()
@@ -73,6 +90,14 @@ export default function Pases() {
   const [intentoPreferente, setIntentoPreferente] = useState(false)
   //  { codigo, nota } mientras se escribe la nota de un pase de la lista.
   const [notaDe, setNotaDe] = useState(null)
+  //  Seccion 53.
+  const [filtro, setFiltro] = useState('todos')
+  const [pagina, setPagina] = useState(1)
+  const [porPagina, setPorPagina] = useState(TAMANOS_PASES[0])
+  //  { codigo, nombre, fecha, fila, motivo } mientras se marca su entrega.
+  const [entregaDe, setEntregaDe] = useState(null)
+  const [dias, setDias] = useState(null)
+  const hoy = hoyLocal()
 
   // Se vuelve a pedir la lista despues de cada cambio.
   const [recarga, setRecarga] = useState(0)
@@ -233,14 +258,48 @@ export default function Pases() {
     }
   }
 
-  const texto = busqueda.trim().toLowerCase()
-  const filtrados = (pases ?? []).filter(
-    (pase) =>
-      !texto ||
-      pase.nombre?.toLowerCase().includes(texto) ||
-      pase.codigo_corto?.toLowerCase().includes(texto) ||
-      pase.telefono?.includes(texto),
-  )
+  //  La caja de un pase que no se escaneo (seccion 53): los dias se piden al abrir.
+  async function abrirEntrega(pase) {
+    setError(null)
+    setAviso(null)
+    setConfirmando(null)
+    setNotaDe(null)
+    let lista = dias
+    if (!lista) {
+      try {
+        lista = diasParaMarcar(await fechasDeEntrega(), hoy)
+        setDias(lista)
+      } catch (e) {
+        setError(e.message)
+        return
+      }
+    }
+    setEntregaDe({ codigo: pase.codigo_corto, nombre: pase.nombre, fecha: lista[0] ?? '', fila: 'carro', motivo: '' })
+    //  El panel sale abajo de la tabla: que se vea sin buscarlo.
+    requestAnimationFrame(() => document.getElementById('entrega-pase')?.scrollIntoView?.({ behavior: 'smooth', block: 'center' }))
+  }
+
+  async function marcarEntrega() {
+    setOcupado(true)
+    setError(null)
+    try {
+      await marcarEntregaPase(entregaDe.codigo, entregaDe)
+      setAviso({
+        codigo: entregaDe.codigo,
+        texto: t('pases.entrega.lista', { nombre: entregaDe.nombre, dia: fecha(entregaDe.fecha) }),
+      })
+      setEntregaDe(null)
+      setRecarga((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  const cuentas = contarPases(pases)
+  const filtrados = buscarPases(filtrarPases(pases, filtro), busqueda)
+  const paginados = paginar(filtrados, pagina, porPagina)
 
   const activos = (pases ?? []).filter((pase) => pase.activo).length
   const vips = (pases ?? []).filter((pase) => pase.activo && pase.vip).length
@@ -438,11 +497,39 @@ export default function Pases() {
               autoComplete="off"
               etiqueta={t('pases.buscar')}
               id="buscar-pase"
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => {
+                setBusqueda(e.target.value)
+                setPagina(1)
+              }}
               placeholder={t('filtros.buscarEjemplo')}
               type="search"
               value={busqueda}
             />
+          </div>
+
+          {/* Seccion 53: de un toque, solo los de un tipo. */}
+          <div aria-label={t('pases.filtros.titulo')} className="mb-3 flex flex-wrap gap-2" role="group">
+            {FILTROS_PASES.map((clave) => {
+              const activo = filtro === clave
+              return (
+                <button
+                  aria-pressed={activo}
+                  className={`inline-flex min-h-12 items-center gap-1.5 rounded-full border-2 px-4 text-base font-semibold transition ${
+                    activo ? 'border-marca bg-marca text-white' : 'border-principal/20 bg-superficie text-principal hover:border-principal'
+                  }`}
+                  key={clave}
+                  onClick={() => {
+                    setFiltro(clave)
+                    setPagina(1)
+                  }}
+                  type="button"
+                >
+                  {clave === 'vip' && <LuCrown aria-hidden="true" className="h-4 w-4" />}
+                  {clave === 'preferentes' && <FaWheelchair aria-hidden="true" className="h-4 w-4" />}
+                  {t(`pases.filtros.${clave}`, { count: cuentas[clave] })}
+                </button>
+              )
+            })}
           </div>
 
           <p className="mb-3 text-base text-principal/70">
@@ -466,7 +553,7 @@ export default function Pases() {
                 </tr>
               </thead>
               <tbody>
-                {filtrados.map((pase) => (
+                {paginados.filas.map((pase) => (
                   <tr className="border-b border-principal/10 last:border-0" key={pase.codigo_corto}>
                     <td className="py-2 pr-3">
                       <span className={pase.activo ? '' : 'text-principal/70 line-through'}>{pase.nombre}</span>
@@ -487,6 +574,12 @@ export default function Pases() {
                       {pase.nota && (
                         <span className="block text-base text-principal/70">{t('pases.preferente.notaEnLista', { nota: pase.nota })}</span>
                       )}
+                      {pase.activo && pase.ultima_entrega === hoy && (
+                        <span className="mt-0.5 flex w-fit items-center gap-1 rounded-full bg-puede-pasar/15 px-2 text-chica font-semibold text-puede-pasar">
+                          <LuPackageCheck aria-hidden="true" className="h-3.5 w-3.5" />
+                          {t('pases.entrega.hoy')}
+                        </span>
+                      )}
                       {!pase.activo && (
                         <span className="block text-base text-principal/70">
                           {t('pases.quitadoEl', { cuando: fecha(pase.revocado_en?.slice(0, 10)) })}
@@ -498,8 +591,9 @@ export default function Pases() {
                     <td className="py-2 pr-3 text-principal/70">{pase.motivo ?? '—'}</td>
                     <td className="py-2 pr-3 text-principal/70">{pase.cajas_entregadas ?? 0}</td>
                     <td className="whitespace-nowrap py-2 pr-3 text-principal/70">{fecha(pase.ultima_entrega)}</td>
-                    <td className="py-2 text-right">
-                      <div className="flex items-center justify-end gap-3">
+                    <td className="min-w-[14rem] py-2 text-right">
+                      {/* Las acciones bajan de renglon si no caben (27 de octubre de 2026). */}
+                      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
                         {pase.activo ? (
                           <>
                             <button
@@ -509,6 +603,15 @@ export default function Pases() {
                             >
                               {t('pases.verQR')}
                             </button>
+                            {esAdmin && (
+                              <button
+                                className={`${BOTON_TEXTO} text-principal`}
+                                onClick={() => abrirEntrega(pase)}
+                                type="button"
+                              >
+                                {t('pases.entrega.boton')}
+                              </button>
+                            )}
                             {esAdmin && (
                               <button
                                 className={`${BOTON_TEXTO} text-principal`}
@@ -567,8 +670,21 @@ export default function Pases() {
             </table>
           </div>
 
-          {filtrados.length === 0 && (
+          {filtrados.length === 0 ? (
             <p className="mt-3 text-base">{t('filtros.sinResultados')}</p>
+          ) : (
+            <Paginacion
+              alCambiarPagina={setPagina}
+              alCambiarPorPagina={(n) => {
+                setPorPagina(n)
+                setPagina(1)
+              }}
+              id="pases"
+              porPagina={porPagina}
+              resultado={paginados}
+              tamanos={TAMANOS_PASES}
+              totalSinFiltro={pases.length}
+            />
           )}
         </>
       )}
@@ -610,6 +726,79 @@ export default function Pases() {
           </div>
         </div>
       )}
+      {/* La caja de un pase que no se escaneo (seccion 53). */}
+      {entregaDe && (
+        <div
+          aria-labelledby="entrega-pase"
+          className="mt-4 space-y-3 rounded-xl border-2 border-accion bg-accion/10 p-4"
+          role="dialog"
+        >
+          <p className="flex items-center gap-2 text-base font-semibold text-principal" id="entrega-pase">
+            <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+            {t('pases.entrega.titulo', { nombre: entregaDe.nombre, codigo: entregaDe.codigo })}
+          </p>
+          <p className="text-base text-principal/80">{t('pases.entrega.ayuda')}</p>
+          {dias && dias.length === 0 ? (
+            <p className="text-base font-semibold text-ya-recibio">{t('pases.entrega.sinDias')}</p>
+          ) : (
+            <label className="flex flex-col gap-1 text-base font-semibold text-principal" htmlFor="entrega-dia">
+              {t('pases.entrega.dia')}
+              <select
+                className="min-h-14 rounded-xl border border-principal/25 bg-superficie px-3 text-base text-principal outline-none focus:border-principal"
+                id="entrega-dia"
+                onChange={(e) => setEntregaDe({ ...entregaDe, fecha: e.target.value })}
+                value={entregaDe.fecha}
+              >
+                {(dias ?? []).map((dia) => (
+                  <option key={dia} value={dia}>
+                    {dia === hoy ? t('pases.entrega.hoyEs', { dia: fecha(dia) }) : fecha(dia)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <fieldset>
+            <legend className="mb-1 text-base font-semibold text-principal">{t('pases.entrega.fila')}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {['carro', 'a_pie'].map((valor) => (
+                <label
+                  className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 ${
+                    entregaDe.fila === valor ? 'border-2 border-principal bg-superficie' : 'border-principal/25 bg-superficie'
+                  }`}
+                  key={valor}
+                >
+                  <input
+                    checked={entregaDe.fila === valor}
+                    className="h-5 w-5 shrink-0 accent-principal"
+                    name="entrega-fila"
+                    onChange={() => setEntregaDe({ ...entregaDe, fila: valor })}
+                    type="radio"
+                    value={valor}
+                  />
+                  <span className="text-base font-semibold text-principal">{t(`pases.entrega.filas.${valor}`)}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <Campo
+            etiqueta={t('pases.entrega.motivo')}
+            id="entrega-motivo"
+            maxLength={200}
+            onChange={(e) => setEntregaDe({ ...entregaDe, motivo: e.target.value })}
+            placeholder={t('pases.entrega.motivoEjemplo')}
+            value={entregaDe.motivo}
+          />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Boton disabled={ocupado || !entregaDe.fecha} onClick={marcarEntrega}>
+              {ocupado ? t('pases.guardando') : t('pases.entrega.si')}
+            </Boton>
+            <Boton onClick={() => setEntregaDe(null)} variant="secondary">
+              {t('pases.no')}
+            </Boton>
+          </div>
+        </div>
+      )}
+
       {/* Volverlo preferente, o cambiar su nota (seccion 50). */}
       {notaDe && (
         <div

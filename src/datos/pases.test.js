@@ -5,6 +5,11 @@ vi.mock('../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }))
 import es from '../i18n/es.json'
 import { supabase } from '../lib/supabase'
 import {
+  buscarPases,
+  contarPases,
+  diasParaMarcar,
+  filtrarPases,
+  marcarEntregaPase,
   CODIGOS_PASE,
   crearPase,
   crearPasePreferente,
@@ -175,5 +180,52 @@ describe('errores', () => {
   ])('lo que no es de negocio se clasifica: %o', async (error, esperado) => {
     supabase.rpc.mockResolvedValue({ data: null, error })
     await expect(listarPases()).rejects.toThrow(esperado)
+  })
+})
+
+describe('filtros y entrega a mano (sección 53)', () => {
+  const LISTA = [
+    { codigo_corto: 'CB-1', nombre: 'José Pérez', telefono: '+16195550101', activo: true, vip: false, preferente: false },
+    { codigo_corto: 'CB-2', nombre: 'Ana', activo: true, vip: true, preferente: false },
+    { codigo_corto: 'CB-3', nombre: 'Luz', activo: true, vip: false, preferente: true },
+    { codigo_corto: 'CB-4', nombre: 'Leo', activo: false, vip: true, preferente: false },
+  ]
+
+  it('cada filtro y cuántos hay', () => {
+    expect(filtrarPases(LISTA, 'comunes').map((p) => p.codigo_corto)).toEqual(['CB-1'])
+    expect(filtrarPases(LISTA, 'vip').map((p) => p.codigo_corto)).toEqual(['CB-2'])
+    expect(filtrarPases(LISTA, 'preferentes').map((p) => p.codigo_corto)).toEqual(['CB-3'])
+    expect(filtrarPases(LISTA, 'quitados').map((p) => p.codigo_corto)).toEqual(['CB-4'])
+    expect(contarPases(LISTA)).toEqual({ todos: 4, comunes: 1, vip: 1, preferentes: 1, quitados: 1 })
+  })
+
+  it('busca sin acentos, por código o por teléfono', () => {
+    expect(buscarPases(LISTA, 'jose').map((p) => p.codigo_corto)).toEqual(['CB-1'])
+    expect(buscarPases(LISTA, 'cb-3').map((p) => p.codigo_corto)).toEqual(['CB-3'])
+    expect(buscarPases(LISTA, '555 0101').map((p) => p.codigo_corto)).toEqual(['CB-1'])
+    expect(buscarPases(LISTA, '')).toHaveLength(4)
+  })
+
+  it('los días para marcar: hasta hoy, sin los cancelados, el más nuevo primero', () => {
+    const fechas = [
+      { fecha: '2026-10-29', cerrado: false },
+      { fecha: '2026-10-22', cerrado: true },
+      { fecha: '2026-10-19', cerrado: false },
+      { fecha: '2026-10-26', cerrado: false },
+    ]
+    expect(diasParaMarcar(fechas, '2026-10-27')).toEqual(['2026-10-26', '2026-10-19'])
+  })
+
+  it('marcar la entrega manda el día, la fila y el motivo', async () => {
+    supabase.rpc.mockResolvedValue({ data: 'MARCADA', error: null })
+    await marcarEntregaPase('CB-1', { fecha: '2026-10-26', fila: 'a_pie', motivo: '  ' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('marcar_entrega_pase', {
+      p_codigo: 'CB-1',
+      p_fecha: '2026-10-26',
+      p_fila: 'a_pie',
+      p_motivo: null,
+    })
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'PASE_YA_ENTREGADO' } })
+    await expect(marcarEntregaPase('CB-1', { fecha: '2026-10-26' })).rejects.toThrow('PASE_YA_ENTREGADO')
   })
 })
