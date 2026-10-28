@@ -35,18 +35,20 @@ const GRANDE = {
   hueco: 'gap-5 px-6 py-4',
   control: 'h-14 w-14',
 }
+//  En la ventanita crece con ella: la ventana de la computadora (440 px o
+//  mas) ya no es la del telefono.
 const CHICO = {
-  logo: 'h-24 w-24',
-  icono: 'h-10 w-10',
-  telefono: 'h-36 w-24',
-  calendario: 'h-12 w-12',
-  qr: 'h-24 w-24',
-  escanear: 'motion-safe:animate-escanear-chico',
-  caja: 'h-24 w-24',
-  manos: 'h-20 w-20',
-  titulo: 'text-2xl',
-  texto: 'text-base',
-  hueco: 'gap-3 px-4 py-3',
+  logo: 'h-24 w-24 min-[420px]:h-32 min-[420px]:w-32',
+  icono: 'h-10 w-10 min-[420px]:h-12 min-[420px]:w-12',
+  telefono: 'h-36 w-24 min-[420px]:h-44 min-[420px]:w-28',
+  calendario: 'h-12 w-12 min-[420px]:h-14 min-[420px]:w-14',
+  qr: 'h-24 w-24 min-[420px]:h-36 min-[420px]:w-36',
+  escanear: 'motion-safe:animate-escanear-chico min-[420px]:motion-safe:animate-escanear',
+  caja: 'h-24 w-24 min-[420px]:h-32 min-[420px]:w-32',
+  manos: 'h-20 w-20 min-[420px]:h-24 min-[420px]:w-24',
+  titulo: 'text-2xl min-[420px]:text-3xl',
+  texto: 'text-base min-[420px]:text-lg',
+  hueco: 'gap-3 px-4 py-3 min-[420px]:gap-4',
   control: 'h-12 w-12',
 }
 

@@ -18,9 +18,10 @@
  *       crece en la misma esquina, con sonido, y trae "Mas informacion": la
  *       presentacion animada (/video), que termina en "Haz tu cita".
  *     * Sin ese video: una miniatura que, al tocarla, abre la presentacion.
- *   Nunca a pantalla completa. "–" la hace chica otra vez y la X la quita;
- *   quien la quita no la vuelve a ver sola mientras siga en la pagina (la
- *   franja la sigue abriendo).
+ *   Nunca a pantalla completa. "–" la hace chica otra vez y la X la quita
+ *   de esta vista: al recargar o volver a entrar, sale otra vez.
+ * - Cuatro tamanos, segun la pantalla: telefono, tableta, computadora y
+ *   pantalla grande.
  * - Para poner o cambiar el video del pastor basta con publicar
  *   public/medios/entrega.mp4 (y su portada, entrega.jpg). En GoDaddy no se
  *   toca nada.
@@ -135,29 +136,29 @@
       D,
       'cdb-estilos-esquina',
       '.cdb-esquina,.cdb-esquina *{box-sizing:border-box}' +
-        '.cdb-esquina{position:fixed;right:16px;bottom:16px;z-index:2147483000;' + LETRA + '-webkit-tap-highlight-color:transparent}' +
+        '.cdb-esquina{position:fixed;right:12px;bottom:12px;z-index:2147483000;' + LETRA + '-webkit-tap-highlight-color:transparent}' +
         '.cdb-oculto{display:none!important}' +
         '.cdb-x{position:absolute;top:6px;right:6px;z-index:3;display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0;padding:0;border:0;border-radius:50%;cursor:pointer;background:rgba(0,0,0,.45);color:#fff;font-size:22px;line-height:1}' +
         //  La miniatura (sin video del pastor).
-        '.cdb-mini{position:relative;width:150px;border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(9,20,40,.35);' +
+        '.cdb-mini{position:relative;width:128px;border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(9,20,40,.35);' +
         'background:radial-gradient(circle at 85% 0%,rgba(125,211,252,.35),transparent 55%),#1B3A6B;border-top:5px solid #F5A03C}' +
-        '.cdb-mini-ver{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;margin:0;padding:16px 10px 14px;border:0;background:none;color:#fff;cursor:pointer;text-align:center}' +
-        '.cdb-mini-logo{position:relative;width:76px;height:76px}' +
-        '.cdb-mini-logo img{width:76px;height:76px;border-radius:50%;background:#fff;padding:4px;object-fit:contain;box-shadow:0 0 0 3px rgba(245,160,60,.9)}' +
-        '.cdb-mini-play{position:absolute;right:-8px;bottom:-4px;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#F5A03C;box-shadow:0 4px 10px rgba(0,0,0,.3)}' +
-        '.cdb-mini-play svg{width:16px;height:16px;margin-left:2px;fill:#1B3A6B}' +
+        '.cdb-mini-ver{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;margin:0;padding:12px 8px 10px;border:0;background:none;color:#fff;cursor:pointer;text-align:center}' +
+        '.cdb-mini-logo{position:relative;width:60px;height:60px}' +
+        '.cdb-mini-logo img{width:100%;height:100%;border-radius:50%;background:#fff;padding:4px;object-fit:contain;box-shadow:0 0 0 3px rgba(245,160,60,.9)}' +
+        '.cdb-mini-play{position:absolute;right:-8px;bottom:-4px;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#F5A03C;box-shadow:0 4px 10px rgba(0,0,0,.3)}' +
+        '.cdb-mini-play svg{width:45%;height:45%;margin-left:2px;fill:#1B3A6B}' +
         '.cdb-mini-titulo{font-size:15px;font-weight:800;line-height:1.2}' +
         '.cdb-mini-texto{font-size:15px;opacity:.9}' +
         //  El video del pastor, chico y sin sonido.
-        '.cdb-flotante{position:relative;width:260px;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 12px 32px rgba(9,20,40,.4);border-top:5px solid #F5A03C}' +
-        '.cdb-flotante video{display:block;width:100%;max-height:min(46vh,420px);object-fit:cover;background:#000}' +
+        '.cdb-flotante{position:relative;width:150px;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 12px 32px rgba(9,20,40,.4);border-top:5px solid #F5A03C}' +
+        '.cdb-flotante video{display:block;width:100%;max-height:34vh;object-fit:cover;background:#000}' +
         '.cdb-tocar{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;margin:0;padding:10px 12px;border:0;cursor:pointer;text-align:left;color:#fff;' +
         'background:linear-gradient(to bottom,transparent 50%,rgba(9,20,40,.88))}' +
         '.cdb-tocar b{font-size:15px;line-height:1.2}' +
         '.cdb-tocar span{display:flex;align-items:center;gap:6px;font-size:15px;opacity:.92}' +
         '.cdb-tocar svg{width:14px;height:14px;fill:#F5A03C}' +
         //  La ventana.
-        '.cdb-ventana{display:flex;flex-direction:column;width:360px;height:min(600px,calc(100vh - 32px));border-radius:20px;overflow:hidden;background:#1B3A6B;box-shadow:0 24px 64px rgba(9,20,40,.45);border-top:5px solid #F5A03C}' +
+        '.cdb-ventana{display:flex;flex-direction:column;width:calc(100vw - 24px);height:min(72vh,620px);border-radius:20px;overflow:hidden;background:#1B3A6B;box-shadow:0 24px 64px rgba(9,20,40,.45);border-top:5px solid #F5A03C}' +
         '.cdb-barra{display:flex;align-items:center;gap:6px;height:48px;padding:0 6px 0 14px;color:#fff;background:#1B3A6B}' +
         '.cdb-barra span{flex:1;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
         '.cdb-boton{display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin:0;padding:0;border:0;border-radius:50%;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;font-size:24px;line-height:1}' +
@@ -169,10 +170,20 @@
         '.cdb-mas:hover{filter:brightness(.95)}' +
         '.cdb-presentacion{flex:1;display:block;width:100%;border:0;background:#1B3A6B}' +
         '.cdb-esquina button:focus-visible{outline:3px solid #F5A03C;outline-offset:2px}' +
-        '@media (max-width:520px){.cdb-esquina{right:12px;bottom:12px}.cdb-ventana{width:calc(100vw - 24px);height:min(72vh,620px)}' +
-        '.cdb-mini{width:128px}.cdb-mini-ver{gap:6px;padding:12px 8px 10px}.cdb-mini-logo,.cdb-mini-logo img{width:60px;height:60px}' +
-        '.cdb-mini-play{width:28px;height:28px}.cdb-mini-play svg{width:13px;height:13px}' +
-        '.cdb-flotante{width:150px}.cdb-flotante video{max-height:34vh}}' +
+        //  Tableta.
+        '@media (min-width:521px){.cdb-esquina{right:16px;bottom:16px}.cdb-mini{width:170px}.cdb-mini-ver{gap:8px;padding:16px 10px 14px}' +
+        '.cdb-mini-logo{width:88px;height:88px}.cdb-mini-play{width:36px;height:36px}.cdb-flotante{width:240px}.cdb-flotante video{max-height:46vh}' +
+        '.cdb-ventana{width:400px;height:min(640px,calc(100vh - 32px))}}' +
+        //  Computadora.
+        '@media (min-width:1025px){.cdb-esquina{right:24px;bottom:24px}.cdb-mini{width:200px}.cdb-mini-logo{width:104px;height:104px}' +
+        '.cdb-mini-play{width:40px;height:40px}.cdb-mini-titulo{font-size:17px}.cdb-mini-texto{font-size:16px}.cdb-x{width:36px;height:36px;font-size:24px}' +
+        '.cdb-flotante{width:300px}.cdb-flotante video{max-height:50vh}.cdb-tocar b{font-size:17px}.cdb-tocar span{font-size:16px}' +
+        '.cdb-ventana{width:440px;height:min(720px,calc(100vh - 48px))}.cdb-barra{height:52px}.cdb-barra span{font-size:17px}}' +
+        //  Pantalla grande.
+        '@media (min-width:1441px){.cdb-esquina{right:32px;bottom:32px}.cdb-mini{width:230px}.cdb-mini-logo{width:120px;height:120px}' +
+        '.cdb-mini-play{width:44px;height:44px}.cdb-mini-titulo{font-size:18px}.cdb-mini-texto{font-size:17px}' +
+        '.cdb-flotante{width:360px}.cdb-flotante video{max-height:52vh}.cdb-tocar b{font-size:18px}.cdb-tocar span{font-size:17px}' +
+        '.cdb-ventana{width:480px;height:min(800px,calc(100vh - 64px))}.cdb-barra{height:56px}.cdb-barra span{font-size:18px}}' +
         '@media (prefers-reduced-motion:no-preference){.cdb-entra{animation:cdb-entra .35s cubic-bezier(.22,1,.36,1) both;transform-origin:bottom right}}' +
         '@keyframes cdb-entra{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}',
     )
@@ -297,13 +308,10 @@
       if (vista === 'video' || vista === 'info') ir(video ? 'flotante' : 'mini')
     }
 
+    //  Solo de esta vista: al recargar o volver a entrar, sale otra vez
+    //  (27 de octubre de 2026).
     function cerrar() {
       ir('oculto')
-      try {
-        sessionStorage.setItem('cdb-cerrado', '1')
-      } catch {
-        /* sin almacen: igual se cierra */
-      }
     }
 
     mini.querySelector('.cdb-mini-ver').addEventListener('click', abrir)
@@ -356,21 +364,12 @@
       v.src = ENTREGA
     }
 
-    var cerradoAntes = false
-    try {
-      cerradoAntes = sessionStorage.getItem('cdb-cerrado') === '1'
-    } catch {
-      cerradoAntes = false
-    }
-
     buscarVideo(function (encontrado) {
       video = encontrado
       //  Sale sola, despues de que la pagina ya se vio.
-      if (!cerradoAntes) {
-        setTimeout(function () {
-          if (vista === 'oculto') ir(video ? 'flotante' : 'mini')
-        }, 2500)
-      }
+      setTimeout(function () {
+        if (vista === 'oculto') ir(video ? 'flotante' : 'mini')
+      }, 2500)
     })
 
     window.__cajitaVideo = { abrir: abrir }

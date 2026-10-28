@@ -32,8 +32,17 @@ sección o esa línea.
   - Al tocarlo (o la franja), crece a una **ventana en la misma esquina**,
     nunca a pantalla completa, **con sonido** y el botón **«Más
     información»**: la presentación, que termina en **«Haz tu cita»**. «‹»
-    regresa al video, «–» lo hace chico otra vez y ✕ lo quita. Quien lo
-    quita no lo vuelve a ver solo mientras siga en la página.
+    regresa al video, «–» lo hace chico otra vez y ✕ lo quita. La ✕ solo
+    la quita de esa vista: **al recargar o volver a entrar, sale otra vez.**
+  - El tamaño cambia según la pantalla, para que en la computadora no se vea
+    perdida y en el teléfono no estorbe:
+
+    | Pantalla | Video chico | Ventana abierta |
+    |---|---|---|
+    | Teléfono (hasta 520 px) | 150 px de ancho | todo el ancho, menos los bordes |
+    | Tableta (hasta 1024 px) | 240 px | 400 px |
+    | Computadora (hasta 1440 px) | 300 px | 440 px |
+    | Pantalla grande | 360 px | 480 px |
   - GoDaddy pone la sección dentro de un recuadro, pero con permiso para
     tocar la página: por eso la ventanita puede salir en la esquina de toda
     la página y no dentro del recuadro.
