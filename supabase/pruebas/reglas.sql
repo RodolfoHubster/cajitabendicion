@@ -1724,6 +1724,34 @@ begin
      where b.fecha = v_hoy and p.codigo_corto = 'CB-PRP1';
     perform pg_temp.comprobar('Pase: no aparta lugar del cupo', v_numero = 0, v_numero::text);
 
+    --  La caja de un pase a mano (sección 53): se dio el pase y nadie escaneó.
+    perform pg_temp.esperar_error('Pase a mano: no un día que no ha llegado',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date)', v_hoy + 1), 'FECHA_FUTURA');
+    perform pg_temp.esperar_error('Pase a mano: solo carro o a pie',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date, ''bici'')', v_pasada), 'FILA_INVALIDA');
+    perform pg_temp.esperar_error('Pase a mano: solo en un día que hubo entrega',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date)', v_hoy - 403), 'NO_ES_DIA_DE_ENTREGA');
+    perform pg_temp.esperar_error('Pase a mano: un código sin pase no',
+      format('select marcar_entrega_pase(''CB-NOEXISTE'', %L::date)', v_pasada), 'PASE_NO_EXISTE');
+    perform pg_temp.esperar_error('Pase a mano: si ese día ya recibió (lo escanearon), no otra caja',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date)', v_hoy), 'PASE_YA_ENTREGADO');
+    perform pg_temp.comprobar('Pase a mano: el administrador marca la caja de un día pasado',
+      marcar_entrega_pase('cb-prp1', v_pasada, 'a_pie', '  Se le dio   sin escanear ') = 'MARCADA');
+    perform pg_temp.comprobar('Pase a mano: queda que fue a mano, en qué fila, quién y por qué',
+      exists (select 1 from entregas_pase e join pases pa on pa.id = e.pase_id join personas p on p.id = pa.persona_id
+               where p.codigo_corto = 'CB-PRP1' and e.fecha = v_pasada and e.a_mano and e.fila = 'a_pie'
+                 and e.usuario_id = v_admin and e.motivo = 'Se le dio sin escanear'));
+    perform pg_temp.comprobar('Pase a mano: la lista de pases la cuenta',
+      (select l.cajas_entregadas = 2 from listar_pases() l where l.codigo_corto = 'CB-PRP1'));
+    perform pg_temp.esperar_error('Pase a mano: el mismo día, una sola caja',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date)', v_pasada), 'PASE_YA_ENTREGADO');
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+    perform pg_temp.esperar_error('Pase a mano: un voluntario no la marca',
+      format('select marcar_entrega_pase(''CB-PRP1'', %L::date)', v_pasada - 1), 'SIN_PERMISO');
+    update personal set rol = 'admin' where usuario_id = v_admin;
+    perform pg_temp.comprobar('Pase a mano: desde el navegador sin cuenta no',
+      not has_function_privilege('anon', 'marcar_entrega_pase(text, date, text, text)', 'execute'));
+
     --  Renovar: al pase le sale otro codigo y el viejo muere, sin
     --  revocar nada. Es lo que se usa cuando el codigo anda circulando.
     select p.token into v_token_otro from renovar_pase('CB-PRP1') p;
@@ -3155,10 +3183,84 @@ begin
         coalesce(v_numero2::text, 'sin fila'));
       update personal set rol = 'voluntario' where usuario_id = v_admin;
 
+      -- ---------- Turno repetido (sección 53) ----------
+      --  Alguien sacó dos turnos (dos ventanas): se cancela el que sobra.
+      declare
+        v_uno  int;
+        v_dos  int;
+        v_tok1 text;
+        v_tok2 text;
+        v_r    record;
+      begin
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from sacar_turno_a_pie('tel-repetido-1');
+        v_uno := v_r.turno;
+        v_tok1 := v_r.token_qr;
+        select * into v_r from sacar_turno_a_pie('tel-repetido-2');
+        v_dos := v_r.turno;
+        v_tok2 := v_r.token_qr;
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+        perform pg_temp.esperar_error('Turno repetido: no se queda con el mismo que se cancela',
+          format('select cancelar_turno_repetido(%s, %s)', v_dos, v_dos), 'MISMO_TURNO');
+        perform pg_temp.esperar_error('Turno repetido: el que conserva tiene que existir hoy',
+          format('select cancelar_turno_repetido(%s, 99999)', v_dos), 'TURNO_QUE_QUEDA_NO_EXISTE');
+        perform pg_temp.comprobar('Turno repetido: la voluntaria cancela el que sobra',
+          cancelar_turno_repetido(v_dos, v_uno) = v_dos);
+        select c.estado || '|' || (c.turno_repetido_por = v_admin)::text || '|' || c.turno_se_queda::text
+               || '|' || (c.turno_anulado_en is null)::text || '|' || (c.cancelada_por = v_admin)::text
+          into v_texto from citas c where c.token_qr = v_tok2;
+        perform pg_temp.comprobar('Turno repetido: queda cancelado, con quién, cuándo y con cuál se queda (no es "anulado")',
+          v_texto = format('cancelada|true|%s|true|true', v_uno), v_texto);
+        select resultado into v_texto from registrar_entrega(v_tok2);
+        perform pg_temp.comprobar('Turno repetido: su QR ya no entrega', v_texto = 'CANCELADA', v_texto);
+        perform pg_temp.esperar_error('Turno repetido: no se cancela dos veces',
+          format('select cancelar_turno_repetido(%s)', v_dos), 'TURNO_NO_EXISTE');
+        perform pg_temp.comprobar('Turno repetido: la lista del escáner lo enseña, marcado',
+          exists (select 1 from turnos_a_pie_de_hoy() t
+                   where t.turno = v_dos and t.repetido_en is not null and t.se_queda = v_uno and t.anulado_en is null));
+        perform pg_temp.comprobar('Turno repetido: no cuenta en la fila en vivo',
+          (select f.en_espera from fila_a_pie_en_vivo() f)
+            = (select count(*)::int from turnos_a_pie_de_hoy() t where t.estado in ('reservada', 'llego') and t.saltado_en is null));
+
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from turno_de_cita(v_tok2);
+        perform pg_temp.comprobar('Turno repetido: su página le dice que ya tenía otro, y cuál',
+          v_r.repetido and v_r.se_queda = v_uno and not v_r.anulado, format('%s %s', v_r.repetido, v_r.se_queda));
+        select * into v_r from sacar_turno_a_pie('tel-repetido-2');
+        perform pg_temp.comprobar('Turno repetido: desde ese teléfono ya no saca otro hoy',
+          v_r.resultado = 'TURNO_REPETIDO' and v_r.token_qr is null, v_r.resultado);
+        select * into v_r from sacar_turno_a_pie('tel-repetido-1');
+        perform pg_temp.comprobar('Turno repetido: el que conserva sigue igual',
+          v_r.resultado = 'YA_TENIA' and v_r.turno = v_uno and v_r.token_qr = v_tok1, v_r.resultado);
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+        --  (En dos pasos: lo que se acaba de cambiar no se ve en la misma instrucción.)
+        perform pg_temp.comprobar('Turno repetido: si se canceló el equivocado, se regresa', deshacer_turno_repetido(v_dos) = v_dos);
+        perform pg_temp.comprobar('Turno repetido: regresa esperando, sin rastro de la cancelación',
+          (select c.estado = 'reservada' and c.turno_repetido_en is null and c.cancelada_en is null
+             from citas c where c.token_qr = v_tok2));
+        perform pg_temp.esperar_error('Turno repetido: regresar uno que no está cancelado no',
+          format('select deshacer_turno_repetido(%s)', v_dos), 'TURNO_NO_EXISTE');
+        perform pg_temp.esperar_error('Turno repetido: uno anulado por llegar tarde no se regresa así',
+          format('select deshacer_turno_repetido(%s)', v_numero), 'TURNO_NO_EXISTE');
+        perform pg_temp.comprobar('Turno repetido: sin decir con cuál se queda también se cancela', cancelar_turno_repetido(v_dos) = v_dos);
+        perform pg_temp.comprobar('Turno repetido: y el motivo lo dice',
+          (select c.motivo_cancelacion = 'Turno repetido' and c.turno_se_queda is null from citas c where c.token_qr = v_tok2));
+        perform pg_temp.comprobar('Turno repetido: nada de esto desde el navegador sin cuenta',
+          not has_function_privilege('anon', 'cancelar_turno_repetido(int, int)', 'execute')
+          and not has_function_privilege('anon', 'deshacer_turno_repetido(int)', 'execute'));
+      exception when others then
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform pg_temp.comprobar('Turno repetido: las pruebas no terminaron', false, sqlerrm);
+      end;
+
       perform elegir_fila('carro');
       perform pg_temp.esperar_error('Anular: quien escanea en carros no anula turnos a pie', 'select anular_turno(1)', 'OTRA_FILA');
       perform pg_temp.esperar_error('Lista a pie: quien escanea en carros no la ve', 'select * from turnos_a_pie_de_hoy()', 'OTRA_FILA');
       perform pg_temp.esperar_error('Ver QR: quien escanea en carros no lo ve', 'select qr_de_turno(1)', 'OTRA_FILA');
+      perform pg_temp.esperar_error('Turno repetido: quien escanea en carros no lo cancela',
+        'select cancelar_turno_repetido(1)', 'OTRA_FILA');
       perform elegir_fila('a_pie');
       perform pg_temp.comprobar('Anular: desde el navegador sin cuenta no se anula, ni se ve la lista, ni el QR',
         not has_function_privilege('anon', 'anular_turno(int)', 'execute')
@@ -3464,7 +3566,8 @@ begin
         --  vuelve a escanear ya no saca otro: sección 44) + el de quien se cambió
         --  con su código CB. Los dos anulados ya no ocupan lugar (sección 46).
         --  Más el que se sacó pasada la hora del código del día (sección 47).
-        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 16 and v_fila.a_pie_abre_en is not null
+        --  Más el que conservó su turno (sección 53); el repetido ya no ocupa.
+        v_fila.a_pie_bloque_id = v_b_pie and v_fila.a_pie_ocupados = 17 and v_fila.a_pie_abre_en is not null
         and v_fila.capacidad_total < cupo_sin_limite(),
         format('ocupados %s, cupo de carro %s', v_fila.a_pie_ocupados, v_fila.capacidad_total));
 

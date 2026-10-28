@@ -6581,7 +6581,8 @@ grant  execute on function quitar_fila_a_pie(date) to authenticated;
 --  Solo numeros: nada de quien esta antes o despues. Sin filas si la cita
 --  no existe o no es de la fila a pie.
 --  Le crecio "cerrada" (seccion 43): la fila de ese dia ya termino. Y
---  "anulado" (seccion 46): la voluntaria anulo su turno.
+--  "anulado" (seccion 46): la voluntaria anulo su turno. Y "repetido" y
+--  "se_queda" (seccion 53): se cancelo porque ya tenia otro, y cual.
 drop function if exists turno_de_cita(text);
 
 create or replace function turno_de_cita(p_token text)
@@ -6601,7 +6602,10 @@ returns table (
   cerrada   boolean,
   --  La voluntaria anulo su turno (seccion 46): llego tarde. Su pagina le
   --  dice que saque uno nuevo.
-  anulado   boolean
+  anulado   boolean,
+  --  Seccion 53: se cancelo porque ya tenia otro turno (y cual, si se sabe).
+  repetido  boolean,
+  se_queda  int
 )
 language plpgsql
 stable
@@ -6639,7 +6643,9 @@ begin
          v_bloque.hora,
          v_bloque.terminada_en is not null
            or exists (select 1 from dias_entrega d where d.fecha = v_bloque.fecha and d.cerrado),
-         v_cita.turno_anulado_en is not null;
+         v_cita.turno_anulado_en is not null,
+         v_cita.turno_repetido_en is not null,
+         v_cita.turno_se_queda;
 end;
 $$;
 
@@ -7296,6 +7302,18 @@ begin
     return;
   end if;
 
+  --  Seccion 53: desde este telefono se saco un turno repetido y la
+  --  voluntaria lo cancelo. Ya tiene otro: no se le da uno mas.
+  if exists (select 1
+               from citas c
+              where c.bloque_id = v_bloque.id
+                and c.dispositivo_id = v_disp
+                and c.turno_repetido_en is not null) then
+    return query select 'TURNO_REPETIDO'::text, null::text, null::text, null::int, current_date,
+                        null::time, null::timestamp, 0, null::time, 0, 0;
+    return;
+  end if;
+
   --  Le anularon el turno por llegar tarde (seccion 46): se le da otro, al
   --  final de la fila, una sola vez. Si tambien ese se anula, ya no.
   select count(*)::int into v_anulados
@@ -7867,7 +7885,10 @@ grant  execute on function anular_turno(int) to authenticated;
 --  el turno, su codigo (la pantalla solo lo ensena en el detalle, para
 --  compararlo con el que dice la persona), la sena, el estado y las horas.
 --  Tambien los anulados, marcados. Solo quien escanea en la fila a pie.
---  Sin telefono, correo ni direccion.
+--  Sin telefono, correo ni direccion. Seccion 53: tambien los cancelados
+--  por repetidos (repetido_en, se_queda).
+drop function if exists turnos_a_pie_de_hoy();
+
 create or replace function turnos_a_pie_de_hoy()
 returns table (
   turno        int,
@@ -7879,7 +7900,9 @@ returns table (
   entregado_en timestamp,
   anulado_en   timestamp,
   --  Si se lo dio una voluntaria (sin telefono): su correo.
-  dado_por     text
+  dado_por     text,
+  repetido_en  timestamp,
+  se_queda     int
 )
 language plpgsql
 stable
@@ -7903,7 +7926,9 @@ begin
          c.turno_saltado_en at time zone 'America/Los_Angeles',
          c.usado_en         at time zone 'America/Los_Angeles',
          c.turno_anulado_en at time zone 'America/Los_Angeles',
-         u.email::text
+         u.email::text,
+         c.turno_repetido_en at time zone 'America/Los_Angeles',
+         c.turno_se_queda
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -7911,7 +7936,7 @@ begin
    where b.fecha = current_date
      and b.fila = 'a_pie'
      and c.turno is not null
-     and (c.estado <> 'cancelada' or c.turno_anulado_en is not null)
+     and (c.estado <> 'cancelada' or c.turno_anulado_en is not null or c.turno_repetido_en is not null)
    order by c.turno;
 end;
 $$;
@@ -9770,3 +9795,218 @@ $$;
 
 revoke execute on function anotar_dia_voluntarios(uuid[], date, time, time, text) from public, anon;
 grant  execute on function anotar_dia_voluntarios(uuid[], date, time, time, text) to authenticated;
+
+
+-- ============================================================
+--  53. TURNO REPETIDO Y ENTREGA DE UN PASE A MANO
+-- ============================================================
+--  Pedido del 27 de octubre de 2026:
+--
+--  * Turno repetido: alguien saca un segundo turno (otra ventana, otro
+--    telefono) y se forma con los dos. Desde el detalle del turno en el
+--    escaner, la voluntaria cancela el que sobra (cancelar_turno_repetido)
+--    y la persona se queda con el otro. No es "anular" (seccion 46): con
+--    un turno anulado se puede sacar otro al final; con uno repetido, no
+--    (desde ese telefono, sacar_turno_a_pie dice TURNO_REPETIDO). Su pagina
+--    le dice que ese turno se cancelo porque ya tenia otro, y cual, si la
+--    voluntaria lo escribio. Se puede regresar el mismo dia, por si se
+--    cancelo el equivocado (deshacer_turno_repetido). Queda quien y cuando.
+--  * Entrega de un pase a mano: se dieron pases nuevos y nadie escaneo su
+--    caja. El administrador la marca, escogiendo el dia de entrega
+--    (marcar_entrega_pase), como marcar_entregada_panel() con las citas:
+--    con el mismo candado que el escaner, una sola caja por pase por dia,
+--    y queda que fue a mano, quien y por que.
+
+alter table citas add column if not exists turno_repetido_en  timestamptz;
+alter table citas add column if not exists turno_repetido_por uuid;
+--  El turno con el que se queda, si la voluntaria lo escribio.
+alter table citas add column if not exists turno_se_queda     int;
+
+alter table entregas_pase add column if not exists a_mano boolean not null default false;
+alter table entregas_pase add column if not exists motivo text;
+
+
+--  Cancelar el turno N de hoy porque la persona ya tiene otro (p_se_queda,
+--  opcional: el que conserva). Solo uno que sigue esperando (o que llamaron
+--  y no estaba): uno que ya recibio no se cancela (TURNO_NO_EXISTE). Con el
+--  mismo cuidado que anular_turno: dos voluntarias al mismo tiempo cancelan
+--  uno solo.
+create or replace function cancelar_turno_repetido(p_turno int, p_se_queda int default null)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_id uuid;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  if p_se_queda is not null then
+    if p_se_queda = p_turno then
+      raise exception 'MISMO_TURNO';
+    end if;
+
+    if not exists (select 1
+                     from citas c
+                     join bloques b on b.id = c.bloque_id
+                    where b.fecha = current_date
+                      and b.fila = 'a_pie'
+                      and c.turno = p_se_queda
+                      and c.estado <> 'cancelada') then
+      raise exception 'TURNO_QUE_QUEDA_NO_EXISTE';
+    end if;
+  end if;
+
+  update citas c
+     set estado             = 'cancelada',
+         cancelada_en       = now(),
+         cancelada_por      = auth.uid(),
+         motivo_cancelacion = 'Turno repetido' || coalesce(': se queda con el turno ' || p_se_queda, ''),
+         turno_repetido_en  = now(),
+         turno_repetido_por = auth.uid(),
+         turno_se_queda     = p_se_queda
+    from bloques b
+   where b.id = c.bloque_id
+     and b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado in ('reservada', 'llego')
+  returning c.id into v_id;
+
+  if v_id is null then
+    raise exception 'TURNO_NO_EXISTE';
+  end if;
+
+  return p_turno;
+end;
+$$;
+
+revoke execute on function cancelar_turno_repetido(int, int) from public, anon;
+grant  execute on function cancelar_turno_repetido(int, int) to authenticated;
+
+
+--  Se cancelo el equivocado: el turno N de hoy vuelve a la fila, esperando.
+create or replace function deshacer_turno_repetido(p_turno int)
+returns int
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_id uuid;
+begin
+  perform exigir_rol(array['admin', 'voluntario']);
+
+  if not puede_escanear_fila('a_pie') then
+    raise exception 'OTRA_FILA';
+  end if;
+
+  update citas c
+     set estado             = 'reservada',
+         cancelada_en       = null,
+         cancelada_por      = null,
+         motivo_cancelacion = null,
+         turno_repetido_en  = null,
+         turno_repetido_por = null,
+         turno_se_queda     = null
+    from bloques b
+   where b.id = c.bloque_id
+     and b.fecha = current_date
+     and b.fila = 'a_pie'
+     and c.turno = p_turno
+     and c.estado = 'cancelada'
+     and c.turno_repetido_en is not null
+  returning c.id into v_id;
+
+  if v_id is null then
+    raise exception 'TURNO_NO_EXISTE';
+  end if;
+
+  return p_turno;
+end;
+$$;
+
+revoke execute on function deshacer_turno_repetido(int) from public, anon;
+grant  execute on function deshacer_turno_repetido(int) to authenticated;
+
+
+--  La caja de un pase que no se escaneo, en un dia de entrega (hoy o uno
+--  pasado). Solo el administrador. p_fila: carro (de arranque) o a_pie.
+--  Contesta MARCADA, o: FECHA_FUTURA, FILA_INVALIDA, NO_ES_DIA_DE_ENTREGA
+--  (no hubo entrega ese dia, o se cancelo), PASE_NO_EXISTE, PASE_REVOCADO
+--  (ya no tenia pase ese dia) o PASE_YA_ENTREGADO (ese dia ya recibio).
+create or replace function marcar_entrega_pase(
+  p_codigo text,
+  p_fecha  date,
+  p_fila   text default 'carro',
+  p_motivo text default null
+)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+declare
+  v_pase pases;
+  v_fila text := coalesce(nullif(trim(p_fila), ''), 'carro');
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_fecha is null or p_fecha > current_date then
+    raise exception 'FECHA_FUTURA';
+  end if;
+
+  if v_fila not in ('carro', 'a_pie') then
+    raise exception 'FILA_INVALIDA';
+  end if;
+
+  --  Un dia de entrega que no se cancelo (los de antes de dias_entrega
+  --  solo tienen horarios).
+  if not (exists (select 1 from dias_entrega d where d.fecha = p_fecha and not d.cerrado)
+          or (not exists (select 1 from dias_entrega d where d.fecha = p_fecha)
+              and exists (select 1 from bloques b where b.fecha = p_fecha))) then
+    raise exception 'NO_ES_DIA_DE_ENTREGA';
+  end if;
+
+  --  El mismo candado que registrar_entrega(): si justo lo estan
+  --  escaneando, uno espera al otro y ya ve la caja dada.
+  select pa.* into v_pase
+    from pases pa
+    join personas p on p.id = pa.persona_id
+   where upper(p.codigo_corto) = normalizar_codigo_corto(p_codigo)
+   order by pa.activo desc, pa.creado_en desc
+   limit 1
+     for update of pa;
+
+  if v_pase.id is null then
+    raise exception 'PASE_NO_EXISTE';
+  end if;
+
+  --  Ya se lo habian quitado ese dia. (Uno dado despues si se puede: a
+  --  veces se le da la caja y el pase se registra al otro dia.)
+  if not v_pase.activo and (v_pase.revocado_en at time zone 'America/Los_Angeles')::date <= p_fecha then
+    raise exception 'PASE_REVOCADO';
+  end if;
+
+  if exists (select 1 from entregas_pase e where e.pase_id = v_pase.id and e.fecha = p_fecha) then
+    raise exception 'PASE_YA_ENTREGADO';
+  end if;
+
+  insert into entregas_pase (pase_id, fecha, usuario_id, fila, a_mano, motivo)
+  values (v_pase.id, p_fecha, auth.uid(), v_fila, true,
+          left(nullif(regexp_replace(trim(coalesce(p_motivo, '')), '\s+', ' ', 'g'), ''), 200));
+
+  return 'MARCADA';
+end;
+$$;
+
+revoke execute on function marcar_entrega_pase(text, date, text, text) from public, anon;
+grant  execute on function marcar_entrega_pase(text, date, text, text) to authenticated;

@@ -222,6 +222,19 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Turno repetido y entrega de un pase a mano (sección 53)
+
+| Objeto | Qué hace |
+|---|---|
+| `citas.turno_repetido_en`, `.turno_repetido_por`, `.turno_se_queda` | Un turno a pie cancelado porque la misma persona sacó otro: cuándo, quién y con cuál se queda (si se escribió). No es "anulado" (sección 46). |
+| `cancelar_turno_repetido(turno, se_queda)` | Desde el detalle del turno en el escáner (fila a pie). Solo uno que espera o que llamaron y no estaba. `MISMO_TURNO`, `TURNO_QUE_QUEDA_NO_EXISTE`, `TURNO_NO_EXISTE`, `OTRA_FILA`. |
+| `deshacer_turno_repetido(turno)` | Se canceló el equivocado: vuelve a la fila, esperando (el mismo día). |
+| `turno_de_cita()` | Ahora también `repetido` y `se_queda`: su página le dice que ya tenía otro turno, y cuál. |
+| `turnos_a_pie_de_hoy()` | Ahora también los repetidos, con `repetido_en` y `se_queda`. |
+| `sacar_turno_a_pie()` | `TURNO_REPETIDO`: desde el teléfono del turno repetido ya no se saca otro ese día. |
+| `entregas_pase.a_mano`, `.motivo` | La caja de un pase que se marcó a mano. |
+| `marcar_entrega_pase(codigo, fecha, fila, motivo)` | Solo admin: la caja de un pase que no se escaneó, en un día de entrega (hoy o pasado). Mismo candado que el escáner, una caja por pase por día. `FECHA_FUTURA`, `FILA_INVALIDA`, `NO_ES_DIA_DE_ENTREGA`, `PASE_NO_EXISTE`, `PASE_REVOCADO`, `PASE_YA_ENTREGADO`. |
+
 ## Voluntarios: solo la entrada, pasar lista y nota (sección 52)
 
 | Objeto | Qué hace |
