@@ -8,7 +8,10 @@
  *   <script src="https://citas.casadealabanzasd.com/cajita-video.js"></script>
  *
  * - En la seccion: una franja delgada, "¿Que es Cajita de Bendicion? Mira
- *   el video".
+ *   el video". Pegando SOLO el <script> (sin el div), no hay franja: en la
+ *   pagina publicada la seccion de GoDaddy se esconde completa, sin dejar
+ *   hueco, y queda solo la esquina. En el editor deja una etiqueta, para
+ *   poder encontrar la seccion.
  * - En la esquina inferior derecha de la pagina, a los pocos segundos:
  *     * Con el video del pastor (public/medios/entrega.mp4: la entrega, la
  *       gente recibiendo): se reproduce solo, chico y sin sonido. Al tocarlo
@@ -52,6 +55,7 @@
       volver: 'Volver al video',
       chiquito: 'Hacer chiquito el video',
       cerrar: 'Cerrar el video',
+      etiqueta: 'Video de Cajita de Bendición: sale en la esquina de la página publicada.',
     },
     en: {
       titulo: 'Cajita de Bendición',
@@ -63,6 +67,7 @@
       volver: 'Back to the video',
       chiquito: 'Make the video small',
       cerrar: 'Close the video',
+      etiqueta: 'Cajita de Bendición video: it shows in the corner of the published page.',
     },
     vi: {
       titulo: 'Cajita de Bendición',
@@ -74,6 +79,7 @@
       volver: 'Quay lại video',
       chiquito: 'Thu nhỏ video',
       cerrar: 'Đóng video',
+      etiqueta: 'Video Cajita de Bendición: hiện ở góc trang khi đã xuất bản.',
     },
   }
   var preferido = ((navigator.languages && navigator.languages[0]) || navigator.language || 'es').slice(0, 2).toLowerCase()
@@ -378,7 +384,8 @@
     estilos(
       document,
       'cdb-estilos-franja',
-      '.cdb-franja{box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;max-width:560px;min-height:72px;margin:8px auto;padding:10px 12px 10px 10px;' +
+      'html,body{margin:0;overflow:hidden}' +
+        '.cdb-franja{box-sizing:border-box;display:flex;align-items:center;gap:14px;width:100%;max-width:560px;min-height:72px;margin:0 auto;padding:10px 12px 10px 10px;' +
         'border:0;border-radius:999px;cursor:pointer;text-align:left;color:#fff;background:#1B3A6B;box-shadow:0 8px 22px rgba(27,58,107,.25);' + LETRA +
         'transition:transform .2s ease,box-shadow .2s ease;-webkit-tap-highlight-color:transparent}' +
         '.cdb-franja:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(27,58,107,.35)}' +
@@ -398,6 +405,9 @@
     franja.innerHTML =
       '<img alt="" src="' + LOGO + '"><span class="cdb-franja-textos"><b></b><small></small></span>' +
       '<span class="cdb-franja-play">' + TRIANGULO + '</span>'
+    //  El aire va por dentro (padding): GoDaddy mide el alto sin los margenes
+    //  y, con margen, le faltaban 16 px y salia una barrita.
+    lugar.style.padding = '10px 0 16px'
     franja.querySelector('b').textContent = T.pregunta
     franja.querySelector('small').textContent = T.ver
     franja.addEventListener('click', function () {
@@ -419,6 +429,34 @@
     lugar.appendChild(franja)
   }
 
+  // =================== Solo el <script>: sin franja ===================
+  function sinFranja() {
+    if (!enRecuadro || !arriba || document.getElementById('cajita-de-bendicion')) return
+    var publicada = false
+    try {
+      publicada = /(^|\.)casadealabanzasd\.com$/i.test(arriba.location.hostname)
+    } catch {
+      publicada = false
+    }
+    if (publicada) {
+      //  La seccion de GoDaddy entera fuera de la vista: sin hueco blanco.
+      var marco = window.frameElement
+      var seccion = marco && (marco.closest('[data-aid="HTML_SECTION_RENDERED"]') || marco.closest('section'))
+      if (seccion) seccion.style.display = 'none'
+      return
+    }
+    //  En el editor (u otra pagina): una etiqueta, para encontrar la seccion.
+    estilos(
+      document,
+      'cdb-estilos-etiqueta',
+      'html,body{margin:0;overflow:hidden}.cdb-etiqueta{margin:0;padding:10px 12px;text-align:center;font-size:15px;color:#1B3A6B;' + LETRA + '}',
+    )
+    var etiqueta = document.createElement('p')
+    etiqueta.className = 'cdb-etiqueta'
+    etiqueta.textContent = '▶ ' + T.etiqueta
+    document.body.appendChild(etiqueta)
+  }
+
   // =================== Arranque ===================
   function arrancar() {
     if (!enRecuadro) {
@@ -433,6 +471,7 @@
       arriba.document.head.appendChild(s)
     }
     montarFranja()
+    sinFranja()
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar)

@@ -84,7 +84,21 @@ sistema de citas.
 
 ---
 
-## Opción 1: la portada del video en un lugar de la página (la segura)
+## Solo el video en la esquina, sin franja (la que se usa)
+
+En una sección **HTML** de GoDaddy (cualquier lugar de la página) se pega
+**solo esta línea**:
+
+```html
+<script src="https://citas.casadealabanzasd.com/cajita-video.js"></script>
+```
+
+En la página publicada la sección **se esconde completa** (sin hueco blanco)
+y queda solo el video en la esquina. En el editor de GoDaddy la sección
+enseña una etiqueta («Video de Cajita de Bendición: sale en la esquina de la
+página publicada») para poder encontrarla y borrarla.
+
+## Opción 1: con la franja «¿Qué es Cajita de Bendición?» en la página
 
 GoDaddy siempre tiene la sección «HTML».
 
