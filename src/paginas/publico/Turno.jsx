@@ -280,8 +280,9 @@ export default function Turno() {
   // ---------------- Ya tiene su turno ----------------
   if (miTurno) {
     const esTuTurno = situacion?.tipo === 'tuTurno'
-    //  Anulado (seccion 46): ni su numero ni su QR sirven ya; no se ensenan.
-    const anulado = situacion?.tipo === 'anulado'
+    //  Anulado (seccion 46) o cancelado por repetido (seccion 53): ni su
+    //  numero ni su QR sirven ya; no se ensenan.
+    const anulado = situacion?.tipo === 'anulado' || situacion?.tipo === 'repetido'
 
     //  El numero arriba, el QR en medio y el codigo abajo: todo en una
     //  sola captura de pantalla (26 de octubre de 2026). Lo demas, despues.
@@ -336,6 +337,15 @@ export default function Turno() {
             <p className="mt-3 text-base text-principal/80">{t('turnoAPie.codigoEsTuyo')}</p>
           </Tarjeta>
         )}
+
+        {/* Con su turno tambien puede ver como va toda la fila (27 de octubre de 2026). */}
+        <Link
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-4 text-lg font-semibold text-principal shadow-sm transition hover:border-principal"
+          to="/fila"
+        >
+          <LuUsers aria-hidden="true" className="h-6 w-6 text-accion" />
+          {t('turnoAPie.verFila')}
+        </Link>
 
         <Tarjeta>{avisos}</Tarjeta>
 

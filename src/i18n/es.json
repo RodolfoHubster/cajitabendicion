@@ -138,7 +138,9 @@
       "FILA_INVALIDA": "Elige la fila de carros o la fila a pie.",
       "OTRA_FILA": "Eso es de la otra fila.",
       "SOLO_HOY": "Solo se puede ver la fila de hoy.",
-      "TURNO_NO_EXISTE": "Ese turno ya no está esperando."
+      "TURNO_NO_EXISTE": "Ese turno ya no está esperando.",
+      "MISMO_TURNO": "El turno con el que se queda no puede ser el mismo que se cancela.",
+      "TURNO_QUE_QUEDA_NO_EXISTE": "Ese turno no existe hoy (o también está cancelado). Revisa el número, o déjalo en blanco."
     },
     "otraFechaDetalle": "Su cita es para el {{fecha}} a las {{hora}}. No procede.",
     "autorizar": {
@@ -235,8 +237,21 @@
         "esperando": "Esperando su turno",
         "saltado": "Lo llamaron a las {{hora}} y no estaba · {{hace}}",
         "recibio": "Ya recibió a las {{hora}}",
-        "anulado": "Turno anulado a las {{hora}}"
-      }
+        "anulado": "Turno anulado a las {{hora}}",
+        "repetido": "Cancelado a las {{hora}}: ya tenía otro turno"
+      },
+      "repetido": {
+        "boton": "Sacó otro turno: cancelar este",
+        "pregunta": "¿Cancelar el turno {{turno}}? Es para cuando la misma persona sacó dos turnos: se queda con el otro.",
+        "seQueda": "¿Con qué turno se queda? (opcional)",
+        "si": "Sí, cancelar el turno {{turno}}",
+        "no": "No",
+        "listo": "Listo: el turno {{turno}} se canceló. En su teléfono le sale que ya tenía otro.",
+        "regresar": "Se canceló por error: regresarlo a la fila",
+        "regresado": "Listo: el turno {{turno}} regresó a la fila."
+      },
+      "seQueda": "Se queda con el turno",
+      "cancelado": "Se canceló"
     },
     "preferente": {
       "nota": "Para reconocerla: {{nota}}",
@@ -1756,7 +1771,10 @@
     "otroDia": "El día de la entrega, aquí mismo vas a ver qué turno va.",
     "seActualiza": "Se actualiza solo cada pocos segundos.",
     "terminada": "La fila de hoy ya terminó. Gracias por venir; te esperamos en la próxima entrega.",
-    "anulado": "Tu turno se anuló porque te llamaron y no estabas. Si todavía quieres tu despensa, saca un turno nuevo: esperarás desde el final de la fila."
+    "anulado": "Tu turno se anuló porque te llamaron y no estabas. Si todavía quieres tu despensa, saca un turno nuevo: esperarás desde el final de la fila.",
+    "repetido": "Este turno se canceló porque ya tenías otro turno.",
+    "repetidoCon": "Este turno se canceló porque ya tenías el turno {{turno}}.",
+    "repetidoAyuda": "Usa el turno que sacaste primero. Si no lo tienes, habla con una voluntaria."
   },
   "elegirFila": {
     "pregunta": "¿En qué fila estás hoy?",
@@ -2045,7 +2063,8 @@
       "AUN_NO_ABRE": "Los turnos se dan a partir de las {{hora}}.",
       "NO_HAY_FILA": "Hoy no hay fila a pie.",
       "CERRADA": "Ya no se dan más turnos hoy.",
-      "TURNOS_ANULADOS": "Hoy ya se anularon dos turnos tuyos porque no estabas cuando te llamaron. Si necesitas ayuda, habla con una voluntaria."
+      "TURNOS_ANULADOS": "Hoy ya se anularon dos turnos tuyos porque no estabas cuando te llamaron. Si necesitas ayuda, habla con una voluntaria.",
+      "TURNO_REPETIDO": "Desde este teléfono se sacaron dos turnos hoy y uno se canceló. Usa el que te quedó; si no lo tienes, habla con una voluntaria."
     },
     "errores": {
       "SIN_CONEXION": "No hay conexión. Revisa tu señal y vuelve a tocar el botón.",

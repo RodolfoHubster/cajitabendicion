@@ -23,6 +23,8 @@ import {
   anularTurno,
   buscarTurnos,
   estadoDeTurno,
+  cancelarTurnoRepetido,
+  deshacerTurnoRepetido,
   estadoFilaAPie,
   filaAlDia,
   haceCuanto,
@@ -499,5 +501,29 @@ describe('la tira de números de /fila', () => {
     expect(fichasDeLaFila({ ultimo: 25, actual: null, total: 25 })).toEqual([{ numero: 25, tipo: 'recibio' }])
     expect(fichasDeLaFila({ ultimo: null, actual: 1, total: 1 })).toEqual([{ numero: 1, tipo: 'llamando' }])
     expect(fichasDeLaFila({ ultimo: null, actual: null, total: 0 })).toEqual([])
+  })
+})
+
+describe('turno repetido (sección 53)', () => {
+  it('el escáner lo distingue de uno anulado', () => {
+    expect(estadoDeTurno({ turno: 9, estado: 'cancelada', repetido_en: '2026-10-27T15:00:00' })).toBe('repetido')
+    expect(estadoDeTurno({ turno: 9, estado: 'cancelada', anulado_en: '2026-10-27T15:00:00' })).toBe('anulado')
+  })
+
+  it('la persona sabe que ya tenía otro, y cuál', () => {
+    expect(situacionDelTurno({ turno: 9, estado: 'cancelada', repetido: true, se_queda: 4 })).toEqual({ tipo: 'repetido', seQueda: 4 })
+    expect(situacionDelTurno({ turno: 9, estado: 'cancelada', repetido: true })).toEqual({ tipo: 'repetido', seQueda: null })
+  })
+
+  it('cancelar y regresar llaman lo suyo; el que se queda, solo si es un número', async () => {
+    supabase.rpc.mockResolvedValue({ data: 9, error: null })
+    await cancelarTurnoRepetido('9', '4')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('cancelar_turno_repetido', { p_turno: 9, p_se_queda: 4 })
+    await cancelarTurnoRepetido(9, '')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('cancelar_turno_repetido', { p_turno: 9, p_se_queda: null })
+    await deshacerTurnoRepetido(9)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('deshacer_turno_repetido', { p_turno: 9 })
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'TURNO_QUE_QUEDA_NO_EXISTE' } })
+    await expect(cancelarTurnoRepetido(9, 99)).rejects.toThrow('TURNO_QUE_QUEDA_NO_EXISTE')
   })
 })

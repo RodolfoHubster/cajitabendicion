@@ -470,6 +470,7 @@ export default function Escanear() {
       <BuscarTurno
         actual={turnoQueVa}
         alAnular={anularPorTurno}
+        alCambio={() => setVersionTurnos((n) => n + 1)}
         alEntregar={entregarPorTurno}
         alRegresar={regresarTurno}
         ocupado={ocupado}

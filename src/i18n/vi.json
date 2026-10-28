@@ -143,7 +143,9 @@
       "FILA_INVALIDA": "Hãy chọn hàng xe hoặc hàng đi bộ.",
       "OTRA_FILA": "Mã này thuộc hàng kia.",
       "SOLO_HOY": "Chỉ xem được hàng của hôm nay.",
-      "TURNO_NO_EXISTE": "Số đó không còn đang chờ."
+      "TURNO_NO_EXISTE": "Số đó không còn đang chờ.",
+      "MISMO_TURNO": "Số được giữ không thể trùng với số bị hủy.",
+      "TURNO_QUE_QUEDA_NO_EXISTE": "Hôm nay không có số đó (hoặc cũng đã bị hủy). Kiểm tra lại, hoặc để trống."
     },
     "otraFechaDetalle": "Lịch hẹn của họ vào {{fecha}} lúc {{hora}}. Không hợp lệ.",
     "autorizar": {
@@ -240,8 +242,21 @@
         "esperando": "Đang chờ",
         "saltado": "Đã gọi lúc {{hora}} nhưng không có mặt · {{hace}}",
         "recibio": "Đã nhận lúc {{hora}}",
-        "anulado": "Đã hủy lúc {{hora}}"
-      }
+        "anulado": "Đã hủy lúc {{hora}}",
+        "repetido": "Đã hủy lúc {{hora}}: đã có số khác"
+      },
+      "repetido": {
+        "boton": "Đã lấy số khác: hủy số này",
+        "pregunta": "Hủy số {{turno}}? Dùng khi cùng một người lấy hai số: họ giữ số kia.",
+        "seQueda": "Họ giữ số nào? (không bắt buộc)",
+        "si": "Có, hủy số {{turno}}",
+        "no": "Không",
+        "listo": "Xong: số {{turno}} đã bị hủy. Điện thoại của họ báo rằng họ đã có số khác.",
+        "regresar": "Hủy nhầm: đưa lại vào hàng",
+        "regresado": "Xong: số {{turno}} đã trở lại hàng."
+      },
+      "seQueda": "Giữ số",
+      "cancelado": "Đã hủy"
     },
     "preferente": {
       "nota": "Để nhận ra: {{nota}}",
@@ -1747,7 +1762,10 @@
     "otroDia": "Vào ngày phát, bạn sẽ thấy tại đây đang gọi số nào.",
     "seActualiza": "Tự cập nhật mỗi vài giây.",
     "terminada": "Hàng hôm nay đã kết thúc. Cảm ơn bạn đã đến; hẹn gặp bạn ở lần phát tiếp theo.",
-    "anulado": "Số của bạn đã bị hủy vì đã gọi đến mà bạn không có mặt. Nếu bạn vẫn muốn nhận thực phẩm, hãy lấy số mới: bạn sẽ chờ từ cuối hàng."
+    "anulado": "Số của bạn đã bị hủy vì đã gọi đến mà bạn không có mặt. Nếu bạn vẫn muốn nhận thực phẩm, hãy lấy số mới: bạn sẽ chờ từ cuối hàng.",
+    "repetido": "Số này đã bị hủy vì bạn đã có một số khác.",
+    "repetidoCon": "Số này đã bị hủy vì bạn đã có số {{turno}}.",
+    "repetidoAyuda": "Hãy dùng số bạn lấy trước. Nếu không còn, hãy nói với tình nguyện viên."
   },
   "elegirFila": {
     "pregunta": "Hôm nay bạn ở hàng nào?",
@@ -2022,7 +2040,8 @@
       "AUN_NO_ABRE": "Số được phát từ {{hora}}.",
       "NO_HAY_FILA": "Hôm nay không có hàng đi bộ.",
       "CERRADA": "Hôm nay không phát thêm số nữa.",
-      "TURNOS_ANULADOS": "Hôm nay đã có hai số của bạn bị hủy vì bạn không có mặt khi được gọi. Nếu cần giúp đỡ, hãy nói với tình nguyện viên."
+      "TURNOS_ANULADOS": "Hôm nay đã có hai số của bạn bị hủy vì bạn không có mặt khi được gọi. Nếu cần giúp đỡ, hãy nói với tình nguyện viên.",
+      "TURNO_REPETIDO": "Hôm nay điện thoại này đã lấy hai số và một số đã bị hủy. Hãy dùng số còn lại; nếu không còn, hãy nói với tình nguyện viên."
     },
     "errores": {
       "SIN_CONEXION": "Không có kết nối. Kiểm tra sóng và bấm lại.",

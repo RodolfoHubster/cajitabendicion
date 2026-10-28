@@ -1,11 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuInfo, LuPackageCheck, LuQrCode, LuRotateCcw, LuSearch, LuX } from 'react-icons/lu'
+import { LuCopyX, LuInfo, LuPackageCheck, LuQrCode, LuRotateCcw, LuSearch, LuX } from 'react-icons/lu'
 import Boton from './Boton'
 import { EsqueletoLista } from './Esqueleto'
 import LlegoTarde from './LlegoTarde'
 import { dibujarQR } from '../datos/cita'
-import { buscarTurnos, estadoDeTurno, haceCuanto, horaDeMarca, qrDeTurno, turnosAPieDeHoy } from '../datos/filaAPie'
+import {
+  buscarTurnos,
+  cancelarTurnoRepetido,
+  deshacerTurnoRepetido,
+  estadoDeTurno,
+  haceCuanto,
+  horaDeMarca,
+  qrDeTurno,
+  turnosAPieDeHoy,
+} from '../datos/filaAPie'
 
 //  Mientras se busca, la lista se vuelve a pedir si ya tiene mas que esto.
 const VIGENCIA_MS = 8000
@@ -16,6 +25,7 @@ const COLOR_ESTADO = {
   saltado: 'text-principal font-semibold',
   recibio: 'text-ya-recibio font-semibold',
   anulado: 'text-principal/70',
+  repetido: 'text-principal/70',
 }
 
 const BORDE_ESTADO = {
@@ -24,6 +34,7 @@ const BORDE_ESTADO = {
   saltado: 'border-accion bg-accion/10',
   recibio: 'border-ya-recibio/40 bg-ya-recibio/5',
   anulado: 'border-principal/15 bg-principal/5',
+  repetido: 'border-principal/15 bg-principal/5',
 }
 
 //  "Turno 2 · María, chamarra roja" -> "María, chamarra roja"; "Turno 2" -> "".
@@ -39,12 +50,16 @@ const senaDe = (nombre) => String(nombre ?? '').replace(/^Turno \d+\s*(·\s*)?/,
  *                    si ya recibio o si se anulo, abre su detalle.
  *   La "i"           su detalle: codigo, a que hora saco su turno, si lo
  *                    llamaron, si recibio, su QR; y Entregar, Anular o
- *                    Regresar a la fila.
+ *                    Regresar a la fila. Seccion 53: y cancelarlo si la
+ *                    misma persona saco otro turno (o regresarlo, si se
+ *                    cancelo el equivocado).
+ *
+ * alCambio: para que la fila de la voluntaria se vuelva a pedir.
  *
  * El codigo solo se ve en el detalle: es lo que prueba de quien es el turno,
  * y la persona de enfrente alcanza a ver la pantalla.
  */
-export default function BuscarTurno({ actual = null, version = 0, ocupado = false, alEntregar, alAnular, alRegresar }) {
+export default function BuscarTurno({ actual = null, version = 0, ocupado = false, alEntregar, alAnular, alRegresar, alCambio }) {
   const { t } = useTranslation()
   const [texto, setTexto] = useState('')
   const [conLetras, setConLetras] = useState(false)
@@ -169,7 +184,9 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
             const estado = estadoDeTurno(fila, actual)
             const directo = estado === 'esperando' || estado === 'va'
             const sena = senaDe(fila.nombre)
-            const marca = { saltado: fila.saltado_en, recibio: fila.entregado_en, anulado: fila.anulado_en }[estado]
+            const marca = { saltado: fila.saltado_en, recibio: fila.entregado_en, anulado: fila.anulado_en, repetido: fila.repetido_en }[
+              estado
+            ]
             const verDetalle = () => setAbierto((antes) => (antes === fila.turno ? null : fila.turno))
 
             return (
@@ -215,6 +232,10 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
                   <DetalleTurno
                     alAnular={hecho(alAnular)}
                     alEntregar={hecho(alEntregar)}
+                    alCambio={() => {
+                      setPedir((n) => n + 1)
+                      alCambio?.()
+                    }}
                     alRegresar={hecho(alRegresar)}
                     estado={estado}
                     fila={fila}
@@ -231,11 +252,31 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
 }
 
 /** El detalle de un turno: sus datos, su QR y lo que se puede hacer con el. */
-function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar }) {
+function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar, alCambio }) {
   const { t } = useTranslation()
   const [qr, setQr] = useState(null)
   const [errorQr, setErrorQr] = useState(null)
   const vivo = estado === 'esperando' || estado === 'va' || estado === 'saltado'
+  //  Turno repetido (seccion 53): null, o el turno con el que se queda mientras se pregunta.
+  const [repetido, setRepetido] = useState(null)
+  const [haciendo, setHaciendo] = useState(false)
+  const [aviso, setAviso] = useState(null)
+  const [errorRepetido, setErrorRepetido] = useState(null)
+
+  async function hacerRepetido(accion, texto) {
+    setHaciendo(true)
+    setErrorRepetido(null)
+    try {
+      await accion()
+      setRepetido(null)
+      setAviso(texto)
+      alCambio()
+    } catch (e) {
+      setErrorRepetido(e.message)
+    } finally {
+      setHaciendo(false)
+    }
+  }
 
   async function alternarQr() {
     if (qr) {
@@ -257,6 +298,8 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar 
     fila.saltado_en && ['llamado', `${horaDeMarca(fila.saltado_en)} · ${haceCuanto(t, fila.saltado_en)}`],
     fila.entregado_en && ['recibio', horaDeMarca(fila.entregado_en)],
     fila.anulado_en && ['anulado', horaDeMarca(fila.anulado_en)],
+    fila.repetido_en && ['cancelado', horaDeMarca(fila.repetido_en)],
+    fila.repetido_en && fila.se_queda && ['seQueda', <span className="font-titulo text-xl font-bold" key="q">{fila.se_queda}</span>],
   ].filter(Boolean)
 
   return (
@@ -312,6 +355,84 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar 
           </button>
         )}
       </div>
+
+      {/* La misma persona saco otro turno: se cancela este y se queda con el otro. */}
+      {vivo && repetido === null && (
+        <button
+          className="inline-flex min-h-12 items-center gap-2 text-base font-semibold text-ya-recibio underline underline-offset-4 disabled:opacity-60"
+          disabled={ocupado || haciendo}
+          onClick={() => {
+            setAviso(null)
+            setRepetido('')
+          }}
+          type="button"
+        >
+          <LuCopyX aria-hidden="true" className="h-5 w-5" />
+          {t('escaneo.turnos.repetido.boton')}
+        </button>
+      )}
+      {vivo && repetido !== null && (
+        <div className="space-y-3 rounded-xl border-2 border-ya-recibio/40 bg-ya-recibio/5 p-3" role="alertdialog">
+          <p className="text-base font-semibold text-principal">{t('escaneo.turnos.repetido.pregunta', { turno: fila.turno })}</p>
+          <label className="flex flex-col gap-1 text-base font-semibold text-principal" htmlFor={`se-queda-${fila.turno}`}>
+            {t('escaneo.turnos.repetido.seQueda')}
+            <input
+              className="min-h-12 w-32 rounded-xl border border-principal/25 bg-superficie px-3 font-titulo text-xl font-bold text-principal outline-none focus:border-principal"
+              id={`se-queda-${fila.turno}`}
+              inputMode="numeric"
+              onChange={(e) => setRepetido(e.target.value.replace(/\D/g, '').slice(0, 5))}
+              placeholder="12"
+              value={repetido}
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-peligro px-4 text-base font-bold text-white disabled:opacity-50"
+              disabled={haciendo}
+              onClick={() =>
+                hacerRepetido(
+                  () => cancelarTurnoRepetido(fila.turno, repetido),
+                  t('escaneo.turnos.repetido.listo', { turno: fila.turno }),
+                )
+              }
+              type="button"
+            >
+              {t('escaneo.turnos.repetido.si', { turno: fila.turno })}
+            </button>
+            <button
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-principal/30 bg-superficie px-4 text-base font-semibold text-principal"
+              onClick={() => setRepetido(null)}
+              type="button"
+            >
+              {t('escaneo.turnos.repetido.no')}
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Se cancelo el equivocado: regresa a la fila, esperando. */}
+      {estado === 'repetido' && (
+        <button
+          className="inline-flex min-h-12 items-center gap-2 text-base font-semibold text-principal underline underline-offset-4 disabled:opacity-60"
+          disabled={ocupado || haciendo}
+          onClick={() =>
+            hacerRepetido(() => deshacerTurnoRepetido(fila.turno), t('escaneo.turnos.repetido.regresado', { turno: fila.turno }))
+          }
+          type="button"
+        >
+          <LuRotateCcw aria-hidden="true" className="h-5 w-5 text-accion" />
+          {t('escaneo.turnos.repetido.regresar')}
+        </button>
+      )}
+      {aviso && (
+        <p className="rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
+          {aviso}
+        </p>
+      )}
+      {errorRepetido && (
+        <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+          {t(`escaneo.errores.${errorRepetido}`, { defaultValue: t('escaneo.errores.ERROR_DESCONOCIDO') })}
+        </p>
+      )}
 
       {qr && (
         <img

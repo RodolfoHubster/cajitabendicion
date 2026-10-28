@@ -138,7 +138,9 @@
       "FILA_INVALIDA": "Choose the car line or the walk-up line.",
       "OTRA_FILA": "That belongs to the other line.",
       "SOLO_HOY": "Only today's line can be viewed.",
-      "TURNO_NO_EXISTE": "That number is no longer waiting."
+      "TURNO_NO_EXISTE": "That number is no longer waiting.",
+      "MISMO_TURNO": "The number they keep cannot be the same one being canceled.",
+      "TURNO_QUE_QUEDA_NO_EXISTE": "That number does not exist today (or is also canceled). Check it, or leave it blank."
     },
     "otraFechaDetalle": "Their appointment is on {{fecha}} at {{hora}}. Not valid.",
     "autorizar": {
@@ -235,8 +237,21 @@
         "esperando": "Waiting",
         "saltado": "Called at {{hora}} and wasn't here · {{hace}}",
         "recibio": "Received at {{hora}}",
-        "anulado": "Voided at {{hora}}"
-      }
+        "anulado": "Voided at {{hora}}",
+        "repetido": "Canceled at {{hora}}: already had another number"
+      },
+      "repetido": {
+        "boton": "Got another number: cancel this one",
+        "pregunta": "Cancel number {{turno}}? Use this when the same person took two numbers: they keep the other one.",
+        "seQueda": "Which number do they keep? (optional)",
+        "si": "Yes, cancel number {{turno}}",
+        "no": "No",
+        "listo": "Done: number {{turno}} was canceled. Their phone says they already had another one.",
+        "regresar": "Canceled by mistake: put it back in line",
+        "regresado": "Done: number {{turno}} is back in line."
+      },
+      "seQueda": "Keeps number",
+      "cancelado": "Canceled"
     },
     "preferente": {
       "nota": "How to recognize them: {{nota}}",
@@ -1756,7 +1771,10 @@
     "otroDia": "On delivery day, you will see here which number is being served.",
     "seActualiza": "Updates by itself every few seconds.",
     "terminada": "Today's line is over. Thank you for coming; we hope to see you at the next distribution.",
-    "anulado": "Your number was voided because it was called and you weren't here. If you still want your groceries, get a new number: you'll wait from the end of the line."
+    "anulado": "Your number was voided because it was called and you weren't here. If you still want your groceries, get a new number: you'll wait from the end of the line.",
+    "repetido": "This number was canceled because you already had another number.",
+    "repetidoCon": "This number was canceled because you already had number {{turno}}.",
+    "repetidoAyuda": "Use the number you got first. If you do not have it, talk to a volunteer."
   },
   "elegirFila": {
     "pregunta": "Which line are you in today?",
@@ -2045,7 +2063,8 @@
       "AUN_NO_ABRE": "Numbers are given starting at {{hora}}.",
       "NO_HAY_FILA": "There is no walk-up line today.",
       "CERRADA": "No more numbers are being given today.",
-      "TURNOS_ANULADOS": "Two of your numbers were already voided today because you weren't here when they were called. If you need help, talk to a volunteer."
+      "TURNOS_ANULADOS": "Two of your numbers were already voided today because you weren't here when they were called. If you need help, talk to a volunteer.",
+      "TURNO_REPETIDO": "Two numbers were taken from this phone today and one was canceled. Use the one you kept; if you do not have it, talk to a volunteer."
     },
     "errores": {
       "SIN_CONEXION": "No connection. Check your signal and tap the button again.",

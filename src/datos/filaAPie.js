@@ -50,6 +50,9 @@ export const CODIGOS_FILA_A_PIE = [
   'OTRA_FILA',
   'FILA_INVALIDA',
   'DIA_YA_EXISTE',
+  //  Seccion 53.
+  'MISMO_TURNO',
+  'TURNO_QUE_QUEDA_NO_EXISTE',
 ]
 
 async function llamar(funcion, parametros) {
@@ -145,6 +148,8 @@ export async function turnoDeCita(token) {
 export function situacionDelTurno(datos) {
   if (!datos) return null
   if (datos.estado === 'entregada') return { tipo: 'recibida' }
+  //  Ya tenia otro turno y la voluntaria cancelo este (seccion 53).
+  if (datos.repetido) return { tipo: 'repetido', seQueda: datos.se_queda ?? null }
   //  La voluntaria lo anulo porque llego tarde (seccion 46): saca otro.
   if (datos.anulado) return { tipo: 'anulado' }
   if (datos.estado === 'cancelada') return { tipo: 'cancelada' }
@@ -240,6 +245,20 @@ export function anularTurno(turno) {
 }
 
 /**
+ * La misma persona saco dos turnos (seccion 53): se cancela el que sobra.
+ * seQueda (opcional): el turno que conserva, para decirselo en su pagina.
+ */
+export function cancelarTurnoRepetido(turno, seQueda = null) {
+  const queda = Number(seQueda)
+  return llamar('cancelar_turno_repetido', { p_turno: Number(turno), p_se_queda: queda > 0 ? queda : null })
+}
+
+/** Se cancelo el equivocado: vuelve a la fila, esperando. */
+export function deshacerTurnoRepetido(turno) {
+  return llamar('deshacer_turno_repetido', { p_turno: Number(turno) })
+}
+
+/**
  * Los turnos a pie de hoy, para buscar en el escaner mientras se teclea:
  * [{ turno, codigo_corto, nombre, estado, sacado_en, saltado_en,
  * entregado_en, anulado_en, dado_por }].
@@ -273,6 +292,8 @@ export function haceCuanto(t, marca) {
 
 /** Como esta un turno de la lista: 'anulado' | 'recibio' | 'saltado' | 'va' | 'esperando'. */
 export function estadoDeTurno(fila, actual = null) {
+  //  Seccion 53: se cancelo porque la persona ya tenia otro turno.
+  if (fila.repetido_en) return 'repetido'
   if (fila.anulado_en || fila.estado === 'cancelada') return 'anulado'
   if (fila.estado === 'entregada') return 'recibio'
   if (fila.saltado_en) return 'saltado'

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBellRing, LuCircleCheck, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
+import { LuBellRing, LuCircleCheck, LuCopyX, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
 import useCadaRato from './useCadaRato'
 import usePantallaEncendida from './usePantallaEncendida'
 import { CADA_MS_PERSONA, situacionDelTurno, turnoDeCita } from '../datos/filaAPie'
@@ -30,7 +30,8 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
   const anterior = useRef(null)
 
   const situacion = situacionDelTurno(datos)
-  const terminado = situacion?.tipo === 'recibida' || situacion?.tipo === 'cancelada' || situacion?.tipo === 'anulado'
+  const terminado =
+    situacion?.tipo === 'recibida' || situacion?.tipo === 'cancelada' || situacion?.tipo === 'anulado' || situacion?.tipo === 'repetido'
   //  La fila de hoy ya termino: se sigue preguntando (despacio no hace
   //  falta: si la voluntaria lo toco por error y lo deshace, aqui se ve).
   const filaTerminada = situacion?.tipo === 'terminada'
@@ -99,6 +100,17 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
         <div className="mt-3 space-y-3 rounded-xl border-2 border-ya-recibio bg-ya-recibio/10 px-3 py-3 text-principal" role="alert">
           <p className="text-lg font-bold">{t('turno.anulado')}</p>
           {accionPerdido}
+        </div>
+      )}
+
+      {/* Ya tenia otro turno y la voluntaria cancelo este (seccion 53). */}
+      {situacion?.tipo === 'repetido' && (
+        <div className="mt-3 space-y-1 rounded-xl border-2 border-ya-recibio bg-ya-recibio/10 px-3 py-3 text-principal" role="alert">
+          <p className="flex items-center justify-center gap-2 text-lg font-bold">
+            <LuCopyX aria-hidden="true" className="h-6 w-6 shrink-0" />
+            {situacion.seQueda ? t('turno.repetidoCon', { turno: situacion.seQueda }) : t('turno.repetido')}
+          </p>
+          <p className="text-base">{t('turno.repetidoAyuda')}</p>
         </div>
       )}
 
