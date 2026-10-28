@@ -2109,10 +2109,10 @@
   "credencial": {
     "etiqueta": "VOLUNTEER",
     "titulo": "Volunteer badge",
-    "enseniala": "Show it when you arrive and when you leave",
+    "enseniala": "Show it when you arrive",
     "cargando": "Getting the badge ready…",
     "qrAlt": "QR code of {{nombre}}'s badge",
-    "comoFunciona": "When you arrive, show this QR to an admin; when you leave, show it again. That is how your service hours are counted.",
+    "comoFunciona": "When you arrive, show this QR to the person who checks in volunteers. That is how your service hours are counted.",
     "soloTuya": "It is yours only: do not share it. If you lose it, ask for a new one.",
     "copiar": "Copy their link",
     "cuidado": "The link works like a key: send it only to that person (for example, by WhatsApp). If someone else got it, use «Change QR» and the old one stops working.",
@@ -2124,13 +2124,16 @@
       "titulo": "Your service hours",
       "llevas_one": "You have {{duracion}} in {{count}} day.",
       "llevas_other": "You have {{duracion}} in {{count}} days.",
-      "todavia": "No complete visits yet. Once you are scanned when you arrive and when you leave, your hours will show here.",
-      "ayuda": "Only visits with check-in and check-out count. The last 10 are shown here."
-    }
+      "todavia": "No complete visits yet. Your hours are counted at the end of each service day.",
+      "ayuda": "Only visits with check-in and check-out count. The last 10 are shown here.",
+      "todaviaYSalida": "No complete visits yet. Once you are scanned when you arrive and when you leave, your hours will show here."
+    },
+    "ensenialaYSalida": "Show it when you arrive and when you leave",
+    "comoFuncionaYSalida": "When you arrive, show this QR to an admin; when you leave, show it again. That is how your service hours are counted."
   },
   "voluntarios": {
     "titulo": "Volunteers",
-    "ayuda": "Volunteer check-in and check-out with their badge, and their service hours.",
+    "ayuda": "Volunteer attendance with their badge, and their service hours.",
     "cargando": "Loading volunteers…",
     "pestanas": {
       "entrada": "Scan",
@@ -2142,7 +2145,8 @@
       "ayuda": "If they have not checked in today, it checks them in; if they already did, it checks them out.",
       "sinCredencial": "No badge? Look them up by name",
       "buscarEjemplo": "For example: Juana",
-      "nadie": "No active volunteer with that name. Register them in the «List» tab."
+      "nadie": "No active volunteer with that name. Register them in the «List» tab.",
+      "ayudaSoloEntrada": "When they arrive. If they are already checked in, it just tells you: it never checks them out."
     },
     "resultado": {
       "ENTRADA": "Checked in",
@@ -2156,7 +2160,9 @@
       "inactivoAyuda": "Their badge does not check in. If they will serve again, reactivate them in the «List» tab.",
       "entro": "In at {{hora}}",
       "entroSalio": "In at {{entrada}} · out at {{salida}} · {{duracion}}",
-      "olvido": "On {{dia}} they left without checking out: fix it in the «Hours» tab."
+      "olvido": "On {{dia}} they left without checking out: fix it in the «Hours» tab.",
+      "yaAnotado": "Already checked in",
+      "yaVino": "Already came today"
     },
     "deshacer": "Undo",
     "deshecho": {
@@ -2190,7 +2196,10 @@
       "contacto": "Phone or email (optional)",
       "contactoAyuda": "Their phone (to send their badge by WhatsApp), their email, or both separated by a comma.",
       "boton": "Register and see their badge",
-      "contactoEjemplo": "For example: 619 555 0101, juana@gmail.com"
+      "contactoEjemplo": "For example: 619 555 0101, juana@gmail.com",
+      "repetido": "Someone is already registered as «{{nombre}}». If this is a different person, you can still register them.",
+      "nota": "Note (optional, only the team sees it)",
+      "notaEjemplo": "For example: can only come on Mondays"
     },
     "lista": {
       "titulo_one": "{{count}} active volunteer",
@@ -2234,7 +2243,8 @@
         "sinContacto": "No phone or email ({{count}})",
         "adentro": "In right now ({{count}})",
         "sinSalida": "Missing check-outs ({{count}})",
-        "deBaja": "Deactivated ({{count}})"
+        "deBaja": "Deactivated ({{count}})",
+        "sinVenir": "Not here in 30 days ({{count}})"
       },
       "ordenes": {
         "recientes": "Newest",
@@ -2254,7 +2264,10 @@
         "sms": "Sent by SMS · {{dia}}"
       },
       "sinMandar": "Badge not sent",
-      "mandar": "Send badge"
+      "mandar": "Send badge",
+      "visitas_one": "Came {{count}} day · {{ultimos}} in the last 30",
+      "visitas_other": "Came {{count}} days · {{ultimos}} in the last 30",
+      "nuncaVino": "Has not come yet"
     },
     "horas": {
       "titulo": "Service hours",
@@ -2309,7 +2322,12 @@
       "RANGO_INVALIDO": "Check the dates: «From» goes before «To», and no more than a year.",
       "TELEFONO_INVALIDO": "That phone is not complete: it needs 10 digits (with +52 in front if it is from Mexico).",
       "CORREO_INVALIDO": "That email is not complete: check what comes after the @.",
-      "MEDIO_INVALIDO": "The sending could not be recorded. Try again."
+      "MEDIO_INVALIDO": "The sending could not be recorded. Try again.",
+      "NOTA_MUY_LARGA": "The note is too long (up to 300 letters).",
+      "MODO_INVALIDO": "Choose how attendance is recorded.",
+      "HORA_INVALIDA": "Enter the check-out time.",
+      "SIN_ENTRADA_ABIERTA": "They already have a check-out. To change it, fix it in the «Hours» tab.",
+      "LISTA_INVALIDA": "Choose at least one person (up to 300)."
     },
     "contacto": {
       "whatsapp": "WhatsApp: {{telefono}}",
@@ -2343,7 +2361,8 @@
       "mensaje": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive and when you leave: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!",
       "correoWeb": "Email app not opening? Open it in the browser, already written:",
       "copiarMensaje": "Copy the message",
-      "porSms": "Send by text (SMS, no WhatsApp)"
+      "porSms": "Send by text (SMS, no WhatsApp)",
+      "mensajeSoloEntrada": "Hi {{nombre}}, this is your volunteer badge for Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nSave it on your phone and show it when you arrive: that is how your service hours are counted. It is yours only, please do not share it. Thank you for serving!"
     },
     "cierre": {
       "boton": "Check out everyone still in",
@@ -2353,7 +2372,98 @@
       "confirmar_other": "Check out {{count}}",
       "listo_one": "Done: {{count}} checked out at {{hora}}.",
       "listo_other": "Done: {{count}} checked out at {{hora}}.",
-      "ninguno": "Nobody had checked in before that time: no one was checked out."
+      "ninguno": "Nobody had checked in before that time: no one was checked out.",
+      "solaALas": "If you do not, it is set automatically at {{hora}}."
+    },
+    "resumen": {
+      "adentro": "In",
+      "vinieron": "Came today",
+      "faltan": "Regulars missing"
+    },
+    "modo": {
+      "soloEntrada": "Scan only on arrival. Check-out is set automatically at {{hora}}.",
+      "entradaSalida": "Scan on arrival and again when leaving.",
+      "cambiar": "Change"
+    },
+    "ajustes": {
+      "titulo": "How attendance is recorded",
+      "solo_entrada": {
+        "titulo": "Arrival only (recommended)",
+        "ayuda": "Scan on arrival and that is it. At {{hora}} everyone gets checked out. Anyone leaving earlier: «Left early»."
+      },
+      "entrada_salida": {
+        "titulo": "Arrival and departure",
+        "ayuda": "Scan on arrival and again when leaving. Anyone who does not scan out stays «no check-out» and needs fixing."
+      },
+      "horaSalida": "Usual check-out time",
+      "guardar": "Save"
+    },
+    "pasarLista": {
+      "abrir": "Someone did not scan? Take attendance",
+      "titulo": "Take today's attendance",
+      "volver": "Back to scanning",
+      "ayuda": "Tap the names of those who arrived and did not scan. They all get checked in at once.",
+      "llegaron": "They arrived at",
+      "buscar": "Search by name",
+      "horaFutura": "That time has not come yet.",
+      "suelenVenir": "Usually come",
+      "demas": "Everyone else",
+      "todos": "Volunteers",
+      "yaEstan": "Already checked in today",
+      "vino30_one": "Came {{count}} time this month",
+      "vino30_other": "Came {{count}} times this month",
+      "entroSalio": "In at {{entrada}} · out at {{salida}}",
+      "listo_one": "Done: {{count}} checked in at {{hora}}.",
+      "listo_other": "Done: {{count}} checked in at {{hora}}.",
+      "otros": {
+        "YA_ENTRO_one": "Was already in: {{nombres}}.",
+        "YA_ENTRO_other": "Were already in: {{nombres}}.",
+        "YA_VINO_one": "Already came today and left after that time, not repeated: {{nombres}}.",
+        "YA_VINO_other": "Already came today and left after that time, not repeated: {{nombres}}.",
+        "INACTIVO_one": "Deactivated: {{nombres}}.",
+        "INACTIVO_other": "Deactivated: {{nombres}}.",
+        "NO_EXISTE_one": "{{count}} is no longer on the list.",
+        "NO_EXISTE_other": "{{count}} are no longer on the list."
+      },
+      "nuevoListo": "Done: {{nombre}} is registered and checked in for today. Send their badge from the «List» tab.",
+      "noEsta": "Nobody named «{{nombre}}» on the list.",
+      "registrarYAnotar": "Register «{{nombre}}» and check them in",
+      "escoge": "Tap the names of those who came",
+      "anotar_one": "Check in {{count}} ({{hora}})",
+      "anotar_other": "Check in {{count}} ({{hora}})",
+      "vacia": "No volunteers registered yet."
+    },
+    "elegir": {
+      "todos": "Select all",
+      "quitarTodos": "Unselect all"
+    },
+    "temprano": {
+      "boton": "Left early",
+      "pregunta": "What time did they leave?",
+      "confirmar": "Set check-out"
+    },
+    "origen": {
+      "lista": "By attendance",
+      "nombre": "By name",
+      "salidaSola": "Checked out at the usual time",
+      "aMano": "Added by hand"
+    },
+    "dia": {
+      "abrir": "Add a day that was not scanned",
+      "abrirAyuda": "For when several came and nobody scanned: pick the day, the times and who, all at once.",
+      "titulo": "Add a day for several",
+      "ayuda": "Pick the day, what time they arrived and left, and tap who came. It records who did it and why.",
+      "fecha": "Day",
+      "motivoSugerido": "Not scanned that day",
+      "activos": "Active",
+      "deBaja": "Deactivated",
+      "listo_one": "Done: {{count}} added.",
+      "listo_other": "Done: {{count}} added.",
+      "yaTenian_one": "Already had that day, not repeated: {{nombres}}.",
+      "yaTenian_other": "Already had that day, not repeated: {{nombres}}.",
+      "anotar_one": "Add {{count}}",
+      "anotar_other": "Add {{count}}",
+      "cerrar": "Close"
     }
   },
   "constancia": {

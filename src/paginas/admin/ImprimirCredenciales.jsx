@@ -7,7 +7,7 @@ import Tarjeta from '../../componentes/Tarjeta'
 import { EsqueletoLista } from '../../componentes/Esqueleto'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { dibujarQRVoluntario } from '../../datos/qrPase'
-import { listarVoluntarios, marcarCredencialEnviada } from '../../datos/voluntarios'
+import { ajustesVoluntarios, listarVoluntarios, marcarCredencialEnviada } from '../../datos/voluntarios'
 
 /**
  * Credenciales para imprimir (seccion 49): 8 por hoja carta, para quien no
@@ -24,6 +24,22 @@ export default function ImprimirCredenciales() {
   const [error, setError] = useState(null)
   const [entregadas, setEntregadas] = useState(null)
   const [ocupado, setOcupado] = useState(false)
+  //  Seccion 52: si solo se escanea la entrada, la tarjeta no dice "y al irte".
+  const [soloEntrada, setSoloEntrada] = useState(true)
+
+  useEffect(() => {
+    let vigente = true
+    ajustesVoluntarios()
+      .then((a) => {
+        if (vigente) setSoloEntrada(a.modo === 'solo_entrada')
+      })
+      .catch(() => {
+        if (vigente) setSoloEntrada(false)
+      })
+    return () => {
+      vigente = false
+    }
+  }, [])
 
   useEffect(() => {
     let vigente = true
@@ -113,7 +129,7 @@ export default function ImprimirCredenciales() {
                 src={v.qr}
               />
               <p className="max-w-full shrink-0 truncate font-titulo text-lg font-bold leading-tight">{v.nombre}</p>
-              <p className="shrink-0 text-chica leading-tight">{t('credencial.enseniala')}</p>
+              <p className="shrink-0 text-chica leading-tight">{t(soloEntrada ? 'credencial.enseniala' : 'credencial.ensenialaYSalida')}</p>
             </div>
           ))}
         </div>

@@ -8,8 +8,10 @@ import { supabase } from '../lib/supabase'
  * (seccion 48 de schema.sql).
  *
  * No son cuentas del panel: solo su nombre y, si quiere, su telefono y su
- * correo (seccion 49: por separado). Al llegar y al irse se reportan con un administrador, que escanea
- * su credencial: si no ha entrado es su entrada, si ya entro es su salida.
+ * correo (seccion 49: por separado). Al llegar se reportan con un administrador, que escanea
+ * su credencial. Seccion 52: de arranque solo se escanea la entrada y la
+ * salida se pone sola a la hora de salida de siempre; en el modo "entrada y
+ * salida", si ya entro, el escaneo es su salida.
  * Todo es del administrador; el voluntario solo ve su credencial con su
  * enlace, como los pases.
  */
@@ -31,6 +33,12 @@ export const CODIGOS_VOLUNTARIOS = [
   'TELEFONO_INVALIDO',
   'CORREO_INVALIDO',
   'MEDIO_INVALIDO',
+  //  Seccion 52.
+  'NOTA_MUY_LARGA',
+  'MODO_INVALIDO',
+  'HORA_INVALIDA',
+  'SIN_ENTRADA_ABIERTA',
+  'LISTA_INVALIDA',
 ]
 
 /** Lo que lleva el QR de una credencial: "vol" y 48 letras o numeros. */
@@ -67,22 +75,22 @@ const opcional = (texto) => String(texto ?? '').trim() || null
 /**
  * Lo registra y devuelve { id, nombre, token }: el token es su credencial.
  * telefono con lada ('+16195550101') y correo, los dos opcionales (ver
- * separarContacto).
+ * separarContacto). Seccion 52: una nota, opcional; vacia no se manda.
  */
-export async function registrarVoluntario(nombre, { telefono = null, correo = null } = {}) {
-  return primera(
-    await llamar('registrar_voluntario', { p_nombre: nombre, p_telefono: opcional(telefono), p_correo: opcional(correo) }),
-  )
+export async function registrarVoluntario(nombre, { telefono = null, correo = null, nota = null } = {}) {
+  const parametros = { p_nombre: nombre, p_telefono: opcional(telefono), p_correo: opcional(correo) }
+  if (opcional(nota)) parametros.p_nota = opcional(nota)
+  return primera(await llamar('registrar_voluntario', parametros))
 }
 
-/** Cambia su nombre, su telefono y su correo (vacio: se quita). */
-export function editarVoluntario(id, nombre, { telefono = null, correo = null } = {}) {
-  return llamar('editar_voluntario', {
-    p_id: id,
-    p_nombre: nombre,
-    p_telefono: opcional(telefono),
-    p_correo: opcional(correo),
-  })
+/**
+ * Cambia su nombre, su telefono y su correo (vacio: se quita). La nota
+ * (seccion 52): sin pasarla se queda como esta; en blanco se quita.
+ */
+export function editarVoluntario(id, nombre, { telefono = null, correo = null, nota } = {}) {
+  const parametros = { p_id: id, p_nombre: nombre, p_telefono: opcional(telefono), p_correo: opcional(correo) }
+  if (nota !== undefined) parametros.p_nota = String(nota ?? '').trim()
+  return llamar('editar_voluntario', parametros)
 }
 
 /** Dar de baja (false) o de alta (true). */
@@ -98,7 +106,7 @@ export function nuevoQrVoluntario(id) {
 /**
  * Todos, los activos primero: { id, nombre, telefono, correo, contacto_viejo,
  * token, activo, creado_en, dentro_desde, ultima_entrada, sin_salida,
- * enviada_en, enviada_medio }.
+ * enviada_en, enviada_medio, nota, visitas, visitas_30 }.
  */
 export async function listarVoluntarios() {
   return (await llamar('listar_voluntarios', {})) ?? []
@@ -289,10 +297,13 @@ export function telefonoBonito(e164) {
   return m ? `+${m[1]} ${m[2]} ${m[3]} ${m[4]}` : texto
 }
 
-/** Que se le dice al mandarle su credencial. */
-export function mensajeCredencial(t, nombre, enlace) {
+/**
+ * Que se le dice al mandarle su credencial. soloEntrada (seccion 52): que
+ * la ensene al llegar, sin "y al irte".
+ */
+export function mensajeCredencial(t, nombre, enlace, soloEntrada = false) {
   const primero = String(nombre ?? '').trim().split(/\s+/)[0] ?? ''
-  return t('voluntarios.envio.mensaje', { nombre: primero, enlace })
+  return t(soloEntrada ? 'voluntarios.envio.mensajeSoloEntrada' : 'voluntarios.envio.mensaje', { nombre: primero, enlace })
 }
 
 /** Abre WhatsApp con el mensaje ya escrito; la persona toca Enviar. */
@@ -382,6 +393,7 @@ export const FILTROS = [
   'conCorreo',
   'sinContacto',
   'adentro',
+  'sinVenir',
   'sinSalida',
   'deBaja',
 ]
@@ -396,6 +408,8 @@ export function filtrarVoluntarios(lista, filtro = 'activos') {
     conCorreo: (v) => Boolean(v.correo),
     sinContacto: (v) => !v.telefono && !v.correo,
     adentro: (v) => Boolean(v.dentro_desde),
+    //  Seccion 52: no han venido en los ultimos 30 dias (o nunca).
+    sinVenir: (v) => !v.visitas_30 && !v.dentro_desde,
     sinSalida: (v) => v.sin_salida > 0,
   }[filtro]
   if (filtro === 'deBaja') return (lista ?? []).filter((v) => !v.activo)
@@ -405,4 +419,146 @@ export function filtrarVoluntarios(lista, filtro = 'activos') {
 /** Cuantos hay en cada filtro, para ponerlo en la lista de filtros. */
 export function contarPorFiltro(lista) {
   return Object.fromEntries(FILTROS.map((filtro) => [filtro, filtrarVoluntarios(lista, filtro).length]))
+}
+
+// ------------------------------------------------------------
+//  Seccion 52: solo la entrada, pasar lista, un dia pasado y nota
+// ------------------------------------------------------------
+
+export const MODOS = ['solo_entrada', 'entrada_salida']
+
+/**
+ * Lo que hace el sistema si todavia no se corre la actualizacion de la
+ * seccion 52: escanear entrada y salida, como antes.
+ */
+export const AJUSTES_DE_ANTES = { modo: 'entrada_salida', hora_salida: null }
+
+const horaCorta = (hora) => (hora ? String(hora).slice(0, 5) : null)
+
+/** Como se anota la asistencia: { modo, hora_salida: '18:30' }. */
+export async function ajustesVoluntarios() {
+  const fila = primera(await llamar('ajustes_voluntarios', {}))
+  return { modo: fila?.modo === 'entrada_salida' ? 'entrada_salida' : 'solo_entrada', hora_salida: horaCorta(fila?.hora_salida) ?? '18:30' }
+}
+
+/** Cambiarlo (solo el administrador). horaSalida: '18:30'. */
+export async function guardarAjustesVoluntarios(modo, horaSalida) {
+  const fila = primera(await llamar('guardar_ajustes_voluntarios', { p_modo: modo, p_hora_salida: horaSalida || null }))
+  return { modo: fila?.modo ?? modo, hora_salida: horaCorta(fila?.hora_salida) ?? horaSalida }
+}
+
+/** Poner las salidas que ya tocan (al abrir Voluntarios). Devuelve cuantas. */
+export function voluntariosAlDia() {
+  return llamar('voluntarios_al_dia', {})
+}
+
+/** Se fue temprano: su salida de hoy, a esa hora ('16:10', o ahora). Devuelve sus minutos. */
+export function salidaTemprana(asistencia, hora = null) {
+  return llamar('salida_temprana_voluntario', { p_asistencia: asistencia, p_hora: hora || null })
+}
+
+/**
+ * Pasar lista: la entrada de hoy de varios, a esa hora ('14:45', o ahora).
+ * Devuelve por cada uno { voluntario_id, nombre, resultado, asistencia_id }:
+ * ENTRADA, YA_ENTRO, YA_VINO, INACTIVO o NO_EXISTE.
+ */
+export async function pasarLista(ids, hora = null) {
+  return (await llamar('pasar_lista_voluntarios', { p_voluntarios: [...ids], p_hora: hora || null })) ?? []
+}
+
+/**
+ * Un dia que no se escaneo, a varios a la vez (solo el administrador):
+ * fecha '2026-10-26', entrada y salida '14:00', motivo. Devuelve por cada
+ * uno ANOTADA, YA_VINO o NO_EXISTE.
+ */
+export async function anotarDiaVoluntarios(ids, { fecha, entrada, salida, motivo }) {
+  return (
+    (await llamar('anotar_dia_voluntarios', {
+      p_voluntarios: [...ids],
+      p_fecha: fecha,
+      p_entrada: entrada,
+      p_salida: salida,
+      p_motivo: String(motivo ?? '').trim(),
+    })) ?? []
+  )
+}
+
+/** Sin acentos, sin mayusculas y con un solo espacio: para comparar nombres. */
+export function nombreComparable(texto) {
+  return String(texto ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Alguien ya registrado con ese mismo nombre (sin contar acentos ni
+ * mayusculas), para avisar antes de registrarlo dos veces. exceptoId: el que
+ * se esta editando.
+ */
+export function nombreRepetido(lista, nombre, exceptoId = null) {
+  const buscado = nombreComparable(nombre)
+  if (buscado.length < 3) return null
+  return (lista ?? []).find((v) => v.id !== exceptoId && nombreComparable(v.nombre) === buscado) ?? null
+}
+
+/**
+ * Pasar lista: los activos en tres montones, ya con la busqueda.
+ *   yaEstan: tienen asistencia hoy (con la mas nueva en "asistencia").
+ *   suelenVenir: vinieron en los ultimos 30 dias, los que mas primero.
+ *   demas: el resto, por nombre.
+ * hoy: lo de asistenciasDelDia().
+ */
+export function montonesParaPasarLista(voluntarios, hoy, busqueda = '') {
+  const deHoy = new Map()
+  for (const a of hoy ?? []) {
+    const antes = deHoy.get(a.voluntario_id)
+    if (!antes || String(a.entrada) > String(antes.entrada)) deHoy.set(a.voluntario_id, a)
+  }
+  const buscado = nombreComparable(busqueda)
+  const activos = (voluntarios ?? []).filter(
+    (v) => v.activo && (!buscado || nombreComparable(v.nombre).includes(buscado)),
+  )
+  const porNombre = (a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es', { sensitivity: 'base' })
+  const yaEstan = activos.filter((v) => deHoy.has(v.id)).map((v) => ({ ...v, asistencia: deHoy.get(v.id) }))
+  const faltan = activos.filter((v) => !deHoy.has(v.id))
+  const suelenVenir = faltan.filter((v) => v.visitas_30 > 0).sort((a, b) => b.visitas_30 - a.visitas_30 || porNombre(a, b))
+  const demas = faltan.filter((v) => !(v.visitas_30 > 0)).sort(porNombre)
+  return { yaEstan: yaEstan.sort(porNombre), suelenVenir, demas }
+}
+
+/**
+ * Lo de hoy en numeros: { adentro, vinieron, faltan }. faltan: los que
+ * suelen venir (ultimos 30 dias) y hoy no han llegado.
+ */
+export function resumenDeHoy(voluntarios, hoy) {
+  const vinieron = new Set((hoy ?? []).map((a) => a.voluntario_id))
+  return {
+    adentro: (hoy ?? []).filter((a) => a.estado === 'dentro').length,
+    vinieron: vinieron.size,
+    faltan: (voluntarios ?? []).filter((v) => v.activo && v.visitas_30 > 0 && !vinieron.has(v.id)).length,
+  }
+}
+
+/** Cuantos de cada resultado, y los nombres de cada uno: { ENTRADA: { cuantos, nombres } }. */
+export function contarResultados(filas) {
+  const cuentas = {}
+  for (const f of filas ?? []) {
+    const c = (cuentas[f.resultado] ??= { cuantos: 0, nombres: [] })
+    c.cuantos += 1
+    if (f.nombre) c.nombres.push(f.nombre)
+  }
+  return cuentas
+}
+
+/**
+ * La hora que se propone al terminar el dia: en modo solo la entrada, la de
+ * salida de siempre si ya paso; si no (o en el otro modo), ahora. ahora:
+ * '17:05'.
+ */
+export function horaParaCerrar(ajustes, ahora) {
+  if (ajustes?.modo === 'solo_entrada' && ajustes.hora_salida && ajustes.hora_salida < ahora) return ajustes.hora_salida
+  return ahora
 }

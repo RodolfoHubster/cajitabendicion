@@ -2109,10 +2109,10 @@
   "credencial": {
     "etiqueta": "VOLUNTARIO",
     "titulo": "Credencial de voluntario",
-    "enseniala": "Enséñala al llegar y al irte",
+    "enseniala": "Enséñala al llegar",
     "cargando": "Preparando la credencial…",
     "qrAlt": "Código QR de la credencial de {{nombre}}",
-    "comoFunciona": "Cuando llegues, enséñale este QR a un administrador; cuando te vayas, otra vez. Así se cuentan tus horas de servicio.",
+    "comoFunciona": "Cuando llegues, enséñale este QR a quien recibe a los voluntarios. Así se cuentan tus horas de servicio.",
     "soloTuya": "Es solo tuya: no se la pases a nadie. Si la pierdes, pide una nueva.",
     "copiar": "Copiar su enlace",
     "cuidado": "El enlace es como su llave: mándaselo solo a esa persona (por ejemplo, por WhatsApp). Si se le pasó a alguien más, usa «Cambiar QR» y la anterior deja de servir.",
@@ -2124,13 +2124,16 @@
       "titulo": "Tus horas de servicio",
       "llevas_one": "Llevas {{duracion}} en {{count}} día.",
       "llevas_other": "Llevas {{duracion}} en {{count}} días.",
-      "todavia": "Todavía no tienes visitas completas. Cuando te escaneen al llegar y al irte, aquí verás tus horas.",
-      "ayuda": "Solo cuentan las visitas con entrada y salida. Aquí salen las últimas 10."
-    }
+      "todavia": "Todavía no tienes visitas completas. Tus horas se cuentan al terminar cada día de servicio.",
+      "ayuda": "Solo cuentan las visitas con entrada y salida. Aquí salen las últimas 10.",
+      "todaviaYSalida": "Todavía no tienes visitas completas. Cuando te escaneen al llegar y al irte, aquí verás tus horas."
+    },
+    "ensenialaYSalida": "Enséñala al llegar y al irte",
+    "comoFuncionaYSalida": "Cuando llegues, enséñale este QR a un administrador; cuando te vayas, otra vez. Así se cuentan tus horas de servicio."
   },
   "voluntarios": {
     "titulo": "Voluntarios",
-    "ayuda": "La entrada y salida de los voluntarios con su credencial, y sus horas de servicio.",
+    "ayuda": "La asistencia de los voluntarios con su credencial, y sus horas de servicio.",
     "cargando": "Cargando voluntarios…",
     "pestanas": {
       "entrada": "Escanear",
@@ -2142,7 +2145,8 @@
       "ayuda": "Si no ha entrado hoy, se marca su entrada; si ya entró, su salida.",
       "sinCredencial": "¿No trae su credencial? Búscalo por su nombre",
       "buscarEjemplo": "Por ejemplo: Juana",
-      "nadie": "No hay un voluntario activo con ese nombre. Regístralo en la pestaña «Lista»."
+      "nadie": "No hay un voluntario activo con ese nombre. Regístralo en la pestaña «Lista».",
+      "ayudaSoloEntrada": "Al llegar. Si ya está anotado, solo te lo dice: nunca lo saca."
     },
     "resultado": {
       "ENTRADA": "Entrada",
@@ -2156,7 +2160,9 @@
       "inactivoAyuda": "Su credencial no marca entrada. Si va a volver a servir, dalo de alta en la pestaña «Lista».",
       "entro": "Entró a las {{hora}}",
       "entroSalio": "Entró a las {{entrada}} · salió a las {{salida}} · {{duracion}}",
-      "olvido": "El {{dia}} se fue sin marcar su salida: corrígela en la pestaña «Horas»."
+      "olvido": "El {{dia}} se fue sin marcar su salida: corrígela en la pestaña «Horas».",
+      "yaAnotado": "Ya está anotado",
+      "yaVino": "Ya vino hoy"
     },
     "deshacer": "Deshacer",
     "deshecho": {
@@ -2190,7 +2196,10 @@
       "contacto": "Teléfono o correo (opcional)",
       "contactoAyuda": "Su teléfono (para mandarle su credencial por WhatsApp), su correo, o los dos separados por una coma.",
       "boton": "Registrar y ver su credencial",
-      "contactoEjemplo": "Por ejemplo: 619 555 0101, juana@gmail.com"
+      "contactoEjemplo": "Por ejemplo: 619 555 0101, juana@gmail.com",
+      "repetido": "Ya hay alguien registrado como «{{nombre}}». Si es otra persona, puedes registrarla igual.",
+      "nota": "Nota (opcional, solo la ve el equipo)",
+      "notaEjemplo": "Por ejemplo: solo puede los lunes"
     },
     "lista": {
       "titulo_one": "{{count}} voluntario activo",
@@ -2234,7 +2243,8 @@
         "sinContacto": "Sin teléfono ni correo ({{count}})",
         "adentro": "Adentro ahora ({{count}})",
         "sinSalida": "Con salidas sin marcar ({{count}})",
-        "deBaja": "Dados de baja ({{count}})"
+        "deBaja": "Dados de baja ({{count}})",
+        "sinVenir": "Sin venir en 30 días ({{count}})"
       },
       "ordenes": {
         "recientes": "Los más recientes",
@@ -2254,7 +2264,10 @@
         "sms": "Enviada por SMS · {{dia}}"
       },
       "sinMandar": "Credencial sin mandar",
-      "mandar": "Mandar credencial"
+      "mandar": "Mandar credencial",
+      "visitas_one": "Vino {{count}} día · {{ultimos}} en los últimos 30",
+      "visitas_other": "Vino {{count}} días · {{ultimos}} en los últimos 30",
+      "nuncaVino": "Todavía no ha venido"
     },
     "horas": {
       "titulo": "Horas de servicio",
@@ -2309,7 +2322,12 @@
       "RANGO_INVALIDO": "Revisa las fechas: «Desde» va antes de «Hasta», y no más de un año.",
       "TELEFONO_INVALIDO": "Ese teléfono no está completo: van 10 números (si es de México, con +52 adelante).",
       "CORREO_INVALIDO": "Ese correo no está completo: revisa lo que va después de la @.",
-      "MEDIO_INVALIDO": "No se pudo anotar el envío. Vuelve a intentar."
+      "MEDIO_INVALIDO": "No se pudo anotar el envío. Vuelve a intentar.",
+      "NOTA_MUY_LARGA": "La nota es demasiado larga (hasta 300 letras).",
+      "MODO_INVALIDO": "Escoge cómo se anota la asistencia.",
+      "HORA_INVALIDA": "Escribe la hora de salida.",
+      "SIN_ENTRADA_ABIERTA": "Ya tiene su salida. Si hay que cambiarla, corrígela en la pestaña «Horas».",
+      "LISTA_INVALIDA": "Escoge al menos a una persona (hasta 300)."
     },
     "contacto": {
       "whatsapp": "WhatsApp: {{telefono}}",
@@ -2343,7 +2361,8 @@
       "mensaje": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar y al irte: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!",
       "correoWeb": "¿No se abre tu correo? Ábrelo en el navegador, ya escrito:",
       "copiarMensaje": "Copiar el mensaje",
-      "porSms": "Enviar por SMS (no tiene WhatsApp)"
+      "porSms": "Enviar por SMS (no tiene WhatsApp)",
+      "mensajeSoloEntrada": "Hola {{nombre}}, esta es tu credencial de voluntario de Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nGuárdala en tu teléfono y enséñala al llegar: así se cuentan tus horas de servicio. Es solo tuya, no la compartas. ¡Gracias por servir!"
     },
     "cierre": {
       "boton": "Marcar salida a los que siguen adentro",
@@ -2353,7 +2372,98 @@
       "confirmar_other": "Marcar salida a {{count}}",
       "listo_one": "Listo: {{count}} con salida a las {{hora}}.",
       "listo_other": "Listo: {{count}} con salida a las {{hora}}.",
-      "ninguno": "Nadie había entrado antes de esa hora: no se marcó ninguna salida."
+      "ninguno": "Nadie había entrado antes de esa hora: no se marcó ninguna salida.",
+      "solaALas": "Si no lo haces, se pone sola a las {{hora}}."
+    },
+    "resumen": {
+      "adentro": "Adentro",
+      "vinieron": "Vinieron hoy",
+      "faltan": "Faltan de los de siempre"
+    },
+    "modo": {
+      "soloEntrada": "Solo se escanea al llegar. La salida se pone sola a las {{hora}}.",
+      "entradaSalida": "Se escanea al llegar y al irse.",
+      "cambiar": "Cambiar"
+    },
+    "ajustes": {
+      "titulo": "Cómo se anota la asistencia",
+      "solo_entrada": {
+        "titulo": "Solo la entrada (recomendado)",
+        "ayuda": "Se escanea al llegar y listo. A las {{hora}} se les pone la salida a todos. Quien se va antes: «Se fue temprano»."
+      },
+      "entrada_salida": {
+        "titulo": "Entrada y salida",
+        "ayuda": "Se escanea al llegar y otra vez al irse. Quien no escanea al irse se queda «sin salida» y hay que corregirlo."
+      },
+      "horaSalida": "Hora de salida de siempre",
+      "guardar": "Guardar"
+    },
+    "pasarLista": {
+      "abrir": "¿Alguien no escaneó? Pasar lista",
+      "titulo": "Pasar lista de hoy",
+      "volver": "Volver a escanear",
+      "ayuda": "Toca los nombres de quienes ya llegaron y no escanearon. Se les anota la entrada a todos de una vez.",
+      "llegaron": "Llegaron a las",
+      "buscar": "Buscar por nombre",
+      "horaFutura": "Esa hora todavía no llega.",
+      "suelenVenir": "Suelen venir",
+      "demas": "Los demás",
+      "todos": "Voluntarios",
+      "yaEstan": "Ya están anotados hoy",
+      "vino30_one": "Vino {{count}} vez este mes",
+      "vino30_other": "Vino {{count}} veces este mes",
+      "entroSalio": "Entró a las {{entrada}} · salió a las {{salida}}",
+      "listo_one": "Listo: {{count}} con entrada a las {{hora}}.",
+      "listo_other": "Listo: {{count}} con entrada a las {{hora}}.",
+      "otros": {
+        "YA_ENTRO_one": "Ya estaba adentro: {{nombres}}.",
+        "YA_ENTRO_other": "Ya estaban adentro: {{nombres}}.",
+        "YA_VINO_one": "Ya vino hoy y se fue después de esa hora, no se repite: {{nombres}}.",
+        "YA_VINO_other": "Ya vinieron hoy y se fueron después de esa hora, no se repiten: {{nombres}}.",
+        "INACTIVO_one": "Está dado de baja: {{nombres}}.",
+        "INACTIVO_other": "Están dados de baja: {{nombres}}.",
+        "NO_EXISTE_one": "{{count}} ya no está en la lista.",
+        "NO_EXISTE_other": "{{count}} ya no están en la lista."
+      },
+      "nuevoListo": "Listo: {{nombre}} quedó registrado y con su entrada de hoy. Mándale su credencial en la pestaña «Lista».",
+      "noEsta": "No hay nadie con «{{nombre}}» en la lista.",
+      "registrarYAnotar": "Registrar a «{{nombre}}» y anotar su entrada",
+      "escoge": "Toca los nombres de quienes vinieron",
+      "anotar_one": "Anotar la entrada de {{count}} ({{hora}})",
+      "anotar_other": "Anotar la entrada de {{count}} ({{hora}})",
+      "vacia": "Todavía no hay voluntarios registrados."
+    },
+    "elegir": {
+      "todos": "Escoger a todos",
+      "quitarTodos": "Quitar a todos"
+    },
+    "temprano": {
+      "boton": "Se fue temprano",
+      "pregunta": "¿A qué hora se fue?",
+      "confirmar": "Poner su salida"
+    },
+    "origen": {
+      "lista": "Por lista",
+      "nombre": "Por nombre",
+      "salidaSola": "Salida a la hora de siempre",
+      "aMano": "Anotada a mano"
+    },
+    "dia": {
+      "abrir": "Anotar un día que no se escaneó",
+      "abrirAyuda": "Para cuando varios vinieron y nadie escaneó: escoges el día, la hora y a quiénes, todo de una vez.",
+      "titulo": "Anotar un día a varios",
+      "ayuda": "Escoge el día, a qué hora llegaron y se fueron, y toca a quienes vinieron. Queda anotado quién lo hizo y por qué.",
+      "fecha": "Día",
+      "motivoSugerido": "No se escanearon ese día",
+      "activos": "Activos",
+      "deBaja": "Dados de baja",
+      "listo_one": "Listo: {{count}} anotado.",
+      "listo_other": "Listo: {{count}} anotados.",
+      "yaTenian_one": "Ya tenía ese día, no se repite: {{nombres}}.",
+      "yaTenian_other": "Ya tenían ese día, no se repiten: {{nombres}}.",
+      "anotar_one": "Anotar a {{count}}",
+      "anotar_other": "Anotar a {{count}}",
+      "cerrar": "Cerrar"
     }
   },
   "constancia": {

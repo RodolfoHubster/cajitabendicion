@@ -68,7 +68,7 @@ export default function Credencial() {
   useEffect(() => {
     if (!qr || !datos) return undefined
     let vigente = true
-    dibujarTarjetaCredencial({ qr, nombre: datos.nombre, t })
+    dibujarTarjetaCredencial({ qr, nombre: datos.nombre, t, soloEntrada: datos.solo_entrada !== false })
       .then((blob) => {
         if (vigente) setTarjeta(blob)
       })
@@ -135,7 +135,10 @@ export default function Credencial() {
           src={qr}
         />
 
-        <p className="mt-4 text-base text-principal/80">{t('credencial.comoFunciona')}</p>
+        {/* Seccion 52: si solo se escanea la entrada, no se le pide al irse. */}
+        <p className="mt-4 text-base text-principal/80">
+          {t(datos.solo_entrada !== false ? 'credencial.comoFunciona' : 'credencial.comoFuncionaYSalida')}
+        </p>
         <p className="mt-2 text-base text-principal/80">{t('credencial.soloTuya')}</p>
 
         {/* Sus horas (seccion 49): solo las visitas con entrada y salida. */}
@@ -146,7 +149,7 @@ export default function Credencial() {
           <p className="mt-1 text-base">
             {datos.minutos > 0
               ? t('credencial.horas.llevas', { duracion: textoDuracion(t, datos.minutos), count: datos.dias })
-              : t('credencial.horas.todavia')}
+              : t(datos.solo_entrada !== false ? 'credencial.horas.todavia' : 'credencial.horas.todaviaYSalida')}
           </p>
           {historial.length > 0 && (
             <ul className="mt-2 divide-y divide-principal/10">

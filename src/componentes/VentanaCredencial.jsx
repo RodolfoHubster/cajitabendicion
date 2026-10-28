@@ -48,9 +48,10 @@ function cuando(marca, idioma) {
  * pregunta si se envio; con "Si" queda anotado por donde y cuando.
  *
  * voluntario: { id, nombre, token, activo, telefono, correo, enviada_en, enviada_medio }.
- * alEnviada: para que la lista se vuelva a pedir.
+ * alEnviada: para que la lista se vuelva a pedir. soloEntrada (seccion 52):
+ * el mensaje y la tarjeta dicen que la ensene al llegar, sin "y al irte".
  */
-export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
+export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, soloEntrada = false }) {
   const { t, i18n } = useTranslation()
   const [qr, setQr] = useState(null)
   // La tarjeta se dibuja al llegar: el iPhone solo abre "compartir" si se
@@ -81,7 +82,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
   useEffect(() => {
     if (!qr) return undefined
     let vigente = true
-    dibujarTarjetaCredencial({ qr, nombre: voluntario.nombre, t })
+    dibujarTarjetaCredencial({ qr, nombre: voluntario.nombre, t, soloEntrada })
       .then((blob) => {
         if (vigente) setTarjeta(blob)
       })
@@ -89,7 +90,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
     return () => {
       vigente = false
     }
-  }, [qr, voluntario.nombre, t])
+  }, [qr, voluntario.nombre, t, soloEntrada])
 
   useEffect(() => {
     const escape = (evento) => {
@@ -100,7 +101,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada }) {
   }, [alCerrar])
 
   const enlace = enlaceCredencial(voluntario.token)
-  const mensaje = mensajeCredencial(t, voluntario.nombre, enlace)
+  const mensaje = mensajeCredencial(t, voluntario.nombre, enlace, soloEntrada)
   const whatsapp = enlaceWhatsAppCredencial(voluntario.telefono, mensaje)
   //  Para quien no tiene WhatsApp: un mensaje de texto normal.
   const sms = enlaceSmsCredencial(voluntario.telefono, mensaje)

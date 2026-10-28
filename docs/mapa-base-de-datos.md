@@ -222,6 +222,22 @@ pierde el turno), `saltar_turno()`, `fila_de_turnos()`
 (`saltado_en`), `buscar_personas()` (sin anónimos por nombre) y
 `reporte_por_dias()` (`cambios_a_pie`).
 
+## Voluntarios: solo la entrada, pasar lista y nota (sección 52)
+
+| Objeto | Qué hace |
+|---|---|
+| `configuracion`: `voluntarios_modo`, `voluntarios_hora_salida` | Cómo se anota la asistencia. `solo_entrada` (el de arranque): se escanea al llegar y la salida se pone sola a la hora de salida (18:30 de arranque). `entrada_salida`: como en la sección 48. |
+| `ajustes_voluntarios()`, `guardar_ajustes_voluntarios(modo, hora)` | Leerlos (quien atiende voluntarios) y cambiarlos (solo admin). `MODO_INVALIDO`, `HORA_INVALIDA`. |
+| `poner_salidas_automaticas()` (interna), `voluntarios_al_dia()` | En modo solo la entrada: a quien sigue adentro de un día cuya hora de salida ya pasó, esa hora (`salida_automatica`). Quien entró después de esa hora: hoy sigue adentro; de otro día, `sin_salida`. Corre al abrir Voluntarios, al escanear y al pasar lista. |
+| `marcar_asistencia()` | En modo solo la entrada: si ya está adentro, `YA_ENTRO` siempre (nunca saca); si ya vino hoy y tiene salida, `YA_SALIO` (no abre otra entrada). Guarda `origen` (`qr` o `nombre`). |
+| `salida_temprana_voluntario(asistencia, hora)` | "Se fue temprano": su salida de hoy a esa hora (o ahora). `SIN_ENTRADA_ABIERTA`, `HORA_FUTURA`, `HORAS_INVALIDAS`. |
+| `pasar_lista_voluntarios(voluntarios[], hora)` | La entrada de hoy de varios a la vez (`origen` = `lista`). Por cada uno: `ENTRADA`, `YA_ENTRO`, `YA_VINO`, `INACTIVO`, `NO_EXISTE`. Bloquea a cada voluntario como al escanear. Hasta 300 (`LISTA_INVALIDA`). |
+| `anotar_dia_voluntarios(voluntarios[], fecha, entrada, salida, motivo)` | Solo admin: un día que no se escaneó, completo, a varios. `ANOTADA` o `YA_VINO` (se enciman). Con quién, cuándo y por qué (`origen` = `dia_pasado`). |
+| `voluntarios.nota` | Una nota interna. En `registrar_voluntario` y `editar_voluntario` (nula se queda; en blanco se quita). `NOTA_MUY_LARGA` (300). |
+| `asistencias_voluntarios.origen`, `.salida_automatica` | Cómo se anotó (`qr`, `nombre`, `lista`, `agregada`, `dia_pasado`) y si la salida se puso sola. Salen en `asistencias_del_dia()` y `asistencias_de_voluntario()`. |
+| `listar_voluntarios()` | Ahora también `nota`, `visitas` (días que vino) y `visitas_30` (en los últimos 30). |
+| `credencial_voluntario()` | Ahora también `solo_entrada`: su página no le pide escanear al irse. |
+
 ## La fila a pie en vivo (sección 51)
 
 | Objeto | Qué hace |

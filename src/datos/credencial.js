@@ -5,9 +5,10 @@ import { ORGANIZACION } from './organizacion'
  * La tarjeta de la credencial de un voluntario (seccion 48), para guardarla
  * en el telefono o imprimirla: la misma de las citas, con "Voluntario", su
  * nombre y su QR verde. No lleva codigo CB: no es una persona del padron.
- * qr: la imagen de dibujarQRVoluntario().
+ * qr: la imagen de dibujarQRVoluntario(). soloEntrada (seccion 52): que la
+ * ensene al llegar, sin "y al irte".
  */
-export function dibujarTarjetaCredencial({ qr, nombre, t, documento }) {
+export function dibujarTarjetaCredencial({ qr, nombre, t, documento, soloEntrada = true }) {
   return dibujarTarjetaCita({
     qr,
     codigo: '',
@@ -19,7 +20,7 @@ export function dibujarTarjetaCredencial({ qr, nombre, t, documento }) {
       lista: t('credencial.etiqueta'),
       fecha: t('credencial.titulo'),
       hora: nombre,
-      siNoSeLee: t('credencial.enseniala'),
+      siNoSeLee: t(soloEntrada ? 'credencial.enseniala' : 'credencial.ensenialaYSalida'),
       aNombreDe: '',
     },
   })

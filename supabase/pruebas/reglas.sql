@@ -1951,6 +1951,10 @@ begin
       v_min   int := greatest(3, least(195,
                  floor(extract(epoch from (now() at time zone 'America/Los_Angeles')::time) / 60)::int - 8));
     begin
+      --  Estas son las de "entrada y salida" (seccion 48); las de "solo la
+      --  entrada", en la seccion 52.
+      insert into configuracion (clave, valor) values ('voluntarios_modo', 'entrada_salida')
+      on conflict (clave) do update set valor = excluded.valor;
       perform pg_temp.esperar_error('Voluntarios: sin nombre no se registra',
         'select * from registrar_voluntario(''  '')', 'NOMBRE_INVALIDO');
       select r.id, r.token into v_vol, v_cred from registrar_voluntario('  Juana   Prueba  ', ' 619 555 0101 ') r;
@@ -2110,7 +2114,7 @@ begin
         has_function_privilege('anon', 'credencial_voluntario(text)', 'execute')
         and not has_function_privilege('anon', 'marcar_asistencia(text, uuid)', 'execute')
         and not has_function_privilege('anon', 'listar_voluntarios()', 'execute')
-        and not has_function_privilege('anon', 'registrar_voluntario(text, text, text, text)', 'execute')
+        and not has_function_privilege('anon', 'registrar_voluntario(text, text, text, text, text)', 'execute')
         and not has_function_privilege('anon', 'horas_de_voluntarios(date, date)', 'execute')
         and not has_function_privilege('anon', 'corregir_asistencia(bigint, timestamp, timestamp, text)', 'execute')
         and not has_function_privilege('authenticated', 'revisar_horas_asistencia(uuid, timestamptz, timestamptz, bigint)', 'execute'));
@@ -2240,7 +2244,7 @@ begin
           and not has_function_privilege('anon', 'marcar_credencial_enviada(uuid, text)', 'execute')
           and not has_function_privilege('anon', 'cerrar_dia_voluntarios(time)', 'execute')
           and not has_function_privilege('anon', 'guardar_atiende_voluntarios(text, boolean)', 'execute')
-          and not has_function_privilege('anon', 'editar_voluntario(uuid, text, text, text, text)', 'execute')
+          and not has_function_privilege('anon', 'editar_voluntario(uuid, text, text, text, text, text)', 'execute')
           and not has_function_privilege('authenticated', 'contacto_de_voluntario(text, text, text)', 'execute')
           and not has_function_privilege('authenticated', 'exigir_atender_voluntarios()', 'execute'));
       end;
@@ -2248,6 +2252,234 @@ begin
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
       update personal set rol = 'admin', atiende_voluntarios = false where usuario_id = v_admin;
       perform pg_temp.comprobar('Voluntarios: las pruebas no terminaron', false, sqlerrm);
+    end;
+
+    -- ---------- Voluntarios: solo la entrada, pasar lista y nota (sección 52) ----------
+    declare
+      v_dia   date := (now() at time zone 'America/Los_Angeles')::date;
+      v_ahora time := (now() at time zone 'America/Los_Angeles')::time;
+      v_alma  uuid;
+      v_beto  uuid;
+      v_ceci  uuid;
+      v_dani  uuid;
+      v_eva   uuid;
+      v_fito  uuid;
+      v_gina  uuid;
+      v_cred  text;
+      v_m     record;
+      v_n     int;
+      v_asis  bigint;
+      v_hora  time;
+    begin
+      --  De arranque: solo la entrada (la migracion lo deja asi).
+      delete from configuracion where clave in ('voluntarios_modo', 'voluntarios_hora_salida');
+      perform pg_temp.comprobar('Solo entrada: sin escoger nada, se escanea solo la entrada y la salida es a las 6:30 PM',
+        (select a.modo = 'solo_entrada' and a.hora_salida = time '18:30' from ajustes_voluntarios() a));
+      perform pg_temp.esperar_error('Ajustes: un modo que no existe no',
+        'select * from guardar_ajustes_voluntarios(''a_veces'', ''18:30'')', 'MODO_INVALIDO');
+      perform pg_temp.esperar_error('Ajustes: sin hora de salida no',
+        'select * from guardar_ajustes_voluntarios(''solo_entrada'', null)', 'HORA_INVALIDA');
+      perform guardar_ajustes_voluntarios('solo_entrada', '23:59');
+      perform pg_temp.comprobar('Ajustes: se guarda la hora de salida',
+        (select a.hora_salida = time '23:59' from ajustes_voluntarios() a));
+
+      --  La nota.
+      select r.id, r.token into v_alma, v_cred
+        from registrar_voluntario(p_nombre => 'Alma Prueba', p_nota => '  Solo viene   los lunes ') r;
+      perform pg_temp.comprobar('Nota: se guarda limpia',
+        exists (select 1 from listar_voluntarios() l
+                 where l.id = v_alma and l.nota = 'Solo viene los lunes'
+                   and l.visitas = 0 and l.visitas_30 = 0));
+      perform pg_temp.esperar_error('Nota: más de 300 letras no',
+        format('select * from registrar_voluntario(p_nombre => ''Otra Persona'', p_nota => %L)', repeat('x', 301)), 'NOTA_MUY_LARGA');
+      perform editar_voluntario(v_alma, 'Alma Prueba');
+      perform pg_temp.comprobar('Editar: sin nota, se queda como estaba',
+        exists (select 1 from listar_voluntarios() l where l.id = v_alma and l.nota = 'Solo viene los lunes'));
+      perform editar_voluntario(p_id => v_alma, p_nombre => 'Alma Prueba', p_nota => 'Habla inglés');
+      perform pg_temp.comprobar('Editar: la nota cambia',
+        exists (select 1 from listar_voluntarios() l where l.id = v_alma and l.nota = 'Habla inglés'));
+      perform editar_voluntario(p_id => v_alma, p_nombre => 'Alma Prueba', p_nota => ' ');
+      perform pg_temp.comprobar('Editar: la nota en blanco se quita',
+        exists (select 1 from listar_voluntarios() l where l.id = v_alma and l.nota is null));
+
+      --  Escanear: solo la entrada.
+      if v_ahora >= time '01:00' and v_ahora < time '23:50' then
+        select * into v_m from marcar_asistencia(v_cred);
+        perform pg_temp.comprobar('Solo entrada: el escaneo es su entrada', v_m.resultado = 'ENTRADA', v_m.resultado);
+        v_asis := v_m.asistencia_id;
+        perform pg_temp.comprobar('Solo entrada: queda que fue con su QR',
+          (select a.origen = 'qr' from asistencias_voluntarios a where a.id = v_asis));
+        update asistencias_voluntarios set entrada_en = now() - interval '30 minutes' where id = v_asis;
+        select * into v_m from marcar_asistencia(v_cred);
+        perform pg_temp.comprobar('Solo entrada: escanearla otra vez, mucho después, no lo saca',
+          v_m.resultado = 'YA_ENTRO' and v_m.asistencia_id = v_asis, v_m.resultado);
+        perform pg_temp.comprobar('Solo entrada: sigue adentro',
+          (select a.estado = 'dentro' from asistencias_voluntarios a where a.id = v_asis));
+
+        --  Se fue temprano.
+        perform pg_temp.esperar_error('Se fue temprano: no a una hora que todavía no llega',
+          format('select salida_temprana_voluntario(%s, ''23:59:59'')', v_asis), 'HORA_FUTURA');
+        perform pg_temp.esperar_error('Se fue temprano: no antes de su entrada',
+          format('select salida_temprana_voluntario(%s, %L::time)', v_asis,
+                 ((now() - interval '40 minutes') at time zone 'America/Los_Angeles')::time), 'HORAS_INVALIDAS');
+        v_n := salida_temprana_voluntario(v_asis);
+        perform pg_temp.comprobar('Se fue temprano: se le pone su salida, con sus minutos',
+          v_n = 30 and (select a.estado = 'salio' and not a.salida_automatica from asistencias_voluntarios a where a.id = v_asis),
+          v_n::text);
+        perform pg_temp.esperar_error('Se fue temprano: a quien ya tiene su salida no',
+          format('select salida_temprana_voluntario(%s)', v_asis), 'SIN_ENTRADA_ABIERTA');
+        update asistencias_voluntarios set salida_en = now() - interval '10 minutes' where id = v_asis;
+        select * into v_m from marcar_asistencia(v_cred);
+        perform pg_temp.comprobar('Solo entrada: si ya vino hoy y se fue, escanearla no le abre otra entrada',
+          v_m.resultado = 'YA_SALIO'
+          and (select count(*) = 1 from asistencias_voluntarios a where a.voluntario_id = v_alma), v_m.resultado);
+
+        --  La salida que se pone sola.
+        select r.id into v_beto from registrar_voluntario('Beto Prueba') r;
+        select * into v_m from marcar_asistencia(null, v_beto);
+        perform pg_temp.comprobar('Por nombre: queda que se anotó por su nombre',
+          (select a.origen = 'nombre' from asistencias_voluntarios a where a.id = v_m.asistencia_id));
+        --  Su hora de salida: hace unos 10 minutos; entro 10 minutos antes de esa hora.
+        v_hora := date_trunc('minute', ((now() - interval '10 minutes') at time zone 'America/Los_Angeles'))::time;
+        update asistencias_voluntarios
+           set entrada_en = ((v_dia + v_hora) at time zone 'America/Los_Angeles') - interval '10 minutes'
+         where id = v_m.asistencia_id;
+        perform voluntarios_al_dia();
+        perform pg_temp.comprobar('Salida sola: antes de la hora de salida sigue adentro',
+          (select a.estado = 'dentro' from asistencias_voluntarios a where a.id = v_m.asistencia_id));
+        perform guardar_ajustes_voluntarios('solo_entrada', v_hora);
+        v_n := voluntarios_al_dia();
+        perform pg_temp.comprobar('Salida sola: pasada la hora de salida, se le pone esa hora',
+          v_n >= 1 and (select a.estado = 'salio' and a.salida_automatica
+                               and a.salida_en = (v_dia + v_hora) at time zone 'America/Los_Angeles'
+                          from asistencias_voluntarios a where a.id = v_m.asistencia_id), v_n::text);
+        perform pg_temp.comprobar('Salida sola: la lista de hoy lo dice',
+          exists (select 1 from asistencias_del_dia(null) d
+                   where d.id = v_m.asistencia_id and d.salida_automatica and d.origen = 'nombre' and d.minutos = 10));
+        select * into v_m from marcar_asistencia(null, v_beto);
+        perform pg_temp.comprobar('Salida sola: si la escanea al irse, no se le abre otra entrada',
+          v_m.resultado = 'YA_SALIO', v_m.resultado);
+        perform guardar_ajustes_voluntarios('solo_entrada', '23:59');
+      end if;
+
+      --  Dias pasados que se quedaron abiertos.
+      select r.id into v_ceci from registrar_voluntario('Ceci Prueba') r;
+      select r.id into v_dani from registrar_voluntario('Dani Prueba') r;
+      insert into asistencias_voluntarios (voluntario_id, entrada_en)
+      values (v_ceci, ((v_dia - 2) + time '14:00') at time zone 'America/Los_Angeles'),
+             (v_dani, ((v_dia - 2) + time '23:59:30') at time zone 'America/Los_Angeles');
+      perform guardar_ajustes_voluntarios('entrada_salida', '18:30');
+      perform pg_temp.comprobar('Entrada y salida: no se pone ninguna salida sola',
+        voluntarios_al_dia() = 0
+        and (select count(*) = 2 from asistencias_voluntarios a where a.voluntario_id in (v_ceci, v_dani) and a.estado = 'dentro'));
+      perform pg_temp.comprobar('Entrada y salida: su credencial dice que se escanea también al irse',
+        not (select c.solo_entrada from credencial_voluntario(v_cred) c));
+      perform guardar_ajustes_voluntarios('solo_entrada', '18:30');
+      perform voluntarios_al_dia();
+      perform pg_temp.comprobar('Salida sola: un día pasado se cierra a su hora de salida',
+        (select a.estado = 'salio' and a.salida_automatica
+                and a.salida_en = ((v_dia - 2) + time '18:30') at time zone 'America/Los_Angeles'
+           from asistencias_voluntarios a where a.voluntario_id = v_ceci));
+      perform pg_temp.comprobar('Salida sola: quien entró después de la hora de salida queda sin salida',
+        (select a.estado = 'sin_salida' from asistencias_voluntarios a where a.voluntario_id = v_dani));
+      perform pg_temp.comprobar('Solo entrada: su credencial lo dice',
+        (select c.solo_entrada from credencial_voluntario(v_cred) c));
+      perform guardar_ajustes_voluntarios('solo_entrada', '23:59');
+
+      --  Pasar lista.
+      select r.id into v_eva from registrar_voluntario('Eva Prueba') r;
+      select r.id into v_fito from registrar_voluntario('Fito Prueba') r;
+      select r.id into v_gina from registrar_voluntario('Gina Prueba') r;
+      perform activar_voluntario(v_gina, false);
+      perform pg_temp.esperar_error('Pasar lista: sin nadie no',
+        'select * from pasar_lista_voluntarios(array[]::uuid[])', 'LISTA_INVALIDA');
+      perform pg_temp.esperar_error('Pasar lista: no a una hora que todavía no llega',
+        format('select * from pasar_lista_voluntarios(array[%L::uuid], ''23:59:59'')', v_eva), 'HORA_FUTURA');
+      if v_ahora >= time '01:00' and v_ahora < time '23:50' then
+        v_hora := date_trunc('minute', ((now() - interval '40 minutes') at time zone 'America/Los_Angeles'))::time;
+        create temp table pg_temp.lista_52 on commit drop as
+          select * from pasar_lista_voluntarios(array[v_eva, v_fito, v_alma, v_gina, gen_random_uuid(), v_eva], v_hora);
+        perform pg_temp.comprobar('Pasar lista: uno por cada quien, sin repetir',
+          (select count(*) = 5 from pg_temp.lista_52), (select count(*)::text from pg_temp.lista_52));
+        perform pg_temp.comprobar('Pasar lista: a los que llegaron se les anota la entrada a esa hora',
+          (select count(*) = 2 from pg_temp.lista_52 l
+             join asistencias_voluntarios a on a.id = l.asistencia_id
+            where l.resultado = 'ENTRADA' and a.origen = 'lista' and a.estado = 'dentro'
+              and a.entrada_en = (v_dia + v_hora) at time zone 'America/Los_Angeles'));
+        perform pg_temp.comprobar('Pasar lista: quien ya vino y se fue después de esa hora no se repite',
+          (select l.resultado = 'YA_VINO' from pg_temp.lista_52 l where l.voluntario_id = v_alma));
+        perform pg_temp.comprobar('Pasar lista: al dado de baja no',
+          (select l.resultado = 'INACTIVO' from pg_temp.lista_52 l where l.voluntario_id = v_gina));
+        perform pg_temp.comprobar('Pasar lista: uno que no existe lo dice',
+          exists (select 1 from pg_temp.lista_52 l where l.resultado = 'NO_EXISTE'));
+        perform pg_temp.comprobar('Pasar lista: otra vez, ya estaba adentro',
+          (select p.resultado = 'YA_ENTRO' from pasar_lista_voluntarios(array[v_eva]) p));
+        select * into v_m from marcar_asistencia(null, v_fito);
+        perform pg_temp.comprobar('Pasar lista: si después escanea, ya está anotado', v_m.resultado = 'YA_ENTRO', v_m.resultado);
+        perform pg_temp.comprobar('Pasar lista: nunca dos entradas abiertas',
+          (select count(*) = 1 from asistencias_voluntarios a where a.voluntario_id = v_eva and a.estado = 'dentro'));
+      end if;
+
+      --  Anotar un día pasado a varios.
+      perform pg_temp.esperar_error('Día pasado: sin motivo no',
+        format('select * from anotar_dia_voluntarios(array[%L::uuid], %L::date, ''14:00'', ''18:30'', '' '')', v_eva, v_dia - 5),
+        'MOTIVO_REQUERIDO');
+      perform pg_temp.esperar_error('Día pasado: la salida antes de la entrada no',
+        format('select * from anotar_dia_voluntarios(array[%L::uuid], %L::date, ''18:30'', ''14:00'', ''x'')', v_eva, v_dia - 5),
+        'HORAS_INVALIDAS');
+      perform pg_temp.esperar_error('Día pasado: no un día que no ha llegado',
+        format('select * from anotar_dia_voluntarios(array[%L::uuid], %L::date, ''14:00'', ''18:30'', ''x'')', v_eva, v_dia + 1),
+        'HORA_FUTURA');
+      perform pg_temp.esperar_error('Día pasado: no de hace más de un año',
+        format('select * from anotar_dia_voluntarios(array[%L::uuid], %L::date, ''14:00'', ''18:30'', ''x'')', v_eva, v_dia - 401),
+        'RANGO_INVALIDO');
+      perform pg_temp.esperar_error('Día pasado: sin nadie no',
+        format('select * from anotar_dia_voluntarios(array[]::uuid[], %L::date, ''14:00'', ''18:30'', ''x'')', v_dia - 5),
+        'LISTA_INVALIDA');
+      create temp table pg_temp.dia_52 on commit drop as
+        select * from anotar_dia_voluntarios(array[v_eva, v_gina, gen_random_uuid()], v_dia - 5, '14:00', '18:30', 'No escanearon');
+      perform pg_temp.comprobar('Día pasado: se anotan, también quien hoy está de baja',
+        (select count(*) = 2 from pg_temp.dia_52 d where d.resultado = 'ANOTADA')
+        and exists (select 1 from pg_temp.dia_52 d where d.resultado = 'NO_EXISTE'));
+      perform pg_temp.comprobar('Día pasado: suman sus horas, con quién, cuándo y por qué',
+        (select h.minutos = 270 and h.dias = 1 from horas_de_voluntarios(v_dia - 7, v_dia - 3) h where h.voluntario_id = v_eva)
+        and (select a.origen = 'dia_pasado' and a.corregida_por = v_admin and a.motivo = 'No escanearon'
+               from asistencias_voluntarios a
+              where a.voluntario_id = v_eva and (a.entrada_en at time zone 'America/Los_Angeles')::date = v_dia - 5));
+      perform pg_temp.comprobar('Día pasado: otra vez el mismo día, no se repite',
+        (select d.resultado = 'YA_VINO' from anotar_dia_voluntarios(array[v_eva], v_dia - 5, '15:00', '16:00', 'x') d));
+      perform pg_temp.comprobar('Lista: cuántos días vino',
+        (select l.visitas >= 1 and l.visitas_30 = l.visitas from listar_voluntarios() l where l.id = v_eva));
+
+      --  Quién puede qué.
+      update personal set rol = 'voluntario', atiende_voluntarios = true where usuario_id = v_admin;
+      perform pg_temp.esperar_ok('Atiende: pasa lista', format('select * from pasar_lista_voluntarios(array[%L::uuid])', v_fito));
+      perform pg_temp.esperar_ok('Atiende: pone las salidas que tocan', 'select voluntarios_al_dia()');
+      perform pg_temp.esperar_ok('Atiende: ve cómo se anota la asistencia', 'select * from ajustes_voluntarios()');
+      perform pg_temp.esperar_error('Atiende: no cambia el modo',
+        'select * from guardar_ajustes_voluntarios(''entrada_salida'', ''18:30'')', 'SIN_PERMISO');
+      perform pg_temp.esperar_error('Atiende: no anota días pasados',
+        format('select * from anotar_dia_voluntarios(array[%L::uuid], %L::date, ''14:00'', ''18:30'', ''x'')', v_fito, v_dia - 6),
+        'SIN_PERMISO');
+      update personal set atiende_voluntarios = false where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Rol voluntario sin "atiende": no pasa lista',
+        format('select * from pasar_lista_voluntarios(array[%L::uuid])', v_fito), 'SIN_PERMISO');
+      update personal set rol = 'admin' where usuario_id = v_admin;
+
+      perform pg_temp.comprobar('Sección 52: nada de esto desde el navegador sin cuenta',
+        not has_function_privilege('anon', 'pasar_lista_voluntarios(uuid[], time)', 'execute')
+        and not has_function_privilege('anon', 'anotar_dia_voluntarios(uuid[], date, time, time, text)', 'execute')
+        and not has_function_privilege('anon', 'salida_temprana_voluntario(bigint, time)', 'execute')
+        and not has_function_privilege('anon', 'voluntarios_al_dia()', 'execute')
+        and not has_function_privilege('anon', 'ajustes_voluntarios()', 'execute')
+        and not has_function_privilege('anon', 'guardar_ajustes_voluntarios(text, time)', 'execute')
+        and not has_function_privilege('authenticated', 'poner_salidas_automaticas()', 'execute')
+        and not has_function_privilege('authenticated', 'modo_voluntarios()', 'execute')
+        and not has_function_privilege('authenticated', 'limpiar_texto_voluntario(text, int, text)', 'execute'));
+    exception when others then
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      update personal set rol = 'admin', atiende_voluntarios = false where usuario_id = v_admin;
+      perform pg_temp.comprobar('Sección 52: las pruebas no terminaron', false, sqlerrm);
     end;
 
     -- ---------- Roles: voluntario ----------

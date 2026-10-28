@@ -23,6 +23,11 @@
 --  tiene un telefono de Tijuana y Sofia, telefono y correo.
 --    * Tomas Ruiz      dado de baja: su credencial dice que ya no esta activa.
 --
+--  Con la de 2026-10-27-voluntarios-solo-entrada.sql (seccion 52), Pedro
+--  tambien lleva una nota. Ojo: en modo "solo la
+--  entrada", escanear a Juana no la saca (lo dice), y despues de la hora de
+--  salida su salida se pone sola al abrir Voluntarios.
+--
 --  Se puede correr cuantas veces quieras: borra estos siete y los vuelve a
 --  crear. Al final muestra sus credenciales: el enlace es
 --  /voluntario/<credencial>, y el QR se ve en Voluntarios > Lista > Credencial.
@@ -124,6 +129,12 @@ begin
   insert into asistencias_voluntarios (voluntario_id, entrada_en, salida_en, estado, corregida_en, motivo)
   values (v_sofia, (v_hoy - 7 + time '10:00') at time zone 'America/Los_Angeles',
           (v_hoy - 7 + time '11:00') at time zone 'America/Los_Angeles', 'anulada', now(), 'Se escaneó a la persona equivocada');
+
+  --  La nota (seccion 52), si ya se corrio su actualizacion.
+  if exists (select 1 from information_schema.columns
+              where table_schema = 'public' and table_name = 'voluntarios' and column_name = 'nota') then
+    execute 'update voluntarios set nota = $1 where id = $2' using 'Necesita su constancia de horas para la escuela', v_pedro;
+  end if;
 end
 $voluntarios$;
 

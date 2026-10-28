@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuChevronDown, LuDownload, LuFileText, LuPlus } from 'react-icons/lu'
+import { LuCalendarPlus, LuChevronDown, LuDownload, LuFileText, LuPlus } from 'react-icons/lu'
 import { Link } from 'react-router-dom'
+import AnotarDiaVoluntarios from './AnotarDiaVoluntarios'
 import Campo from './Campo'
 import Selector from './Selector'
 import Tarjeta from './Tarjeta'
@@ -185,7 +186,17 @@ function DetalleVoluntario({ voluntarioId, desde, hasta, alCambiar }) {
               )}
               {a.corregida && a.estado !== 'anulada' && (
                 <span className="rounded-full bg-principal/10 px-3 py-0.5 text-base text-principal">
-                  {t('voluntarios.horas.corregida')}
+                  {a.origen === 'dia_pasado' || a.origen === 'agregada' ? t('voluntarios.origen.aMano') : t('voluntarios.horas.corregida')}
+                </span>
+              )}
+              {a.salida_automatica && a.estado === 'salio' && !a.corregida && (
+                <span className="rounded-full bg-principal/10 px-3 py-0.5 text-base text-principal">
+                  {t('voluntarios.origen.salidaSola')}
+                </span>
+              )}
+              {a.origen === 'lista' && (
+                <span className="rounded-full bg-principal/10 px-3 py-0.5 text-base text-principal">
+                  {t('voluntarios.origen.lista')}
                 </span>
               )}
             </div>
@@ -249,8 +260,10 @@ function DetalleVoluntario({ voluntarioId, desde, hasta, alCambiar }) {
  * Las horas de los voluntarios entre dos fechas (el mes, de arranque): por
  * persona, los dias y las horas completas, y las que se quedaron sin salida
  * para corregir. Se descargan para Excel (cartas de servicio comunitario).
+ *
+ * Seccion 52: anotar un dia que no se escaneo a varios a la vez.
  */
-export default function HorasVoluntarios({ voluntarios, alCambiar }) {
+export default function HorasVoluntarios({ voluntarios, alCambiar, horaSalida = null }) {
   const { t } = useTranslation()
   const hoy = hoyLocal()
   const [rango, setRango] = useState(() => rangoDelMes(hoy))
@@ -258,6 +271,7 @@ export default function HorasVoluntarios({ voluntarios, alCambiar }) {
   const [error, setError] = useState(null)
   const [abierto, setAbierto] = useState(null)
   const [agregando, setAgregando] = useState(false)
+  const [anotandoDia, setAnotandoDia] = useState(false)
   const [quien, setQuien] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [version, setVersion] = useState(0)
@@ -407,6 +421,33 @@ export default function HorasVoluntarios({ voluntarios, alCambiar }) {
               )}
             </>
           )
+        )}
+      </Tarjeta>
+
+      {/* Un dia que no se escaneo, a varios de una vez (seccion 52). */}
+      <Tarjeta>
+        {anotandoDia ? (
+          <AnotarDiaVoluntarios
+            alCambiar={recargar}
+            alCerrar={() => setAnotandoDia(false)}
+            horaSalida={horaSalida}
+            voluntarios={voluntarios}
+          />
+        ) : (
+          <div className="space-y-2">
+            <button
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-accion bg-accion/10 px-4 text-lg font-bold text-principal transition hover:bg-accion/20"
+              onClick={() => {
+                setAgregando(false)
+                setAnotandoDia(true)
+              }}
+              type="button"
+            >
+              <LuCalendarPlus aria-hidden="true" className="h-6 w-6 text-accion" />
+              {t('voluntarios.dia.abrir')}
+            </button>
+            <p className="text-base text-principal/80">{t('voluntarios.dia.abrirAyuda')}</p>
+          </div>
         )}
       </Tarjeta>
 

@@ -2086,10 +2086,10 @@
   "credencial": {
     "etiqueta": "TÌNH NGUYỆN VIÊN",
     "titulo": "Thẻ tình nguyện viên",
-    "enseniala": "Đưa thẻ khi đến và khi về",
+    "enseniala": "Đưa thẻ khi đến",
     "cargando": "Đang chuẩn bị thẻ…",
     "qrAlt": "Mã QR trên thẻ của {{nombre}}",
-    "comoFunciona": "Khi đến, hãy đưa mã QR này cho quản trị viên; khi về, đưa lại lần nữa. Như vậy giờ phục vụ của bạn được tính.",
+    "comoFunciona": "Khi đến, hãy đưa mã QR này cho người ghi nhận tình nguyện viên. Như vậy giờ phục vụ của bạn được tính.",
     "soloTuya": "Thẻ chỉ của riêng bạn: đừng đưa cho ai. Nếu mất, hãy xin thẻ mới.",
     "copiar": "Sao chép đường dẫn",
     "cuidado": "Đường dẫn giống như chìa khóa: chỉ gửi cho đúng người đó (ví dụ qua WhatsApp). Nếu người khác có nó, dùng «Đổi mã QR» và thẻ cũ sẽ không dùng được nữa.",
@@ -2100,13 +2100,16 @@
     "horas": {
       "titulo": "Số giờ phục vụ của bạn",
       "llevas_other": "Bạn đã có {{duracion}} trong {{count}} ngày.",
-      "todavia": "Bạn chưa có lần nào đủ giờ vào và ra. Khi được quét lúc đến và lúc về, số giờ sẽ hiện ở đây.",
-      "ayuda": "Chỉ tính những lần có cả giờ vào và giờ ra. Đây là 10 lần gần nhất."
-    }
+      "todavia": "Bạn chưa có lần nào đủ giờ. Số giờ được tính vào cuối mỗi ngày phục vụ.",
+      "ayuda": "Chỉ tính những lần có cả giờ vào và giờ ra. Đây là 10 lần gần nhất.",
+      "todaviaYSalida": "Bạn chưa có lần nào đủ giờ vào và ra. Khi được quét lúc đến và lúc về, số giờ sẽ hiện ở đây."
+    },
+    "ensenialaYSalida": "Đưa thẻ khi đến và khi về",
+    "comoFuncionaYSalida": "Khi đến, hãy đưa mã QR này cho quản trị viên; khi về, đưa lại lần nữa. Như vậy giờ phục vụ của bạn được tính."
   },
   "voluntarios": {
     "titulo": "Tình nguyện viên",
-    "ayuda": "Giờ vào và ra của tình nguyện viên bằng thẻ của họ, và số giờ phục vụ.",
+    "ayuda": "Điểm danh tình nguyện viên bằng thẻ của họ, và số giờ phục vụ.",
     "cargando": "Đang tải danh sách tình nguyện viên…",
     "pestanas": {
       "entrada": "Quét",
@@ -2118,7 +2121,8 @@
       "ayuda": "Nếu hôm nay họ chưa vào, sẽ ghi giờ vào; nếu đã vào rồi, sẽ ghi giờ ra.",
       "sinCredencial": "Không mang thẻ? Tìm theo tên",
       "buscarEjemplo": "Ví dụ: Juana",
-      "nadie": "Không có tình nguyện viên nào đang hoạt động với tên đó. Hãy đăng ký trong thẻ «Danh sách»."
+      "nadie": "Không có tình nguyện viên nào đang hoạt động với tên đó. Hãy đăng ký trong thẻ «Danh sách».",
+      "ayudaSoloEntrada": "Khi họ đến. Nếu đã ghi rồi, chỉ báo cho bạn biết: không bao giờ ghi giờ ra."
     },
     "resultado": {
       "ENTRADA": "Giờ vào",
@@ -2132,7 +2136,9 @@
       "inactivoAyuda": "Thẻ của họ không ghi giờ vào. Nếu họ sẽ phục vụ lại, hãy kích hoạt lại trong thẻ «Danh sách».",
       "entro": "Vào lúc {{hora}}",
       "entroSalio": "Vào lúc {{entrada}} · ra lúc {{salida}} · {{duracion}}",
-      "olvido": "Ngày {{dia}} họ về mà không ghi giờ ra: hãy sửa trong thẻ «Số giờ»."
+      "olvido": "Ngày {{dia}} họ về mà không ghi giờ ra: hãy sửa trong thẻ «Số giờ».",
+      "yaAnotado": "Đã được ghi",
+      "yaVino": "Hôm nay đã đến rồi"
     },
     "deshacer": "Hoàn tác",
     "deshecho": {
@@ -2165,7 +2171,10 @@
       "contacto": "Điện thoại hoặc email (không bắt buộc)",
       "contactoAyuda": "Số điện thoại (để gửi thẻ qua WhatsApp), email, hoặc cả hai cách nhau bằng dấu phẩy.",
       "boton": "Đăng ký và xem thẻ",
-      "contactoEjemplo": "Ví dụ: 619 555 0101, juana@gmail.com"
+      "contactoEjemplo": "Ví dụ: 619 555 0101, juana@gmail.com",
+      "repetido": "Đã có người đăng ký tên «{{nombre}}». Nếu là người khác, bạn vẫn có thể đăng ký.",
+      "nota": "Ghi chú (không bắt buộc, chỉ nhóm phụ trách thấy)",
+      "notaEjemplo": "Ví dụ: chỉ đến được thứ Hai"
     },
     "lista": {
       "titulo_other": "{{count}} tình nguyện viên đang hoạt động",
@@ -2206,7 +2215,8 @@
         "sinContacto": "Không có điện thoại hay email ({{count}})",
         "adentro": "Đang ở trong ({{count}})",
         "sinSalida": "Thiếu giờ ra ({{count}})",
-        "deBaja": "Đã ngưng hoạt động ({{count}})"
+        "deBaja": "Đã ngưng hoạt động ({{count}})",
+        "sinVenir": "Không đến trong 30 ngày ({{count}})"
       },
       "ordenes": {
         "recientes": "Mới nhất",
@@ -2225,7 +2235,9 @@
         "sms": "Đã gửi bằng SMS · {{dia}}"
       },
       "sinMandar": "Chưa gửi thẻ",
-      "mandar": "Gửi thẻ"
+      "mandar": "Gửi thẻ",
+      "visitas_other": "Đã đến {{count}} ngày · {{ultimos}} trong 30 ngày qua",
+      "nuncaVino": "Chưa đến lần nào"
     },
     "horas": {
       "titulo": "Số giờ phục vụ",
@@ -2278,7 +2290,12 @@
       "RANGO_INVALIDO": "Kiểm tra lại ngày: «Từ» phải trước «Đến», và không quá một năm.",
       "TELEFONO_INVALIDO": "Số điện thoại chưa đủ: cần 10 số (nếu ở Mexico, thêm +52 phía trước).",
       "CORREO_INVALIDO": "Email chưa đủ: hãy kiểm tra phần sau dấu @.",
-      "MEDIO_INVALIDO": "Không ghi lại được việc gửi. Hãy thử lại."
+      "MEDIO_INVALIDO": "Không ghi lại được việc gửi. Hãy thử lại.",
+      "NOTA_MUY_LARGA": "Ghi chú quá dài (tối đa 300 chữ).",
+      "MODO_INVALIDO": "Hãy chọn cách ghi điểm danh.",
+      "HORA_INVALIDA": "Hãy nhập giờ ra.",
+      "SIN_ENTRADA_ABIERTA": "Người này đã có giờ ra. Muốn đổi, hãy sửa ở thẻ «Số giờ».",
+      "LISTA_INVALIDA": "Hãy chọn ít nhất một người (tối đa 300)."
     },
     "contacto": {
       "whatsapp": "WhatsApp: {{telefono}}",
@@ -2312,7 +2329,8 @@
       "mensaje": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến và khi về: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!",
       "correoWeb": "Không mở được ứng dụng email? Mở trong trình duyệt, đã viết sẵn:",
       "copiarMensaje": "Sao chép tin nhắn",
-      "porSms": "Gửi bằng tin nhắn SMS (không có WhatsApp)"
+      "porSms": "Gửi bằng tin nhắn SMS (không có WhatsApp)",
+      "mensajeSoloEntrada": "Chào {{nombre}}, đây là thẻ tình nguyện viên của bạn tại Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nHãy lưu trong điện thoại và đưa ra khi đến: như vậy giờ phục vụ của bạn được tính. Thẻ chỉ của riêng bạn, đừng chia sẻ. Cảm ơn bạn đã phục vụ!"
     },
     "cierre": {
       "boton": "Ghi giờ ra cho những người còn ở trong",
@@ -2320,7 +2338,88 @@
       "ayuda": "Ai vào sau giờ đó vẫn ở trong.",
       "confirmar_other": "Ghi giờ ra cho {{count}} người",
       "listo_other": "Xong: {{count}} người có giờ ra lúc {{hora}}.",
-      "ninguno": "Không ai vào trước giờ đó: chưa ghi giờ ra cho ai."
+      "ninguno": "Không ai vào trước giờ đó: chưa ghi giờ ra cho ai.",
+      "solaALas": "Nếu không, giờ ra sẽ tự động lúc {{hora}}."
+    },
+    "resumen": {
+      "adentro": "Đang ở trong",
+      "vinieron": "Đến hôm nay",
+      "faltan": "Người quen chưa đến"
+    },
+    "modo": {
+      "soloEntrada": "Chỉ quét khi đến. Giờ ra tự động lúc {{hora}}.",
+      "entradaSalida": "Quét khi đến và khi về.",
+      "cambiar": "Thay đổi"
+    },
+    "ajustes": {
+      "titulo": "Cách ghi điểm danh",
+      "solo_entrada": {
+        "titulo": "Chỉ giờ vào (khuyên dùng)",
+        "ayuda": "Quét khi đến là xong. Lúc {{hora}} mọi người được ghi giờ ra. Ai về sớm: «Về sớm»."
+      },
+      "entrada_salida": {
+        "titulo": "Giờ vào và giờ ra",
+        "ayuda": "Quét khi đến và quét lại khi về. Ai không quét khi về sẽ «chưa có giờ ra» và phải sửa."
+      },
+      "horaSalida": "Giờ ra thường lệ",
+      "guardar": "Lưu"
+    },
+    "pasarLista": {
+      "abrir": "Có người chưa quét? Điểm danh",
+      "titulo": "Điểm danh hôm nay",
+      "volver": "Quay lại quét",
+      "ayuda": "Chạm vào tên những người đã đến mà chưa quét. Tất cả được ghi giờ vào cùng lúc.",
+      "llegaron": "Họ đến lúc",
+      "buscar": "Tìm theo tên",
+      "horaFutura": "Giờ đó chưa tới.",
+      "suelenVenir": "Thường đến",
+      "demas": "Những người khác",
+      "todos": "Tình nguyện viên",
+      "yaEstan": "Đã được ghi hôm nay",
+      "vino30_other": "Đến {{count}} lần tháng này",
+      "entroSalio": "Vào lúc {{entrada}} · ra lúc {{salida}}",
+      "listo_other": "Xong: {{count}} người có giờ vào lúc {{hora}}.",
+      "otros": {
+        "YA_ENTRO_other": "Đã ở trong rồi: {{nombres}}.",
+        "YA_VINO_other": "Hôm nay đã đến và về sau giờ đó, không ghi lại: {{nombres}}.",
+        "INACTIVO_other": "Đã ngưng hoạt động: {{nombres}}.",
+        "NO_EXISTE_other": "{{count}} người không còn trong danh sách."
+      },
+      "nuevoListo": "Xong: {{nombre}} đã được đăng ký và có giờ vào hôm nay. Gửi thẻ ở thẻ «Danh sách».",
+      "noEsta": "Không có ai tên «{{nombre}}» trong danh sách.",
+      "registrarYAnotar": "Đăng ký «{{nombre}}» và ghi giờ vào",
+      "escoge": "Chạm vào tên những người đã đến",
+      "anotar_other": "Ghi giờ vào cho {{count}} người ({{hora}})",
+      "vacia": "Chưa có tình nguyện viên nào."
+    },
+    "elegir": {
+      "todos": "Chọn tất cả",
+      "quitarTodos": "Bỏ chọn tất cả"
+    },
+    "temprano": {
+      "boton": "Về sớm",
+      "pregunta": "Họ về lúc mấy giờ?",
+      "confirmar": "Ghi giờ ra"
+    },
+    "origen": {
+      "lista": "Qua điểm danh",
+      "nombre": "Theo tên",
+      "salidaSola": "Giờ ra thường lệ",
+      "aMano": "Ghi bằng tay"
+    },
+    "dia": {
+      "abrir": "Ghi một ngày chưa được quét",
+      "abrirAyuda": "Khi nhiều người đến mà không ai quét: chọn ngày, giờ và những ai, tất cả cùng lúc.",
+      "titulo": "Ghi một ngày cho nhiều người",
+      "ayuda": "Chọn ngày, giờ đến và giờ về, rồi chạm vào những người đã đến. Hệ thống ghi lại ai làm và lý do.",
+      "fecha": "Ngày",
+      "motivoSugerido": "Hôm đó không được quét",
+      "activos": "Đang hoạt động",
+      "deBaja": "Đã ngưng hoạt động",
+      "listo_other": "Xong: đã ghi {{count}} người.",
+      "yaTenian_other": "Đã có ngày đó, không ghi lại: {{nombres}}.",
+      "anotar_other": "Ghi cho {{count}} người",
+      "cerrar": "Đóng"
     }
   },
   "constancia": {

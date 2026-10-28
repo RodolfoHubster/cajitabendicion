@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuCircleCheck, LuMail, LuMessageCircle, LuPencil, LuPrinter, LuRefreshCw, LuSend, LuUserPlus } from 'react-icons/lu'
+import {
+  LuCircleCheck,
+  LuMail,
+  LuMessageCircle,
+  LuPencil,
+  LuPrinter,
+  LuRefreshCw,
+  LuSend,
+  LuStickyNote,
+  LuTriangleAlert,
+  LuUserPlus,
+} from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
 import Boton from './Boton'
 import Campo from './Campo'
@@ -19,6 +30,7 @@ import {
   contarPorFiltro,
   editarVoluntario,
   filtrarVoluntarios,
+  nombreRepetido,
   nuevoQrVoluntario,
   ordenarVoluntarios,
   registrarVoluntario,
@@ -45,12 +57,17 @@ function diaCorto(marca, idioma) {
  * imprimir credenciales. Quien "atiende voluntarios" sin ser administrador
  * registra, corrige y manda; dar de baja y cambiar el QR son del
  * administrador (esAdmin).
+ *
+ * Seccion 52: una nota interna; aviso si ya hay alguien con el mismo
+ * nombre; filtro "sin venir"; cuantos dias vino. soloEntrada: el mensaje de
+ * su credencial no dice "y al irte".
  */
-export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
+export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, soloEntrada = false }) {
   const { t, i18n } = useTranslation()
   const navegar = useNavigate()
   const [nombre, setNombre] = useState('')
   const [contacto, setContacto] = useState('')
+  const [nota, setNota] = useState('')
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState(null)
   const [aviso, setAviso] = useState(null)
@@ -58,7 +75,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState('activos')
   const [orden, setOrden] = useState('recientes')
-  //  { id, nombre, contacto } mientras se cambia.
+  //  { id, nombre, contacto, nota } mientras se cambia.
   const [editando, setEditando] = useState(null)
   //  { voluntario, accion: 'baja' | 'qr' } mientras se pregunta.
   const [preguntando, setPreguntando] = useState(null)
@@ -86,12 +103,13 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
     evento.preventDefault()
     if (separado.error) return
     const nuevo = await hacer(
-      () => registrarVoluntario(nombre, { telefono: separado.telefono, correo: separado.correo }),
+      () => registrarVoluntario(nombre, { telefono: separado.telefono, correo: separado.correo, nota }),
       'registrado',
     )
     if (nuevo) {
       setNombre('')
       setContacto('')
+      setNota('')
       //  Su credencial de una vez, para mandarsela o imprimirla.
       setCredencial({ ...nuevo, activo: true, telefono: separado.telefono, correo: separado.correo })
     }
@@ -102,7 +120,12 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
     const partes = separarContacto(editando.contacto)
     if (partes.error) return
     const listo = await hacer(
-      () => editarVoluntario(editando.id, editando.nombre, { telefono: partes.telefono, correo: partes.correo }),
+      () =>
+        editarVoluntario(editando.id, editando.nombre, {
+          telefono: partes.telefono,
+          correo: partes.correo,
+          nota: editando.nota,
+        }),
       'guardado',
     )
     if (listo) setEditando(null)
@@ -122,6 +145,8 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
   const lista = voluntarios ?? []
   const cuentas = contarPorFiltro(lista)
   const delFiltro = ordenarVoluntarios(filtrarVoluntarios(lista, filtro), orden)
+  const repetido = nombreRepetido(lista, nombre)
+  const repetidoAlEditar = editando ? nombreRepetido(lista, editando.nombre, editando.id) : null
   const vistos = busqueda.trim() ? buscarVoluntarios(delFiltro, busqueda, delFiltro.length) : delFiltro
 
   return (
@@ -142,7 +167,22 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
             required
             value={nombre}
           />
+          {repetido && (
+            <p className="flex items-start gap-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
+              <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+              {t('voluntarios.registrar.repetido', { nombre: repetido.nombre })}
+            </p>
+          )}
           <CampoContactoVoluntario alCambiar={setContacto} id="voluntario-contacto" valor={contacto} />
+          <Campo
+            autoComplete="off"
+            etiqueta={t('voluntarios.registrar.nota')}
+            id="voluntario-nota"
+            maxLength={300}
+            onChange={(e) => setNota(e.target.value)}
+            placeholder={t('voluntarios.registrar.notaEjemplo')}
+            value={nota}
+          />
           <Boton disabled={ocupado || nombre.trim().length < 2 || Boolean(separado.error)} type="submit">
             {t('voluntarios.registrar.boton')}
           </Boton>
@@ -247,10 +287,25 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
                       required
                       value={editando.nombre}
                     />
+                    {repetidoAlEditar && (
+                      <p className="flex items-start gap-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
+                        <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+                        {t('voluntarios.registrar.repetido', { nombre: repetidoAlEditar.nombre })}
+                      </p>
+                    )}
                     <CampoContactoVoluntario
                       alCambiar={(valor) => setEditando({ ...editando, contacto: valor })}
                       id={`editar-contacto-${v.id}`}
                       valor={editando.contacto}
+                    />
+                    <Campo
+                      autoComplete="off"
+                      etiqueta={t('voluntarios.registrar.nota')}
+                      id={`editar-nota-${v.id}`}
+                      maxLength={300}
+                      onChange={(e) => setEditando({ ...editando, nota: e.target.value })}
+                      placeholder={t('voluntarios.registrar.notaEjemplo')}
+                      value={editando.nota}
                     />
                     <div className="flex flex-wrap gap-2">
                       <button
@@ -284,6 +339,19 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
                         )}
                         {v.contacto_viejo && (
                           <p className="text-base text-ya-recibio">{t('voluntarios.lista.contactoViejo', { contacto: v.contacto_viejo })}</p>
+                        )}
+                        {v.nota && (
+                          <p className="flex items-start gap-1.5 text-base italic text-principal/80">
+                            <LuStickyNote aria-hidden="true" className="mt-1 h-4 w-4 shrink-0" />
+                            {v.nota}
+                          </p>
+                        )}
+                        {v.visitas !== undefined && v.visitas !== null && (
+                          <p className="text-base text-principal/80">
+                            {v.visitas > 0
+                              ? t('voluntarios.lista.visitas', { count: v.visitas, ultimos: v.visitas_30 ?? 0 })
+                              : t('voluntarios.lista.nuncaVino')}
+                          </p>
                         )}
                       </div>
                       <div className="flex flex-wrap gap-1.5">
@@ -322,7 +390,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
                       </button>
                       <button
                         className={BOTON}
-                        onClick={() => setEditando({ id: v.id, nombre: v.nombre, contacto: contactoEnTexto(v) })}
+                        onClick={() => setEditando({ id: v.id, nombre: v.nombre, contacto: contactoEnTexto(v), nota: v.nota ?? '' })}
                         type="button"
                       >
                         <LuPencil aria-hidden="true" className="h-4 w-4" />
@@ -383,7 +451,12 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin }) {
       </Tarjeta>
 
       {credencial && (
-        <VentanaCredencial alCerrar={() => setCredencial(null)} alEnviada={alCambiar} voluntario={credencial} />
+        <VentanaCredencial
+          alCerrar={() => setCredencial(null)}
+          alEnviada={alCambiar}
+          soloEntrada={soloEntrada}
+          voluntario={credencial}
+        />
       )}
     </div>
   )

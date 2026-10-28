@@ -12,6 +12,17 @@ import {
   cerrarDiaVoluntarios,
   contactoEnTexto,
   contarPorFiltro,
+  contarResultados,
+  anotarDiaVoluntarios,
+  ajustesVoluntarios,
+  guardarAjustesVoluntarios,
+  horaParaCerrar,
+  montonesParaPasarLista,
+  nombreRepetido,
+  pasarLista,
+  resumenDeHoy,
+  salidaTemprana,
+  voluntariosAlDia,
   corregirAsistencia,
   csvDeHoras,
   editarVoluntario,
@@ -308,5 +319,144 @@ describe('ordenar y filtrar la lista (sección 49)', () => {
     expect(ids(filtrarVoluntarios(lista, 'sinSalida'))).toBe('b')
     expect(ids(filtrarVoluntarios(lista, 'deBaja'))).toBe('c')
     expect(contarPorFiltro(lista)).toMatchObject({ activos: 3, pendiente: 2, deBaja: 1 })
+  })
+})
+
+describe('solo la entrada, pasar lista y nota (sección 52)', () => {
+  it('registrar: la nota solo si trae algo', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ id: 'v1', nombre: 'Juana', token: CREDENCIAL }], error: null })
+    await registrarVoluntario('Juana', { nota: '  ' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('registrar_voluntario', {
+      p_nombre: 'Juana',
+      p_telefono: null,
+      p_correo: null,
+    })
+    await registrarVoluntario('Juana', { nota: ' Solo los lunes ' })
+    expect(supabase.rpc.mock.lastCall[1]).toMatchObject({ p_nota: 'Solo los lunes' })
+  })
+
+  it('editar: la nota en blanco se quita; sin pasarla, no se toca', async () => {
+    supabase.rpc.mockResolvedValue({ data: 'GUARDADO', error: null })
+    await editarVoluntario('v1', 'Juana', { nota: ' Habla inglés ' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('editar_voluntario', {
+      p_id: 'v1',
+      p_nombre: 'Juana',
+      p_telefono: null,
+      p_correo: null,
+      p_nota: 'Habla inglés',
+    })
+    await editarVoluntario('v1', 'Juana', { nota: '' })
+    expect(supabase.rpc.mock.lastCall[1]).toMatchObject({ p_nota: '' })
+    await editarVoluntario('v1', 'Juana')
+    expect(supabase.rpc.mock.lastCall[1]).not.toHaveProperty('p_nota')
+  })
+
+  it('ajustes: el modo y la hora de salida, cortita', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ modo: 'solo_entrada', hora_salida: '18:30:00' }], error: null })
+    await expect(ajustesVoluntarios()).resolves.toEqual({ modo: 'solo_entrada', hora_salida: '18:30' })
+    supabase.rpc.mockResolvedValue({ data: [{ modo: 'entrada_salida', hora_salida: '19:00:00' }], error: null })
+    await expect(guardarAjustesVoluntarios('entrada_salida', '19:00')).resolves.toEqual({ modo: 'entrada_salida', hora_salida: '19:00' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('guardar_ajustes_voluntarios', { p_modo: 'entrada_salida', p_hora_salida: '19:00' })
+  })
+
+  it('pasar lista, se fue temprano, al día y un día pasado llaman lo suyo', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ resultado: 'ENTRADA' }], error: null })
+    await pasarLista(new Set(['a', 'b']), '14:45')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('pasar_lista_voluntarios', { p_voluntarios: ['a', 'b'], p_hora: '14:45' })
+    await pasarLista(['a'])
+    expect(supabase.rpc).toHaveBeenLastCalledWith('pasar_lista_voluntarios', { p_voluntarios: ['a'], p_hora: null })
+    await salidaTemprana(7, '')
+    expect(supabase.rpc).toHaveBeenLastCalledWith('salida_temprana_voluntario', { p_asistencia: 7, p_hora: null })
+    await voluntariosAlDia()
+    expect(supabase.rpc).toHaveBeenLastCalledWith('voluntarios_al_dia', {})
+    await anotarDiaVoluntarios(['a'], { fecha: '2026-10-26', entrada: '14:00', salida: '18:30', motivo: ' No escanearon ' })
+    expect(supabase.rpc).toHaveBeenLastCalledWith('anotar_dia_voluntarios', {
+      p_voluntarios: ['a'],
+      p_fecha: '2026-10-26',
+      p_entrada: '14:00',
+      p_salida: '18:30',
+      p_motivo: 'No escanearon',
+    })
+  })
+
+  it('los errores nuevos llegan con su nombre', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'SIN_ENTRADA_ABIERTA' } })
+    await expect(salidaTemprana(1)).rejects.toThrow('SIN_ENTRADA_ABIERTA')
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'HORA_INVALIDA' } })
+    await expect(guardarAjustesVoluntarios('solo_entrada', '')).rejects.toThrow('HORA_INVALIDA')
+  })
+
+  it('avisa si ya hay alguien con ese nombre, sin contar acentos ni mayúsculas', () => {
+    const lista = [{ id: '1', nombre: 'José  Pérez' }, { id: '2', nombre: 'Ana' }]
+    expect(nombreRepetido(lista, ' jose perez')?.id).toBe('1')
+    expect(nombreRepetido(lista, 'José Pérez', '1')).toBeNull()
+    expect(nombreRepetido(lista, 'José')).toBeNull()
+    expect(nombreRepetido(lista, 'an')).toBeNull()
+  })
+
+  it('"sin venir": activos sin visitas en 30 días', () => {
+    const lista = [
+      { id: '1', activo: true, visitas_30: 0 },
+      { id: '2', activo: true, visitas_30: 3 },
+      { id: '3', activo: false, visitas_30: 0 },
+      { id: '4', activo: true, visitas_30: 0, dentro_desde: '2026-10-26T14:00:00' },
+    ]
+    expect(filtrarVoluntarios(lista, 'sinVenir').map((v) => v.id)).toEqual(['1'])
+  })
+
+  it('pasar lista: los que ya están, los que suelen venir y los demás, con la búsqueda', () => {
+    const voluntarios = [
+      { id: '1', nombre: 'Beto', activo: true, visitas_30: 2 },
+      { id: '2', nombre: 'Ana', activo: true, visitas_30: 5 },
+      { id: '3', nombre: 'Ceci', activo: true, visitas_30: 0 },
+      { id: '4', nombre: 'Dani', activo: true, visitas_30: 1 },
+      { id: '5', nombre: 'Eva', activo: false, visitas_30: 4 },
+    ]
+    const hoy = [
+      { voluntario_id: '4', entrada: '2026-10-26T13:00:00', estado: 'salio' },
+      { voluntario_id: '4', entrada: '2026-10-26T15:00:00', estado: 'dentro' },
+    ]
+    const m = montonesParaPasarLista(voluntarios, hoy)
+    expect(m.yaEstan.map((v) => v.id)).toEqual(['4'])
+    expect(m.yaEstan[0].asistencia.estado).toBe('dentro')
+    expect(m.suelenVenir.map((v) => v.id)).toEqual(['2', '1'])
+    expect(m.demas.map((v) => v.id)).toEqual(['3'])
+    expect(montonesParaPasarLista(voluntarios, hoy, 'cec').demas.map((v) => v.id)).toEqual(['3'])
+    expect(montonesParaPasarLista(voluntarios, hoy, 'ána').suelenVenir.map((v) => v.id)).toEqual(['2'])
+  })
+
+  it('el resumen de hoy: adentro, cuántos vinieron y cuántos de los de siempre faltan', () => {
+    const voluntarios = [
+      { id: '1', activo: true, visitas_30: 2 },
+      { id: '2', activo: true, visitas_30: 1 },
+      { id: '3', activo: true, visitas_30: 0 },
+      { id: '4', activo: false, visitas_30: 3 },
+    ]
+    const hoy = [
+      { voluntario_id: '1', estado: 'dentro' },
+      { voluntario_id: '3', estado: 'salio' },
+    ]
+    expect(resumenDeHoy(voluntarios, hoy)).toEqual({ adentro: 1, vinieron: 2, faltan: 1 })
+  })
+
+  it('cuenta los resultados, con nombres', () => {
+    expect(
+      contarResultados([
+        { resultado: 'ENTRADA', nombre: 'Ana' },
+        { resultado: 'ENTRADA', nombre: 'Beto' },
+        { resultado: 'YA_VINO', nombre: 'Ceci' },
+      ]),
+    ).toEqual({ ENTRADA: { cuantos: 2, nombres: ['Ana', 'Beto'] }, YA_VINO: { cuantos: 1, nombres: ['Ceci'] } })
+  })
+
+  it('terminar el día: en solo la entrada, la hora de salida si ya pasó; si no, ahora', () => {
+    expect(horaParaCerrar({ modo: 'solo_entrada', hora_salida: '18:30' }, '19:10')).toBe('18:30')
+    expect(horaParaCerrar({ modo: 'solo_entrada', hora_salida: '18:30' }, '17:05')).toBe('17:05')
+    expect(horaParaCerrar({ modo: 'entrada_salida', hora_salida: null }, '19:10')).toBe('19:10')
+  })
+
+  it('el mensaje de la credencial, sin "y al irte" cuando solo se escanea la entrada', () => {
+    const t = (clave) => clave
+    expect(mensajeCredencial(t, 'Ana', 'x', true)).toBe('voluntarios.envio.mensajeSoloEntrada')
   })
 })
