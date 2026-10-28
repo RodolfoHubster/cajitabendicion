@@ -1,8 +1,10 @@
 # El video de Cajita de Bendición en casadealabanzasd.com
 
-Pedido del Pastor David (27 de octubre de 2026): que en la página de la
-iglesia la gente vea qué es Cajita de Bendición, como un video que se abre en
-grande y se puede cerrar, con un botón para ir a hacer su cita.
+Pedido del Pastor David (27 de octubre de 2026): que al entrar a la página
+de la iglesia salga, en la esquina, **un video de la entrega** (el que él
+mande) reproduciéndose solo; que al tocarlo se vea más grande, con **«Más
+información»** (la presentación animada) y de ahí **«Haz tu cita»**. Y
+«Cajita de Bendición» en el menú de arriba.
 
 **No se toca el dominio, el DNS ni el correo.** Solo se pega código en el
 editor de GoDaddy, igual que cualquier otra sección. Se quita borrando esa
@@ -12,21 +14,73 @@ sección o esa línea.
 
 ## Qué es
 
-- **El video** es la página `https://citas.casadealabanzasd.com/video`: una
-  animación de unos 30 segundos hecha con código (no se grabó nada). Sale en
-  español, inglés o vietnamita, según el teléfono, y trae el botón
-  **«Haz tu cita»**.
+- **El video del pastor** va en `public/medios/entrega.mp4` (y su portada,
+  `public/medios/entrega.jpg`). Mientras no esté, en la esquina sale una
+  miniatura que abre la presentación.
+- **La presentación** («Más información») es la página
+  `https://citas.casadealabanzasd.com/video`: una animación de unos 30
+  segundos hecha con código. Sale en español, inglés o vietnamita, según el
+  teléfono, y termina en **«Haz tu cita»**.
 - **El código para GoDaddy** es el archivo `public/cajita-video.js` de este
   repositorio, publicado en `https://citas.casadealabanzasd.com/cajita-video.js`.
-  Pone la portada del video (o un botón flotante) y, al tocarla, abre el
-  video encima de la página de la iglesia, con una ✕ para cerrarlo (también
-  se cierra con Esc o tocando afuera).
+  - En la sección donde se pega: una franja delgada, «¿Qué es Cajita de
+    Bendición? Mira el video».
+  - En la **esquina inferior derecha** de la página, a los pocos segundos:
+    el video del pastor, chico, **reproduciéndose solo y sin sonido**, con su
+    ✕. (A quien tiene activado «ahorrar datos» o «menos movimiento» no le
+    arranca solo.)
+  - Al tocarlo (o la franja), crece a una **ventana en la misma esquina**,
+    nunca a pantalla completa, **con sonido** y el botón **«Más
+    información»**: la presentación, que termina en **«Haz tu cita»**. «‹»
+    regresa al video, «–» lo hace chico otra vez y ✕ lo quita. Quien lo
+    quita no lo vuelve a ver solo mientras siga en la página.
+  - GoDaddy pone la sección dentro de un recuadro, pero con permiso para
+    tocar la página: por eso la ventanita puede salir en la esquina de toda
+    la página y no dentro del recuadro.
 - Si cambiamos el video o el diseño aquí, en la página de la iglesia se
   actualiza solo. No hay que volver a entrar a GoDaddy.
 
 **Antes de pegar nada en GoDaddy, el código tiene que estar publicado** (el
 commit subido a `main`). Para comprobarlo, abre
 `https://citas.casadealabanzasd.com/video` en el teléfono.
+
+---
+
+## El video del pastor
+
+1. Que el pastor lo mande tal cual sale del teléfono. Mejor de **menos de un
+   minuto**; puede ser vertical u horizontal.
+2. **Cuidado con quién sale:** parte de la gente que recibe despensa tiene
+   un estatus migratorio delicado. Que no se vean caras de quienes reciben
+   sin su permiso (mejor voluntarios, cajas, el pastor).
+3. Se comprime (para que cargue rápido con datos del celular) y se publica
+   como `public/medios/entrega.mp4`, con su portada `public/medios/entrega.jpg`.
+   Con `ffmpeg`:
+
+   ```bash
+   ffmpeg -i original.mp4 -vf "scale='min(720,iw)':-2" -c:v libx264 -crf 28 -preset slow -c:a aac -b:a 96k -movflags +faststart public/medios/entrega.mp4
+   ```
+
+   ```bash
+   ffmpeg -i public/medios/entrega.mp4 -ss 1 -frames:v 1 -q:v 3 public/medios/entrega.jpg
+   ```
+
+4. Commit y push. **En GoDaddy no se toca nada:** la esquina lo toma sola.
+
+Para cambiarlo después, se reemplazan esos dos archivos.
+
+## «Cajita de Bendición» en el menú de arriba
+
+En el editor de GoDaddy, a la derecha, pestaña **SITIO WEB** (las páginas):
+
+1. Toca **+** (Agregar) y escoge **Nuevo enlace externo**.
+2. Título: **Cajita de Bendición** (máximo 25 letras).
+3. Enlace: `https://citas.casadealabanzasd.com`
+4. Activa **Mostrar en la navegación**.
+5. **Crear enlace** y luego **Publicar**.
+
+Sale en el menú junto a Inicio, Eventos y Quiénes somos, y lleva directo al
+sistema de citas.
 
 ---
 
@@ -52,11 +106,9 @@ Notas:
 
 - En el editor, GoDaddy enseña un recuadro gris en lugar de la portada:
   **solo se ve en la página ya publicada.**
-- GoDaddy pone esta sección dentro de un recuadro. Por eso el video no puede
-  salirse de él: al tocarlo se abre en **pantalla completa** y, si GoDaddy no
-  lo deja, se abre en **otra pestaña**. Las dos formas se probaron.
-- Si la portada sale cortada, en las opciones de la sección súbele la
-  altura.
+- Si algún día GoDaddy le quita a la sección el permiso de tocar la
+  página, la ventanita ya no sale en la esquina y la franja abre el video en
+  otra pestaña.
 
 ## Opción 2: un botón flotante en todas las páginas (si tu cuenta lo tiene)
 
@@ -70,9 +122,8 @@ Si aparece, pega solo esta línea:
 <script src="https://citas.casadealabanzasd.com/cajita-video.js" defer></script>
 ```
 
-Sale un botón naranja «▶ Cajita de Bendición» abajo a la izquierda, en todas
-las páginas. Al tocarlo, el video se abre **encima de toda la página**, que
-es lo más parecido a un video emergente.
+El video de la esquina sale entonces en todas las páginas, no solo en la que
+tiene la sección. No hace falta: con la Opción 1 ya sale en la esquina.
 
 Si usas las dos opciones, no pasa nada: el código se carga una sola vez.
 

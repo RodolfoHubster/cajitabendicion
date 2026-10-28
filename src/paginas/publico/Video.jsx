@@ -24,14 +24,18 @@ function estaInsertado() {
  * (casadealabanzasd.com), o se abre directo con su enlace.
  *
  * ?lng=es|en|vi: el idioma del telefono de quien lo abrio. ?insertado=1:
- * deja lugar arriba a la derecha para la X de cerrar. Dentro de la pagina
- * de la iglesia, "Haz tu cita" se abre en otra pestana (asi no se pierde la
- * pagina) y Esc le pide a la pagina que cierre el video.
+ * deja lugar arriba a la derecha para la X de cerrar. ?compacto=1 (27 de
+ * octubre de 2026): para la ventanita de la esquina de la pagina de la
+ * iglesia, mas chico y sin encabezado (la ventanita trae su titulo y su X).
+ * Dentro de la pagina de la iglesia, "Haz tu cita" se abre en otra pestana
+ * (asi no se pierde la pagina) y Esc le pide a la pagina que cierre el
+ * video.
  */
 export default function Video() {
   const { t, i18n } = useTranslation()
   const insertado = estaInsertado()
   const dejarLugar = parametros().get('insertado') === '1'
+  const compacto = parametros().get('compacto') === '1'
 
   //  El idioma que mando la pagina de la iglesia, si es uno de los tres.
   useEffect(() => {
@@ -81,7 +85,7 @@ export default function Video() {
 
   const accion = (
     <a
-      className="group flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-lg font-bold text-sobre-accion shadow-lg shadow-black/25 transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70"
+      className={`group flex ${compacto ? 'min-h-12 text-base' : 'min-h-14 text-lg'} w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 font-bold text-sobre-accion shadow-lg shadow-black/25 transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70`}
       href={`${window.location.origin}/`}
       rel={insertado ? 'noopener' : undefined}
       target={insertado ? '_blank' : undefined}
@@ -93,7 +97,7 @@ export default function Video() {
 
   return (
     <div className="h-dvh bg-marca">
-      <PresentacionCajita accion={accion} encabezado={encabezado} />
+      <PresentacionCajita accion={accion} compacta={compacto} encabezado={compacto ? null : encabezado} />
     </div>
   )
 }

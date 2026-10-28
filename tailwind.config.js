@@ -70,6 +70,11 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(9rem)' },
         },
+        //  El mismo, en la ventanita de la esquina (QR mas chico).
+        'escanear-chico': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(6rem)' },
+        },
       },
       animation: {
         aparecer: 'aparecer 0.6s cubic-bezier(0.22, 1, 0.36, 1) both',
@@ -77,6 +82,7 @@ export default {
         flotar: 'flotar 3s ease-in-out infinite',
         latido: 'latido 1.6s ease-in-out infinite',
         escanear: 'escanear 2.4s ease-in-out infinite',
+        'escanear-chico': 'escanear-chico 2.4s ease-in-out infinite',
       },
     },
   },
