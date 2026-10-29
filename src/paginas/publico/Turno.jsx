@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
 import Boton from '../../componentes/Boton'
 import CampoCodigo from '../../componentes/CampoCodigo'
+import EnlaceVolver from '../../componentes/EnlaceVolver'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
@@ -347,6 +348,11 @@ export default function Turno() {
           {t('turnoAPie.verFila')}
         </Link>
 
+        {/* Abajo, para no bajar el numero y el QR de la pantalla. */}
+        <div className="text-center">
+          <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
+        </div>
+
         <Tarjeta>{avisos}</Tarjeta>
 
         {/* Le toca: la pantalla completa en verde, para que se vea desde lejos. */}
@@ -388,6 +394,10 @@ export default function Turno() {
   return (
     <div className="space-y-4">
       <Tarjeta>
+        {/* Casi todos llegan con el QR de la entrada: en el iPhone no saben
+            regresar, y la cita en carro se saca desde el inicio (27 de
+            octubre de 2026). */}
+        <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
         {encabezado}
 
         {estado === 'cargando' && (

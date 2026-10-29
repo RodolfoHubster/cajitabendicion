@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FaPersonWalking } from 'react-icons/fa6'
 import { LuCheck, LuCircleCheck, LuFlag, LuHourglass, LuMegaphone, LuTicket, LuUsers, LuWifiOff } from 'react-icons/lu'
 import { Link } from 'react-router-dom'
+import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
 import useCadaRato from '../../componentes/useCadaRato'
 import { Hueso } from '../../componentes/Esqueleto'
@@ -50,6 +51,8 @@ export default function FilaEnVivo() {
   return (
     <div className="space-y-4">
       <Tarjeta>
+        {/* De aqui se regresa a sacar (o ver) su turno. */}
+        <EnlaceVolver a="/turno">{t('aPie.volver')}</EnlaceVolver>
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accion/20">
             <FaPersonWalking aria-hidden="true" className="h-7 w-7 text-principal" />
