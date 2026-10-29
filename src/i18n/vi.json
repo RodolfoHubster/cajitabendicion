@@ -1461,6 +1461,10 @@
     "falta": "Để đăng ký, hãy đánh dấu ô xác nhận.",
     "faltaPanel": "Hãy đánh dấu ô: người này cần xác nhận rằng họ tự nguyện chia sẻ thông tin."
   },
+  "boletin": {
+    "casilla": "Tôi muốn nhận tin tức và thông tin chung của nhà thờ qua email (không bắt buộc).",
+    "ayuda": "Việc này tách riêng với các email về lịch hẹn, mà bạn vẫn sẽ nhận được. Bạn có thể hủy đăng ký bất cứ lúc nào."
+  },
   "reglas": {
     "titulo": "Trước khi xác nhận, xin đọc phần này",
     "casilla": "Tôi đã đọc và chấp nhận những hướng dẫn này.",

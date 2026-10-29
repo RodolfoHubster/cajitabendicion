@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-09-28-pases-vip.sql.
+--  Requiere todas las migraciones, hasta 2026-10-28-correos-y-boletin.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -180,7 +180,9 @@ begin
       p_sin_domicilio boolean default false,
       p_acepto        boolean default true,
       p_acompanante   text    default null,
-      p_fecha         date    default null
+      p_fecha         date    default null,
+      p_idioma        text    default null,
+      p_boletin       boolean default false
     )
     returns text language sql as $b$
       select format(
@@ -188,10 +190,10 @@ begin
         'p_bloque_id => %L::uuid, p_email => %L, p_dispositivo => %L, p_codigo_anticipado => %L, '
         'p_pais => %L, p_codigo_postal => %L, p_colonia => %L, p_calle => %L, p_numero => %L, '
         'p_numero_interior => %L, p_sin_domicilio => %L::boolean, p_acepto_privacidad => %L::boolean, '
-        'p_codigo_acompanante => %L, p_fecha => %L::date)',
+        'p_codigo_acompanante => %L, p_fecha => %L::date, p_idioma => %L, p_boletin => %L::boolean)',
         p_nombre, p_apellidos, p_telefono, p_bloque, p_email, p_dispositivo, p_codigo,
         p_pais, p_cp, p_colonia, p_calle, p_numero, p_interior, p_sin_domicilio, p_acepto,
-        p_acompanante, p_fecha);
+        p_acompanante, p_fecha, p_idioma, p_boletin);
     $b$
   $f$;
 
@@ -3737,6 +3739,166 @@ begin
       v_texto);
   exception when others then
     perform pg_temp.comprobar('Google: cuentas de prueba en auth.users', false, sqlerrm);
+  end;
+
+  -- ==========================================================
+  --  54. Correos: confirmación, entrega cancelada o movida, y boletín
+  -- ==========================================================
+  declare
+    v_c_dia     date := v_lunes + 84;
+    v_c_mover   date := v_lunes + 91;
+    v_c_nueva   date := v_lunes + 98;
+    v_c_bloque  uuid;
+    v_c_bloque2 uuid;
+    v_c_persona uuid;
+    v_c_cita    citas;
+    v_c_id      uuid;
+    v_c_uno     text;
+    v_c_dos     text;
+    v_c_tres    text;
+    v_c_cuatro  text;
+    v_c_cinco   text;
+    v_c_donde   text;
+  begin
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values
+      (v_c_dia,   now() - interval '1 day', 'CORREO'),
+      (v_c_mover, now() - interval '1 day', 'CORRE2');
+    insert into bloques (fecha, hora, capacidad) values (v_c_dia, '15:15', 20) returning id into v_c_bloque;
+    insert into bloques (fecha, hora, capacidad) values (v_c_mover, '15:30', 20) returning id into v_c_bloque2;
+
+    --  Se registra en vietnamita y palomea el boletín.
+    v_c_uno := pg_temp.valor(format('select r.token_qr from (%s) r',
+      pg_temp.registro(v_c_bloque, p_nombre => 'Correo', p_apellidos => 'Prueba Uno', p_telefono => '+16195550961',
+                       p_email => '  Correo.Uno.CB@Gmail.com ', p_idioma => 'vi', p_boletin => true)));
+    perform pg_temp.comprobar('Correos: al hacer la cita se anota su confirmación, una sola',
+      (select count(*) from correos co join citas c on c.id = co.cita_id
+        where c.token_qr = v_c_uno and co.tipo = 'confirmacion' and co.estado = 'pendiente') = 1, v_c_uno);
+    perform pg_temp.comprobar('Correos: se guarda el idioma en que se registró',
+      (select p.idioma from personas p join citas c on c.persona_id = p.id where c.token_qr = v_c_uno) = 'vi');
+    perform pg_temp.comprobar('Boletín: con la casilla, su correo queda anotado en minúsculas y en su idioma',
+      exists (select 1 from boletin b where b.email = 'correo.uno.cb@gmail.com' and b.baja_en is null and b.idioma = 'vi'));
+
+    --  Con mala señal toca "confirmar" otra vez: misma cita, nada de más.
+    v_texto := pg_temp.valor(format('select r.ya_existia from (%s) r',
+      pg_temp.registro(v_c_bloque, p_nombre => 'Correo', p_apellidos => 'Prueba Uno', p_telefono => '+16195550961',
+                       p_email => 'correo.uno.cb@gmail.com', p_idioma => 'vi', p_boletin => true)));
+    perform pg_temp.comprobar('Correos: repetir el registro no manda otra confirmación',
+      v_texto = 'true'
+      and (select count(*) from correos co join citas c on c.id = co.cita_id where c.token_qr = v_c_uno) = 1, v_texto);
+    perform pg_temp.comprobar('Boletín: el mismo correo no se anota dos veces',
+      (select count(*) from boletin b where b.email = 'correo.uno.cb@gmail.com') = 1);
+
+    --  Sin la casilla y sin idioma.
+    v_c_dos := pg_temp.valor(format('select r.token_qr from (%s) r',
+      pg_temp.registro(v_c_bloque, p_nombre => 'Correo', p_apellidos => 'Prueba Dos', p_telefono => '+16195550962',
+                       p_email => 'correo.dos.cb@gmail.com')));
+    perform pg_temp.comprobar('Boletín: sin la casilla, no se anota',
+      not exists (select 1 from boletin b where b.email = 'correo.dos.cb@gmail.com'));
+    perform pg_temp.comprobar('Correos: sin idioma, la persona queda en español',
+      (select p.idioma from personas p join citas c on c.persona_id = p.id where c.token_qr = v_c_dos) = 'es');
+
+    --  Sin correo (como desde el panel para un adulto mayor): nada pendiente.
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+    values ('CB-CORR0', 'Correo Sin', 'Correo', 'Sin', '+16195550963') returning id into v_c_persona;
+    v_c_cita := reservar_cita(v_c_persona, v_c_bloque);
+    perform pg_temp.comprobar('Correos: sin correo no se anota confirmación',
+      not exists (select 1 from correos co where co.cita_id = v_c_cita.id));
+
+    v_c_tres := pg_temp.valor(format('select r.token_qr from (%s) r',
+      pg_temp.registro(v_c_bloque, p_nombre => 'Correo', p_apellidos => 'Prueba Tres', p_telefono => '+16195550964',
+                       p_email => 'correo.tres.cb@gmail.com')));
+    v_c_cuatro := pg_temp.valor(format('select r.token_qr from (%s) r',
+      pg_temp.registro(v_c_bloque, p_nombre => 'Correo', p_apellidos => 'Prueba Cuatro', p_telefono => '+16195550965',
+                       p_email => 'correo.cuatro.cb@gmail.com')));
+
+    --  Cancela su cita antes de que salga la confirmación.
+    perform cancelar_mi_cita(v_c_tres);
+
+    --  Una cita de una fecha que ya pasó (si SES tardó en estar listo).
+    insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, email)
+    values ('CB-CORR9', 'Correo Viejo', 'Correo', 'Viejo', '+16195550969', 'correo.viejo.cb@gmail.com')
+    returning id into v_c_persona;
+    insert into citas (persona_id, bloque_id, semana, token_qr)
+    values (v_c_persona, v_b_pasada, date_trunc('week', v_pasada)::date, 'token-prueba-correo-viejo')
+    returning id into v_c_id;
+
+    --  Lo toma la función que los manda (service_role).
+    create temp table c_tomados on commit drop as select * from correos_por_enviar(5000);
+    perform pg_temp.comprobar('Correos: quien los manda recibe correo, idioma, nombre, fecha, código y QR',
+      exists (select 1 from c_tomados x
+               where x.token_qr = v_c_uno and x.tipo = 'confirmacion' and x.email = 'Correo.Uno.CB@Gmail.com'
+                 and x.idioma = 'vi' and x.nombre = 'Correo' and x.fecha = v_c_dia and x.hora = '15:15'
+                 and x.fila = 'carro' and x.codigo_corto like 'CB-%'));
+    perform pg_temp.comprobar('Correos: si canceló antes de que saliera, la confirmación ya no se manda',
+      not exists (select 1 from c_tomados x where x.token_qr = v_c_tres)
+      and (select co.estado from correos co join citas c on c.id = co.cita_id where c.token_qr = v_c_tres) = 'omitido');
+    perform pg_temp.comprobar('Correos: de una fecha que ya pasó no sale nada',
+      not exists (select 1 from c_tomados x where x.token_qr = 'token-prueba-correo-viejo')
+      and (select co.estado from correos co where co.cita_id = v_c_id) = 'omitido');
+    perform pg_temp.comprobar('Correos: lo que ya se tomó no se vuelve a tomar',
+      not exists (select 1 from correos_por_enviar(5000) x where x.token_qr = v_c_uno));
+
+    select x.id into v_c_id from c_tomados x where x.token_qr = v_c_uno;
+    v_texto := marcar_correo(v_c_id, true, 'msg-prueba');
+    select v_texto || '/' || co.estado || '|' || co.id_mensaje into v_texto from correos co where co.id = v_c_id;
+    perform pg_temp.comprobar('Correos: enviado queda enviado, con el número de Amazon',
+      v_texto = 'enviado/enviado|msg-prueba', v_texto);
+
+    select x.id into v_c_id from c_tomados x where x.token_qr = v_c_dos;
+    perform pg_temp.comprobar('Correos: si Amazon falla, vuelve a pendiente para reintentarse',
+      marcar_correo(v_c_id, false, null, '503 Amazon no contestó') = 'pendiente');
+    update correos set estado = 'enviando', intentos = 5 where id = v_c_id;
+    perform pg_temp.comprobar('Correos: al quinto intento ya no se reintenta',
+      marcar_correo(v_c_id, false, null, '503 otra vez') = 'fallo');
+
+    select x.id into v_c_id from c_tomados x where x.token_qr = v_c_cuatro;
+    perform pg_temp.comprobar('Correos: si Amazon lo rechaza (correo mal escrito), no se reintenta',
+      marcar_correo(v_c_id, false, null, '400 MessageRejected', true) = 'fallo');
+
+    perform pg_temp.comprobar('Correos: el navegador no ve la lista de correos ni el boletín',
+      not has_table_privilege('anon', 'correos', 'select') and not has_table_privilege('authenticated', 'correos', 'select')
+      and not has_table_privilege('anon', 'boletin', 'select') and not has_table_privilege('authenticated', 'boletin', 'select'));
+    perform pg_temp.comprobar('Correos: solo quien los manda puede tomarlos y marcarlos',
+      not has_function_privilege('anon', 'correos_por_enviar(integer)', 'execute')
+      and not has_function_privilege('authenticated', 'correos_por_enviar(integer)', 'execute')
+      and not has_function_privilege('anon', 'marcar_correo(uuid, boolean, text, text, boolean)', 'execute')
+      and not has_function_privilege('authenticated', 'marcar_correo(uuid, boolean, text, text, boolean)', 'execute')
+      and has_function_privilege('service_role', 'correos_por_enviar(integer)', 'execute'));
+
+    --  La iglesia cancela o mueve la entrega (solo admin).
+    if v_admin is null then
+      perform pg_temp.comprobar('Correos: avisos de entrega OMITIDOS porque no hay ninguna cuenta admin', true, 'omitidas');
+    else
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform set_config('request.jwt.claims', json_build_object('sub', v_admin, 'role', 'authenticated')::text, true);
+      --  Las pruebas de arriba le cambian el rol para probar permisos.
+      update personal set rol = 'admin', activo = true where usuario_id = v_admin;
+
+      perform cancelar_entrega(v_c_dia, 'Por lluvia');
+      select count(*) into v_numero
+        from correos co join citas c on c.id = co.cita_id join bloques b on b.id = c.bloque_id
+       where b.fecha = v_c_dia and co.tipo = 'entrega_cancelada';
+      perform pg_temp.comprobar('Correos: al cancelar la entrega se avisa a cada cita con correo (no a la que ya había cancelado)',
+        v_numero = 3, v_numero::text);
+      perform pg_temp.comprobar('Correos: el aviso de cancelación lleva el mensaje de la iglesia',
+        exists (select 1 from correos_por_enviar(5000) x
+                 where x.tipo = 'entrega_cancelada' and x.token_qr = v_c_uno and x.mensaje = 'Por lluvia'));
+
+      v_c_cinco := pg_temp.valor(format('select r.token_qr from (%s) r',
+        pg_temp.registro(v_c_bloque2, p_nombre => 'Correo', p_apellidos => 'Prueba Cinco', p_telefono => '+16195550966',
+                         p_email => 'correo.cinco.cb@gmail.com', p_idioma => 'en')));
+      perform mover_entrega(v_c_mover, v_c_nueva, 'No llegó el camión');
+      perform pg_temp.comprobar('Correos: al mover la entrega se avisa con la fecha nueva, la anterior y el mensaje',
+        exists (select 1 from correos_por_enviar(5000) x
+                 where x.tipo = 'entrega_movida' and x.token_qr = v_c_cinco and x.fecha = v_c_nueva
+                   and x.fecha_anterior = v_c_mover and x.mensaje = 'No llegó el camión' and x.idioma = 'en'));
+    end if;
+  exception when others then
+    get stacked diagnostics v_c_donde = pg_exception_context;
+    perform pg_temp.comprobar('Correos: las pruebas de correos corrieron completas', false,
+      sqlerrm || ' | ' || split_part(v_c_donde, E'
+', 1) || ' | ' || split_part(v_c_donde, E'
+', 2));
   end;
 
   -- ==========================================================

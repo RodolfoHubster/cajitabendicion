@@ -1469,6 +1469,10 @@
     "falta": "Para registrarte, marca la casilla de confirmación.",
     "faltaPanel": "Marca la casilla: la persona debe confirmar que comparte su información."
   },
+  "boletin": {
+    "casilla": "Quiero recibir por correo avisos e información general de la iglesia (opcional).",
+    "ayuda": "Es aparte de los correos de tu cita, que te llegan de todos modos. Puedes darte de baja cuando quieras."
+  },
   "reglas": {
     "titulo": "Antes de confirmar tu cita, lee esto",
     "casilla": "Leí y acepto estas indicaciones.",

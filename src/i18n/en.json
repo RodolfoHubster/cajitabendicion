@@ -1469,6 +1469,10 @@
     "falta": "To register, check the confirmation box.",
     "faltaPanel": "Check the box: the person must confirm that they share their information."
   },
+  "boletin": {
+    "casilla": "I want to receive church news and general information by email (optional).",
+    "ayuda": "This is separate from your appointment emails, which you will get either way. You can unsubscribe at any time."
+  },
   "reglas": {
     "titulo": "Before you confirm, please read this",
     "casilla": "I read and accept these instructions.",

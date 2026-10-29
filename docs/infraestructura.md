@@ -261,11 +261,14 @@ de mapas: las direcciones de la comunidad no salen de la base de datos.
 - **Qué revisa:** que el código postal exista, que la colonia sea de ese código
   y que calle y número tengan forma real. No comprueba que la casa exista.
 
-## Correo transaccional (pendiente)
+## Correo transaccional
 
-El sistema necesita mandar confirmaciones con el código QR. Proveedor
-elegido: **Amazon SES**, por costo — alrededor de 8,000 correos al mes salen
-en menos de un dólar, contra unos veinte dólares en otros servicios.
+El sistema manda la confirmación de la cita con el código QR y el aviso si se
+cancela o se mueve una entrega. Proveedor elegido: **Amazon SES**, por costo:
+alrededor de 8,000 correos al mes salen en menos de un dólar, contra unos
+veinte dólares en otros servicios. El código está listo (28 de octubre de
+2026); los pasos para ponerlo en marcha, con los registros de GoDaddy, están
+en `docs/correos.md`.
 
 ### Advertencia importante sobre el SPF
 

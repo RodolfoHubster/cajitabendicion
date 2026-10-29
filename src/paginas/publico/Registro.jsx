@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import AceptarReglas from '../../componentes/AceptarReglas'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
 import Boton from '../../componentes/Boton'
+import CasillaBoletin from '../../componentes/CasillaBoletin'
 import Campo from '../../componentes/Campo'
 import CampoTelefono from '../../componentes/CampoTelefono'
 import CamposDomicilio from '../../componentes/CamposDomicilio'
@@ -93,6 +94,8 @@ export default function Registro() {
   const [acepto, setAcepto] = useState(false)
   //  Las indicaciones de la entrega, aparte del aviso de privacidad.
   const [aceptoReglas, setAceptoReglas] = useState(false)
+  //  El boletin de la iglesia: opcional, sin marcar (seccion 54).
+  const [boletin, setBoletin] = useState(false)
 
   // Un campo se marca en rojo al salir de el o al intentar enviar. Desde ahi
   // el mensaje cambia mientras escribe y desaparece en cuanto queda bien.
@@ -266,6 +269,8 @@ export default function Registro() {
         bloqueId: bloqueId ?? null,
         fecha,
         codigoAcompanante: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
+        idioma: i18n.resolvedLanguage,
+        boletin,
       })
 
       // Se pasa el nombre porque la funcion no lo devuelve y la pantalla de
@@ -427,6 +432,8 @@ export default function Registro() {
         />
 
         <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} />
+
+        <CasillaBoletin acepto={boletin} alCambiar={setBoletin} />
 
         {error && (
           <p className="rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">

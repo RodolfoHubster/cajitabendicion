@@ -88,7 +88,19 @@ describe('registrarYReservar', () => {
       p_acepto_privacidad: true,
       p_dispositivo: obtenerDispositivo(),
       p_codigo_anticipado: null,
+      p_idioma: null,
+      p_boletin: false,
     })
+  })
+
+  it('manda el idioma de la pantalla y la casilla del boletin', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{}], error: null })
+
+    await registrarYReservar({ ...PERSONA, idioma: 'vi', boletin: true })
+    expect(supabase.rpc.mock.calls[0][1]).toMatchObject({ p_idioma: 'vi', p_boletin: true })
+
+    await registrarYReservar({ ...PERSONA, idioma: 'fr' })
+    expect(supabase.rpc.mock.calls[1][1]).toMatchObject({ p_idioma: null, p_boletin: false })
   })
 
   it('manda el codigo de suscriptor guardado para esa fecha, ya normalizado', async () => {

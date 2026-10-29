@@ -32,6 +32,9 @@ export function obtenerDispositivo() {
   }
 }
 
+//  Los idiomas en que hay correos (supabase/functions/enviar-correos).
+const IDIOMAS_DE_CORREO = ['es', 'en', 'vi']
+
 /**
  * Crea la persona y aparta su lugar en una sola llamada.
  * Devuelve el codigo corto y el token del QR para /confirmacion.
@@ -51,6 +54,8 @@ export async function registrarYReservar({
   bloqueId,
   fecha,
   codigoAcompanante = null,
+  idioma = null,
+  boletin = false,
 }) {
   //  Con mala senal no se espera para siempre: a los 25 segundos se dice
   //  "no hay conexion" y la persona puede volver a tocar Confirmar. Si la
@@ -68,6 +73,10 @@ export async function registrarYReservar({
     //  Viene en el carro de alguien que ya tiene cita: el codigo de quien
     //  maneja y el dia. Solo se manda cuando aplica.
     ...(codigoAcompanante ? { p_codigo_acompanante: codigoAcompanante, p_fecha: fecha } : {}),
+    //  Sus correos salen en el idioma en que se registro (seccion 54).
+    p_idioma: IDIOMAS_DE_CORREO.includes(idioma) ? idioma : null,
+    //  El boletin, solo si palomeo la casilla.
+    p_boletin: Boolean(boletin),
   }))
 
   if (error) {

@@ -1,0 +1,10 @@
+# Configuracion de Supabase SOLO para las funciones (Edge Functions).
+# La base no se maneja con esto: va por supabase/schema.sql y las
+# migraciones, a mano en el SQL Editor.
+project_id = "cajitabendicion"
+
+# Manda los correos pendientes (docs/correos.md). La llama la base con su
+# propio secreto (x-cajita-secreto), no con la sesion de un usuario.
+[functions.enviar-correos]
+verify_jwt = false
+entrypoint = "./functions/enviar-correos/index.js"

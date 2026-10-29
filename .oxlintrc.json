@@ -7,5 +7,8 @@
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
     "no-undef": "error"
   },
-  "overrides": [{ "files": ["**/*.test.js", "**/*.test.jsx"], "env": { "vitest": true } }]
+  "overrides": [
+    { "files": ["**/*.test.js", "**/*.test.jsx"], "env": { "vitest": true } },
+    { "files": ["supabase/functions/**/*.js"], "globals": { "Deno": "readonly" } }
+  ]
 }

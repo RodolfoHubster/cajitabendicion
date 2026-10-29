@@ -691,7 +691,8 @@ drop function if exists registrar_y_reservar(text, text, text, uuid, text, text,
 
 drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text);
 
---  Le crecieron p_codigo_acompanante y p_fecha (seccion 39).
+--  Le crecieron p_codigo_acompanante y p_fecha (seccion 39), y p_idioma y
+--  p_boletin (seccion 54): se borra la anterior y se vuelve a crear.
 drop function if exists registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date);
 
 create or replace function registrar_y_reservar(
@@ -714,7 +715,12 @@ create or replace function registrar_y_reservar(
   --  CB de quien maneja. Su horario es el de esa cita; con p_fecha basta
   --  (cuando ya no quedan lugares no se puede escoger horario).
   p_codigo_acompanante text   default null,
-  p_fecha             date    default null
+  p_fecha             date    default null,
+  --  El idioma de la pantalla al registrarse (es, en, vi): el de sus
+  --  correos (seccion 54).
+  p_idioma            text    default null,
+  --  La casilla del boletin, que va sin marcar (seccion 54).
+  p_boletin           boolean default false
 )
 returns table (
   codigo_corto text,
@@ -897,6 +903,11 @@ begin
   if v_previa.id is not null then
     if (p_dispositivo is not null and v_previa.dispositivo_id = p_dispositivo)
        or v_previa.creada_en > now() - interval '30 minutes' then
+      --  Si esta vez si palomeo el boletin, se anota (seccion 54).
+      if coalesce(p_boletin, false) then
+        perform anotar_en_boletin(p_email, p_idioma, v_previa.persona_id);
+      end if;
+
       return query
         select p.codigo_corto, v_previa.token_qr, b.fecha, b.hora, true
           from personas p, bloques b
@@ -962,7 +973,7 @@ begin
       insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, email,
                             pais, codigo_postal, ciudad, colonia, municipio, estado,
                             calle, numero_exterior, numero_interior, direccion,
-                            sin_domicilio, acepto_privacidad_en)
+                            sin_domicilio, acepto_privacidad_en, idioma)
       values (v_codigo,
               v_nombres || ' ' || v_apellidos,
               v_nombres,
@@ -980,7 +991,8 @@ begin
               v_domicilio.o_numero_interior,
               v_domicilio.o_direccion,
               coalesce(p_sin_domicilio, false),
-              now())
+              now(),
+              case when p_idioma in ('es', 'en', 'vi') then p_idioma else 'es' end)
       returning * into v_persona;
       exit;
     exception when unique_violation then
@@ -1000,14 +1012,19 @@ begin
          con_codigo_anticipado = v_anticipada
    where id = v_cita.id;
 
+  --  Solo con la casilla marcada (seccion 54).
+  if coalesce(p_boletin, false) then
+    perform anotar_en_boletin(p_email, p_idioma, v_persona.id);
+  end if;
+
   return query
     select v_persona.codigo_corto, v_cita.token_qr, v_bloque.fecha, v_bloque.hora, false;
 end;
 $$;
 
 
-revoke execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date) from public;
-grant  execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date) to anon, authenticated;
+revoke execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date, text, boolean) from public;
+grant  execute on function registrar_y_reservar(text, text, text, uuid, text, text, text, text, text, text, text, boolean, boolean, text, text, text, date, text, boolean) to anon, authenticated;
 
 
 -- ============================================================
@@ -5964,6 +5981,13 @@ begin
         insert into movimientos_cita (cita_id, de_bloque_id, a_bloque_id, origen, usuario_id)
         values (v_cita.id, v_bloque.id, v_nuevo, 'incidencia', v_usuario);
 
+        --  Su aviso por correo, si tiene (seccion 54).
+        insert into correos (cita_id, tipo)
+        select v_cita.id, 'entrega_movida'
+          from personas p
+         where p.id = v_cita.persona_id and nullif(trim(p.email), '') is not null
+        on conflict (cita_id, tipo) do nothing;
+
         v_movidas := v_movidas + 1;
       exception when unique_violation then
         --  Ya tiene su cita de esa semana: se queda y se avisa aparte.
@@ -6026,17 +6050,27 @@ begin
   update bloques set cerrado = true where fecha = p_fecha;
   update dias_entrega set cerrado = true, actualizado_en = now() where fecha = p_fecha;
 
-  update citas c
-     set estado             = 'cancelada',
-         cancelada_en       = now(),
-         cancelada_por      = v_usuario,
-         motivo_cancelacion = coalesce(v_motivo, 'Se cancelo la entrega de este dia')
-    from bloques b
-   where b.id = c.bloque_id
-     and b.fecha = p_fecha
-     and c.estado in ('reservada', 'llego');
-
-  get diagnostics v_n = row_count;
+  --  Cada cita cancelada con correo deja anotado su aviso (seccion 54).
+  with canceladas as (
+    update citas c
+       set estado             = 'cancelada',
+           cancelada_en       = now(),
+           cancelada_por      = v_usuario,
+           motivo_cancelacion = coalesce(v_motivo, 'Se cancelo la entrega de este dia')
+      from bloques b
+     where b.id = c.bloque_id
+       and b.fecha = p_fecha
+       and c.estado in ('reservada', 'llego')
+    returning c.id, c.persona_id
+  ), avisos as (
+    insert into correos (cita_id, tipo)
+    select ca.id, 'entrega_cancelada'
+      from canceladas ca
+      join personas p on p.id = ca.persona_id
+     where nullif(trim(p.email), '') is not null
+    on conflict (cita_id, tipo) do nothing
+  )
+  select count(*)::int into v_n from canceladas;
 
   update incidencias
      set retirada_en  = now(),
@@ -10010,3 +10044,252 @@ $$;
 
 revoke execute on function marcar_entrega_pase(text, date, text, text) from public, anon;
 grant  execute on function marcar_entrega_pase(text, date, text, text) to authenticated;
+
+
+-- ============================================================
+--  54. CORREOS: CONFIRMACION, ENTREGA CANCELADA O MOVIDA, Y BOLETIN
+-- ============================================================
+--  Decision del 28 de octubre de 2026 (el pastor autorizo el gasto de
+--  Amazon SES):
+--
+--    * Cada cita nueva con correo deja anotada su confirmacion, que lleva
+--      su QR dentro. Cuando la iglesia cancela o mueve la entrega de un dia
+--      (seccion 36), cancelar_entrega() y mover_entrega() anotan el aviso de
+--      cada cita que tocaron, ahi mismo.
+--    * Se anota en la misma operacion que la cita, en la tabla correos. La
+--      funcion enviar-correos (supabase/functions) los toma cada minuto y
+--      los manda por Amazon SES. Si Amazon falla, la cita no se pierde ni
+--      se traba: el correo se queda pendiente y se reintenta.
+--    * Nadie los contesta: el correo dice que no se responda y da el
+--      telefono de la iglesia.
+--    * El boletin (informacion general) es aparte y solo con permiso: la
+--      casilla del registro va sin marcar. Se guarda el correo, el idioma y
+--      cuando dio el permiso. Sin la casilla no se anota nada.
+--
+--  Ni el navegador ni el panel leen estas tablas: solo la funcion que manda
+--  los correos (service_role). Guia: docs/correos.md
+
+--  Vietnamita tambien: el correo sale en el idioma en que se registro.
+alter table personas drop constraint if exists personas_idioma_check;
+alter table personas add constraint personas_idioma_check check (idioma in ('es', 'en', 'vi'));
+
+create table if not exists correos (
+  id          uuid primary key default gen_random_uuid(),
+  cita_id     uuid not null references citas(id) on delete cascade,
+  tipo        text not null check (tipo in ('confirmacion', 'entrega_cancelada', 'entrega_movida')),
+  --  pendiente -> enviando -> enviado. fallo: ya no se reintenta. omitido:
+  --  ya no tocaba (la cita se cancelo antes de salir, o su fecha ya paso).
+  estado      text not null default 'pendiente'
+              check (estado in ('pendiente', 'enviando', 'enviado', 'fallo', 'omitido')),
+  intentos    int not null default 0,
+  creado_en   timestamptz not null default now(),
+  tomado_en   timestamptz,
+  enviado_en  timestamptz,
+  id_mensaje  text,
+  error       text,
+  --  Un correo de cada tipo por cita: repetir el registro no manda dos.
+  unique (cita_id, tipo)
+);
+
+create index if not exists idx_correos_por_enviar on correos (creado_en)
+  where estado in ('pendiente', 'enviando');
+
+alter table correos enable row level security;
+revoke all on correos from anon, authenticated;
+
+create table if not exists boletin (
+  id          uuid primary key default gen_random_uuid(),
+  --  En minusculas: el mismo correo escrito distinto es la misma persona.
+  email       text not null unique,
+  idioma      text not null default 'es' check (idioma in ('es', 'en', 'vi')),
+  persona_id  uuid references personas(id) on delete set null,
+  aceptado_en timestamptz not null default now(),
+  baja_en     timestamptz,
+  --  Para el enlace "darme de baja" que llevara cada boletin.
+  token_baja  text not null unique default encode(extensions.gen_random_bytes(18), 'hex')
+);
+
+alter table boletin enable row level security;
+revoke all on boletin from anon, authenticated;
+
+
+--  La casilla del registro (registrar_y_reservar). Quien se habia dado de
+--  baja y vuelve a palomear, da su permiso otra vez.
+create or replace function anotar_en_boletin(p_email text, p_idioma text, p_persona uuid)
+returns void
+language sql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+  insert into boletin (email, idioma, persona_id)
+  values (lower(trim(p_email)),
+          case when p_idioma in ('es', 'en', 'vi') then p_idioma else 'es' end,
+          p_persona)
+  on conflict (email) do update
+     set idioma      = excluded.idioma,
+         persona_id  = excluded.persona_id,
+         aceptado_en = case when boletin.baja_en is not null then now() else boletin.aceptado_en end,
+         baja_en     = null;
+$$;
+
+revoke execute on function anotar_en_boletin(text, text, uuid) from public, anon, authenticated;
+
+
+--  Cada cita nueva con correo: su confirmacion. Cubre el registro publico,
+--  el del panel y los acompanantes; el turno a pie sin datos no tiene correo.
+create or replace function anotar_confirmacion()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+begin
+  if new.estado = 'reservada'
+     and exists (select 1 from personas p
+                  where p.id = new.persona_id and nullif(trim(p.email), '') is not null) then
+    insert into correos (cita_id, tipo) values (new.id, 'confirmacion')
+    on conflict (cita_id, tipo) do nothing;
+  end if;
+  return null;
+end;
+$$;
+
+revoke execute on function anotar_confirmacion() from public, anon, authenticated;
+
+drop trigger if exists citas_anotar_confirmacion on citas;
+create trigger citas_anotar_confirmacion
+  after insert on citas
+  for each row execute function anotar_confirmacion();
+
+
+--  Para la funcion que los manda: toma hasta p_limite pendientes, los marca
+--  "enviando" y devuelve lo necesario para armar cada correo. Dos vueltas
+--  al mismo tiempo no toman el mismo (skip locked). Uno que se quedo
+--  "enviando" mas de 10 minutos (la funcion se cayo) se vuelve a tomar.
+create or replace function correos_por_enviar(p_limite int default 50)
+returns table (
+  id             uuid,
+  tipo           text,
+  email          text,
+  idioma         text,
+  nombre         text,
+  fecha          date,
+  hora           time,
+  fila           text,
+  turno          int,
+  codigo_corto   text,
+  token_qr       text,
+  fecha_anterior date,
+  mensaje        text
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+#variable_conflict use_column
+begin
+  --  Lo que ya no toca: la confirmacion de una cita que se cancelo antes de
+  --  salir, cualquier aviso de una fecha que ya paso (si SES tardo en estar
+  --  listo, no salen correos viejos) o una persona que ya no tiene correo.
+  update correos co
+     set estado = 'omitido'
+    from citas c, personas p, bloques b
+   where c.id = co.cita_id
+     and p.id = c.persona_id
+     and b.id = c.bloque_id
+     and co.estado = 'pendiente'
+     and ((co.tipo = 'confirmacion' and c.estado not in ('reservada', 'llego'))
+          or b.fecha < current_date
+          or nullif(trim(p.email), '') is null);
+
+  --  Se quedo "enviando" en su quinto intento: ya no se reintenta.
+  update correos co
+     set estado = 'fallo',
+         error  = coalesce(co.error, 'Sin respuesta de la funcion que los manda')
+   where co.estado = 'enviando'
+     and co.tomado_en < now() - interval '10 minutes'
+     and co.intentos >= 5;
+
+  return query
+  with tomados as (
+    update correos co
+       set estado    = 'enviando',
+           intentos  = co.intentos + 1,
+           tomado_en = now()
+     where co.id in (
+             select x.id
+               from correos x
+              where (x.estado = 'pendiente'
+                     or (x.estado = 'enviando' and x.tomado_en < now() - interval '10 minutes'))
+                and x.intentos < 5
+              order by x.creado_en
+              limit greatest(coalesce(p_limite, 50), 1)
+                for update skip locked)
+    returning co.id, co.cita_id, co.tipo
+  )
+  select t.id, t.tipo, trim(p.email), p.idioma, coalesce(nullif(p.nombres, ''), p.nombre),
+         b.fecha, b.hora, b.fila, c.turno, p.codigo_corto, c.token_qr,
+         --  Si se movio: de que fecha venia.
+         (select bo.fecha
+            from movimientos_cita m
+            join bloques bo on bo.id = m.de_bloque_id
+           where m.cita_id = c.id and m.origen = 'incidencia'
+           order by m.creado_en desc
+           limit 1),
+         --  Lo que escribio el pastor al cancelar o mover, si escribio algo.
+         (select i.mensaje
+            from incidencias i
+           where i.retirada_en is null
+             and ((t.tipo = 'entrega_cancelada' and i.tipo = 'cancelada' and i.fecha = b.fecha)
+               or (t.tipo = 'entrega_movida' and i.tipo = 'movida' and i.fecha_nueva = b.fecha))
+           order by i.creada_en desc
+           limit 1)
+    from tomados t
+    join citas    c on c.id = t.cita_id
+    join personas p on p.id = c.persona_id
+    join bloques  b on b.id = c.bloque_id;
+end;
+$$;
+
+revoke execute on function correos_por_enviar(int) from public, anon, authenticated;
+grant  execute on function correos_por_enviar(int) to service_role;
+
+
+--  Lo que paso con un correo que se tomo. Si Amazon fallo, vuelve a
+--  pendiente; al quinto intento, o si Amazon lo rechaza (correo mal
+--  escrito), queda en fallo y ya no se reintenta.
+create or replace function marcar_correo(
+  p_id         uuid,
+  p_enviado    boolean,
+  p_id_mensaje text    default null,
+  p_error      text    default null,
+  p_definitivo boolean default false
+)
+returns text
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  v_estado text;
+begin
+  update correos co
+     set estado     = case
+                        when p_enviado then 'enviado'
+                        when coalesce(p_definitivo, false) or co.intentos >= 5 then 'fallo'
+                        else 'pendiente'
+                      end,
+         enviado_en = case when p_enviado then now() else co.enviado_en end,
+         id_mensaje = case when p_enviado then p_id_mensaje else co.id_mensaje end,
+         error      = case when p_enviado then null else left(p_error, 500) end
+   where co.id = p_id
+     and co.estado = 'enviando'
+  returning co.estado into v_estado;
+
+  return coalesce(v_estado, 'NO_SE_ESTABA_ENVIANDO');
+end;
+$$;
+
+revoke execute on function marcar_correo(uuid, boolean, text, text, boolean) from public, anon, authenticated;
+grant  execute on function marcar_correo(uuid, boolean, text, text, boolean) to service_role;
