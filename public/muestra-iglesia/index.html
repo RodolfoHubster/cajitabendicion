@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="es" class="sin-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Muestra para el pastor: que no salga en Google mientras se decide. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Muestra · Iglesia Casa de Alabanza</title>
+<meta name="description" content="Iglesia Casa de Alabanza, Comunidad en Cristo. 4250 El Cajon Blvd, San Diego, CA 92105.">
+<meta name="theme-color" content="#0f2342">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --blanco: #ffffff;
+    --linea-oscura: rgba(255, 255, 255, .14);
+    --linea-clara: rgba(20, 20, 22, .1);
+    --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --radio: 20px;
+    --ancho: 1200px;
+    --alto-barra: 72px;
+    --curva: cubic-bezier(.2, .7, .2, 1);
+  }
+  /* Azul marino y dorado, escogidos el 28 de octubre de 2026 (no negro con
+     naranja). Los -rgb son los mismos colores, para las transparencias. */
+  :root {
+    --oscuro: #0f2342; --oscuro-2: #18315a; --oscuro-rgb: 15, 35, 66; --sombra-rgb: 6, 16, 33;
+    --acento: #d6a84f; --acento-claro: #e7c071; --acento-rgb: 214, 168, 79;
+    --crema: #f5f2ea; --tinta: #14213a; --suave: #4c586c;
+  }
+  @media (min-width: 900px) { :root { --alto-barra: 84px; } }
+  @media (min-width: 1600px) { :root { --ancho: 1360px; } }
+
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: var(--alto-barra); }
+  body { margin: 0; background: var(--blanco); color: var(--tinta); font: 400 17px/1.6 var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+  @media (min-width: 1600px) { body { font-size: 18px; } }
+  img, video { display: block; max-width: 100%; }
+  a { color: inherit; }
+  button { font: inherit; }
+  .contenedor { width: min(var(--ancho), 100% - 32px); margin-inline: auto; }
+  @media (min-width: 640px) { .contenedor { width: min(var(--ancho), 100% - 56px); } }
+  .salto { position: absolute; left: -999px; top: 8px; z-index: 100; background: #fff; color: #000; padding: 14px 18px; border-radius: 12px; }
+  .salto:focus { left: 8px; }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+  .icono { width: 1.2em; height: 1.2em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .icono.lleno { fill: currentColor; stroke: none; }
+  .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- Botones ---------- */
+  .boton { display: inline-flex; align-items: center; justify-content: center; gap: .6em; min-height: 56px; padding: 0 28px; border-radius: 999px; border: 2px solid transparent; font: 600 16px/1 var(--sans); letter-spacing: .01em; text-decoration: none; cursor: pointer; transition: transform .25s var(--curva), background-color .25s, color .25s, border-color .25s, box-shadow .25s; }
+  .boton .flecha { transition: transform .25s var(--curva); }
+  .boton:hover { transform: translateY(-2px); }
+  .boton:hover .flecha { transform: translateX(4px); }
+  .boton:active { transform: translateY(0); }
+  .boton-claro { background: #fff; color: var(--oscuro); }
+  .boton-claro:hover { box-shadow: 0 12px 30px rgba(var(--sombra-rgb), .35); }
+  .boton-hueco { border-color: rgba(255, 255, 255, .55); color: #fff; background: rgba(255, 255, 255, .06); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .boton-hueco:hover { border-color: #fff; background: rgba(255, 255, 255, .14); }
+  .boton-acento { background: var(--acento); color: var(--oscuro); }
+  .boton-acento:hover { background: var(--acento-claro); box-shadow: 0 14px 34px rgba(var(--acento-rgb), .35); }
+  .boton-oscuro { background: var(--oscuro); color: #fff; }
+  .boton-oscuro:hover { box-shadow: 0 14px 34px rgba(var(--sombra-rgb), .25); }
+  .boton-borde { border-color: var(--tinta); color: var(--tinta); background: transparent; }
+  .boton-borde:hover { background: var(--tinta); color: #fff; }
+  .boton-chico { min-height: 48px; padding: 0 20px; font-size: 15px; }
+
+  /* ---------- Barra de arriba ---------- */
+  .barra { position: fixed; inset: 0 0 auto; z-index: 50; height: var(--alto-barra); transition: background-color .35s, box-shadow .35s; }
+  .barra::before { content: ""; position: absolute; inset: 0 0 -40px; background: linear-gradient(180deg, rgba(var(--sombra-rgb), .6), transparent); pointer-events: none; transition: opacity .35s; }
+  .barra.solida { background: rgba(var(--oscuro-rgb), .9); -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px); box-shadow: 0 1px 0 var(--linea-oscura); }
+  .barra.solida::before { opacity: 0; }
+  .barra-dentro { position: relative; height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .marca { display: flex; align-items: center; flex: none; border-radius: 8px; }
+  .marca img { height: 46px; width: auto; transition: height .35s var(--curva); }
+  @media (min-width: 900px) { .marca img { height: 58px; } .barra.solida .marca img { height: 50px; } }
+  .menu { display: none; }
+  @media (min-width: 1280px) { .menu { display: flex; align-items: center; gap: 26px; } }
+  .enlace { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 10px 0; border: 0; background: none; color: rgba(255, 255, 255, .84); font: 600 15px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: color .2s; }
+  .enlace::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--acento); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--curva); }
+  .enlace:hover, .enlace[aria-expanded="true"] { color: #fff; }
+  .enlace:hover::after, .enlace[aria-expanded="true"]::after { transform: scaleX(1); }
+  .enlace .icono { width: 16px; height: 16px; transition: transform .25s; }
+  .enlace[aria-expanded="true"] .icono { transform: rotate(180deg); }
+  .mas { position: relative; }
+  .mas-lista { position: absolute; right: -14px; top: calc(100% + 16px); min-width: 270px; padding: 8px; background: var(--oscuro-2); border: 1px solid var(--linea-oscura); border-radius: 16px; box-shadow: 0 24px 60px rgba(var(--sombra-rgb), .5); opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .25s, transform .25s var(--curva), visibility .25s; }
+  .mas-lista::before { content: ""; position: absolute; left: 0; right: 0; top: -18px; height: 18px; }
+  .mas:hover .mas-lista, .mas:focus-within .mas-lista, .mas.abierta .mas-lista { opacity: 1; visibility: visible; transform: none; }
+  .mas-lista a { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; border-radius: 10px; color: #fff; text-decoration: none; font: 500 16px/1.3 var(--sans); transition: background-color .2s, color .2s; }
+  .mas-lista a:hover { background: rgba(255, 255, 255, .08); color: var(--acento); }
+  .barra-acciones { display: flex; align-items: center; gap: 10px; }
+  .barra-cajita { display: none; }
+  @media (min-width: 640px) { .barra-cajita { display: inline-flex; } }
+  .boton-menu { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .35); background: rgba(var(--sombra-rgb), .25); color: #fff; cursor: pointer; transition: background-color .2s, border-color .2s; }
+  .boton-menu:hover { background: rgba(255, 255, 255, .12); border-color: #fff; }
+  .boton-menu .icono { width: 24px; height: 24px; }
+  @media (min-width: 1280px) { .boton-menu { display: none; } }
+
+  /* ---------- Menu del telefono ---------- */
+  .cortina { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; padding: 12px 16px calc(24px + env(safe-area-inset-bottom)); overflow-y: auto; background: var(--oscuro); color: #fff; visibility: hidden; transform: translateY(-100%); transition: transform .5s var(--curva), visibility 0s .5s; }
+  html.menu-abierto .cdb-esquina { visibility: hidden; }
+  .cortina.abierta { visibility: visible; transform: none; transition: transform .5s var(--curva), visibility 0s; }
+  .cortina-arriba { display: flex; align-items: center; justify-content: space-between; min-height: 56px; }
+  .cortina-arriba img { height: 46px; width: auto; }
+  .cortina nav { display: grid; margin-top: 20px; }
+  .cortina nav a { display: flex; align-items: center; justify-content: space-between; min-height: 60px; border-bottom: 1px solid var(--linea-oscura); color: #fff; text-decoration: none; font: 700 clamp(28px, 7vw, 40px)/1.1 var(--serif); opacity: 0; transform: translateY(16px); transition: opacity .4s, transform .5s var(--curva), color .2s; transition-delay: calc(var(--i, 0) * 45ms + 120ms); }
+  .cortina nav a .icono { width: 22px; height: 22px; color: var(--acento); }
+  .cortina.abierta nav a { opacity: 1; transform: none; }
+  .cortina nav a:hover { color: var(--acento); }
+  .cortina-pie { display: grid; gap: 12px; margin-top: 28px; }
+  .cortina-redes { display: flex; gap: 10px; margin-top: 8px; }
+
+  /* ---------- Portada ---------- */
+  .portada { position: relative; display: flex; align-items: flex-end; min-height: max(640px, 100svh); overflow: hidden; background: var(--oscuro); color: #fff; }
+  .portada-foto, .portada-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .portada-foto { animation: respirar 24s ease-in-out infinite alternate; }
+  @keyframes respirar { from { transform: scale(1.02); } to { transform: scale(1.16) translate3d(-1.5%, -1%, 0); } }
+  .portada-video { opacity: 0; transition: opacity 1.2s; }
+  .portada-video.corriendo { opacity: 1; }
+  .portada::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(var(--sombra-rgb), .55) 0%, rgba(var(--sombra-rgb), .1) 32%, rgba(var(--sombra-rgb), .35) 58%, rgba(var(--sombra-rgb), .9) 100%), radial-gradient(110% 70% at 0% 100%, rgba(var(--sombra-rgb), .55), transparent 65%); }
+  .portada-dentro { position: relative; z-index: 1; padding: calc(var(--alto-barra) + 48px) 0 170px; }
+  @media (min-width: 900px) { .portada-dentro { padding-bottom: clamp(104px, 13vh, 150px); } }
+  .antetitulo { display: inline-flex; align-items: center; gap: 14px; font: 600 15px/1.2 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .88); }
+  .antetitulo::before { content: ""; width: 40px; height: 2px; background: var(--acento); }
+  .portada h1 { max-width: 11ch; margin: 18px 0 0; font: 700 clamp(48px, min(8.6vw, 11vh), 120px)/.95 var(--serif); letter-spacing: -.01em; text-wrap: balance; }
+  .portada h1 em { color: var(--acento); font-style: italic; }
+  .portada-datos { display: grid; gap: 10px; margin: 26px 0 0; padding: 0; list-style: none; font-size: 18px; color: rgba(255, 255, 255, .9); }
+  @media (min-width: 900px) { .portada-datos { display: flex; flex-wrap: wrap; gap: 12px 32px; } }
+  .portada-datos li { display: flex; align-items: center; gap: 10px; }
+  .portada-datos .icono { color: var(--acento); }
+  .portada-acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .desde-tableta { display: none; }
+  @media (min-width: 640px) { .desde-tableta { display: inline; } }
+  .proximo { display: inline-flex; align-items: center; gap: 12px; margin-top: 22px; padding: 12px 18px 12px 14px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(255, 255, 255, .1); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font: 500 16px/1.3 var(--sans); }
+  .proximo b { font-weight: 700; }
+  .punto { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--acento); animation: latir 2s infinite; }
+  @keyframes latir { 0% { box-shadow: 0 0 0 0 rgba(var(--acento-rgb), .7); } 70%, 100% { box-shadow: 0 0 0 12px rgba(var(--acento-rgb), 0); } }
+  .entrar { opacity: 0; transform: translateY(26px); animation: subir .9s var(--curva) forwards; animation-delay: calc(var(--i, 0) * 120ms + 250ms); }
+  @keyframes subir { to { opacity: 1; transform: none; } }
+  .portada-controles { position: absolute; z-index: 2; left: 0; right: 0; bottom: 24px; }
+  .portada-controles .contenedor { position: relative; display: flex; justify-content: center; min-height: 48px; }
+  .pausa[hidden] { display: none; }
+  .pausa { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .4); background: rgba(var(--sombra-rgb), .3); color: #fff; cursor: pointer; transition: background-color .2s, border-color .2s; }
+  .pausa:hover { background: rgba(255, 255, 255, .15); border-color: #fff; }
+  .pausa .icono { width: 18px; height: 18px; }
+  .desliza { display: none; align-items: center; gap: 12px; color: rgba(255, 255, 255, .75); font: 600 15px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; text-decoration: none; }
+  @media (min-width: 900px) { .desliza { display: inline-flex; } }
+  .desliza span { position: relative; width: 2px; height: 44px; overflow: hidden; background: rgba(255, 255, 255, .2); }
+  .desliza span::after { content: ""; position: absolute; left: 0; top: -50%; width: 100%; height: 50%; background: var(--acento); animation: caer 2s var(--curva) infinite; }
+  @keyframes caer { to { top: 100%; } }
+
+  /* ---------- Secciones ---------- */
+  .seccion { padding: clamp(72px, 10vw, 136px) 0; }
+  .crema { background: var(--crema); }
+  .sin-desborde { overflow: hidden; }
+  .oscuro { background: var(--oscuro); color: #fff; }
+  .encabezado { display: grid; gap: 14px; margin-bottom: clamp(36px, 5vw, 60px); }
+  @media (min-width: 900px) { .encabezado.a-lado { grid-template-columns: 1fr auto; align-items: end; gap: 40px; } }
+  .eyebrow { display: inline-flex; align-items: center; gap: 12px; font: 600 15px/1.2 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--suave); }
+  .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--acento); }
+  .oscuro .eyebrow { color: rgba(255, 255, 255, .72); }
+  .titulo { margin: 0; font: 700 clamp(40px, 5.4vw, 72px)/1 var(--serif); letter-spacing: -.01em; text-wrap: balance; }
+  .titulo em { font-style: italic; }
+  .oscuro .titulo em { color: var(--acento); }
+  .bajada { max-width: 58ch; margin: 0; font-size: 18px; color: var(--suave); }
+  .oscuro .bajada { color: rgba(255, 255, 255, .78); }
+
+  /* Aparecen al bajar. Sin JavaScript o con "menos movimiento", ya estan. */
+  .revelar { opacity: 0; transform: translateY(30px); transition: opacity .9s var(--curva), transform .9s var(--curva); transition-delay: calc(var(--i, 0) * 90ms); }
+  .revelar.visto { opacity: 1; transform: none; }
+  .sin-js .revelar { opacity: 1; transform: none; }
+
+  /* ---------- La semana ---------- */
+  .semana { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .semana { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
+  @media (min-width: 1080px) { .semana { grid-template-columns: repeat(5, 1fr); } }
+  .dia { position: relative; padding: 24px; border: 1px solid var(--linea-clara); border-radius: var(--radio); background: #fff; transition: transform .35s var(--curva), box-shadow .35s; }
+  .dia:hover { transform: translateY(-5px); box-shadow: 0 20px 44px rgba(20, 20, 22, .09); }
+  .dia h3 { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 16px; font: 700 30px/1 var(--serif); }
+  .dia ul { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .dia li { display: grid; gap: 3px; padding-top: 14px; border-top: 1px solid var(--linea-clara); }
+  .dia li:first-child { padding-top: 0; border-top: 0; }
+  .dia .hora { display: flex; align-items: center; gap: 8px; font: 600 15px/1.2 var(--sans); color: var(--suave); }
+  .dia .hora .icono { width: 16px; height: 16px; color: var(--acento); }
+  .dia .que { font: 600 17px/1.3 var(--sans); }
+  .dia .que a { text-decoration: none; border-bottom: 2px solid var(--acento); }
+  .dia.hoy { border-color: var(--oscuro); background: var(--oscuro); color: #fff; }
+  .dia.hoy .hora { color: rgba(255, 255, 255, .72); }
+  .dia.hoy li { border-color: var(--linea-oscura); }
+  .chip-hoy { padding: 6px 10px; border-radius: 999px; background: var(--acento); color: var(--oscuro); font: 700 15px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+
+  /* ---------- Ministerios ---------- */
+  .tarjetas { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .tarjetas { grid-template-columns: repeat(2, 1fr); gap: 22px; } }
+  @media (min-width: 1080px) { .tarjetas { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
+  .tarjeta { position: relative; display: grid; grid-template-columns: 104px 1fr; align-items: center; gap: 16px; padding: 12px; overflow: hidden; border: 1px solid var(--linea-clara); border-radius: var(--radio); background: #fff; transition: transform .4s var(--curva), box-shadow .4s, border-color .4s; }
+  @media (min-width: 420px) { .tarjeta { grid-template-columns: 120px 1fr; } }
+  @media (min-width: 640px) { .tarjeta { grid-template-columns: 1fr; align-items: stretch; gap: 0; padding: 0; } }
+  .tarjeta::after { content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 4px; background: var(--acento); transform: scaleX(0); transform-origin: left; transition: transform .5s var(--curva); }
+  .tarjeta:hover { transform: translateY(-6px); border-color: transparent; box-shadow: 0 26px 54px rgba(20, 20, 22, .13); }
+  .tarjeta:hover::after { transform: scaleX(1); }
+  .tarjeta-foto { aspect-ratio: 1; overflow: hidden; border-radius: 14px; background: #e9e5df; }
+  @media (min-width: 640px) { .tarjeta-foto { border-radius: 0; } }
+  .tarjeta-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--curva); }
+  .tarjeta:hover .tarjeta-foto img { transform: scale(1.07); }
+  @media (min-width: 640px) { .tarjeta-texto { padding: 22px 24px 28px; } }
+  .tarjeta h3 { margin: 0 0 6px; font: 700 clamp(25px, 2.3vw, 32px)/1.05 var(--serif); }
+  .tarjeta .horario { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; font: 500 16px/1.4 var(--sans); color: var(--suave); }
+  .tarjeta .mas-info { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 44px; font: 600 15px/1 var(--sans); color: var(--tinta); text-decoration: none; }
+  .tarjeta .mas-info .icono { transition: transform .25s var(--curva); color: var(--acento); }
+  .tarjeta .mas-info:hover .icono { transform: translateX(4px); }
+
+  /* ---------- Cajita de Bendicion ---------- */
+  .cajita { display: grid; gap: 56px; align-items: center; }
+  @media (min-width: 900px) { .cajita { grid-template-columns: 1.1fr .9fr; gap: 80px; } }
+  .datos-cajita { display: grid; gap: 14px; margin: 28px 0 34px; padding: 0; list-style: none; }
+  .datos-cajita li { display: flex; align-items: flex-start; gap: 14px; font-size: 18px; color: rgba(255, 255, 255, .9); }
+  .datos-cajita .icono { margin-top: 3px; color: var(--acento); }
+  .acciones { display: flex; flex-wrap: wrap; gap: 12px; }
+  .redes-cajita { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 30px; color: rgba(255, 255, 255, .7); }
+  .red { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px; border: 1px solid var(--linea-oscura); border-radius: 999px; color: #fff; text-decoration: none; font: 600 15px/1 var(--sans); transition: background-color .25s, color .25s, border-color .25s, transform .25s var(--curva); }
+  .red:hover { transform: translateY(-2px); border-color: #fff; background: #fff; color: var(--oscuro); }
+  .marco { position: relative; width: min(100%, 420px); margin-inline: auto; }
+  .marco::before { content: ""; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(var(--acento-rgb), .5), transparent 70%); filter: blur(12px); }
+  .marco-foto { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 28px; box-shadow: 0 40px 80px rgba(var(--sombra-rgb), .55); transform: rotate(-2.5deg); transition: transform .7s var(--curva); }
+  .marco:hover .marco-foto { transform: rotate(0) scale(1.01); }
+  .marco-foto img { width: 100%; height: 100%; object-fit: cover; }
+  .sello { position: absolute; left: 10px; bottom: -26px; width: 120px; height: 120px; padding: 6px; border-radius: 50%; background: #fff; box-shadow: 0 20px 40px rgba(var(--sombra-rgb), .45); animation: flotar 6s ease-in-out infinite; }
+  @media (min-width: 900px) { .sello { left: -34px; width: 144px; height: 144px; } }
+  .sello img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+  @keyframes flotar { 50% { transform: translateY(-10px) rotate(-4deg); } }
+
+  /* ---------- Versiculo ---------- */
+  .versiculo { position: relative; overflow: hidden; background: var(--oscuro); color: #fff; text-align: center; }
+  .versiculo-fondo { position: absolute; inset: -20% 0; background: center / cover no-repeat; filter: grayscale(1) brightness(.7); transform: translate3d(0, var(--desplazar, 0px), 0); will-change: transform; }
+  .versiculo::after { content: ""; position: absolute; inset: 0; background: rgba(var(--oscuro-rgb), .8); }
+  .versiculo .contenedor { position: relative; z-index: 1; }
+  .versiculo blockquote { max-width: 24ch; margin: 0 auto; font: 600 italic clamp(32px, 4.6vw, 62px)/1.15 var(--serif); text-wrap: balance; }
+  .versiculo blockquote::before { content: "“"; display: block; height: .55em; color: var(--acento); font-size: 1.8em; line-height: 1; }
+  .versiculo cite { display: block; margin-top: 24px; font: 600 15px/1 var(--sans); font-style: normal; letter-spacing: .22em; text-transform: uppercase; color: var(--acento); }
+  .versiculo p { max-width: 54ch; margin: 34px auto 30px; font-size: 18px; color: rgba(255, 255, 255, .82); }
+
+  /* ---------- Donaciones ---------- */
+  .donar { display: grid; gap: 18px; }
+  @media (min-width: 900px) { .donar { grid-template-columns: repeat(2, 1fr); gap: 28px; } }
+  .forma { display: flex; flex-direction: column; gap: 18px; padding: clamp(24px, 3vw, 36px); border: 1px solid var(--linea-clara); border-radius: 24px; background: #fff; transition: transform .4s var(--curva), box-shadow .4s; }
+  .forma:hover { transform: translateY(-5px); box-shadow: 0 26px 54px rgba(20, 20, 22, .1); }
+  .forma-cabeza { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .forma h3 { margin: 0; font: 700 34px/1 var(--serif); }
+  .etiqueta { padding: 8px 12px; border-radius: 999px; background: var(--crema); font: 600 15px/1 var(--sans); color: var(--suave); }
+  .forma p { margin: 0; color: var(--suave); }
+  .numero { font: 700 clamp(30px, 4.4vw, 44px)/1 var(--sans); letter-spacing: .01em; }
+  .forma .acciones { margin-top: auto; }
+  .con-qr { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: center; }
+  @media (min-width: 480px) { .con-qr { grid-template-columns: 1fr 128px; } }
+  .con-qr img { width: 128px; height: 128px; border-radius: 14px; }
+  .copiado { min-height: 1.4em; font: 600 15px/1.4 var(--sans); color: #1f7a47; }
+
+  /* ---------- Visitanos ---------- */
+  .visita { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 900px) { .visita { grid-template-columns: 1fr 1.05fr; gap: 64px; } }
+  .lista-contacto { display: grid; gap: 18px; margin: 30px 0 34px; padding: 0; list-style: none; }
+  .lista-contacto li { display: flex; align-items: center; gap: 16px; font-size: 18px; }
+  .lista-contacto .circulo { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: var(--crema); }
+  .lista-contacto .circulo .icono { color: var(--tinta); }
+  .lista-contacto a { text-decoration: none; border-bottom: 2px solid var(--acento); }
+  .foto-iglesia { position: relative; margin: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 28px; background: var(--oscuro); }
+  .foto-iglesia img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s var(--curva), filter 1s; filter: grayscale(.35); }
+  .foto-iglesia:hover img { transform: scale(1.05); filter: none; }
+  .foto-iglesia figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 24px 22px; background: linear-gradient(transparent, rgba(var(--sombra-rgb), .85)); color: #fff; font: 600 17px/1.4 var(--sans); }
+
+  /* ---------- Pie ---------- */
+  .pie { padding: clamp(64px, 8vw, 104px) 0 calc(28px + env(safe-area-inset-bottom)); background: var(--oscuro); color: rgba(255, 255, 255, .78); }
+  .pie-llamado { display: grid; gap: 22px; padding-bottom: clamp(44px, 6vw, 72px); margin-bottom: clamp(44px, 6vw, 64px); border-bottom: 1px solid var(--linea-oscura); }
+  @media (min-width: 900px) { .pie-llamado { grid-template-columns: 1fr auto; align-items: end; } }
+  .pie-llamado h2 { margin: 0; font: 700 clamp(44px, 6.4vw, 92px)/.95 var(--serif); color: #fff; }
+  .pie-llamado h2 em { color: var(--acento); }
+  .pie-llamado p { margin: 14px 0 0; font-size: 18px; }
+  .pie-llamado .boton { justify-self: start; }
+  .pie-columnas { display: grid; gap: 40px; }
+  @media (min-width: 640px) { .pie-columnas { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .pie-columnas { grid-template-columns: 1.25fr 1fr 1fr 1.1fr; } }
+  .pie-marca img { height: 66px; width: auto; }
+  .pie-marca p { margin: 18px 0 0; max-width: 34ch; }
+  .pie h3 { margin: 0 0 18px; color: #fff; font: 600 15px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; }
+  .pie ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .pie li a, .pie li span { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; }
+  .pie a:not(.boton) { color: rgba(255, 255, 255, .8); text-decoration: none; transition: color .2s; }
+  .pie a:not(.boton):hover { color: var(--acento); }
+  .pie .grupo-redes + .grupo-redes { margin-top: 18px; }
+  .pie .subtitulo { margin: 0 0 6px; font: 600 15px/1.3 var(--sans); color: rgba(255, 255, 255, .55); }
+  .pie-abajo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: clamp(44px, 6vw, 64px); padding-top: 26px; border-top: 1px solid var(--linea-oscura); font-size: 15px; }
+  .arriba { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 18px; border: 1px solid var(--linea-oscura); border-radius: 999px; background: none; color: #fff; cursor: pointer; transition: background-color .2s, color .2s, border-color .2s; }
+  .arriba:hover { border-color: var(--acento); background: var(--acento); color: var(--oscuro); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .revelar, .entrar { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<svg aria-hidden="true" style="display:none">
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arriba" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-abajo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></symbol>
+  <symbol id="i-pausa" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/></symbol>
+  <symbol id="i-corazon" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z"/></symbol>
+  <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-caja" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></symbol>
+  <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-fb" viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></symbol>
+  <symbol id="i-tiktok" viewBox="0 0 16 16"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/></symbol>
+</svg>
+
+<a class="salto" href="#contenido">Saltar al contenido</a>
+
+<header class="barra" id="barra">
+  <div class="contenedor barra-dentro">
+    <a class="marca" href="#inicio" aria-label="Iglesia Casa de Alabanza, inicio">
+      <img src="/logos/casa-alabanza.webp" alt="Iglesia Casa de Alabanza" width="270" height="195">
+    </a>
+
+    <nav class="menu" aria-label="Principal">
+      <a class="enlace" href="https://casadealabanzasd.com/quienes-somos">Quiénes somos</a>
+      <a class="enlace" href="https://casadealabanzasd.com/eventos">Eventos</a>
+      <a class="enlace" href="#ministerios">Ministerios</a>
+      <a class="enlace" href="#donar">Donaciones</a>
+      <a class="enlace" href="#contacto">Contacto</a>
+      <div class="mas" id="mas">
+        <button class="enlace" type="button" aria-expanded="false" aria-controls="mas-lista">
+          Más <svg class="icono"><use href="#i-abajo"/></svg>
+        </button>
+        <div class="mas-lista" id="mas-lista">
+          <a href="https://casadealabanzasd.com/hogares-de-creciemiento">Hogares de crecimiento <svg class="icono"><use href="#i-flecha"/></svg></a>
+          <a href="https://casadealabanzasd.com/sermones">Sermones <svg class="icono"><use href="#i-flecha"/></svg></a>
+          <a href="https://casadealabanzasd.com/servicios-en-vivo">Servicios en vivo <svg class="icono"><use href="#i-flecha"/></svg></a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="barra-acciones">
+      <a class="boton boton-acento boton-chico barra-cajita" href="https://citas.casadealabanzasd.com/">
+        <svg class="icono"><use href="#i-caja"/></svg> Cajita de Bendición
+      </a>
+      <button class="boton-menu" id="abrir-menu" type="button" aria-expanded="false" aria-controls="cortina" aria-label="Abrir el menú">
+        <svg class="icono"><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="cortina" id="cortina" role="dialog" aria-modal="true" aria-label="Menú">
+  <div class="cortina-arriba">
+    <img src="/logos/casa-alabanza.webp" alt="" width="270" height="195">
+    <button class="boton-menu" id="cerrar-menu" type="button" aria-label="Cerrar el menú">
+      <svg class="icono"><use href="#i-cerrar"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Menú del teléfono">
+    <a href="#inicio" style="--i:0">Inicio <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="https://casadealabanzasd.com/quienes-somos" style="--i:1">Quiénes somos <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="https://casadealabanzasd.com/eventos" style="--i:2">Eventos <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="#ministerios" style="--i:3">Ministerios <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="https://casadealabanzasd.com/hogares-de-creciemiento" style="--i:4">Hogares de crecimiento <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="https://casadealabanzasd.com/sermones" style="--i:5">Sermones <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="https://casadealabanzasd.com/servicios-en-vivo" style="--i:6">Servicios en vivo <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="#donar" style="--i:7">Donaciones <svg class="icono"><use href="#i-flecha"/></svg></a>
+    <a href="#contacto" style="--i:8">Contacto <svg class="icono"><use href="#i-flecha"/></svg></a>
+  </nav>
+  <div class="cortina-pie">
+    <a class="boton boton-acento" href="https://citas.casadealabanzasd.com/"><svg class="icono"><use href="#i-caja"/></svg> Cajita de Bendición</a>
+    <a class="boton boton-hueco" href="tel:+16197345886"><svg class="icono"><use href="#i-tel"/></svg> (619) 734-5886</a>
+  </div>
+</div>
+
+<main id="contenido">
+  <!-- ================= Portada ================= -->
+  <section class="portada" id="inicio" aria-label="Bienvenida">
+    <!-- La foto del grupo de alabanza, con movimiento lento. Cuando el pastor
+         mande el video (cantando, orando, la gente adorando) va encima,
+         corto y sin sonido: CONTENIDO.portada.video, abajo. -->
+    <img class="portada-foto" src="https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png/:/rs=w:1600" srcset="https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png/:/rs=w:900,m 900w, https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png/:/rs=w:1600 1600w, https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png 2388w" sizes="100vw" alt="" width="2388" height="1320" fetchpriority="high">
+    <video class="portada-video" id="video-portada" muted loop playsinline preload="none" hidden></video>
+    <div class="contenedor portada-dentro">
+      <p class="antetitulo entrar" style="--i:0"><span>Comunidad en Cristo<span class="desde-tableta"> · San Diego</span></span></p>
+      <h1 class="entrar" style="--i:1">Bienvenidos a <em>Casa de Alabanza</em></h1>
+      <p class="proximo entrar" style="--i:2" aria-live="polite">
+        <span class="punto" aria-hidden="true"></span>
+        <span id="proximo-texto">Servicios: <b>jueves 7:00 PM</b> y <b>domingo 6:00 PM</b></span>
+      </p>
+      <ul class="portada-datos entrar" style="--i:3">
+        <li><svg class="icono"><use href="#i-pin"/></svg> 4250 El Cajon Blvd, San Diego, CA 92105</li>
+        <li><svg class="icono"><use href="#i-reloj"/></svg> Jueves 7 PM · Domingo 6 PM</li>
+      </ul>
+      <div class="portada-acciones entrar" style="--i:4">
+        <a class="boton boton-claro" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20Casa%20de%20Alabanza%2C%204250%20El%20Cajon%20Blvd%2C%20San%20Diego%2C%20CA%2092105" target="_blank" rel="noopener">
+          Cómo llegar <svg class="icono flecha"><use href="#i-flecha"/></svg>
+        </a>
+        <a class="boton boton-hueco" href="tel:+16197345886"><svg class="icono"><use href="#i-tel"/></svg> Llámanos</a>
+      </div>
+    </div>
+    <div class="portada-controles">
+      <div class="contenedor">
+        <button class="pausa" id="pausa" type="button" aria-label="Pausar el video" hidden>
+          <svg class="icono lleno" id="pausa-icono"><use href="#i-pausa"/></svg>
+        </button>
+        <a class="desliza" href="#horarios">Desliza <span aria-hidden="true"></span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= La semana ================= -->
+  <section class="seccion crema" id="horarios" aria-labelledby="titulo-horarios">
+    <div class="contenedor">
+      <div class="encabezado a-lado revelar">
+        <div>
+          <p class="eyebrow">Horarios</p>
+          <h2 class="titulo" id="titulo-horarios">Te esperamos <em>esta semana</em></h2>
+        </div>
+        <p class="bajada">Servicios y reuniones de cada semana. Todos son bienvenidos.</p>
+      </div>
+      <div class="semana" id="semana"></div>
+    </div>
+  </section>
+
+  <!-- ================= Ministerios ================= -->
+  <section class="seccion" id="ministerios" aria-labelledby="titulo-ministerios">
+    <div class="contenedor">
+      <div class="encabezado a-lado revelar">
+        <div>
+          <p class="eyebrow">Ministerios</p>
+          <h2 class="titulo" id="titulo-ministerios">Hay un lugar <em>para ti</em></h2>
+        </div>
+        <p class="bajada">Servicios, grupos y reuniones para toda la familia.</p>
+      </div>
+      <div class="tarjetas" id="tarjetas"></div>
+    </div>
+  </section>
+
+  <!-- ================= Cajita de Bendicion ================= -->
+  <section class="seccion oscuro sin-desborde" id="cajita" aria-labelledby="titulo-cajita">
+    <div class="contenedor cajita">
+      <div class="revelar">
+        <p class="eyebrow">Ministerio de la iglesia</p>
+        <h2 class="titulo" id="titulo-cajita">Cajita de <em>Bendición</em></h2>
+        <p class="bajada" style="margin-top:18px">Despensa gratuita para la comunidad. Haz tu cita desde tu teléfono y llega a tu hora.</p>
+        <ul class="datos-cajita">
+          <li><svg class="icono"><use href="#i-calendario"/></svg> Lunes y jueves por la tarde</li>
+          <li><svg class="icono"><use href="#i-caja"/></svg> Una caja por persona de 18 años o más</li>
+          <li><svg class="icono"><use href="#i-pin"/></svg> En la iglesia: 4250 El Cajon Blvd</li>
+        </ul>
+        <div class="acciones">
+          <a class="boton boton-acento" href="https://citas.casadealabanzasd.com/">Haz tu cita <svg class="icono flecha"><use href="#i-flecha"/></svg></a>
+          <button class="boton boton-hueco" id="ver-video" type="button"><svg class="icono"><use href="#i-video"/></svg> Mira cómo funciona</button>
+        </div>
+        <div class="redes-cajita">
+          <span>Síguenos:</span>
+          <a class="red" href="https://www.facebook.com/DispesasCDA" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-fb"/></svg> Facebook</a>
+          <a class="red" href="https://www.tiktok.com/@cajita.de.bendici" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-tiktok"/></svg> TikTok</a>
+        </div>
+      </div>
+      <div class="marco revelar" style="--i:2">
+        <div class="marco-foto">
+          <img src="/medios/entrega.jpg" alt="Una caja de Cajita de Bendición con verduras, pan, leche y huevos" width="720" height="1280" loading="lazy" decoding="async">
+        </div>
+        <div class="sello"><img src="/logos/cajita-bendicion.jpg" alt="" width="300" height="300" loading="lazy" decoding="async"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Versiculo ================= -->
+  <section class="seccion versiculo" aria-label="Quiénes somos">
+    <div class="versiculo-fondo" id="versiculo-fondo" style="background-image:url('https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png')"></div>
+    <div class="contenedor revelar">
+      <blockquote>Porque somos hechura de Dios, creados en Cristo Jesús para buenas obras.</blockquote>
+      <cite>Efesios 2:10</cite>
+      <p>Los pastores Raúl y Teresa Villalobos, originarios de Tecate, Baja California, fundaron Casa de Alabanza en San Diego en 2009.</p>
+      <a class="boton boton-hueco" href="https://casadealabanzasd.com/quienes-somos">Conoce quiénes somos <svg class="icono flecha"><use href="#i-flecha"/></svg></a>
+    </div>
+  </section>
+
+  <!-- ================= Donaciones ================= -->
+  <section class="seccion crema" id="donar" aria-labelledby="titulo-donar">
+    <div class="contenedor">
+      <div class="encabezado a-lado revelar">
+        <div>
+          <p class="eyebrow">Donaciones</p>
+          <h2 class="titulo" id="titulo-donar">Apoya <em>la misión</em></h2>
+        </div>
+        <p class="bajada">Tu donativo sostiene la obra de la iglesia y sus ministerios en la comunidad.</p>
+      </div>
+      <div class="donar">
+        <article class="forma revelar">
+          <div class="forma-cabeza">
+            <h3>Zelle</h3>
+            <span class="etiqueta">Desde tu banco</span>
+          </div>
+          <p>Envía tu donativo por Zelle a este número:</p>
+          <p class="numero">619-408-3592</p>
+          <div class="acciones">
+            <button class="boton boton-oscuro" id="copiar-zelle" type="button"><svg class="icono"><use href="#i-copiar"/></svg> Copiar el número</button>
+          </div>
+          <p class="copiado" id="copiado" aria-live="polite"></p>
+        </article>
+        <article class="forma revelar" style="--i:1">
+          <div class="forma-cabeza">
+            <h3>GoFundMe</h3>
+            <span class="etiqueta">Con tarjeta</span>
+          </div>
+          <div class="con-qr">
+            <p>Support Iglesia Casa de Alabanza’s Mission. Dona en línea; también puedes escanear el código.</p>
+            <img src="https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/qr-code.png/:/rs=w:300,h:300,cg:true" alt="Código QR de la campaña de GoFundMe" width="128" height="128" loading="lazy" decoding="async">
+          </div>
+          <div class="acciones">
+            <a class="boton boton-acento" href="https://gofund.me/dda6d556e" target="_blank" rel="noopener"><svg class="icono"><use href="#i-corazon"/></svg> Donar en GoFundMe</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Visitanos ================= -->
+  <section class="seccion" id="contacto" aria-labelledby="titulo-contacto">
+    <div class="contenedor visita">
+      <div class="revelar">
+        <p class="eyebrow">Contacto</p>
+        <h2 class="titulo" id="titulo-contacto">Visítanos</h2>
+        <ul class="lista-contacto">
+          <li><span class="circulo"><svg class="icono"><use href="#i-pin"/></svg></span> 4250 El Cajon Blvd, San Diego, CA 92105</li>
+          <li><span class="circulo"><svg class="icono"><use href="#i-tel"/></svg></span> <a href="tel:+16197345886">(619) 734-5886</a></li>
+          <li><span class="circulo"><svg class="icono"><use href="#i-reloj"/></svg></span> Jueves 7:00 PM · Domingo 6:00 PM</li>
+          <li><span class="circulo"><svg class="icono lleno"><use href="#i-fb"/></svg></span> <a href="https://www.facebook.com/iglesia.casa.de.alabanza.2025" target="_blank" rel="noopener">Escríbenos en Facebook</a></li>
+        </ul>
+        <div class="acciones">
+          <a class="boton boton-oscuro" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20Casa%20de%20Alabanza%2C%204250%20El%20Cajon%20Blvd%2C%20San%20Diego%2C%20CA%2092105" target="_blank" rel="noopener"><svg class="icono"><use href="#i-pin"/></svg> Google Maps</a>
+          <a class="boton boton-borde" href="https://maps.apple.com/?q=Iglesia%20Casa%20de%20Alabanza&amp;address=4250%20El%20Cajon%20Blvd%2C%20San%20Diego%2C%20CA%2092105" target="_blank" rel="noopener">Apple Maps</a>
+        </div>
+      </div>
+      <figure class="foto-iglesia revelar" style="--i:2">
+        <img src="https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/thumbnails/thumbnail-3e10d824-3a1f-4a63-a3d9-e9d820386a8c.png" alt="El grupo de alabanza en un servicio" width="2388" height="1320" loading="lazy" decoding="async">
+        <figcaption>Grupo de Alabanza · Iglesia Casa de Alabanza</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<!-- ================= Pie ================= -->
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie-llamado revelar">
+      <div>
+        <h2>Te <em>esperamos</em></h2>
+        <p id="pie-proximo">Servicios generales: jueves 7:00 PM y domingo 6:00 PM.</p>
+      </div>
+      <a class="boton boton-claro" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20Casa%20de%20Alabanza%2C%204250%20El%20Cajon%20Blvd%2C%20San%20Diego%2C%20CA%2092105" target="_blank" rel="noopener">Cómo llegar <svg class="icono flecha"><use href="#i-flecha"/></svg></a>
+    </div>
+
+    <div class="pie-columnas">
+      <div class="pie-marca">
+        <img src="/logos/casa-alabanza.webp" alt="Iglesia Casa de Alabanza" width="270" height="195" loading="lazy">
+        <p>Comunidad en Cristo. 4250 El Cajon Blvd, San Diego, CA 92105.</p>
+        <ul style="margin-top:12px">
+          <li><a href="tel:+16197345886"><svg class="icono"><use href="#i-tel"/></svg> (619) 734-5886</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Páginas</h3>
+        <ul>
+          <li><a href="https://casadealabanzasd.com/quienes-somos">Quiénes somos</a></li>
+          <li><a href="https://casadealabanzasd.com/eventos">Eventos</a></li>
+          <li><a href="https://casadealabanzasd.com/ministerios">Ministerios</a></li>
+          <li><a href="https://casadealabanzasd.com/hogares-de-creciemiento">Hogares de crecimiento</a></li>
+          <li><a href="https://casadealabanzasd.com/sermones">Sermones</a></li>
+          <li><a href="https://casadealabanzasd.com/servicios-en-vivo">Servicios en vivo</a></li>
+          <li><a href="https://casadealabanzasd.com/donaciones">Donaciones</a></li>
+          <li><a href="https://casadealabanzasd.com/contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Síguenos</h3>
+        <div class="grupo-redes">
+          <p class="subtitulo">Iglesia Casa de Alabanza</p>
+          <ul>
+            <li><a href="https://www.facebook.com/iglesia.casa.de.alabanza.2025" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-fb"/></svg> Facebook</a></li>
+            <li><a href="https://www.instagram.com/iglesiacasadealabanzaa" target="_blank" rel="noopener"><svg class="icono"><use href="#i-ig"/></svg> Instagram</a></li>
+            <li><a href="https://www.tiktok.com/@iglesiacasadealabanzaa" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-tiktok"/></svg> TikTok</a></li>
+          </ul>
+        </div>
+        <div class="grupo-redes">
+          <p class="subtitulo">Cajita de Bendición</p>
+          <ul>
+            <li><a href="https://www.facebook.com/DispesasCDA" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-fb"/></svg> Facebook</a></li>
+            <li><a href="https://www.tiktok.com/@cajita.de.bendici" target="_blank" rel="noopener"><svg class="icono lleno"><use href="#i-tiktok"/></svg> TikTok</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3>Cajita de Bendición</h3>
+        <p style="margin:0 0 20px">Despensa gratuita los lunes y jueves. Haz tu cita desde tu teléfono.</p>
+        <a class="boton boton-acento" href="https://citas.casadealabanzasd.com/">Haz tu cita <svg class="icono flecha"><use href="#i-flecha"/></svg></a>
+      </div>
+    </div>
+
+    <div class="pie-abajo">
+      <span>© <span id="anio">2026</span> Iglesia Casa de Alabanza · San Diego, CA</span>
+      <button class="arriba" id="arriba" type="button"><svg class="icono"><use href="#i-arriba"/></svg> Volver arriba</button>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.documentElement.classList.remove('sin-js')
+
+  //  Lo que cambia seguido. En la pagina de verdad esto lo edita el pastor
+  //  desde el panel (como "Textos y reglas"), con su foto; el diseno no.
+  var FOTOS = 'https://img1.wsimg.com/isteam/ip/5ba45a12-da38-48b8-bf0b-2347bc89b69e/'
+  var CONTENIDO = {
+    //  El video de fondo: corto, sin sonido, comprimido (como el de la entrega).
+    //  Vacio: se queda la foto.
+    portada: { video: '' },
+    //  dia: 0 = domingo ... 6 = sabado. hora: 24 h (para saber cual sigue).
+    semana: [
+      { dia: 1, cosas: [
+        { que: 'Servicio de Jóvenes', hora: '19:00', texto: '7:00 PM' },
+        { que: 'Mujer Virtuosa', hora: '19:00', texto: '7:00 – 9:00 PM' },
+        { que: 'Varón de Guerra', hora: '19:00', texto: '7:00 – 9:00 PM' },
+        { que: 'Cajita de Bendición', texto: 'Por la tarde · con cita', enlace: 'https://citas.casadealabanzasd.com/' },
+      ] },
+      { dia: 3, cosas: [{ que: 'Células Familiares', hora: '19:00', texto: '7:00 PM' }] },
+      { dia: 4, cosas: [
+        { que: 'Servicio General', hora: '19:00', texto: '7:00 PM', general: true },
+        { que: 'Cajita de Bendición', texto: 'Por la tarde · con cita', enlace: 'https://citas.casadealabanzasd.com/' },
+      ] },
+      { dia: 6, cosas: [{ que: 'Servicio de Oración', hora: '07:00', texto: '7:00 AM' }] },
+      { dia: 0, cosas: [
+        { que: 'Servicio de Oración', hora: '17:00', texto: '5:00 PM' },
+        { que: 'Servicio General', hora: '18:00', texto: '6:00 PM', general: true },
+      ] },
+    ],
+    ministerios: [
+      { titulo: 'Servicios Generales', horario: ['Jueves 7:00 PM', 'Domingo 6:00 PM'], foto: 'F914056D-C5CF-4CCB-89D7-BDDE5B0263A5.png/:/cr=t:0%25,l:11.39%25,w:80.03%25,h:100%25/rs=w:640,h:640,cg:true' },
+      { titulo: 'Servicio de Jóvenes', horario: ['Lunes 7:00 PM'], foto: 'IMG_9854.jpeg/:/cr=t:0%25,l:0%25,w:99.01%25,h:100%25/rs=w:640,h:640,cg:true' },
+      { titulo: 'Servicio de Oración', horario: ['Sábado 7:00 AM', 'Domingo 5:00 PM'], foto: 'IMG_8207.jpeg/:/rs=w:640,h:640,cg:true,m/cr=w:640,h:640' },
+      { titulo: 'Mujer Virtuosa', horario: ['Lunes 7:00 – 9:00 PM'], foto: 'mujer%20v.jpg/:/cr=t:0%25,l:0%25,w:100%25,h:100%25/rs=w:501,h:501,cg:true' },
+      { titulo: 'Varón de Guerra', horario: ['Lunes 7:00 – 9:00 PM'], foto: 'varon%20de.jpg/:/cr=t:0%25,l:0%25,w:83.76%25,h:100%25/rs=w:640,h:640,cg:true' },
+      { titulo: 'Células Familiares', horario: ['Miércoles 7:00 PM'], foto: 'hogar%20de%20crecieminto.jpg/:/cr=t:0%25,l:0%25,w:83.83%25,h:100%25/rs=w:640,h:640,cg:true',
+        enlace: { texto: 'Nuestros hogares', href: 'https://casadealabanzasd.com/hogares-de-creciemiento' } },
+    ],
+  }
+
+  var DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+  var TIENE_MOVIMIENTO = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)
+
+  function crear(etiqueta, atributos, hijos) {
+    var e = document.createElement(etiqueta)
+    for (var k in atributos || {}) {
+      if (k === 'texto') e.textContent = atributos[k]
+      else if (k === 'html') e.innerHTML = atributos[k]
+      else e.setAttribute(k, atributos[k])
+    }
+    ;(hijos || []).forEach(function (h) { if (h) e.appendChild(h) })
+    return e
+  }
+  function icono(nombre) {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('class', 'icono')
+    svg.setAttribute('aria-hidden', 'true')
+    var uso = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+    uso.setAttribute('href', '#' + nombre)
+    svg.appendChild(uso)
+    return svg
+  }
+
+  //  Dia y minuto de ahora en San Diego, aunque el telefono este en otra zona.
+  function ahoraSanDiego() {
+    var partes = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date())
+    var de = function (t) { return partes.find(function (p) { return p.type === t }).value }
+    var dias = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
+    return { dia: dias[de('weekday')], minuto: Number(de('hour')) * 60 + Number(de('minute')) }
+  }
+
+  var ahora = ahoraSanDiego()
+
+  // ---------- La semana ----------
+  var semana = document.getElementById('semana')
+  CONTENIDO.semana.forEach(function (d, i) {
+    var esHoy = d.dia === ahora.dia
+    var titulo = crear('h3', {}, [document.createTextNode(DIAS[d.dia]), esHoy ? crear('span', { class: 'chip-hoy', texto: 'Hoy' }) : null])
+    var lista = crear('ul', {}, d.cosas.map(function (c) {
+      var que = c.enlace ? crear('a', { href: c.enlace, texto: c.que }) : document.createTextNode(c.que)
+      return crear('li', {}, [crear('span', { class: 'hora' }, [icono('i-reloj'), document.createTextNode(c.texto)]), crear('span', { class: 'que' }, [que])])
+    }))
+    semana.appendChild(crear('article', { class: 'dia revelar' + (esHoy ? ' hoy' : ''), style: '--i:' + i }, [titulo, lista]))
+  })
+
+  // ---------- Ministerios ----------
+  var tarjetas = document.getElementById('tarjetas')
+  CONTENIDO.ministerios.forEach(function (m, i) {
+    var foto = crear('div', { class: 'tarjeta-foto' }, [crear('img', { src: FOTOS + m.foto, alt: m.titulo, width: '640', height: '640', loading: 'lazy', decoding: 'async' })])
+    var texto = crear('div', { class: 'tarjeta-texto' }, [
+      crear('h3', { texto: m.titulo }),
+      crear('ul', { class: 'horario' }, m.horario.map(function (h) { return crear('li', { texto: h }) })),
+      m.enlace ? crear('a', { class: 'mas-info', href: m.enlace.href }, [document.createTextNode(m.enlace.texto), icono('i-flecha')]) : null,
+    ])
+    tarjetas.appendChild(crear('article', { class: 'tarjeta revelar', style: '--i:' + (i % 3) }, [foto, texto]))
+  })
+
+  // ---------- El proximo servicio general ----------
+  ;(function () {
+    var mejor = null
+    CONTENIDO.semana.forEach(function (d) {
+      d.cosas.forEach(function (c) {
+        if (!c.general) return
+        var hm = c.hora.split(':')
+        var faltan = ((d.dia - ahora.dia) * 1440 + Number(hm[0]) * 60 + Number(hm[1]) - ahora.minuto + 10080) % 10080
+        if (!mejor || faltan < mejor.faltan) mejor = { faltan: faltan, dia: d.dia, texto: c.texto }
+      })
+    })
+    if (!mejor) return
+    var cuando = mejor.dia === ahora.dia ? 'hoy' : mejor.dia === (ahora.dia + 1) % 7 ? 'mañana' : DIAS[mejor.dia].toLowerCase()
+    document.getElementById('proximo-texto').innerHTML = 'Próximo servicio: <b>' + cuando + ', ' + mejor.texto + '</b>'
+    document.getElementById('pie-proximo').textContent = 'Próximo servicio general: ' + cuando + ', ' + mejor.texto + '.'
+  })()
+
+  // ---------- Barra: se vuelve solida al bajar ----------
+  var barra = document.getElementById('barra')
+  function alBajar() { barra.classList.toggle('solida', window.scrollY > 40) }
+  alBajar()
+  window.addEventListener('scroll', alBajar, { passive: true })
+
+  // ---------- "Mas" (tocar en tableta, teclado) ----------
+  var mas = document.getElementById('mas')
+  var botonMas = mas.querySelector('button')
+  botonMas.addEventListener('click', function () {
+    var abierta = mas.classList.toggle('abierta')
+    botonMas.setAttribute('aria-expanded', String(abierta))
+  })
+  document.addEventListener('click', function (e) {
+    if (!mas.contains(e.target)) { mas.classList.remove('abierta'); botonMas.setAttribute('aria-expanded', 'false') }
+  })
+
+  // ---------- Menu del telefono ----------
+  var cortina = document.getElementById('cortina')
+  var abrirMenu = document.getElementById('abrir-menu')
+  var cerrarMenu = document.getElementById('cerrar-menu')
+  function menu(abrir) {
+    cortina.classList.toggle('abierta', abrir)
+    abrirMenu.setAttribute('aria-expanded', String(abrir))
+    document.body.style.overflow = abrir ? 'hidden' : ''
+    document.documentElement.classList.toggle('menu-abierto', abrir)
+    if (abrir) cerrarMenu.focus()
+    else abrirMenu.focus()
+  }
+  abrirMenu.addEventListener('click', function () { menu(true) })
+  cerrarMenu.addEventListener('click', function () { menu(false) })
+  cortina.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { menu(false) }) })
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return
+    if (cortina.classList.contains('abierta')) menu(false)
+    mas.classList.remove('abierta'); botonMas.setAttribute('aria-expanded', 'false')
+  })
+
+  // ---------- Aparecen al bajar ----------
+  var revelar = document.querySelectorAll('.revelar')
+  if ('IntersectionObserver' in window && TIENE_MOVIMIENTO) {
+    var observador = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('visto'); observador.unobserve(en.target) }
+      })
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' })
+    revelar.forEach(function (e) { observador.observe(e) })
+  } else {
+    revelar.forEach(function (e) { e.classList.add('visto') })
+  }
+
+  // ---------- Video de la portada (si hay) ----------
+  var video = document.getElementById('video-portada')
+  var pausa = document.getElementById('pausa')
+  var pausaIcono = document.getElementById('pausa-icono').querySelector('use')
+  var ahorraDatos = navigator.connection && navigator.connection.saveData
+  function marcarPausa() {
+    var parado = video.paused
+    pausaIcono.setAttribute('href', parado ? '#i-play' : '#i-pausa')
+    pausa.setAttribute('aria-label', parado ? 'Reproducir el video' : 'Pausar el video')
+  }
+  //  Con "menos movimiento" o "ahorrar datos" no se carga: se queda la foto.
+  if (CONTENIDO.portada.video && TIENE_MOVIMIENTO && !ahorraDatos) {
+    video.hidden = false
+    pausa.hidden = false
+    video.src = CONTENIDO.portada.video
+    video.addEventListener('playing', function () { video.classList.add('corriendo') })
+    video.addEventListener('play', marcarPausa)
+    video.addEventListener('pause', marcarPausa)
+    pausa.addEventListener('click', function () { if (video.paused) video.play(); else video.pause() })
+    video.play().catch(function () {})
+    marcarPausa()
+  }
+
+  // ---------- El versiculo se mueve un poco mas lento ----------
+  var fondo = document.getElementById('versiculo-fondo')
+  if (TIENE_MOVIMIENTO) {
+    var pendiente = false
+    window.addEventListener('scroll', function () {
+      if (pendiente) return
+      pendiente = true
+      requestAnimationFrame(function () {
+        var r = fondo.parentElement.getBoundingClientRect()
+        if (r.bottom > 0 && r.top < innerHeight) {
+          //  Respecto al centro de la pantalla, y nunca mas de lo que sobra del fondo.
+          var tope = r.height * 0.16
+          var mover = (r.top + r.height / 2 - innerHeight / 2) * -0.15
+          fondo.style.setProperty('--desplazar', Math.max(-tope, Math.min(tope, mover)).toFixed(1) + 'px')
+        }
+        pendiente = false
+      })
+    }, { passive: true })
+  }
+
+  // ---------- Zelle: copiar el numero ----------
+  document.getElementById('copiar-zelle').addEventListener('click', function () {
+    var aviso = document.getElementById('copiado')
+    var listo = function () { aviso.textContent = '¡Listo! El número se copió.' }
+    if (navigator.clipboard) navigator.clipboard.writeText('6194083592').then(listo, function () { aviso.textContent = 'Número: 619-408-3592' })
+    else aviso.textContent = 'Número: 619-408-3592'
+  })
+
+  // ---------- "Mira como funciona": la ventanita de la esquina ----------
+  document.getElementById('ver-video').addEventListener('click', function () {
+    if (window.__cajitaVideo) window.__cajitaVideo.abrir()
+    else window.open('https://citas.casadealabanzasd.com/video', '_blank', 'noopener')
+  })
+
+  document.getElementById('arriba').addEventListener('click', function () { window.scrollTo({ top: 0, behavior: TIENE_MOVIMIENTO ? 'smooth' : 'auto' }) })
+  document.getElementById('anio').textContent = new Date().getFullYear()
+</script>
+<!-- El video de Cajita de Bendicion en la esquina, como hoy en GoDaddy. -->
+<script src="/cajita-video.js"></script>
+</body>
+</html>
