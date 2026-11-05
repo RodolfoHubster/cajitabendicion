@@ -51,8 +51,9 @@ export default function FilaEnVivo() {
   return (
     <div className="space-y-4">
       <Tarjeta>
-        {/* De aqui se regresa a sacar (o ver) su turno. */}
-        <EnlaceVolver a="/turno">{t('aPie.volver')}</EnlaceVolver>
+        {/* Al menu principal: de ahi se escoge carro o a pie. Para sacar
+            o ver su turno esta el boton naranja de abajo. */}
+        <EnlaceVolver a="/">{t('navegacion.inicio')}</EnlaceVolver>
         <div className="mb-4 flex items-center gap-3">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accion/20">
             <FaPersonWalking aria-hidden="true" className="h-7 w-7 text-principal" />
