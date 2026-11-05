@@ -136,6 +136,18 @@ export async function listaParaEscaneo() {
   return data ?? []
 }
 
+/**
+ * Cuantas cajas van hoy (seccion 55): { cajas, cajas_fila, faltan_fila }.
+ * Todas las filas, la fila que se pasa, y en esa fila cuantas citas faltan
+ * por llegar. Solo numeros.
+ */
+export async function cajasDeHoy(fila = null) {
+  const cuentas = primeraFila(
+    await llamar('cajas_de_hoy', { p_fila: fila === 'carro' || fila === 'a_pie' ? fila : null }),
+  )
+  return cuentas ?? { cajas: 0, cajas_fila: 0, faltan_fila: 0 }
+}
+
 /** Ya recibio su caja hoy. */
 export function yaRecibio(persona) {
   return persona?.estado === 'entregada'

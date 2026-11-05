@@ -4,6 +4,8 @@ import {
   avisoLeido,
   olvidarSonido,
   prepararSonido,
+  probarSonido,
+  sonarAunEnSilencio,
   tono,
   vibrar,
 } from './sonido'
@@ -116,6 +118,37 @@ describe('los tonos', () => {
     tono({ hz: 440, segundos: 0.2, volumen: 0.3 })
     expect(ganancia.gain.setValueAtTime).toHaveBeenCalledWith(0.3, 0)
     expect(ganancia.gain.exponentialRampToValueAtTime).toHaveBeenCalledWith(0.0001, 0.2)
+  })
+})
+
+describe('que se oiga en la calle', () => {
+  it('pide a Safari sonar aunque el iPhone este en silencio', () => {
+    const navegador = { audioSession: { type: 'auto' } }
+    expect(sonarAunEnSilencio(navegador)).toBe(true)
+    expect(navegador.audioSession.type).toBe('playback')
+  })
+
+  it('donde no existe (Chrome, Android), no truena', () => {
+    expect(sonarAunEnSilencio({})).toBe(false)
+    expect(sonarAunEnSilencio(undefined)).toBe(false)
+  })
+
+  it('si el telefono durmio el sonido, lo despierta antes del tono', () => {
+    const { Falso } = contextoFalso()
+    const ctx = prepararSonido(Falso)
+    ctx.resume.mockClear()
+    ctx.state = 'suspended'
+
+    tono({ hz: 440 })
+    expect(ctx.resume).toHaveBeenCalledTimes(1)
+  })
+
+  it('probar sonido: el de pasar y luego el de detente', () => {
+    const { Falso, tonos } = contextoFalso()
+    prepararSonido(Falso)
+
+    probarSonido()
+    expect(tonos.map((o) => o.frequency.value)).toEqual([880, 1320, 320])
   })
 })
 

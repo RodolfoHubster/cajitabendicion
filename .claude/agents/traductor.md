@@ -22,6 +22,13 @@ Reglas:
 - Si un texto vietnamita te deja dudas, tradúcelo y márcalo en tu reporte para
   que lo revise una persona. No lo dejes vacío: la app se caería al inglés y
   nadie se enteraría de que falta.
+- Hay otros siete idiomas (`zh`, `tl`, `ko`, `ht`, `ru`, `so`, `fr`) que
+  **solo llevan los textos que ve el público**; el panel y el escáner les salen
+  en inglés. Si la clave nueva es de una pantalla pública, agrégala también en
+  esos siete, con las formas de plural de cada uno: chino y coreano solo
+  `_other`; ruso `_one/_few/_many/_other`; francés `_one/_many/_other`; los
+  demás `_one/_other`. Si no la puedes traducir con confianza, déjala fuera
+  (se ve en inglés) y repórtala. También están marcados `enDesarrollo`.
 - Nada de datos personales ni de ejemplos con nombres reales en los textos.
 
 Al terminar corre `npm test` (la prueba `src/i18n/i18n.test.js` compara las

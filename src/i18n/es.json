@@ -126,7 +126,8 @@
       "comoArreglar": {
         "SIN_PERMISO": "Para activarla: toca el candado (o los tres puntos) junto a la dirección de la página, entra a «Permisos» y permite la cámara. Luego toca «Intentar de nuevo».",
         "CAMARA_OCUPADA": "Cierra la videollamada o la otra aplicación que la esté usando y toca «Intentar de nuevo»."
-      }
+      },
+      "reiniciar": "Reiniciar cámara"
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
@@ -257,6 +258,14 @@
       "nota": "Para reconocerla: {{nota}}",
       "revisa": "¿Es la persona? Revisa su nombre y la nota antes de entregar.",
       "entregar": "Sí es la persona, entregar"
+    },
+    "sonido": {
+      "probar": "Probar sonido"
+    },
+    "cajas": {
+      "hoy": "Cajas entregadas hoy",
+      "enTuFila": "En tu fila: {{n}}",
+      "faltan": "Faltan por llegar: {{n}}"
     }
   },
   "pase": {
@@ -545,7 +554,8 @@
       "SIN_CONEXION": "Se cortó la conexión. Revisa tu señal y vuelve a tocar «Confirmar».",
       "ACOMPANANTE_SIN_CITA": "No encontramos una cita de carro con ese código para este día. Revisa el código con quien maneja.",
       "CARRO_LLENO": "Ese carro ya tiene el máximo de acompañantes.",
-      "FALTA_FECHA": "Elige la fecha."
+      "FALTA_FECHA": "Elige la fecha.",
+      "LLAVE_VENCIDA": "Pasó mucho tiempo. Vuelve a poner tu código y tu teléfono."
     },
     "apellidos": "Apellidos",
     "pais": "País del teléfono",
@@ -571,6 +581,23 @@
       "BLOQUE_NO_EXISTE": "Esta fila a pie ya no existe. Vuelve a revisar la página de la fila a pie.",
       "AUN_NO_ABRE": "Los turnos todavía no se abren. Vuelve a la hora que dice la página.",
       "DIA_CERRADO": "Este día ya no da turnos."
+    },
+    "yaViniste": {
+      "titulo": "¿Ya viniste antes?",
+      "ayuda": "Con tu código CB y tu teléfono no tienes que escribir tus datos otra vez.",
+      "abrir": "Usar mi código",
+      "codigo": "Tu código CB",
+      "codigoAyuda": "Está en tu confirmación y en el correo de tu cita.",
+      "telefono": "Tu teléfono (el mismo de la vez pasada)",
+      "buscar": "Continuar",
+      "buscando": "Buscando…",
+      "cerrar": "Mejor escribo mis datos",
+      "listo": "Con tus datos de la vez pasada, {{nombre}}",
+      "listoAyuda": "Tu código CB sigue siendo el mismo. Solo confirma tu cita.",
+      "noSoyYo": "No soy yo / usar otros datos",
+      "faltaCodigo": "Escribe los números de tu código.",
+      "NO_COINCIDE": "Ese código y ese teléfono no coinciden. Revísalos, o escribe tus datos abajo.",
+      "DEMASIADOS_INTENTOS": "Demasiados intentos. Espera {{minutos}} minutos, o escribe tus datos abajo."
     }
   },
   "pasos": {

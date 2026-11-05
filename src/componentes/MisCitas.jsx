@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { aFechaLocal, formatearHora } from '../datos/disponibilidad'
 import { citasProximas, leerMisCitas, quitarMiCita } from '../datos/misCitas'
 import { hoyLocal } from '../datos/panel'
+import { idiomaDeFechas } from '../i18n/idiomas'
 
 /**
  * "Tu cita", arriba de todo en la portada, si este telefono hizo una.
@@ -30,7 +31,7 @@ export default function MisCitas({ className = '' }) {
   }
 
   const fechaLarga = (fecha) =>
-    new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+    new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), { weekday: 'long', day: 'numeric', month: 'long' }).format(
       aFechaLocal(fecha),
     )
 

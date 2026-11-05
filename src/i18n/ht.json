@@ -1,0 +1,764 @@
+{
+  "avisoIdioma": {
+    "titulo": "Kreyòl ayisyen an toujou ap devlope",
+    "detalle": "Tradiksyon sa a toujou ap amelyore epi li ka gen erè. Si gen yon bagay ou pa konprann, ou ka chanje pou anglè oswa panyòl anlè a.",
+    "ingles": "Haitian Creole is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "kounye a la a",
+      "haceMin": "sa gen {{n}} min",
+      "haceHoras": "sa gen {{h}} è {{m}} min"
+    }
+  },
+  "pase": {
+    "etiqueta": "Pas pèmanan",
+    "titulo": "Pas ou",
+    "dias": "Lendi ak jedi",
+    "cargando": "N ap prepare pas ou…",
+    "noEncontrado": "Nou pa jwenn pas sa a. Petèt lyen an pa konplè.",
+    "revocado": "Pas sa a pa aktif ankò",
+    "revocadoTexto": "Si ou panse se yon erè, rele legliz la nan {{telefono}}.",
+    "comoFunciona": "Vini nenpòt lendi oswa jedi, nan lè ki bon pou ou. Montre kòd sa a epi y ap ba ou bwat ou.",
+    "soloTuyo": "Pas sa a se pou ou sèlman, epi li bon pou yon sèl bwat chak jou. Si yo pataje l, y ap anile l.",
+    "sello": "Logo Cajita de Bendición ki nan mitan kòd la se mak pas ou: se konsa volontè a rekonèt li."
+  },
+  "confirmacion": {
+    "cargando": "N ap prepare kòd ou…",
+    "noEncontrada": "Nou pa jwenn randevou sa a. Petèt lyen an pa konplè.",
+    "volverInicio": "Retounen nan kòmansman",
+    "lista": "Randevou ou pare",
+    "horarioCambiado": "Li fèt, lè ou chanje. Kòd ou se menm nan, men anrejistre imaj la ankò: sa ou te genyen an gen ansyen lè a.",
+    "qrAlt": "Kòd QR randevou ou",
+    "siNoSeLee": "Si yo pa ka li kòd la, bay nimewo sa a:",
+    "aNombreDe": "Sou non",
+    "unSoloUso": "Kòd sa a bon yon sèl fwa epi pou yon sèl bwat. Si yon lòt moun lakay ou bezwen youn, li dwe enskri pou kont li.",
+    "cambiarHorario": "Chanje lè mwen",
+    "guardarImagen": "Anrejistre imaj la",
+    "descargada": "Imaj la telechaje. Si ou pa wè l nan foto ou yo, peze kòd QR ki anlè a lontan epi chwazi \"Save Image\" oswa \"Add to Photos\".",
+    "consejoCaptura": "Ou ka fè yon kapti ekran tou.",
+    "cancelar": "Anile randevou mwen",
+    "cancelarPregunta": "Èske ou sèten ou vle anile randevou ou? Plas ou ap rete lib pou yon lòt moun.",
+    "cancelarSi": "Wi, anile randevou mwen",
+    "cancelarNo": "Non, kenbe randevou mwen",
+    "cancelando": "N ap anile…",
+    "canceladaTitulo": "Randevou ou anile",
+    "canceladaTexto": "Plas ou lib kounye a. Si ou bezwen, ou ka enskri ankò.",
+    "registrarOtra": "Pran randevou ankò",
+    "yaExistia": "Ou te deja gen randevou sa a. Nou pa fè yon lòt: se menm nan, ak menm kòd la.",
+    "consejoBrillo": "Jou distribisyon an, monte limyè ekran ou: konsa y ap li kòd la touswit."
+  },
+  "cambiar": {
+    "titulo": "Chanje lè mwen",
+    "cargando": "N ap chèche randevou ou…",
+    "volver": "Retounen nan randevou mwen",
+    "tuCitaAhora": "Randevou ou kounye a",
+    "aviso": "Ou ka chanje lè ou yon sèl fwa. Kòd ou {{codigo}} ak kòd QR ou rete menm jan.",
+    "elegirDia": "Chwazi jou a",
+    "elegirHora": "Chwazi lè a",
+    "actual": "Sa ou genyen kounye a",
+    "deAcuerdo": "Mwen konprann mwen ka chanje lè mwen yon sèl fwa.",
+    "confirmar": "Chanje lè mwen",
+    "cambiando": "N ap chanje…",
+    "sinDias": "Kounye a pa gen lòt jou ki gen plas. Eseye ankò pita.",
+    "noSePuede": "Ou pa ka chanje randevou sa a ankò.",
+    "yaCambiaste": "Ou te deja chanje lè ou yon fwa. Si ou vrèman bezwen, rele legliz la nan {{telefono}}."
+  },
+  "registro": {
+    "cargando": "N ap prepare enskripsyon ou…",
+    "sinHorario": "Anvan, chwazi jou ak lè randevou ou.",
+    "horarioNoDisponible": "Lè sa a pa disponib ankò. Chwazi yon lòt.",
+    "nombre": "Non",
+    "telefono": "Telefòn selilè",
+    "correo": "Imèl",
+    "correoAyuda": "Se la a n ap voye kòd pou w antre a.",
+    "confirmar": "Konfime randevou mwen",
+    "enviando": "N ap kenbe plas ou…",
+    "errores": {
+      "BLOQUE_LLENO": "Lè sa a plen pandan w t ap ranpli fòm nan. Chwazi yon lòt.",
+      "BLOQUE_CERRADO": "Lè sa a fèmen.",
+      "BLOQUE_NO_EXISTE": "Lè sa a pa egziste ankò. Chwazi yon lòt.",
+      "FECHA_PASADA": "Dat sa a deja pase.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Gen yon randevou deja pou semèn sa a. Ou ka pran yon sèl chak semèn: lendi oswa jedi, pa toude.",
+      "LIMITE_DISPOSITIVO": "Yo deja pran yon randevou pou jou sa a ak aparèy sa a. Chak moun dwe enskri ak pwòp telefòn oswa òdinatè pa l.",
+      "NOMBRE_REQUERIDO": "Non ou manke.",
+      "TELEFONO_REQUERIDO": "Telefòn ou manke.",
+      "EMAIL_REQUERIDO": "Imèl ou manke.",
+      "EMAIL_INVALIDO": "Imèl sa a pa sanble byen ekri. Tanpri tcheke l.",
+      "SIN_CODIGOS_DISPONIBLES": "Nou te gen yon pwoblèm pou fè kòd ou. Eseye ankò.",
+      "ERROR_DESCONOCIDO": "Nou pa t ka kenbe plas ou. Eseye ankò nan yon ti moman.",
+      "AUN_NO_ABRE": "Enskripsyon pou jou sa a poko louvri.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Kòd abòne ou a pa bon ankò. Petèt yo chanje l; gade piblikasyon an sou Facebook.",
+      "DIA_CERRADO": "Jou sa a pa pran enskripsyon ankò.",
+      "APELLIDOS_REQUERIDOS": "Siyati ou manke.",
+      "NOMBRE_INVALIDO": "Non ak siyati pa gen chif ladan yo.",
+      "TELEFONO_INVALIDO": "Tcheke telefòn ou: nimewo a pa konplè oswa li gen yon bagay an plis.",
+      "PAIS_INVALIDO": "Chwazi Meksik oswa Etazini.",
+      "CODIGO_POSTAL_REQUERIDO": "Kòd postal la manke.",
+      "CODIGO_POSTAL_INVALIDO": "Kòd postal la gen 5 chif.",
+      "CODIGO_POSTAL_NO_EXISTE": "Nou pa jwenn kòd postal sa a ni nan Kalifòni ni nan Baja Kalifòni.",
+      "COLONIA_REQUERIDA": "Chwazi katye ou (colonia).",
+      "COLONIA_INVALIDA": "Katye sa a pa nan kòd postal sa a.",
+      "CALLE_REQUERIDA": "Lari a manke.",
+      "CALLE_INVALIDA": "Tanpri tcheke non lari a.",
+      "NUMERO_REQUERIDO": "Nimewo kay la manke.",
+      "NUMERO_INVALIDO": "Tanpri tcheke nimewo kay la.",
+      "NUMERO_INTERIOR_INVALIDO": "Tanpri tcheke nimewo apatman an.",
+      "CONSENTIMIENTO_REQUERIDO": "Tanpri konfime se pa pwòp volonte ou w ap bay enfòmasyon ou.",
+      "FALTA_HORARIO": "Chwazi dat la ak lè a.",
+      "YA_REGISTRADO_ESE_DIA": "Gen yon randevou deja sou non ou pou jou sa a. Si ou pèdi kòd ou, jou distribisyon an mande ekip la èd: y ap chèche w pa non ou.",
+      "A_PIE_CERRADO": "Pou kounye a pa gen liy apye pou jou sa a.",
+      "SIN_CONEXION": "Koneksyon an koupe. Tcheke siyal ou epi peze \"Konfime\" ankò.",
+      "ACOMPANANTE_SIN_CITA": "Nou pa jwenn yon randevou machin ak kòd sa a pou jou sa a. Tcheke kòd la ak moun k ap kondui a.",
+      "CARRO_LLENO": "Machin sa a deja gen kantite pasaje maksimòm.",
+      "FALTA_FECHA": "Chwazi dat la.",
+      "LLAVE_VENCIDA": "Twòp tan pase. Mete kòd ou ak telefòn ou ankò."
+    },
+    "apellidos": "Siyati",
+    "pais": "Peyi telefòn nan",
+    "paisesPrincipales": "Pi komen",
+    "paisesTodos": "Tout peyi",
+    "otrosHorarios": {
+      "buscando": "N ap chèche lòt lè jou sa a…",
+      "titulo": "Chwazi yon lòt lè menm jou a:",
+      "seQueda": "Sa ou te ekri a rete. Se lè a sèlman ki chanje.",
+      "ninguno": "Pa gen lè lib ankò jou sa a.",
+      "otroDia": "Gade lòt jou"
+    },
+    "tuCitaGuardada": "Telefòn sa a deja gen randevou sa a anrejistre:",
+    "verTuCita": "Gade randevou {{hora}} an ({{nombre}})",
+    "horaCambiada": "Li fèt, kounye a lè ou se {{hora}}. Peze \"Konfime\" pou fini.",
+    "borrador": {
+      "recuperado": "Nou rekipere sa ou te ekri a.",
+      "empezarDeNuevo": "Efase epi rekòmanse"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Nimewo yo fini pandan w t ap ranpli enfòmasyon ou. Nou regrèt anpil.",
+      "BLOQUE_CERRADO": "Nimewo yo fèmen pou jou sa a.",
+      "BLOQUE_NO_EXISTE": "Liy apye sa a pa egziste ankò. Gade paj liy apye a ankò.",
+      "AUN_NO_ABRE": "Nimewo yo poko louvri. Tounen nan lè ki ekri sou paj la.",
+      "DIA_CERRADO": "Jou sa a pa bay nimewo ankò."
+    },
+    "yaViniste": {
+      "titulo": "Èske ou te deja vini?",
+      "ayuda": "Avèk kòd CB ou ak telefòn ou, ou pa bezwen ekri enfòmasyon ou ankò.",
+      "abrir": "Sèvi ak kòd mwen",
+      "codigo": "Kòd CB ou",
+      "codigoAyuda": "Li nan konfimasyon ou ak nan imèl randevou ou.",
+      "telefono": "Telefòn ou (menm jan ak dènye fwa a)",
+      "buscar": "Kontinye",
+      "buscando": "N ap chèche…",
+      "cerrar": "Mwen pito ekri enfòmasyon mwen",
+      "listo": "Avèk enfòmasyon ou dènye fwa a, {{nombre}}",
+      "listoAyuda": "Kòd CB ou rete menm jan. Jis konfime randevou ou.",
+      "noSoyYo": "Se pa mwen / sèvi ak lòt enfòmasyon",
+      "faltaCodigo": "Ekri chif kòd ou yo.",
+      "NO_COINCIDE": "Kòd sa a ak telefòn sa a pa koresponn. Tcheke yo, oswa ekri enfòmasyon ou anba a.",
+      "DEMASIADOS_INTENTOS": "Twòp esè. Tann {{minutos}} minit, oswa ekri enfòmasyon ou anba a."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Kote enskripsyon an rive",
+    "fecha": "Dat",
+    "horario": "Lè",
+    "datos": "Enfòmasyon ou"
+  },
+  "horarios": {
+    "duracion": "Chak lè dire 15 minit.",
+    "cargando": "N ap chèche lè yo…",
+    "error": "Nou pa t ka chaje lè yo. Eseye ankò nan yon ti moman.",
+    "sinBloques": "Pa gen lè ki rete pou jou sa a.",
+    "fechaInvalida": "Dat sa a pa bon.",
+    "volverCalendario": "Chwazi yon lòt dat",
+    "lleno": "Plen",
+    "quedan_one": "Rete {{count}} plas",
+    "quedan_other": "Rete {{count}} plas",
+    "conCodigo": "Ou antre ak kòd abòne ou. Chwazi lè ou.",
+    "revisandoCodigo": "N ap tcheke kòd ou…",
+    "continuarCon": "Kontinye ak {{hora}}",
+    "eligeUno": "Peze yon lè nan lis la"
+  },
+  "calendario": {
+    "cargando": "N ap chèche jou ki disponib…",
+    "error": "Nou pa t ka chaje jou ki disponib yo. Eseye ankò nan yon ti moman."
+  },
+  "pages": {
+    "calendario": "Pwochen distribisyon",
+    "horarios": "Lè yo",
+    "registro": "Enskripsyon",
+    "confirmacion": "Konfimasyon"
+  },
+  "inicio": {
+    "titulo": "Pran randevou ou",
+    "subtitulo": "Manje gratis, lendi ak jedi",
+    "antesDeEmpezar": "Anvan ou kòmanse",
+    "reglaRespaldo": "Chak moun ki gen 18 an oswa plis ki resevwa yon bwat bezwen pwòp enskripsyon l ak pwòp kòd li.",
+    "comoVienes": "Kijan ou pral vini?",
+    "enCarro": "An machin",
+    "aPie": "Apye",
+    "aPieAviso": "Apye pa gen lè fiks: jou distribisyon an ou pran nimewo ou isit la epi ou tann yo rele w.",
+    "gratuito": "Manje a gratis. Ou pa bezwen bay okenn don.",
+    "yaTienesCita": "Ou deja gen randevou? Pote imaj oswa kapti kòd ou jou distribisyon an.",
+    "hacerCita": "Pran randevou",
+    "sacarTurno": "Pran nimewo"
+  },
+  "navegacion": {
+    "inicio": "Retounen nan kòmansman",
+    "cambiarFecha": "Chanje dat",
+    "cambiarHorario": "Chanje lè",
+    "accesoPersonal": "Pou anplwaye yo",
+    "verSitio": "Gade sit piblik la"
+  },
+  "pie": {
+    "bienvenidos": "Byenveni nan",
+    "comunidad": "Kominote nan Kris",
+    "servicios": "Sèvis legliz la",
+    "horarioServicios": "Jedi 7:00 PM · Dimanch 6:00 PM",
+    "sitioIglesia": "Sit legliz la",
+    "siguenos": "Swiv nou",
+    "apoya": "Sipòte Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Facebook Cajita de Bendición",
+      "facebookIglesia": "Facebook legliz la",
+      "tiktokCajita": "TikTok Cajita de Bendición",
+      "instagramIglesia": "Instagram legliz la",
+      "tiktokIglesia": "TikTok legliz la"
+    }
+  },
+  "donar": {
+    "titulo": "Ou vle sipòte Cajita de Bendición?",
+    "tituloTrasRegistro": "Si ou kapab, pa bliye sipòte nou",
+    "aclaracion": "Randevou ou pa depann de okenn don: manje a gratis.",
+    "texto": "Si ou kapab epi ou vle ede, nenpòt ti sipò pèmèt nou rive jwenn plis fanmi chak semèn.",
+    "paypal": "Bay don ak PayPal",
+    "gofundme": "Sipòte sou GoFundMe",
+    "suscribirse": "Abòne sou Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Kote nou ye",
+    "entregas": "Distribisyon manje: lendi ak jedi apremidi, ak randevou.",
+    "googleMaps": "Louvri nan Google Maps",
+    "appleMaps": "Louvri nan Apple Maps",
+    "llamar": "Rele"
+  },
+  "marca": {
+    "ministerio": "Yon ministè {{iglesia}}"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "Distribisyon {{fecha}} an an reta {{minutos}} minit. Tout moun pase nan menm lòd la, {{minutos}} minit apre lè yo.",
+      "movida": "Distribisyon {{fecha}} an deplase pou {{fechaNueva}}, menm lè a. Menm kòd ou a bon toujou.",
+      "cancelada": "Yo anile distribisyon {{fecha}} an. Si ou te gen randevou, ou ka pran yon lòt nan kalandriye a."
+    },
+    "miCita": {
+      "retraso": "Distribisyon jou pa w la an reta {{minutos}} minit: nouvo lè apeprè ou se {{hora}}. Menm kòd ou a bon toujou.",
+      "movida": "Randevou ou deplase soti {{fecha}} pou {{fechaNueva}}, menm lè a. Menm kòd ou a bon toujou.",
+      "cancelada": "Yo anile distribisyon jou sa a."
+    }
+  },
+  "guia": {
+    "abrir": "Gid pou itilize"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Non ou manke.",
+      "NUMEROS": "Non pa gen chif.",
+      "SIMBOLOS": "Sèvi ak lèt sèlman. Ou ka mete espas, tirè (-) ak apostwòf (').",
+      "CORTO": "Ekri tout non ou, pa yon sèl lèt."
+    },
+    "apellidos": {
+      "VACIO": "Siyati ou manke.",
+      "NUMEROS": "Siyati pa gen chif.",
+      "SIMBOLOS": "Sèvi ak lèt sèlman. Ou ka mete espas, tirè (-) ak apostwòf (').",
+      "CORTO": "Ekri tout siyati ou, pa yon sèl lèt."
+    },
+    "correo": {
+      "VACIO": "Imèl ou manke.",
+      "ESPACIOS": "Imèl pa gen espas.",
+      "SIN_ARROBA": "@ la manke. Pa egzanp: nombre@gmail.com",
+      "VARIAS_ARROBAS": "Yon imèl gen yon sèl @.",
+      "SIN_USUARIO": "Pati ki anvan @ la manke.",
+      "SIN_DOMINIO": "Pati ki apre @ la manke, pa egzanp gmail.com",
+      "SIN_PUNTO": "Fen an apre pwen an manke, pa egzanp .com",
+      "DOMINIO_INVALIDO": "Tcheke pati ki apre @ la, pa egzanp gmail.com",
+      "sugerencia": "Èske ou te vle di {{correo}}?",
+      "usarSugerencia": "Wi, korije l"
+    },
+    "telefono": {
+      "VACIO": "Telefòn ou manke.",
+      "CARACTERES": "Telefòn nan gen chif sèlman. Ou ka mete espas, tirè ak yon + nan kòmansman.",
+      "LADA_DESCONOCIDA": "Nou pa rekonèt kòd peyi sa a. Chwazi peyi ou nan lis la.",
+      "CORTO": "Gen chif ki manke: yon telefòn {{pais}} gen {{digitos}} chif epi ou ekri {{llevan}}.",
+      "LARGO": "Gen chif an plis: yon telefòn {{pais}} gen {{digitos}} chif epi ou ekri {{llevan}}.",
+      "EMPIEZA_CON_1": "Gen yon chif ki manke: yon telefòn {{pais}} gen {{max}} chif san konte 1 ki nan kòmansman an.",
+      "entre": "ant {{min}} ak {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Ekri non moun nan.",
+      "NUMEROS": "Non pa gen chif.",
+      "SIMBOLOS": "Sèvi ak lèt sèlman. Ou ka mete espas, tirè (-) ak apostwòf (').",
+      "CORTO": "Ekri tout non an, pa yon sèl lèt."
+    }
+  },
+  "proxima": {
+    "etiqueta": "Pwochen distribisyon",
+    "horario": "Soti {{inicio}} rive {{fin}}",
+    "duracion": "Chak lè dire 15 minit.",
+    "lugares_one": "{{count}} plas disponib",
+    "lugares_other": "{{count}} plas disponib",
+    "lleno": "Pa gen plas ki rete pou distribisyon sa a.",
+    "abiertos": "Enskripsyon yo louvri.",
+    "abreEl": "Enskripsyon yo ap louvri {{cuando}}.",
+    "faltan": "Rete {{tiempo}}",
+    "suscriptoresDesde": "Abòne Facebook yo ka enskri apati {{cuando}}.",
+    "suscriptoresAhora": "Abòne Facebook yo ka deja enskri ak kòd yo.",
+    "conCodigo": "Pran randevou pou abòne Facebook yo",
+    "registrarme": "Pran randevou",
+    "sinLugares": "Pa gen plas",
+    "seActivara": "Bouton \"Pran randevou\" a ap aktive pou kont li lè l louvri.",
+    "sinFechas": "Pou kounye a pa gen distribisyon pwograme. Tounen gade pita.",
+    "tiempo": {
+      "dias_one": "{{count}} jou",
+      "dias_other": "{{count}} jou",
+      "horas": "{{n}} è",
+      "minutos": "{{n}} min",
+      "segundos": "{{n}} s"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Enskripsyon bonè pou abòne yo",
+    "explicacion": "Si ou abòne nan Cajita de Bendición sou Facebook, ekri kòd ki nan piblikasyon espesyal pou abòne yo.",
+    "desde": "Ou ka sèvi ak kòd ou apati {{cuando}}.",
+    "ahora": "Ou ka deja sèvi ak kòd ou pou enskri anvan piblik la.",
+    "sinAnticipado": "Distribisyon sa a pa gen enskripsyon bonè pou abòne.",
+    "yaAbierto": "Enskripsyon yo deja louvri pou tout moun: ou pa bezwen kòd.",
+    "irRegistro": "Ale pran randevou mwen",
+    "codigo": "Kòd abòne",
+    "entrar": "Antre ak kòd mwen",
+    "validando": "N ap tcheke…",
+    "invalido": "Kòd sa a pa bon oswa ou poko ka sèvi avè l.",
+    "noSuscriptor": "Ou poko abòne?",
+    "invitacion": "Abòne nan Cajita de Bendición sou Facebook pou w ka enskri anvan piblik la nan chak distribisyon.",
+    "suscribirme": "Abòne sou Facebook",
+    "cerrar": "Fèmen"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "Nou pa jwenn randevou sa a.",
+      "CITA_YA_CANCELADA": "Randevou sa a te deja anile.",
+      "CITA_YA_ENTREGADA": "Randevou sa a deja sèvi: yo deja bay bwat la.",
+      "FECHA_PASADA": "Dat sa a deja pase.",
+      "MOTIVO_REQUERIDO": "Ekri rezon eksepsyon an.",
+      "PERSONA_NO_EXISTE": "Pa gen pèsonn ak kòd sa a. Tanpri tcheke l (pa egzanp CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Moun sa a pa gen randevou semèn sa a, kidonk li pa bezwen eksepsyon: enskri l nòmalman.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "Moun sa a deja gen yon eksepsyon semèn sa a. Yon sèl sèlman pèmèt.",
+      "BLOQUE_LLENO": "Lè sa a plen. Tanpri chwazi yon lòt.",
+      "BLOQUE_CERRADO": "Lè sa a fèmen.",
+      "BLOQUE_NO_EXISTE": "Lè sa a pa egziste ankò.",
+      "DIA_CERRADO": "Jou sa a fèmen.",
+      "FUNCION_NO_INSTALADA": "Opsyon sa a pa disponib pou kounye a. Eseye pita.",
+      "SIN_PERMISO": "Kont ou pa gen pèmisyon pou sa. Tanpri konekte ankò.",
+      "SIN_CONEXION": "Pa gen koneksyon. Tcheke entènèt ou epi eseye ankò.",
+      "ERROR_DESCONOCIDO": "Nou pa t ka fini. Eseye ankò.",
+      "NOMBRE_REQUERIDO": "Ekri non moun nan.",
+      "NOMBRE_INVALIDO": "Non pa gen chif.",
+      "ENTRADA_NO_EXISTE": "Nou pa jwenn antre sa a.",
+      "ENTRADA_YA_ANULADA": "Antre sa a te deja anile.",
+      "SIN_CODIGOS_DISPONIBLES": "Nou pa t ka fè kòd la. Eseye ankò.",
+      "MISMO_HORARIO": "Se lè ou deja genyen an. Chwazi yon lòt.",
+      "YA_CAMBIO_HORARIO": "Ou te deja chanje lè ou yon fwa. Si ou bezwen yon lòt chanjman, tanpri rele legliz la.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Ou deja gen yon randevou semèn sa a. Yon sèl pa semèn.",
+      "AUN_NO_ABRE": "Jou sa a poko louvri.",
+      "PASE_NO_EXISTE": "Moun sa a pa gen pas.",
+      "PASE_YA_REVOCADO": "Pas sa a te deja retire.",
+      "TELEFONO_INVALIDO": "Telefòn nan pa bon. Tcheke kòd peyi a ak nimewo a.",
+      "FECHA_FUTURA": "Dat sa a poko rive.",
+      "ACOMPANANTE_SIN_CAMBIO": "W ap vini nan machin yon lòt moun: lè ou se lè moun k ap kondui a. Si li chanje lè l, pa w la chanje tou.",
+      "A_PIE_SIN_CAMBIO": "Nan liy apye a, lè a pa chanje: pran yon nouvo nimewo jou sa a.",
+      "NOTA_MUY_LARGA": "Nòt la twò long: 200 lèt pou pi plis.",
+      "FILA_INVALIDA": "Chwazi liy lan: machin oswa apye.",
+      "NO_ES_DIA_DE_ENTREGA": "Pa t gen distribisyon jou sa a (oswa yo te anile l).",
+      "PASE_REVOCADO": "Jou sa a, moun sa a pa t gen pas li ankò.",
+      "PASE_YA_ENTREGADO": "Li te deja resevwa bwat li ak pas sa a jou sa a: yon sèl bwat chak jou."
+    }
+  },
+  "domicilio": {
+    "titulo": "Adrès lakay ou",
+    "tituloPanel": "Adrès moun nan",
+    "zona": "Nou aksepte adrès nan Kalifòni (Etazini) ak Baja Kalifòni (Meksik).",
+    "pais": "Peyi adrès la",
+    "paises": {
+      "MX": "Meksik",
+      "US": "Etazini"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (kòd postal)",
+      "US": "ZIP code (kòd postal)"
+    },
+    "buscando": "N ap chèche kòd postal la…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (katye)",
+    "coloniaOpcional": "Colonia (si ou vle)",
+    "elegirColonia": "Chwazi katye ou",
+    "calle": {
+      "MX": "Lari",
+      "US": "Adrès"
+    },
+    "numero": {
+      "MX": "Nimewo"
+    },
+    "interior": {
+      "MX": "Entèryè (si ou vle)",
+      "US": "Apt. (si ou vle)"
+    },
+    "sinDomicilio": "Mwen pa gen adrès fiks",
+    "sinDomicilioAyuda": "Pa egzanp, si w ap viv nan machin ou oswa lakay fanmi pou yon tan. Nou mande kòd postal ou sèlman.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Kòd postal la manke.",
+        "FORMATO": "Kòd postal la gen 5 chif.",
+        "NO_EXISTE": "Nou pa jwenn kòd postal sa a ni nan Kalifòni ni nan Baja Kalifòni. Tanpri tcheke l.",
+        "BUSCANDO": "Tann yon ti moman: n ap tcheke kòd postal la."
+      },
+      "colonia": {
+        "VACIO": "Chwazi katye ou nan lis la.",
+        "NO_COINCIDE": "Katye sa a pa nan kòd postal sa a. Chwazi l nan lis la."
+      },
+      "calle": {
+        "VACIO": "Lari a manke.",
+        "SIN_LETRAS": "Ekri non lari a.",
+        "SIN_NUMERO": "Mete nimewo kay la nan kòmansman, pa egzanp 7855 Lansing Dr.",
+        "LARGO": "Non lari a twò long."
+      },
+      "numero": {
+        "VACIO": "Nimewo a manke.",
+        "FORMATO": "Ekri nimewo kay la, pa egzanp 4250 oswa 12-B.",
+        "FORMATO_MX": "Ekri nimewo a, pa egzanp 1234 oswa 12-B. Si pa genyen, ekri S/N."
+      },
+      "interior": {
+        "FORMATO": "Sèvi ak lèt ak chif sèlman, pa egzanp 5 oswa B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Enfòmasyon ou prive",
+    "texto": "Nou sèvi avè l sèlman pou dosye entèn Cajita de Bendición ak pou òganize distribisyon an. Nou pa pataje l ak pèsonn, ni ak otorite yo.",
+    "casilla": "Mwen konfime se pa pwòp volonte m m ap bay enfòmasyon sa a.",
+    "casillaPanel": "Moun nan konfime m se pa pwòp volonte l l ap bay enfòmasyon l.",
+    "falta": "Pou w enskri, make kaz konfimasyon an."
+  },
+  "boletin": {
+    "casilla": "Mwen vle resevwa nouvèl ak enfòmasyon jeneral legliz la pa imèl (si ou vle).",
+    "ayuda": "Sa a apa de imèl randevou ou yo, ke w ap resevwa kanmenm. Ou ka dezabòne nenpòt lè."
+  },
+  "reglas": {
+    "titulo": "Anvan ou konfime randevou ou, li sa a",
+    "casilla": "Mwen li epi mwen aksepte enstriksyon sa yo.",
+    "falta": "Ou bezwen li epi aksepte enstriksyon yo pou kontinye.",
+    "respaldo1": "Rive 5 minit anvan lè ou. Se obligatwa.",
+    "respaldo2": "Kòd ou bon pou yon sèl bwat epi yon sèl fwa.",
+    "respaldo3": "Ou ka chanje lè ou yon sèl fwa.",
+    "tituloAPie": "Anvan ou pran nimewo ou, li sa a",
+    "respaldoAPie1": "Chak moun ki gen 18 an oswa plis bezwen pwòp nimewo l ak pwòp kòd li.",
+    "respaldoAPie2": "Tann toupre. Lè yo rele nimewo ou, pwoche epi montre kòd ou."
+  },
+  "avisos": {
+    "cargando": "N ap chaje tèks yo…"
+  },
+  "preguntas": {
+    "titulo": "Kesyon yo poze souvan",
+    "ayuda": "Sa yo mande nou plis. Peze yon kesyon pou wè repons lan.",
+    "cargando": "N ap chaje kesyon yo…",
+    "sinPreguntas": "Poko gen kesyon isit la.",
+    "masDudas": "Ou gen yon lòt kesyon? Rele nou nan {{telefono}} oswa mande ekip la jou distribisyon an."
+  },
+  "quienesSomos": {
+    "titulo": "Kiyès nou ye",
+    "invitacion": "Legliz la, ministè a ak poukisa paj sa a egziste.",
+    "cargando": "N ap chaje…",
+    "sinTexto": "Poko gen enfòmasyon isit la.",
+    "sitioIglesia": "Sit legliz la",
+    "verPreguntas": "Kesyon yo poze souvan"
+  },
+  "tema": {
+    "aOscuro": "Mòd fènwa",
+    "aClaro": "Mòd klè",
+    "cambiarAOscuro": "Pase nan mòd fènwa",
+    "cambiarAClaro": "Pase nan mòd klè"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "Liy machin",
+      "a_pie": "Liy apye",
+      "ambas": "Toude liy yo"
+    }
+  },
+  "misCitas": {
+    "titulo": "Randevou ou yo",
+    "tituloUna": "Randevou ou",
+    "ayuda": "Ou fè yo ak telefòn sa a. Peze bouton an pou wè kòd ou.",
+    "hoy": "Jodi a!",
+    "ver": "Gade kòd mwen",
+    "quitar": "Retire l nan telefòn sa a",
+    "quitarPregunta": "Nou retire l nan telefòn sa a? Randevou a PA anile: li toujou pou ou.",
+    "quitarSi": "Wi, retire l isit la",
+    "quitarNo": "Non, kite l",
+    "ayudaUna": "Ou fè l ak telefòn sa a. Peze bouton an pou wè kòd ou."
+  },
+  "letra": {
+    "titulo": "Gwosè lèt",
+    "normal": "Lèt nòmal",
+    "grande": "Gwo lèt",
+    "muy_grande": "Lèt trè gwo"
+  },
+  "recordatorio": {
+    "agregar": "Ajoute nan kalandriye mwen",
+    "titulo": "Cajita de Bendición: randevou ou",
+    "descripcion": "Kòd ou: {{codigo}}. Rive kèk minit bonè epi pote kòd QR ou.\nGade kòd ou: {{enlace}}",
+    "aviso": "Jodi a se randevou ou nan Cajita de Bendición. Pote kòd ou."
+  },
+  "redDeSeguridad": {
+    "titulo": "Gen yon bagay ki pa mache sou ekran sa a",
+    "texto": "Se pa fòt ou. Si ou te deja pran randevou ou, li toujou anrejistre.",
+    "recargar": "Rechaje",
+    "inicio": "Ale nan kòmansman",
+    "ayuda": "Si sa kontinye, rele legliz la nan {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Koute randevou mwen",
+    "frase": "Randevou ou se {{fecha}}, a {{hora}}. Kòd ou se: {{codigo}} Rive kèk minit bonè."
+  },
+  "entornoPruebas": {
+    "aviso": "Baz done tès · anyen isit la pa vre",
+    "lento": "mòd dousman: {{segundos}} s"
+  },
+  "aPie": {
+    "noHay": "Pou kounye a pa gen liy apye. Lè genyen, se isit la menm w ap ka pran nimewo ou.",
+    "proxima": "Pwochen liy apye",
+    "empiezaA": "Nou kòmanse bay a {{hora}}",
+    "abreA": "Nimewo yo ap louvri {{cuando}}.",
+    "seActualiza": "Kite paj sa a louvri: bouton an ap parèt pou kont li lè yo louvri.",
+    "volver": "Retounen nan liy apye a",
+    "registroTitulo": "Pran nimewo ou",
+    "confirmar": "Pran nimewo mwen"
+  },
+  "turno": {
+    "tuTurno": "Nimewo ou",
+    "numero": "Nimewo {{turno}}",
+    "listo": "Ou gen nimewo ou deja",
+    "van": "Y ap sèvi nimewo {{turno}} kounye a",
+    "antes_one": "Gen {{count}} moun devan ou",
+    "antes_other": "Gen {{count}} moun devan ou",
+    "eresElSiguiente": "Se ou ki pwochen! Pwoche.",
+    "esTuTurno": "Se tou pa w! Pwoche epi montre kòd ou.",
+    "teLlamaron": "Yo te deja rele nimewo ou epi ou pa t la. Ale kounye a jwenn volontè a epi montre l nimewo oswa kòd ou. Si ou mete twòp tan, nimewo ou ap anile epi w ap oblije pran yon lòt.",
+    "recibida": "Ou deja resevwa bwat ou. Mèsi paske ou vini!",
+    "otroDia": "Jou distribisyon an, se isit la w ap wè ki nimewo y ap sèvi.",
+    "seActualiza": "Li mete tèt li ajou chak kèk segonn.",
+    "terminada": "Liy jodi a fini. Mèsi paske ou vini; n ap tann ou nan pwochen distribisyon an.",
+    "anulado": "Nimewo ou anile paske yo te rele w epi ou pa t la. Si ou toujou vle manje a, pran yon lòt nimewo: w ap tann depi nan dènye liy lan.",
+    "repetido": "Yo anile nimewo sa a paske ou te deja gen yon lòt nimewo.",
+    "repetidoCon": "Yo anile nimewo sa a paske ou te deja gen nimewo {{turno}}.",
+    "repetidoAyuda": "Sèvi ak nimewo ou te pran an premye. Si ou pa genyen l, pale ak yon volontè."
+  },
+  "acompanante": {
+    "titulo": "Kijan w ap vini?",
+    "queEs": "Kisa sa a ye?",
+    "explicacion": "Chak plas se yon machin. Si w ap vini nan machin yon moun ki deja gen randevou, chwazi \"M ap vini nan machin yon lòt moun\": ou gen pwòp kòd ou ak pwòp bwat ou, men ou pa pran yon lòt plas. Lè ou se lè moun k ap kondui a.",
+    "propio": "M ap vini ak machin pa m",
+    "propioAyuda": "Ou rezève yon plas pou machin ou.",
+    "acompanante": "M ap vini nan machin yon moun ki deja gen randevou",
+    "acompananteAyuda": "Ou pa pran yon lòt plas.",
+    "codigo": "Kòd moun k ap kondui a",
+    "codigoAyuda": "Li sou paj randevou li, anba QR li a (pa egzanp CB-4871).",
+    "faltaCodigo": "Ekri kòd moun k ap kondui a, pa egzanp CB-4871.",
+    "horaDeQuienManeja": "Lè ou se lè moun k ap kondui a.",
+    "enlace": "W ap vini nan machin yon moun ki deja gen randevou? Enskri isit la",
+    "escogeHorario": "Pou w vini ak pwòp machin ou, anvan chwazi yon lè ki gen plas.",
+    "verHorarios": "Gade lè yo"
+  },
+  "vip": {
+    "voluntario": "Antre dirèk, san fè liy",
+    "persona": "Ou antre dirèk, san fè liy",
+    "etiqueta": "Pas VIP"
+  },
+  "demo": {
+    "aviso": "Egzanp pou videyo a: anyen ou fè isit la pa anrejistre epi kòd ki parèt la pa bon.",
+    "salir": "Sòti nan egzanp lan"
+  },
+  "turnoAPie": {
+    "titulo": "Liy apye",
+    "subtitulo": "Pran nimewo ou isit la. Ou pa bezwen bay okenn enfòmasyon.",
+    "boton": "Pran nimewo mwen",
+    "sacando": "N ap pran nimewo ou…",
+    "empiezaA": "Nou kòmanse bay a {{hora}}",
+    "revisando": "N ap tcheke liy lan…",
+    "noHay": "Jodi a pa gen liy apye.",
+    "llena": "Pa gen nimewo ankò pou jodi a.",
+    "esTuTurno": "Se tou pa w!",
+    "acercate": "Pwoche epi montre kòd QR ou.",
+    "verMiQr": "Gade kòd mwen",
+    "avisos": {
+      "sinDatos": "Nou pa mande non ou, laj ou ni telefòn ou. Anyen nan sa pa anrejistre ni pataje.",
+      "soloHoy": "Nimewo ou se pou jodi a sèlman epi pou yon bwat manje.",
+      "abierta": "Kite paj sa a louvri: ou ka wè ki nimewo y ap sèvi, epi telefòn ou ap sonnen lè gen 3 moun ki rete devan w ak lè se tou pa w.",
+      "teLlaman": "Si yo rele w epi ou pa la, vini pi vit ou kapab. Si ou mete twòp tan, nimewo ou ap anile epi w ap oblije pran yon lòt, nan dènye liy lan.",
+      "cadaQuien": "Chak granmoun pran pwòp nimewo pa l. Si ou pa gen telefòn, mande yon volontè."
+    },
+    "carro": {
+      "titulo": "Ou deja gen randevou an machin jodi a a {{hora}}.",
+      "texto_one": "Si ou pase apye, randevou machin ou ap anile epi ou p ap ka retounen nan liy machin yo ankò.",
+      "texto_other": "Si ou pase apye, randevou machin ou yo jodi a ap anile epi ou p ap ka retounen nan liy machin yo ankò.",
+      "si": "Wi, mwen pase apye",
+      "no": "Non, mwen rete nan machin",
+      "duenio_one": "Se ou ki mèt machin nan: y ap anile randevou {{count}} pasaje w la tou. Li pral oblije pran pwòp nimewo l (ak telefòn li, oswa nan mande yon volontè).",
+      "duenio_other": "Se ou ki mèt machin nan: y ap anile randevou {{count}} pasaje w yo tou. Chak moun pral oblije pran pwòp nimewo l (ak telefòn li, oswa nan mande yon volontè).",
+      "seguro": "Èske ou sèten ou vle pase apye?",
+      "siTodos": "Wi, anile machin nan epi pase apye"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "Ou deja resevwa manje ou an machin jodi a. Mèsi paske ou vini!",
+      "AUN_NO_ABRE": "Y ap bay nimewo apati {{hora}}.",
+      "NO_HAY_FILA": "Jodi a pa gen liy apye.",
+      "CERRADA": "Yo pa bay nimewo ankò jodi a.",
+      "TURNOS_ANULADOS": "Jodi a yo deja anile de nan nimewo ou yo paske ou pa t la lè yo rele w. Si ou bezwen èd, pale ak yon volontè.",
+      "TURNO_REPETIDO": "Yo pran de nimewo ak telefòn sa a jodi a epi yo anile youn. Sèvi ak sa ki rete a; si ou pa genyen l, pale ak yon volontè."
+    },
+    "errores": {
+      "SIN_CONEXION": "Pa gen koneksyon. Tcheke siyal ou epi peze bouton an ankò.",
+      "FUNCION_NO_INSTALADA": "Opsyon sa a poko pare. Tanpri di yon volontè sa.",
+      "DISPOSITIVO_INVALIDO": "Nou pa t ka ba ou nimewo ak telefòn sa a. Tanpri mande yon volontè èd.",
+      "ERROR_DESCONOCIDO": "Nou pa t ka ba ou nimewo. Peze bouton an ankò oswa mande yon volontè èd."
+    },
+    "terminada": "Liy jodi a fini. Mèsi paske ou vini! N ap tann ou nan pwochen distribisyon an.",
+    "codigoEsTuyo": "Kòd sa a se pou ou sèlman: pa montre l pèsonn. Se avè l yo verifye nimewo a se pou ou.",
+    "codigo": {
+      "etiqueta": "Kòd jodi a",
+      "ayuda": "Se 4 chif, ki ekri nan antre a. Si ou pa wè l, mande yon volontè.",
+      "FALTA_CODIGO": "Ekri kòd jodi a pou pran nimewo ou.",
+      "CODIGO_INCORRECTO": "Se pa kòd jodi a. Tcheke l epi eseye ankò.",
+      "DEMASIADOS_INTENTOS": "Twòp esè. Ou ka eseye ankò nan {{reloj}}.",
+      "esperaBoton": "Tann {{reloj}}"
+    },
+    "anotalo": "Ekri nimewo ou ({{turno}}) oswa pran foto ekran sa a. Si paj la fèmen, pa pran yon lòt nimewo: di volontè a nimewo ou.",
+    "yaTenias": "Ou te deja pran nimewo ou epi paj la fèmen? Pa pran yon lòt: di volontè a nimewo ou.",
+    "otroTurno": "Pran yon nouvo nimewo",
+    "carroCodigo": {
+      "abrir": "Èske ou te gen randevou an machin jodi a?",
+      "titulo": "Pase soti nan machin pou apye",
+      "ayuda": "Si liy machin yo twò long, ou ka pase nan liy apye a. Ekri kòd randevou machin ou. Randevou machin ou ap anile epi ou p ap ka retounen nan liy machin yo.",
+      "etiqueta": "Kòd randevou machin ou",
+      "campoAyuda": "Chif yo sèlman (4 oswa 5): \"CB-\" a deja la.",
+      "boton": "Pase apye",
+      "cancelar": "Mwen pa t gen randevou an machin",
+      "CODIGO_CARRO_NO_EXISTE": "Nou pa jwenn randevou an machin pou jodi a ak kòd sa a. Tcheke chif yo."
+    },
+    "verFila": "Gade liy lan an dirèk"
+  },
+  "credencial": {
+    "etiqueta": "VOLONTÈ",
+    "titulo": "Kat volontè",
+    "enseniala": "Montre l lè ou rive",
+    "cargando": "N ap prepare kat la…",
+    "qrAlt": "Kòd QR kat {{nombre}}",
+    "comoFunciona": "Lè ou rive, montre QR sa a bay moun k ap resevwa volontè yo. Se konsa yo konte èdtan sèvis ou.",
+    "soloTuya": "Se pou ou sèlman: pa bay pèsonn li. Si ou pèdi l, mande yon lòt.",
+    "inactiva": "Kat sa a pa aktif ankò.",
+    "inactivaTexto": "Si ou panse se yon erè, rele legliz la nan {{telefono}}.",
+    "noEncontrada": "Nou pa jwenn kat sa a. Mande yon administratè pou l voye lyen an ankò.",
+    "sinConexion": "Nou pa t ka chaje kat ou. Tcheke siyal ou epi louvri lyen an ankò.",
+    "horas": {
+      "titulo": "Èdtan sèvis ou",
+      "llevas_one": "Ou gen {{duracion}} nan {{count}} jou.",
+      "llevas_other": "Ou gen {{duracion}} nan {{count}} jou.",
+      "todavia": "Ou poko gen vizit konplè. Yo konte èdtan ou nan fen chak jou sèvis.",
+      "ayuda": "Se sèlman vizit ki gen antre ak sòti ki konte. Isit la ou wè 10 dènye yo.",
+      "todaviaYSalida": "Ou poko gen vizit konplè. Lè yo eskane w lè ou rive ak lè ou pati, w ap wè èdtan ou isit la."
+    },
+    "ensenialaYSalida": "Montre l lè ou rive ak lè ou pati",
+    "comoFuncionaYSalida": "Lè ou rive, montre QR sa a bay yon administratè; lè ou pati, montre l ankò. Se konsa yo konte èdtan sèvis ou."
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}} min",
+      "h": "{{h}} è",
+      "hMin": "{{h}} è {{m}} min"
+    },
+    "envio": {
+      "mensaje": "Bonjou {{nombre}}, men kat volontè ou pou Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nAnrejistre l nan telefòn ou epi montre l lè ou rive ak lè ou pati: se konsa yo konte èdtan sèvis ou. Se pou ou sèlman, pa pataje l. Mèsi paske w ap sèvi!",
+      "mensajeSoloEntrada": "Bonjou {{nombre}}, men kat volontè ou pou Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nAnrejistre l nan telefòn ou epi montre l lè ou rive: se konsa yo konte èdtan sèvis ou. Se pou ou sèlman, pa pataje l. Mèsi paske w ap sèvi!"
+    }
+  },
+  "preferente": {
+    "etiqueta": "Priyorite",
+    "voluntario": "Pase san fè liy. Verifye se bon moun nan anvan ou bay.",
+    "persona": "Ou pase san fè liy: montre QR sa a bay yon volontè."
+  },
+  "filaEnVivo": {
+    "titulo": "Liy apye an dirèk",
+    "subtitulo": "Gade kijan liy lan ap avanse. Ou pa bezwen gen nimewo.",
+    "cargando": "N ap tcheke liy lan…",
+    "noHay": "Jodi a pa gen liy apye.",
+    "porAbrir": "Li poko kòmanse: nimewo yo ap louvri a {{hora}}.",
+    "terminada_one": "Liy jodi a fini: {{count}} moun resevwa manje yo. Mèsi!",
+    "terminada_other": "Liy jodi a fini: {{count}} moun resevwa manje yo. Mèsi!",
+    "asiVa": "Kijan liy lan ye kounye a",
+    "noEsTuyo": "Nimewo sa yo se pou lòt moun, se pa pa w.",
+    "tuNumero": "Nimewo ou se {{turno}}.",
+    "recibio": "Resevwa",
+    "llamando": "Y ap rele",
+    "sigue": "Pwochen",
+    "nadieEspera": "Pou kounye a pa gen pèsonn k ap tann.",
+    "esperando": "Ap tann",
+    "recibieron": "Resevwa",
+    "dados": "Nimewo",
+    "yaNoSeDan": "Yo pa bay nouvo nimewo ankò jodi a.",
+    "sinSenal": "Pa gen siyal: se dènye sa nou te konnen. L ap mete tèt li ajou lè koneksyon an tounen.",
+    "miTurno": "Gade nimewo mwen ({{turno}})",
+    "sacar": "Pran nimewo mwen"
+  },
+  "video": {
+    "titulo": "Kisa Cajita de Bendición ye?",
+    "presentacion": "videyo",
+    "idioma": "Lang",
+    "hazTuCita": "Pran randevou ou",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Manje gratis lendi ak jedi. Yon ministè {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "Kijan w ap vini?",
+      "texto": "An machin, ou pran randevou epi ou chwazi lè ou. Apye, jou distribisyon an ou pran nimewo ou ak telefòn ou.",
+      "carro": "An machin",
+      "aPie": "Apye"
+    },
+    "cita": {
+      "titulo": "Pran randevou ak telefòn ou",
+      "texto": "Chwazi jou a ak lè a. Ou pa bezwen kont ni modpas.",
+      "lunes": "Lendi",
+      "jueves": "Jedi"
+    },
+    "codigo": {
+      "titulo": "Kenbe kòd ou",
+      "texto": "Nou ba ou yon kòd QR ak yon nimewo. Fè yon kapti ekran."
+    },
+    "despensa": {
+      "titulo": "Rive epi resevwa manje ou",
+      "texto": "Montre kòd ou lè ou rive epi w ap resevwa bwat ou. Chak moun ki gen 18 an oswa plis pran pwòp randevou l.",
+      "unaCaja": "1 bwat pou chak granmoun"
+    },
+    "privado": {
+      "titulo": "Gratis epi prive",
+      "texto": "Nou pa mande okenn don. Enfòmasyon ou pa pataje ak pèsonn, ni ak otorite yo."
+    },
+    "final": {
+      "titulo": "Pran randevou ou",
+      "texto": "An machin ak randevou, oswa apye ak yon nimewo. Peze bouton an pou kòmanse."
+    },
+    "otraVez": "Gade ankò",
+    "anterior": "Anvan",
+    "siguiente": "Pwochen",
+    "pausar": "Kanpe",
+    "seguir": "Kontinye"
+  }
+}

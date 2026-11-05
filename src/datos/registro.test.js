@@ -93,14 +93,33 @@ describe('registrarYReservar', () => {
     })
   })
 
+  it('con la llave de "¿Ya viniste antes?" no manda sus datos', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ codigo_corto: 'CB-48712', token_qr: 't' }], error: null })
+
+    await registrarYReservar({ llave: 'llave-123', bloqueId: 'bloque-1', fecha: '2026-11-09', aceptoPrivacidad: true })
+    const enviados = supabase.rpc.mock.calls[0][1]
+    expect(enviados).toMatchObject({
+      p_nombre: null,
+      p_apellidos: null,
+      p_telefono: null,
+      p_email: null,
+      p_bloque_id: 'bloque-1',
+      p_llave_persona: 'llave-123',
+    })
+    expect(enviados).not.toHaveProperty('p_codigo_postal')
+  })
+
   it('manda el idioma de la pantalla y la casilla del boletin', async () => {
     supabase.rpc.mockResolvedValue({ data: [{}], error: null })
 
     await registrarYReservar({ ...PERSONA, idioma: 'vi', boletin: true })
     expect(supabase.rpc.mock.calls[0][1]).toMatchObject({ p_idioma: 'vi', p_boletin: true })
 
-    await registrarYReservar({ ...PERSONA, idioma: 'fr' })
+    await registrarYReservar({ ...PERSONA, idioma: 'de' })
     expect(supabase.rpc.mock.calls[1][1]).toMatchObject({ p_idioma: null, p_boletin: false })
+
+    await registrarYReservar({ ...PERSONA, idioma: 'ko' })
+    expect(supabase.rpc.mock.calls[2][1]).toMatchObject({ p_idioma: 'ko' })
   })
 
   it('manda el codigo de suscriptor guardado para esa fecha, ya normalizado', async () => {

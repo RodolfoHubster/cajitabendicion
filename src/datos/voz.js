@@ -8,7 +8,21 @@
  */
 
 //  Una voz de Mexico y Estados Unidos, que es como habla esta comunidad.
-export const VOZ_POR_IDIOMA = { es: 'es-MX', en: 'en-US', vi: 'vi-VN' }
+//  El criollo haitiano, con voz francesa: casi ningun telefono trae voz de
+//  criollo, y la francesa lo pronuncia mucho mejor que la inglesa. Si el
+//  telefono no tiene voz para un idioma, lee con la que tenga.
+export const VOZ_POR_IDIOMA = {
+  es: 'es-MX',
+  en: 'en-US',
+  vi: 'vi-VN',
+  zh: 'zh-CN',
+  tl: 'fil-PH',
+  ko: 'ko-KR',
+  ht: 'fr-FR',
+  ru: 'ru-RU',
+  so: 'so-SO',
+  fr: 'fr-FR',
+}
 
 export function puedeHablar(ventana = globalThis.window) {
   return Boolean(ventana?.speechSynthesis && typeof ventana.SpeechSynthesisUtterance === 'function')

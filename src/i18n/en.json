@@ -126,7 +126,8 @@
       "comoArreglar": {
         "SIN_PERMISO": "To turn it on: tap the lock (or the three dots) next to the page address, open “Permissions” and allow the camera. Then tap “Try again”.",
         "CAMARA_OCUPADA": "Close the video call or the other app using it, then tap “Try again”."
-      }
+      },
+      "reiniciar": "Restart camera"
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let the person who maintains the system know.",
@@ -257,6 +258,14 @@
       "nota": "How to recognize them: {{nota}}",
       "revisa": "Is it the right person? Check the name and the note before handing out.",
       "entregar": "Yes, it is them, hand out"
+    },
+    "sonido": {
+      "probar": "Test sound"
+    },
+    "cajas": {
+      "hoy": "Boxes given out today",
+      "enTuFila": "In your line: {{n}}",
+      "faltan": "Still to arrive: {{n}}"
     }
   },
   "pase": {
@@ -545,7 +554,8 @@
       "SIN_CONEXION": "The connection dropped. Check your signal and tap “Confirm” again.",
       "ACOMPANANTE_SIN_CITA": "We could not find a car appointment with that code for this day. Check the code with the driver.",
       "CARRO_LLENO": "That car already has the maximum number of passengers.",
-      "FALTA_FECHA": "Choose the date."
+      "FALTA_FECHA": "Choose the date.",
+      "LLAVE_VENCIDA": "Too much time went by. Enter your code and phone number again."
     },
     "apellidos": "Last name(s)",
     "pais": "Phone country",
@@ -571,6 +581,23 @@
       "BLOQUE_NO_EXISTE": "This walk-up line no longer exists. Check the walk-up line page again.",
       "AUN_NO_ABRE": "Numbers are not open yet. Come back at the time shown on the page.",
       "DIA_CERRADO": "This day is no longer giving out numbers."
+    },
+    "yaViniste": {
+      "titulo": "Have you been here before?",
+      "ayuda": "With your CB code and your phone number, you don’t have to type your information again.",
+      "abrir": "Use my code",
+      "codigo": "Your CB code",
+      "codigoAyuda": "It’s on your confirmation and in your appointment email.",
+      "telefono": "Your phone number (the same one as last time)",
+      "buscar": "Continue",
+      "buscando": "Looking…",
+      "cerrar": "I’d rather type my information",
+      "listo": "Using your information from last time, {{nombre}}",
+      "listoAyuda": "Your CB code stays the same. Just confirm your appointment.",
+      "noSoyYo": "Not me / use other information",
+      "faltaCodigo": "Type the numbers of your code.",
+      "NO_COINCIDE": "That code and phone number don’t match. Check them, or type your information below.",
+      "DEMASIADOS_INTENTOS": "Too many tries. Wait {{minutos}} minutes, or type your information below."
     }
   },
   "pasos": {

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuArrowRight } from 'react-icons/lu'
 import PresentacionCajita from '../../componentes/PresentacionCajita'
+import SelectorIdioma from '../../componentes/SelectorIdioma'
 import { TechoSvg } from '../../componentes/Logo'
 import { IDIOMAS } from '../../i18n/config'
 import { ORGANIZACION } from '../../datos/organizacion'
@@ -23,7 +24,7 @@ function estaInsertado() {
  * abre public/cajita-video.js encima de la pagina de la iglesia
  * (casadealabanzasd.com), o se abre directo con su enlace.
  *
- * ?lng=es|en|vi: el idioma del telefono de quien lo abrio. ?insertado=1:
+ * ?lng=es|en|vi|zh|...: el idioma del telefono de quien lo abrio. ?insertado=1:
  * deja lugar arriba a la derecha para la X de cerrar. ?compacto=1 (27 de
  * octubre de 2026): para la ventanita de la esquina de la pagina de la
  * iglesia, mas chico y sin encabezado (la ventanita trae su titulo y su X).
@@ -37,7 +38,7 @@ export default function Video() {
   const dejarLugar = parametros().get('insertado') === '1'
   const compacto = parametros().get('compacto') === '1'
 
-  //  El idioma que mando la pagina de la iglesia, si es uno de los tres.
+  //  El idioma que mando la pagina de la iglesia, si es uno de la app.
   useEffect(() => {
     const pedido = parametros().get('lng')
     if (IDIOMAS.some((idioma) => idioma.codigo === pedido) && i18n.resolvedLanguage !== pedido) i18n.changeLanguage(pedido)
@@ -55,30 +56,15 @@ export default function Video() {
   const encabezado = (
     <div className={`flex shrink-0 items-center justify-between gap-2 px-4 pt-3 ${dejarLugar ? 'pr-16' : ''}`}>
       {/* Solo el techo: el nombre ya va grande en la primera escena, y aqui
-          no cabia junto a los tres idiomas. */}
+          no cabia junto a los idiomas. */}
       <span className="flex shrink-0 items-center">
         <TechoSvg className="h-7 w-auto text-accion" />
         <span className="sr-only">{ORGANIZACION.programa}</span>
       </span>
-      {/* Los tres idiomas a la vista, cada uno escrito en el suyo. */}
-      <div aria-label={t('video.idioma')} className="flex shrink-0 gap-1" role="group">
-        {IDIOMAS.map(({ codigo, nombre }) => {
-          const activo = i18n.resolvedLanguage === codigo
-          return (
-            <button
-              aria-pressed={activo}
-              className={`min-h-10 rounded-full px-2.5 text-chica font-semibold transition ${
-                activo ? 'bg-white/90 text-marca' : 'text-white/85 ring-1 ring-white/25 hover:bg-white/10'
-              }`}
-              key={codigo}
-              lang={codigo}
-              onClick={() => i18n.changeLanguage(codigo)}
-              type="button"
-            >
-              {nombre}
-            </button>
-          )
-        })}
+      {/* Con diez idiomas ya no caben a la vista: el mismo menu del
+          encabezado de la app, con cada idioma escrito en el suyo. */}
+      <div aria-label={t('video.idioma')} className="shrink-0" role="group">
+        <SelectorIdioma />
       </div>
     </div>
   )

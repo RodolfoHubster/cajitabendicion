@@ -13,6 +13,7 @@ import EnlaceVolver from '../../componentes/EnlaceVolver'
 import OtrosHorarios from '../../componentes/OtrosHorarios'
 import Pasos from '../../componentes/Pasos'
 import Tarjeta from '../../componentes/Tarjeta'
+import YaVinisteAntes from '../../componentes/YaVinisteAntes'
 import {
   mensajeCorreo,
   mensajeNombre,
@@ -30,6 +31,7 @@ import { registrarYReservar } from '../../datos/registro'
 import { normalizarTelefono } from '../../datos/telefono'
 import { formatearNombre, sugerirCorreo, validarCorreo, validarNombre } from '../../datos/validaciones'
 import { EsqueletoFormulario } from '../../componentes/Esqueleto'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 //  Errores en los que el horario ya no sirve: se ofrecen los otros del dia
 //  ahi mismo, sin salir del formulario.
@@ -96,6 +98,9 @@ export default function Registro() {
   const [aceptoReglas, setAceptoReglas] = useState(false)
   //  El boletin de la iglesia: opcional, sin marcar (seccion 54).
   const [boletin, setBoletin] = useState(false)
+  //  "¿Ya viniste antes?" (seccion 56): { llave, nombre }. Con eso no se
+  //  escriben otra vez sus datos.
+  const [misDatos, setMisDatos] = useState(null)
 
   // Un campo se marca en rojo al salir de el o al intentar enviar. Desde ahi
   // el mensaje cambia mientras escribe y desaparece en cuanto queda bien.
@@ -181,7 +186,7 @@ export default function Registro() {
     return <Navigate replace to={aPie ? '/a-pie' : '/calendario'} />
   }
 
-  const dia = new Intl.DateTimeFormat(i18n.language, {
+  const dia = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -245,7 +250,8 @@ export default function Registro() {
     evento.preventDefault()
     setError(null)
 
-    const conError = CAMPOS.find((campo) => errores[campo])
+    //  Con "¿Ya viniste antes?" sus datos ya estan: solo lo de hoy.
+    const conError = (misDatos ? ['codigoDuenio', 'acepto-reglas'] : CAMPOS).find((campo) => errores[campo])
     if (conError) {
       setIntento(true)
       document.getElementById(conError)?.focus()
@@ -258,6 +264,23 @@ export default function Registro() {
     const apellidosListos = formatearNombre(apellidos)
 
     try {
+      if (misDatos) {
+        const cita = await registrarYReservar({
+          llave: misDatos.llave,
+          aceptoPrivacidad: true,
+          bloqueId: bloqueId ?? null,
+          fecha,
+          codigoAcompanante: deAcompanante ? normalizarCodigoCorto(codigoDuenio) : null,
+          idioma: i18n.resolvedLanguage,
+          boletin,
+        })
+        borrarBorrador()
+        navegar(`/confirmacion/${cita.token_qr}`, {
+          state: { ...cita, nombre: misDatos.nombre, fila: aPie ? 'a_pie' : 'carro', yaExistia: cita.ya_existia === true },
+        })
+        return
+      }
+
       const cita = await registrarYReservar({
         nombres: nombresListos,
         apellidos: apellidosListos,
@@ -287,6 +310,8 @@ export default function Registro() {
         },
       })
     } catch (e) {
+      //  Paso mucho rato: que vuelva a poner su codigo y su telefono.
+      if (e.message === 'LLAVE_VENCIDA') setMisDatos(null)
       setError(e.message)
       setEnviando(false)
     }
@@ -321,6 +346,16 @@ export default function Registro() {
         </div>
       )}
 
+      {/* Fuera del formulario de abajo: es otro formulario. */}
+      {!misDatos && (
+        <YaVinisteAntes
+          alAbrir={(datos) => {
+            setMisDatos(datos)
+            setError(null)
+          }}
+        />
+      )}
+
       <form className="space-y-4" noValidate onSubmit={enviar}>
         {/* En carro, un lugar es un carro: quien viene en el de alguien mas no ocupa otro. */}
         {!aPie && (
@@ -348,6 +383,24 @@ export default function Registro() {
           </p>
         )}
 
+        {misDatos && (
+          <div className="rounded-2xl border-2 border-puede-pasar bg-puede-pasar/10 p-4" role="status">
+            <p className="text-lg font-bold text-puede-pasar">
+              {t('registro.yaViniste.listo', { nombre: misDatos.nombre })}
+            </p>
+            <p className="mt-1 text-base text-principal">{t('registro.yaViniste.listoAyuda')}</p>
+            <button
+              className="mt-2 inline-flex min-h-12 items-center text-base font-semibold text-principal underline underline-offset-4"
+              onClick={() => setMisDatos(null)}
+              type="button"
+            >
+              {t('registro.yaViniste.noSoyYo')}
+            </button>
+          </div>
+        )}
+
+        {!misDatos && (
+          <>
         <div className="grid gap-4 sm:grid-cols-2">
           <Campo
             autoComplete="given-name"
@@ -423,6 +476,8 @@ export default function Registro() {
           tocar={tocar}
           valor={domicilio}
         />
+          </>
+        )}
 
         <AceptarReglas
           aPie={aPie}
@@ -431,7 +486,8 @@ export default function Registro() {
           error={errorDe('acepto-reglas')}
         />
 
-        <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} />
+        {/* Quien ya vino lo acepto la primera vez. */}
+        {!misDatos && <AvisoPrivacidad acepto={acepto} alCambiar={setAcepto} error={errorDe('consentimiento')} />}
 
         <CasillaBoletin acepto={boletin} alCambiar={setBoletin} />
 

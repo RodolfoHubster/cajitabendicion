@@ -56,6 +56,14 @@ describe('hablar', () => {
     expect(ventana.dichas.map((f) => f.lang)).toEqual(['en-US', 'vi-VN'])
   })
 
+  it('los idiomas nuevos con la suya; el criollo, con voz francesa', () => {
+    const ventana = ventanaConVoz()
+    hablar('你好', 'zh', ventana)
+    hablar('Kumusta', 'tl', ventana)
+    hablar('Bonjou', 'ht', ventana)
+    expect(ventana.dichas.map((f) => f.lang)).toEqual(['zh-CN', 'fil-PH', 'fr-FR'])
+  })
+
   it('tocar dos veces no encima dos voces: corta la anterior', () => {
     const ventana = ventanaConVoz()
     hablar('Uno', 'es', ventana)

@@ -6,7 +6,9 @@ import {
   encabezado,
   fechaLarga,
   horaCorta,
+  TEXTOS,
 } from '../../supabase/functions/enviar-correos/correo.js'
+import { IDIOMAS } from '../i18n/idiomas'
 
 const SITIO = 'https://citas.casadealabanzasd.com'
 
@@ -58,7 +60,27 @@ describe('armarCorreo: confirmacion', () => {
       'Your Cajita de Bendición appointment: Monday, November 2, 3:15 PM',
     )
     expect(armarCorreo({ ...CITA, idioma: 'vi' }, { sitio: SITIO }).asunto).toMatch(/^Lịch hẹn của bạn/)
-    expect(armarCorreo({ ...CITA, idioma: 'fr' }, { sitio: SITIO }).asunto).toMatch(/^Tu cita/)
+    expect(armarCorreo({ ...CITA, idioma: 'de' }, { sitio: SITIO }).asunto).toMatch(/^Tu cita/)
+  })
+
+  it('cada idioma de la app tiene sus correos, con los mismos textos y {huecos} que el espanol', () => {
+    const huecos = (texto) => [...texto.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort()
+
+    expect(Object.keys(TEXTOS).sort()).toEqual(IDIOMAS.map(({ codigo }) => codigo).sort())
+
+    for (const [idioma, textos] of Object.entries(TEXTOS)) {
+      expect(Object.keys(textos).sort(), idioma).toEqual(Object.keys(TEXTOS.es).sort())
+
+      for (const [clave, texto] of Object.entries(textos)) {
+        expect(texto.trim(), `${idioma} ${clave}`).not.toBe('')
+        expect(huecos(texto), `${idioma} ${clave}`).toEqual(huecos(TEXTOS.es[clave]))
+      }
+    }
+  })
+
+  it('el asunto en coreano y en ruso, con la fecha en su idioma', () => {
+    expect(armarCorreo({ ...CITA, idioma: 'ko' }, { sitio: SITIO }).asunto).toMatch(/월요일/)
+    expect(armarCorreo({ ...CITA, idioma: 'ru' }, { sitio: SITIO }).asunto).toMatch(/понедельник/)
   })
 
   it('a pie dice su turno y no una hora', () => {
@@ -96,6 +118,10 @@ describe('armarCorreo: avisos de la entrega', () => {
 })
 
 describe('fechas y horas', () => {
+  it('el criollo haitiano, que Intl no trae, con la fecha en frances', () => {
+    expect(fechaLarga('2026-11-02', 'ht')).toMatch(/^lundi/)
+  })
+
   it('la fecha no se recorre un dia por la zona horaria', () => {
     expect(fechaLarga('2026-11-02')).toBe('lunes, 2 de noviembre')
     expect(fechaLarga('2026-11-02T00:00:00')).toBe('lunes, 2 de noviembre')

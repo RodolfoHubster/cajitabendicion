@@ -11,7 +11,10 @@ el gasto de Amazon SES.
 | **Se canceló la entrega** | Cuando el administrador cancela la entrega de un día (Horarios → incidencia) | El día, el mensaje que escribió la iglesia y el botón «Hacer otra cita» |
 | **Se movió la entrega** | Cuando el administrador mueve la entrega a otra fecha | De qué día a qué día, a la misma hora; su mismo código sirve |
 
-- Sale en el idioma en que la persona se registró: español, inglés o vietnamita.
+- Sale en el idioma en que la persona se registró: español, inglés, vietnamita,
+  chino, tagalo, coreano, criollo haitiano, ruso, somalí o francés. Los textos
+  están en `supabase/functions/enviar-correos/correo.js`; si se cambian, hay
+  que volver a subir la función (ver abajo).
 - **Nadie los contesta.** El correo dice que no se responda y da el teléfono
   de la iglesia.
 - Solo lleva lo necesario: nombre de pila, fecha, hora, código y QR. Ni

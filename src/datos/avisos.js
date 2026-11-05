@@ -1,4 +1,5 @@
 import { clasificarError } from './errores'
+import { IDIOMAS, idiomaCorto } from '../i18n/idiomas'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -32,21 +33,26 @@ async function llamar(funcion, parametros) {
 }
 
 /**
- * El texto en el idioma de la pantalla.
+ * El campo ('texto' o 'titulo') en el idioma de la pantalla.
  *
- * Sigue la misma cadena que el resto de la app: el vietnamita cae a
- * ingles y todo lo demas al espanol, que es el unico obligatorio. Antes
+ * Los avisos se escriben en espanol, ingles y vietnamita. Sigue la misma
+ * cadena que el resto de la app: el vietnamita y los demas idiomas de la
+ * app caen a ingles, y todo al espanol, que es el unico obligatorio. Antes
  * un hueco que una traduccion a medias.
  */
-export function textoDeAviso(aviso, idioma) {
+function enSuIdioma(aviso, campo, idioma) {
   if (!aviso) return ''
 
-  const corto = String(idioma ?? 'es').split('-')[0]
+  const corto = idiomaCorto(idioma)
+  const deLaApp = IDIOMAS.some(({ codigo }) => codigo === corto)
+  const orden = corto === 'vi' ? ['vi', 'en', 'es'] : corto !== 'es' && deLaApp ? ['en', 'es'] : ['es']
 
-  if (corto === 'vi') return aviso.texto_vi || aviso.texto_en || aviso.texto_es || ''
-  if (corto === 'en') return aviso.texto_en || aviso.texto_es || ''
+  return orden.map((i) => aviso[`${campo}_${i}`]).find(Boolean) || ''
+}
 
-  return aviso.texto_es || ''
+/** El texto en el idioma de la pantalla (ver enSuIdioma). */
+export function textoDeAviso(aviso, idioma) {
+  return enSuIdioma(aviso, 'texto', idioma)
 }
 
 /**
@@ -55,14 +61,7 @@ export function textoDeAviso(aviso, idioma) {
  * las secciones que no lo usan.
  */
 export function tituloDeAviso(aviso, idioma) {
-  if (!aviso) return ''
-
-  const corto = String(idioma ?? 'es').split('-')[0]
-
-  if (corto === 'vi') return aviso.titulo_vi || aviso.titulo_en || aviso.titulo_es || ''
-  if (corto === 'en') return aviso.titulo_en || aviso.titulo_es || ''
-
-  return aviso.titulo_es || ''
+  return enSuIdioma(aviso, 'titulo', idioma)
 }
 
 /** Los de una seccion, ya en orden y solo los activos. */

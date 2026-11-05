@@ -32,8 +32,10 @@ export function obtenerDispositivo() {
   }
 }
 
-//  Los idiomas en que hay correos (supabase/functions/enviar-correos).
-const IDIOMAS_DE_CORREO = ['es', 'en', 'vi']
+//  Los idiomas en que hay correos (supabase/functions/enviar-correos) y
+//  que acepta la base (personas_idioma_check, seccion 54). Uno que no este
+//  en la base haria fallar el registro: por eso no se arma de IDIOMAS.
+const IDIOMAS_DE_CORREO = ['es', 'en', 'vi', 'zh', 'tl', 'ko', 'ht', 'ru', 'so', 'fr']
 
 /**
  * Crea la persona y aparta su lugar en una sola llamada.
@@ -56,17 +58,19 @@ export async function registrarYReservar({
   codigoAcompanante = null,
   idioma = null,
   boletin = false,
+  //  "¿Ya viniste antes?" (seccion 56): con la llave no se mandan sus datos.
+  llave = null,
 }) {
   //  Con mala senal no se espera para siempre: a los 25 segundos se dice
   //  "no hay conexion" y la persona puede volver a tocar Confirmar. Si la
   //  primera si llego, la base le devuelve la misma cita (seccion 33).
   const { data, error } = await conLimiteDeTiempo(supabase.rpc('registrar_y_reservar', {
-    p_nombre: nombres,
-    p_apellidos: apellidos,
-    p_telefono: telefono,
+    p_nombre: llave ? null : nombres,
+    p_apellidos: llave ? null : apellidos,
+    p_telefono: llave ? null : telefono,
     p_bloque_id: bloqueId,
-    p_email: email || null,
-    ...parametrosDomicilio(domicilio),
+    p_email: llave ? null : email || null,
+    ...(llave ? { p_llave_persona: llave } : parametrosDomicilio(domicilio)),
     p_acepto_privacidad: Boolean(aceptoPrivacidad),
     p_dispositivo: obtenerDispositivo(),
     p_codigo_anticipado: (fecha && leerCodigoAnticipado(fecha)) || null,
@@ -93,11 +97,28 @@ export async function registrarYReservar({
 }
 
 /**
+ * "¿Ya viniste antes?" (seccion 56): con su codigo CB y su telefono.
+ * Devuelve { resultado, nombre, llave, segundos }: resultado es LISTO,
+ * NO_COINCIDE o DEMASIADOS_INTENTOS. Solo trae su nombre y una inicial; sus
+ * datos se quedan en la base.
+ */
+export async function abrirMisDatos(codigo, telefono) {
+  const { data, error } = await conLimiteDeTiempo(
+    supabase.rpc('abrir_mis_datos', { p_codigo: codigo, p_telefono: telefono }),
+  )
+  if (error) throw new Error(traducirError(error.message))
+  const fila = Array.isArray(data) ? data[0] : data
+  if (!fila) throw new Error('ERROR_DESCONOCIDO')
+  return fila
+}
+
+/**
  * La base lanza codigos secos (BLOQUE_LLENO). Se extraen del mensaje de
  * Postgres para que la pantalla los traduzca a algo que una persona
  * entienda, sin mostrar jerga de base de datos.
  */
 export const CODIGOS = [
+  'LLAVE_VENCIDA',
   'BLOQUE_LLENO',
   'BLOQUE_CERRADO',
   'BLOQUE_NO_EXISTE',

@@ -1,0 +1,772 @@
+{
+  "avisoIdioma": {
+    "titulo": "La version française est en cours de révision",
+    "detalle": "Cette traduction est encore en cours de révision et peut contenir des erreurs. Si quelque chose n'est pas clair, vous pouvez passer à l'anglais ou à l'espagnol en haut de la page.",
+    "ingles": "French is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "à l'instant",
+      "haceMin": "il y a {{n}} min",
+      "haceHoras": "il y a {{h}} h {{m}} min"
+    }
+  },
+  "pase": {
+    "etiqueta": "Laissez-passer permanent",
+    "titulo": "Votre laissez-passer",
+    "dias": "Les lundis et jeudis",
+    "cargando": "Nous préparons votre laissez-passer…",
+    "noEncontrado": "Nous n'avons pas trouvé ce laissez-passer. Le lien est peut-être incomplet.",
+    "revocado": "Ce laissez-passer n'est plus valable",
+    "revocadoTexto": "Si vous pensez que c'est une erreur, appelez l'église : {{telefono}}.",
+    "comoFunciona": "Venez n'importe quel lundi ou jeudi, à l'heure qui vous convient. Montrez ce code et on vous remettra votre colis.",
+    "soloTuyo": "Ce laissez-passer est à vous seul et vaut un colis par jour. Si vous le partagez, il sera annulé.",
+    "sello": "Le logo de Cajita de Bendición au centre du code est la marque de votre laissez-passer : c'est ainsi que le bénévole le reconnaît."
+  },
+  "confirmacion": {
+    "cargando": "Nous préparons votre code…",
+    "noEncontrada": "Nous n'avons pas trouvé ce rendez-vous. Le lien est peut-être incomplet.",
+    "volverInicio": "Retour à l'accueil",
+    "lista": "Votre rendez-vous est confirmé",
+    "horarioCambiado": "C'est fait, votre heure a été changée. Le code reste le même, mais enregistrez de nouveau l'image : l'ancienne indique l'heure précédente.",
+    "qrAlt": "Code QR de votre rendez-vous",
+    "siNoSeLee": "Si le code ne se lit pas, donnez ce numéro :",
+    "aNombreDe": "Au nom de",
+    "unSoloUso": "Ce code ne sert qu'une fois et pour un seul colis. Si une autre personne de votre famille a besoin d'un colis, elle doit prendre son propre rendez-vous.",
+    "cambiarHorario": "Changer d'heure",
+    "guardarImagen": "Enregistrer l'image",
+    "descargada": "L'image a été téléchargée. Si vous ne la voyez pas dans vos photos, appuyez longuement sur le code QR ci-dessus et choisissez « Enregistrer l'image » ou « Ajouter à Photos ».",
+    "consejoCaptura": "Vous pouvez aussi faire une capture d'écran.",
+    "cancelar": "Annuler le rendez-vous",
+    "cancelarPregunta": "Voulez-vous vraiment annuler votre rendez-vous ? Votre place sera libérée pour une autre personne.",
+    "cancelarSi": "Oui, annuler mon rendez-vous",
+    "cancelarNo": "Non, garder mon rendez-vous",
+    "cancelando": "Annulation…",
+    "canceladaTitulo": "Votre rendez-vous a été annulé",
+    "canceladaTexto": "Votre place a été libérée. Si besoin, vous pouvez reprendre rendez-vous.",
+    "registrarOtra": "Reprendre rendez-vous",
+    "yaExistia": "Vous aviez déjà ce rendez-vous. Aucun nouveau n'a été créé : c'est le même rendez-vous, avec le même code.",
+    "consejoBrillo": "Le jour de la distribution, augmentez la luminosité de l'écran pour que le code se lise du premier coup."
+  },
+  "cambiar": {
+    "titulo": "Changer d'heure",
+    "cargando": "Nous cherchons votre rendez-vous…",
+    "volver": "Retour à mon rendez-vous",
+    "tuCitaAhora": "Votre rendez-vous actuel",
+    "aviso": "Vous ne pouvez changer d'heure qu'une seule fois. Votre code {{codigo}} et votre code QR restent les mêmes.",
+    "elegirDia": "Choisissez le jour",
+    "elegirHora": "Choisissez l'heure",
+    "actual": "Votre heure actuelle",
+    "deAcuerdo": "Je comprends que je ne peux changer d'heure qu'une seule fois.",
+    "confirmar": "Changer d'heure",
+    "cambiando": "Changement…",
+    "sinDias": "Il n'y a pas d'autres jours avec des places libres pour le moment. Réessayez plus tard.",
+    "noSePuede": "Ce rendez-vous ne peut plus être modifié.",
+    "yaCambiaste": "Vous avez déjà changé d'heure une fois. En cas de vrai besoin, appelez l'église : {{telefono}}."
+  },
+  "registro": {
+    "cargando": "Nous préparons le rendez-vous…",
+    "sinHorario": "Choisissez d'abord le jour et l'heure de votre rendez-vous.",
+    "horarioNoDisponible": "Cette heure n'est plus disponible. Choisissez-en une autre.",
+    "nombre": "Prénom",
+    "telefono": "Téléphone portable",
+    "correo": "Adresse e-mail",
+    "correoAyuda": "Nous vous enverrons ici votre code d'entrée.",
+    "confirmar": "Confirmer le rendez-vous",
+    "enviando": "Nous réservons votre place…",
+    "errores": {
+      "BLOQUE_LLENO": "Pendant que vous remplissiez le formulaire, cette heure s'est remplie. Choisissez-en une autre.",
+      "BLOQUE_CERRADO": "Cette heure est déjà fermée.",
+      "BLOQUE_NO_EXISTE": "Cette heure n'existe plus. Choisissez-en une autre.",
+      "FECHA_PASADA": "Cette date est déjà passée.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Il y a déjà un rendez-vous pour cette semaine. On ne peut prendre qu'un rendez-vous par semaine : le lundi ou le jeudi, pas les deux.",
+      "LIMITE_DISPOSITIVO": "Un rendez-vous a déjà été pris ce jour-là depuis cet appareil. Chaque personne doit le prendre depuis son propre téléphone ou ordinateur.",
+      "NOMBRE_REQUERIDO": "Indiquez votre prénom.",
+      "TELEFONO_REQUERIDO": "Indiquez votre téléphone.",
+      "EMAIL_REQUERIDO": "Indiquez votre adresse e-mail.",
+      "EMAIL_INVALIDO": "L'adresse e-mail semble mal écrite. Vérifiez-la, s'il vous plaît.",
+      "SIN_CODIGOS_DISPONIBLES": "Votre code n'a pas pu être créé. Réessayez.",
+      "ERROR_DESCONOCIDO": "Votre place n'a pas pu être réservée. Réessayez dans une minute.",
+      "AUN_NO_ABRE": "Les rendez-vous de ce jour ne sont pas encore ouverts.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Votre code d'abonné n'est plus valable. Il a peut-être changé ; consultez la publication Facebook.",
+      "DIA_CERRADO": "Les rendez-vous de ce jour sont fermés.",
+      "APELLIDOS_REQUERIDOS": "Indiquez votre nom de famille.",
+      "NOMBRE_INVALIDO": "Le prénom et le nom ne doivent pas contenir de chiffres.",
+      "TELEFONO_INVALIDO": "Vérifiez votre téléphone : il manque des chiffres ou il y en a de trop.",
+      "PAIS_INVALIDO": "Choisissez le Mexique ou les États-Unis.",
+      "CODIGO_POSTAL_REQUERIDO": "Indiquez votre code postal.",
+      "CODIGO_POSTAL_INVALIDO": "Le code postal comporte 5 chiffres.",
+      "CODIGO_POSTAL_NO_EXISTE": "Nous n'avons trouvé ce code postal ni en Californie ni en Basse-Californie.",
+      "COLONIA_REQUERIDA": "Choisissez votre quartier (colonia).",
+      "COLONIA_INVALIDA": "Ce quartier ne correspond pas à ce code postal.",
+      "CALLE_REQUERIDA": "Indiquez votre rue.",
+      "CALLE_INVALIDA": "Vérifiez le nom de la rue.",
+      "NUMERO_REQUERIDO": "Indiquez le numéro de votre maison.",
+      "NUMERO_INVALIDO": "Vérifiez le numéro de votre maison.",
+      "NUMERO_INTERIOR_INVALIDO": "Vérifiez le numéro d'appartement.",
+      "CONSENTIMIENTO_REQUERIDO": "Confirmez que vous donnez vos informations volontairement.",
+      "FALTA_HORARIO": "Choisissez une date et une heure.",
+      "YA_REGISTRADO_ESE_DIA": "Il y a déjà un rendez-vous à votre nom ce jour-là. Si vous avez perdu votre code, adressez-vous à l'équipe le jour de la distribution : elle vous retrouvera par votre nom.",
+      "A_PIE_CERRADO": "Il n'y a pas encore de file à pied pour ce jour.",
+      "SIN_CONEXION": "La connexion a été coupée. Vérifiez votre signal et appuyez de nouveau sur « Confirmer ».",
+      "ACOMPANANTE_SIN_CITA": "Il n'y a pas de rendez-vous en voiture avec ce code ce jour-là. Vérifiez le code avec la personne qui conduit.",
+      "CARRO_LLENO": "Cette voiture a déjà le nombre maximum de passagers.",
+      "FALTA_FECHA": "Choisissez une date.",
+      "LLAVE_VENCIDA": "Trop de temps s'est écoulé. Saisissez de nouveau votre code et votre téléphone."
+    },
+    "apellidos": "Nom de famille",
+    "pais": "Pays du téléphone",
+    "paisesPrincipales": "Les plus courants",
+    "paisesTodos": "Tous les pays",
+    "otrosHorarios": {
+      "buscando": "Nous cherchons d'autres heures ce jour-là…",
+      "titulo": "Choisissez une autre heure le même jour :",
+      "seQueda": "Tout ce que vous avez écrit est conservé. Seule l'heure change.",
+      "ninguno": "Il ne reste plus d'heures libres ce jour-là.",
+      "otroDia": "Voir d'autres jours"
+    },
+    "tuCitaGuardada": "Ce téléphone a déjà ce rendez-vous enregistré :",
+    "verTuCita": "Voir mon rendez-vous de {{hora}} ({{nombre}})",
+    "horaCambiada": "C'est fait, votre heure est maintenant {{hora}}. Appuyez sur « Confirmer » pour terminer.",
+    "borrador": {
+      "recuperado": "Nous avons récupéré ce que vous aviez écrit.",
+      "empezarDeNuevo": "Effacer et recommencer"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Pendant que vous saisissiez vos informations, les numéros se sont épuisés. Nous sommes désolés.",
+      "BLOQUE_CERRADO": "Les numéros de ce jour sont fermés.",
+      "BLOQUE_NO_EXISTE": "Cette file à pied n'existe plus. Consultez de nouveau la page de la file à pied.",
+      "AUN_NO_ABRE": "On ne distribue pas encore de numéros. Venez à l'heure indiquée sur la page.",
+      "DIA_CERRADO": "On ne distribue plus de numéros ce jour-là."
+    },
+    "yaViniste": {
+      "titulo": "Vous êtes déjà venu ?",
+      "ayuda": "Avec votre code CB et votre téléphone, vous n'avez pas à réécrire vos informations.",
+      "abrir": "Utiliser mon code",
+      "codigo": "Votre code CB",
+      "codigoAyuda": "Il figure sur votre confirmation et dans l'e-mail de votre rendez-vous.",
+      "telefono": "Votre téléphone (le même que la dernière fois)",
+      "buscar": "Continuer",
+      "buscando": "Recherche…",
+      "cerrar": "Je préfère écrire mes informations",
+      "listo": "Avec vos informations de la dernière fois, {{nombre}}",
+      "listoAyuda": "Votre code CB reste le même. Il suffit de confirmer votre rendez-vous.",
+      "noSoyYo": "Ce n'est pas moi / utiliser d'autres informations",
+      "faltaCodigo": "Saisissez les chiffres de votre code.",
+      "NO_COINCIDE": "Ce code et ce téléphone ne correspondent pas. Vérifiez-les ou écrivez vos informations ci-dessous.",
+      "DEMASIADOS_INTENTOS": "Trop d'essais. Attendez {{minutos}} min ou écrivez vos informations ci-dessous."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Progression du rendez-vous",
+    "fecha": "Date",
+    "horario": "Heure",
+    "datos": "Vos informations"
+  },
+  "horarios": {
+    "duracion": "Chaque créneau dure 15 minutes.",
+    "cargando": "Nous cherchons les heures…",
+    "error": "Les heures n'ont pas pu être chargées. Réessayez dans une minute.",
+    "sinBloques": "Il ne reste plus d'heures libres ce jour-là.",
+    "fechaInvalida": "La date n'est pas valable.",
+    "volverCalendario": "Choisir une autre date",
+    "lleno": "Complet",
+    "quedan_one": "Il reste {{count}} place",
+    "quedan_many": "Il reste {{count}} de places",
+    "quedan_other": "Il reste {{count}} places",
+    "conCodigo": "Vous êtes entré avec votre code d'abonné. Choisissez votre heure.",
+    "revisandoCodigo": "Nous vérifions votre code…",
+    "continuarCon": "Continuer avec {{hora}}",
+    "eligeUno": "Appuyez sur une heure de la liste"
+  },
+  "calendario": {
+    "cargando": "Nous cherchons les jours libres…",
+    "error": "Les jours libres n'ont pas pu être chargés. Réessayez dans une minute."
+  },
+  "pages": {
+    "calendario": "Prochaine distribution",
+    "horarios": "Heures",
+    "registro": "Rendez-vous",
+    "confirmacion": "Confirmation"
+  },
+  "inicio": {
+    "titulo": "Prenez rendez-vous",
+    "subtitulo": "Nourriture gratuite les lundis et jeudis",
+    "antesDeEmpezar": "Avant de commencer",
+    "reglaRespaldo": "Chaque personne de 18 ans ou plus qui reçoit un colis a besoin de son propre rendez-vous et de son propre code.",
+    "comoVienes": "Comment venez-vous ?",
+    "enCarro": "En voiture",
+    "aPie": "À pied",
+    "aPieAviso": "À pied, il n'y a pas de rendez-vous : le jour de la distribution, prenez un numéro ici et attendez qu'on vous appelle.",
+    "gratuito": "La nourriture est gratuite. Aucun don n'est nécessaire.",
+    "yaTienesCita": "Vous avez déjà un rendez-vous ? Apportez l'image ou la capture d'écran de votre code le jour de la distribution.",
+    "hacerCita": "Prendre rendez-vous",
+    "sacarTurno": "Prendre un numéro"
+  },
+  "navegacion": {
+    "inicio": "Accueil",
+    "cambiarFecha": "Changer de date",
+    "cambiarHorario": "Changer d'heure",
+    "accesoPersonal": "Accès du personnel",
+    "verSitio": "Voir le site"
+  },
+  "pie": {
+    "bienvenidos": "Bienvenue à",
+    "comunidad": "Une communauté en Christ",
+    "servicios": "Cultes de l'église",
+    "horarioServicios": "Jeudi 7:00 PM · Dimanche 6:00 PM",
+    "sitioIglesia": "Site de l'église",
+    "siguenos": "Suivez-nous",
+    "apoya": "Soutenez Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Cajita de Bendición sur Facebook",
+      "facebookIglesia": "L'église sur Facebook",
+      "tiktokCajita": "Cajita de Bendición sur TikTok",
+      "instagramIglesia": "L'église sur Instagram",
+      "tiktokIglesia": "L'église sur TikTok"
+    }
+  },
+  "donar": {
+    "titulo": "Vous voulez soutenir Cajita de Bendición ?",
+    "tituloTrasRegistro": "Si vous le pouvez, n'oubliez pas de nous soutenir",
+    "aclaracion": "Votre rendez-vous ne dépend d'aucun don : la nourriture est gratuite.",
+    "texto": "Si vous le pouvez et le souhaitez, chaque contribution nous aide à soutenir plus de familles chaque semaine.",
+    "paypal": "Faire un don avec PayPal",
+    "gofundme": "Soutenir sur GoFundMe",
+    "suscribirse": "S'abonner sur Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Où nous trouver",
+    "entregas": "Distribution de nourriture : les lundis et jeudis après-midi, sur rendez-vous.",
+    "googleMaps": "Ouvrir dans Google Maps",
+    "appleMaps": "Ouvrir dans Plans d'Apple",
+    "llamar": "Appeler"
+  },
+  "marca": {
+    "ministerio": "Un ministère de {{iglesia}}"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "La distribution du {{fecha}} a {{minutos}} min de retard. Chacun passe dans le même ordre, {{minutos}} min après son heure.",
+      "movida": "La distribution du {{fecha}} est déplacée au {{fechaNueva}}, à la même heure. Votre code reste valable.",
+      "cancelada": "La distribution du {{fecha}} est annulée. Si vous aviez un rendez-vous, vous pouvez en reprendre un dans le calendrier."
+    },
+    "miCita": {
+      "retraso": "La distribution de votre jour a {{minutos}} min de retard : votre nouvelle heure approximative est {{hora}}. Votre code reste valable.",
+      "movida": "Votre rendez-vous est passé du {{fecha}} au {{fechaNueva}}, à la même heure. Votre code reste valable.",
+      "cancelada": "La distribution de ce jour est annulée."
+    }
+  },
+  "guia": {
+    "abrir": "Guide"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Indiquez votre prénom.",
+      "NUMEROS": "Le prénom ne doit pas contenir de chiffres.",
+      "SIMBOLOS": "Lettres uniquement. Les espaces, le tiret (-) et l'apostrophe (') sont permis.",
+      "CORTO": "Écrivez votre prénom complet, pas une seule lettre."
+    },
+    "apellidos": {
+      "VACIO": "Indiquez votre nom de famille.",
+      "NUMEROS": "Le nom de famille ne doit pas contenir de chiffres.",
+      "SIMBOLOS": "Lettres uniquement. Les espaces, le tiret (-) et l'apostrophe (') sont permis.",
+      "CORTO": "Écrivez le nom de famille complet, pas une seule lettre."
+    },
+    "correo": {
+      "VACIO": "Indiquez votre adresse e-mail.",
+      "ESPACIOS": "Une adresse e-mail ne contient pas d'espaces.",
+      "SIN_ARROBA": "Il manque le @. Par exemple : nombre@gmail.com",
+      "VARIAS_ARROBAS": "Une adresse e-mail ne contient qu'un seul @.",
+      "SIN_USUARIO": "Il manque la partie avant le @.",
+      "SIN_DOMINIO": "Il manque la partie après le @, par exemple gmail.com",
+      "SIN_PUNTO": "Il manque la fin après le point, par exemple .com",
+      "DOMINIO_INVALIDO": "Vérifiez la partie après le @, par exemple gmail.com",
+      "sugerencia": "Vouliez-vous dire {{correo}} ?",
+      "usarSugerencia": "Oui, corriger"
+    },
+    "telefono": {
+      "VACIO": "Indiquez votre téléphone.",
+      "CARACTERES": "Le téléphone ne contient que des chiffres. Les espaces, les tirets et le + au début sont permis.",
+      "LADA_DESCONOCIDA": "Nous ne connaissons pas cet indicatif. Choisissez votre pays dans la liste.",
+      "CORTO": "Il manque des chiffres : un numéro de {{pais}} en a {{digitos}} et vous en avez écrit {{llevan}}.",
+      "LARGO": "Il y a trop de chiffres : un numéro de {{pais}} en a {{digitos}} et vous en avez écrit {{llevan}}.",
+      "EMPIEZA_CON_1": "Il manque un chiffre : un numéro de {{pais}} en a {{max}}, sans compter le 1 du début.",
+      "entre": "entre {{min}} et {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Écrivez le nom de la personne.",
+      "NUMEROS": "Le nom ne doit pas contenir de chiffres.",
+      "SIMBOLOS": "Lettres uniquement. Les espaces, le tiret (-) et l'apostrophe (') sont permis.",
+      "CORTO": "Écrivez le nom complet, pas une seule lettre."
+    }
+  },
+  "proxima": {
+    "etiqueta": "Prochaine distribution",
+    "horario": "De {{inicio}} à {{fin}}",
+    "duracion": "Chaque créneau dure 15 minutes.",
+    "lugares_one": "{{count}} place libre",
+    "lugares_many": "{{count}} de places libres",
+    "lugares_other": "{{count}} places libres",
+    "lleno": "Il n'y a plus de places pour cette distribution.",
+    "abiertos": "Les rendez-vous sont ouverts.",
+    "abreEl": "Les rendez-vous ouvrent {{cuando}}.",
+    "faltan": "Encore {{tiempo}}",
+    "suscriptoresDesde": "Les abonnés Facebook peuvent prendre rendez-vous à partir de {{cuando}}.",
+    "suscriptoresAhora": "Les abonnés Facebook peuvent déjà prendre rendez-vous avec leur code.",
+    "conCodigo": "Rendez-vous pour les abonnés Facebook",
+    "registrarme": "Prendre rendez-vous",
+    "sinLugares": "Plus de places",
+    "seActivara": "Le bouton « Prendre rendez-vous » s'activera tout seul à l'ouverture.",
+    "sinFechas": "Aucune distribution n'est prévue pour le moment. Revenez plus tard.",
+    "tiempo": {
+      "dias_one": "{{count}} jour",
+      "dias_many": "{{count}} de jours",
+      "dias_other": "{{count}} jours",
+      "horas": "{{n}} h",
+      "minutos": "{{n}} min",
+      "segundos": "{{n}} s"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Rendez-vous anticipé pour les abonnés",
+    "explicacion": "Si vous êtes abonné à Cajita de Bendición sur Facebook, saisissez le code de la publication réservée aux abonnés.",
+    "desde": "Vous pourrez utiliser le code à partir de {{cuando}}.",
+    "ahora": "Vous pouvez déjà utiliser votre code pour prendre rendez-vous avant tout le monde.",
+    "sinAnticipado": "Cette distribution n'a pas de rendez-vous anticipé pour les abonnés.",
+    "yaAbierto": "Les rendez-vous sont déjà ouverts à tous : aucun code n'est nécessaire.",
+    "irRegistro": "Aller au rendez-vous",
+    "codigo": "Code d'abonné",
+    "entrar": "Entrer avec mon code",
+    "validando": "Vérification…",
+    "invalido": "Ce code n'est pas valable ou ne peut pas encore être utilisé.",
+    "noSuscriptor": "Pas encore abonné ?",
+    "invitacion": "Abonnez-vous à Cajita de Bendición sur Facebook pour prendre rendez-vous en avance à chaque distribution.",
+    "suscribirme": "S'abonner sur Facebook",
+    "cerrar": "Fermer"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "Nous n'avons pas trouvé ce rendez-vous.",
+      "CITA_YA_CANCELADA": "Ce rendez-vous a déjà été annulé.",
+      "CITA_YA_ENTREGADA": "Ce rendez-vous a déjà été utilisé : le colis a été remis.",
+      "FECHA_PASADA": "Cette date est déjà passée.",
+      "MOTIVO_REQUERIDO": "Écrivez le motif de l'exception.",
+      "PERSONA_NO_EXISTE": "Personne n'a ce code. Vérifiez-le (par exemple CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Cette personne n'a pas de rendez-vous cette semaine-là, elle n'a donc pas besoin d'exception : prenez-lui rendez-vous normalement.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "Cette personne a déjà une exception cette semaine-là. Une seule est permise.",
+      "BLOQUE_LLENO": "Cette heure s'est remplie. Choisissez-en une autre.",
+      "BLOQUE_CERRADO": "Cette heure est fermée.",
+      "BLOQUE_NO_EXISTE": "Cette heure n'existe plus.",
+      "DIA_CERRADO": "Ce jour est fermé.",
+      "FUNCION_NO_INSTALADA": "Cette fonction n'est pas disponible pour le moment. Réessayez plus tard.",
+      "SIN_PERMISO": "Votre compte n'a pas l'autorisation pour cela. Reconnectez-vous.",
+      "SIN_CONEXION": "Pas de connexion. Vérifiez votre internet et réessayez.",
+      "ERROR_DESCONOCIDO": "Cela n'a pas fonctionné. Réessayez.",
+      "NOMBRE_REQUERIDO": "Écrivez le nom de la personne.",
+      "NOMBRE_INVALIDO": "Le nom ne doit pas contenir de chiffres.",
+      "ENTRADA_NO_EXISTE": "Nous n'avons pas trouvé cet enregistrement.",
+      "ENTRADA_YA_ANULADA": "Cet enregistrement a déjà été annulé.",
+      "SIN_CODIGOS_DISPONIBLES": "Le code n'a pas pu être créé. Réessayez.",
+      "MISMO_HORARIO": "C'est déjà votre heure actuelle. Choisissez-en une autre.",
+      "YA_CAMBIO_HORARIO": "Vous avez déjà changé d'heure une fois. Si vous avez besoin d'un autre changement, appelez l'église.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Vous avez déjà un rendez-vous cette semaine. Un seul par semaine est permis.",
+      "AUN_NO_ABRE": "Ce jour n'est pas encore ouvert.",
+      "PASE_NO_EXISTE": "Cette personne n'a pas de laissez-passer.",
+      "PASE_YA_REVOCADO": "Ce laissez-passer a déjà été retiré.",
+      "TELEFONO_INVALIDO": "Le téléphone n'est pas valable. Vérifiez l'indicatif et le numéro.",
+      "FECHA_FUTURA": "Cette date n'est pas encore arrivée.",
+      "ACOMPANANTE_SIN_CAMBIO": "Vous voyagez dans la voiture de quelqu'un d'autre : votre heure est celle de la personne qui conduit. Si elle change son heure, la vôtre change aussi.",
+      "A_PIE_SIN_CAMBIO": "Dans la file à pied, l'heure ne se change pas : prenez un nouveau numéro ce jour-là.",
+      "NOTA_MUY_LARGA": "La note est trop longue : 200 caractères maximum.",
+      "FILA_INVALIDA": "Choisissez la file : voitures ou à pied.",
+      "NO_ES_DIA_DE_ENTREGA": "Il n'y avait pas de distribution ce jour-là (ou elle a été annulée).",
+      "PASE_REVOCADO": "Ce jour-là, cette personne n'avait plus de laissez-passer.",
+      "PASE_YA_ENTREGADO": "Ce jour-là, ce laissez-passer avait déjà reçu son colis : un colis par jour."
+    }
+  },
+  "domicilio": {
+    "titulo": "Votre adresse",
+    "tituloPanel": "Adresse de la personne",
+    "zona": "Nous acceptons les adresses en Californie (États-Unis) et en Basse-Californie (Mexique).",
+    "pais": "Pays de l'adresse",
+    "paises": {
+      "MX": "Mexique",
+      "US": "États-Unis"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (code postal)",
+      "US": "ZIP code (code postal)"
+    },
+    "buscando": "Nous cherchons le code postal…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (quartier)",
+    "coloniaOpcional": "Colonia (quartier, facultatif)",
+    "elegirColonia": "Choisissez votre quartier",
+    "calle": {
+      "MX": "Rue",
+      "US": "Adresse"
+    },
+    "numero": {
+      "MX": "Numéro"
+    },
+    "interior": {
+      "MX": "Numéro d'appartement (facultatif)",
+      "US": "Apt. (facultatif)"
+    },
+    "sinDomicilio": "Je n'ai pas d'adresse fixe",
+    "sinDomicilioAyuda": "Par exemple, si vous vivez dans votre voiture ou temporairement chez de la famille. Nous vous demanderons seulement le code postal.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Indiquez votre code postal.",
+        "FORMATO": "Le code postal comporte 5 chiffres.",
+        "NO_EXISTE": "Nous n'avons trouvé ce code postal ni en Californie ni en Basse-Californie. Vérifiez-le.",
+        "BUSCANDO": "Un instant : nous vérifions le code postal."
+      },
+      "colonia": {
+        "VACIO": "Choisissez votre quartier dans la liste.",
+        "NO_COINCIDE": "Ce quartier ne correspond pas à ce code postal. Choisissez-le dans la liste."
+      },
+      "calle": {
+        "VACIO": "Indiquez votre rue.",
+        "SIN_LETRAS": "Écrivez le nom de la rue.",
+        "SIN_NUMERO": "Il manque le numéro de la maison au début, par exemple 7855 Lansing Dr.",
+        "LARGO": "Le nom de la rue est trop long."
+      },
+      "numero": {
+        "VACIO": "Indiquez le numéro.",
+        "FORMATO": "Écrivez le numéro de la maison, par exemple 4250 ou 12-B.",
+        "FORMATO_MX": "Écrivez le numéro, par exemple 1234 ou 12-B. S'il n'y en a pas, écrivez S/N."
+      },
+      "interior": {
+        "FORMATO": "Lettres et chiffres uniquement, par exemple 5 ou B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Vos informations sont confidentielles",
+    "texto": "Nous les utilisons uniquement pour le registre interne de Cajita de Bendición et pour organiser les distributions. Nous ne les partageons avec personne, y compris les autorités.",
+    "casilla": "Je confirme que je donne ces informations volontairement.",
+    "casillaPanel": "La personne m'a confirmé qu'elle donne ses informations volontairement.",
+    "falta": "Pour prendre rendez-vous, cochez la case de confirmation."
+  },
+  "boletin": {
+    "casilla": "Je souhaite recevoir par e-mail les nouvelles et informations générales de l'église (facultatif).",
+    "ayuda": "C'est distinct des e-mails de votre rendez-vous, que vous recevrez de toute façon. Vous pouvez vous désabonner à tout moment."
+  },
+  "reglas": {
+    "titulo": "À lire avant de confirmer votre rendez-vous",
+    "casilla": "J'ai lu et j'accepte ces règles.",
+    "falta": "Pour continuer, lisez et acceptez les règles.",
+    "respaldo1": "Arrivez 5 minutes avant votre heure. C'est obligatoire.",
+    "respaldo2": "Votre code vaut un colis, une seule fois.",
+    "respaldo3": "Vous ne pouvez changer d'heure qu'une seule fois.",
+    "tituloAPie": "À lire avant de prendre votre numéro",
+    "respaldoAPie1": "Chaque personne de 18 ans ou plus a besoin de son propre numéro et de son propre code.",
+    "respaldoAPie2": "Attendez à proximité. Quand on appelle votre numéro, approchez-vous et montrez votre code."
+  },
+  "avisos": {
+    "cargando": "Chargement des textes…"
+  },
+  "preguntas": {
+    "titulo": "Questions fréquentes",
+    "ayuda": "Ce qu'on nous demande le plus souvent. Appuyez sur une question pour voir la réponse.",
+    "cargando": "Chargement des questions…",
+    "sinPreguntas": "Il n'y a pas encore de questions ici.",
+    "masDudas": "Vous avez une autre question ? Appelez-nous au {{telefono}} ou demandez à l'équipe le jour de la distribution."
+  },
+  "quienesSomos": {
+    "titulo": "Qui sommes-nous",
+    "invitacion": "L'église, le ministère et pourquoi cette page existe.",
+    "cargando": "Chargement…",
+    "sinTexto": "Il n'y a pas encore d'informations ici.",
+    "sitioIglesia": "Site de l'église",
+    "verPreguntas": "Questions fréquentes"
+  },
+  "tema": {
+    "aOscuro": "Mode sombre",
+    "aClaro": "Mode clair",
+    "cambiarAOscuro": "Passer en mode sombre",
+    "cambiarAClaro": "Passer en mode clair"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "File des voitures",
+      "a_pie": "File à pied",
+      "ambas": "Les deux files"
+    }
+  },
+  "misCitas": {
+    "titulo": "Vos rendez-vous",
+    "tituloUna": "Votre rendez-vous",
+    "ayuda": "Pris depuis ce téléphone. Appuyez sur le bouton pour voir le code.",
+    "hoy": "Aujourd'hui !",
+    "ver": "Voir mon code",
+    "quitar": "Retirer de ce téléphone",
+    "quitarPregunta": "Le retirer de ce téléphone ? Le rendez-vous n'est PAS annulé : il reste à vous.",
+    "quitarSi": "Oui, le retirer d'ici",
+    "quitarNo": "Non, le garder",
+    "ayudaUna": "Pris depuis ce téléphone. Appuyez sur le bouton pour voir le code."
+  },
+  "letra": {
+    "titulo": "Taille du texte",
+    "normal": "Texte normal",
+    "grande": "Grand texte",
+    "muy_grande": "Très grand texte"
+  },
+  "recordatorio": {
+    "agregar": "Ajouter au calendrier",
+    "titulo": "Cajita de Bendición : votre rendez-vous",
+    "descripcion": "Votre code : {{codigo}}. Arrivez quelques minutes en avance et apportez le code QR.\nVotre code : {{enlace}}",
+    "aviso": "C'est aujourd'hui votre rendez-vous à Cajita de Bendición. Apportez votre code."
+  },
+  "redDeSeguridad": {
+    "titulo": "Un problème est survenu sur cet écran",
+    "texto": "Ce n'est pas votre faute. Si vous aviez déjà pris rendez-vous, il est bien enregistré.",
+    "recargar": "Recharger",
+    "inicio": "Retour à l'accueil",
+    "ayuda": "Si cela se reproduit, appelez l'église : {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Écouter mon rendez-vous",
+    "frase": "Votre rendez-vous est le {{fecha}}, à {{hora}}. Votre code est {{codigo}} Arrivez quelques minutes en avance."
+  },
+  "entornoPruebas": {
+    "aviso": "Base d'essai · rien n'est réel ici",
+    "lento": "mode lent : {{segundos}} s"
+  },
+  "aPie": {
+    "noHay": "Il n'y a pas de file à pied pour le moment. Quand il y en aura une, vous pourrez prendre votre numéro ici.",
+    "proxima": "Prochaine file à pied",
+    "empiezaA": "La distribution commence à {{hora}}",
+    "abreA": "Les numéros seront distribués à partir de {{cuando}}.",
+    "seActualiza": "Ne fermez pas cette page : le bouton apparaîtra tout seul quand les numéros commenceront.",
+    "volver": "Retour à la file à pied",
+    "registroTitulo": "Prenez votre numéro",
+    "confirmar": "Prendre mon numéro"
+  },
+  "turno": {
+    "tuTurno": "Votre numéro",
+    "numero": "Numéro {{turno}}",
+    "listo": "Vous avez votre numéro",
+    "van": "On sert actuellement le numéro {{turno}}",
+    "antes_one": "{{count}} personne avant vous",
+    "antes_many": "{{count}} de personnes avant vous",
+    "antes_other": "{{count}} personnes avant vous",
+    "eresElSiguiente": "Vous êtes le prochain ! Approchez-vous.",
+    "esTuTurno": "C'est votre tour ! Approchez-vous et montrez votre code.",
+    "teLlamaron": "Votre numéro a été appelé et vous n'étiez pas là. Allez maintenant voir le bénévole et montrez votre numéro ou votre code. Si vous tardez trop, votre numéro sera annulé et il faudra en prendre un nouveau.",
+    "recibida": "Vous avez déjà reçu votre colis. Merci d'être venu !",
+    "otroDia": "Le jour de la distribution, vous verrez ici quel numéro est servi.",
+    "seActualiza": "Se met à jour tout seul toutes les quelques secondes.",
+    "terminada": "La file d'aujourd'hui est terminée. Merci d'être venu ; nous vous attendons à la prochaine distribution.",
+    "anulado": "Votre numéro a été annulé : on vous a appelé et vous n'étiez pas là. Si vous avez encore besoin de nourriture, prenez un nouveau numéro : vous attendrez depuis la fin de la file.",
+    "repetido": "Ce numéro a été annulé parce que vous aviez déjà un autre numéro.",
+    "repetidoCon": "Ce numéro a été annulé parce que vous aviez déjà le numéro {{turno}}.",
+    "repetidoAyuda": "Utilisez le numéro que vous avez pris en premier. Si vous ne l'avez pas, adressez-vous à un bénévole."
+  },
+  "acompanante": {
+    "titulo": "Comment venez-vous ?",
+    "queEs": "Qu'est-ce que c'est ?",
+    "explicacion": "Chaque place correspond à une voiture. Si vous venez dans la voiture de quelqu'un qui a déjà rendez-vous, choisissez « Je viens dans la voiture de quelqu'un » : vous avez votre propre code et votre propre colis, mais vous ne prenez pas une autre place. Votre heure est celle de la personne qui conduit.",
+    "propio": "Je viens avec ma voiture",
+    "propioAyuda": "Vous réservez une place pour votre voiture.",
+    "acompanante": "Je viens dans la voiture de quelqu'un qui a déjà rendez-vous",
+    "acompananteAyuda": "Vous ne prenez pas une autre place.",
+    "codigo": "Code de la personne qui conduit",
+    "codigoAyuda": "Il figure sur la page de son rendez-vous, sous son code QR (par exemple CB-4871).",
+    "faltaCodigo": "Saisissez le code de la personne qui conduit, par exemple CB-4871.",
+    "horaDeQuienManeja": "Votre heure est celle de la personne qui conduit.",
+    "enlace": "Vous venez dans la voiture de quelqu'un qui a déjà rendez-vous ? Inscrivez-vous ici",
+    "escogeHorario": "Pour venir dans votre propre voiture, choisissez d'abord une heure avec des places libres.",
+    "verHorarios": "Voir les heures"
+  },
+  "vip": {
+    "voluntario": "Passe directement, sans faire la file",
+    "persona": "Vous passez directement, sans faire la file",
+    "etiqueta": "Laissez-passer VIP"
+  },
+  "demo": {
+    "aviso": "Exemple pour la vidéo : rien n'est enregistré ici et le code obtenu n'est pas valable.",
+    "salir": "Quitter l'exemple"
+  },
+  "turnoAPie": {
+    "titulo": "File à pied",
+    "subtitulo": "Prenez votre numéro ici. Aucune information n'est demandée.",
+    "boton": "Prendre mon numéro",
+    "sacando": "Nous prenons votre numéro…",
+    "empiezaA": "La distribution commence à {{hora}}",
+    "revisando": "Nous vérifions la file…",
+    "noHay": "Il n'y a pas de file à pied aujourd'hui.",
+    "llena": "Il n'y a plus de numéros aujourd'hui.",
+    "esTuTurno": "C'est votre tour !",
+    "acercate": "Approchez-vous et montrez votre code QR.",
+    "verMiQr": "Voir mon code",
+    "avisos": {
+      "sinDatos": "Nous ne vous demandons ni nom, ni âge, ni téléphone. Rien n'est enregistré ni partagé avec personne.",
+      "soloHoy": "Votre numéro vaut pour aujourd'hui seulement, pour une seule distribution.",
+      "abierta": "Ne fermez pas cette page : vous y voyez quel numéro est servi, et votre téléphone sonnera quand il restera 3 personnes avant vous et quand ce sera votre tour.",
+      "teLlaman": "Si on vous appelle et que vous n'êtes pas là, venez le plus vite possible. Si vous tardez trop, votre numéro sera annulé et il faudra en prendre un nouveau, en fin de file.",
+      "cadaQuien": "Chaque adulte prend son propre numéro. Si vous n'avez pas de téléphone, demandez à un bénévole."
+    },
+    "carro": {
+      "titulo": "Vous avez déjà un rendez-vous en voiture aujourd'hui à {{hora}}.",
+      "texto_one": "Si vous passez à la file à pied, votre rendez-vous en voiture sera annulé et vous ne pourrez pas revenir à la file des voitures.",
+      "texto_many": "Si vous passez à la file à pied, vos rendez-vous en voiture d'aujourd'hui seront annulés et vous ne pourrez pas revenir à la file des voitures.",
+      "texto_other": "Si vous passez à la file à pied, vos rendez-vous en voiture d'aujourd'hui seront annulés et vous ne pourrez pas revenir à la file des voitures.",
+      "si": "Oui, passer à la file à pied",
+      "no": "Non, je reste en voiture",
+      "duenio_one": "Vous êtes le propriétaire de la voiture : le rendez-vous de votre passager ({{count}}) sera aussi annulé. Il devra prendre son propre numéro (depuis son téléphone ou en demandant à un bénévole).",
+      "duenio_many": "Vous êtes le propriétaire de la voiture : les rendez-vous de vos passagers ({{count}}) seront aussi annulés. Chacun devra prendre son propre numéro (depuis son téléphone ou en demandant à un bénévole).",
+      "duenio_other": "Vous êtes le propriétaire de la voiture : les rendez-vous de vos passagers ({{count}}) seront aussi annulés. Chacun devra prendre son propre numéro (depuis son téléphone ou en demandant à un bénévole).",
+      "seguro": "Voulez-vous vraiment passer à la file à pied ?",
+      "siTodos": "Oui, annuler la voiture et passer à la file à pied"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "Vous avez déjà reçu votre nourriture en voiture aujourd'hui. Merci d'être venu !",
+      "AUN_NO_ABRE": "Les numéros sont distribués à partir de {{hora}}.",
+      "NO_HAY_FILA": "Il n'y a pas de file à pied aujourd'hui.",
+      "CERRADA": "On ne distribue plus de numéros aujourd'hui.",
+      "TURNOS_ANULADOS": "Deux de vos numéros ont déjà été annulés aujourd'hui parce que vous n'étiez pas là quand on vous a appelé. Si vous avez besoin d'aide, adressez-vous à un bénévole.",
+      "TURNO_REPETIDO": "Deux numéros ont été pris aujourd'hui depuis ce téléphone, et l'un a été annulé. Utilisez celui qui reste ; si vous ne l'avez pas, adressez-vous à un bénévole."
+    },
+    "errores": {
+      "SIN_CONEXION": "Pas de connexion. Vérifiez votre signal et appuyez de nouveau sur le bouton.",
+      "FUNCION_NO_INSTALADA": "Cette fonction n'est pas encore prête. Prévenez un bénévole.",
+      "DISPOSITIVO_INVALIDO": "Ce téléphone n'a pas pu obtenir de numéro. Demandez de l'aide à un bénévole.",
+      "ERROR_DESCONOCIDO": "Le numéro n'a pas pu être attribué. Appuyez de nouveau sur le bouton ou demandez de l'aide à un bénévole."
+    },
+    "terminada": "La file d'aujourd'hui est terminée. Merci d'être venu ! Nous vous attendons à la prochaine distribution.",
+    "codigoEsTuyo": "Ce code est à vous seul : ne le montrez à personne. Il sert à vérifier que le numéro est bien le vôtre.",
+    "codigo": {
+      "etiqueta": "Code du jour",
+      "ayuda": "Ce sont 4 chiffres affichés à l'entrée. Si vous ne les voyez pas, demandez à un bénévole.",
+      "FALTA_CODIGO": "Saisissez le code du jour pour prendre votre numéro.",
+      "CODIGO_INCORRECTO": "Ce n'est pas le code d'aujourd'hui. Vérifiez-le et réessayez.",
+      "DEMASIADOS_INTENTOS": "Trop d'essais. Vous pourrez réessayer dans {{reloj}}.",
+      "esperaBoton": "Attendez {{reloj}}"
+    },
+    "anotalo": "Notez votre numéro ({{turno}}) ou prenez cet écran en photo. Si la page se ferme, ne prenez pas d'autre numéro : donnez votre numéro au bénévole.",
+    "yaTenias": "Vous aviez déjà un numéro et la page s'est fermée ? N'en prenez pas d'autre : donnez votre numéro au bénévole.",
+    "otroTurno": "Prendre un nouveau numéro",
+    "carroCodigo": {
+      "abrir": "Vous aviez un rendez-vous en voiture aujourd'hui ?",
+      "titulo": "Passer de la file des voitures à la file à pied",
+      "ayuda": "Si la file des voitures est très longue, vous pouvez passer à la file à pied. Saisissez le code de votre rendez-vous en voiture. Le rendez-vous en voiture sera annulé et vous ne pourrez pas revenir à la file des voitures.",
+      "etiqueta": "Code du rendez-vous en voiture",
+      "campoAyuda": "Seulement les chiffres (4 ou 5) : le « CB- » est déjà là.",
+      "boton": "Passer à la file à pied",
+      "cancelar": "Je n'avais pas de rendez-vous en voiture",
+      "CODIGO_CARRO_NO_EXISTE": "Il n'y a pas de rendez-vous en voiture avec ce code aujourd'hui. Vérifiez les chiffres."
+    },
+    "verFila": "La file en direct"
+  },
+  "credencial": {
+    "etiqueta": "BÉNÉVOLE",
+    "titulo": "Carte de bénévole",
+    "enseniala": "Montrez-la en arrivant",
+    "cargando": "Nous préparons votre carte…",
+    "qrAlt": "Code QR de la carte de {{nombre}}",
+    "comoFunciona": "En arrivant, montrez ce QR à la personne qui accueille les bénévoles. C'est ainsi que vos heures de service sont enregistrées.",
+    "soloTuya": "Elle est à vous seul : ne la partagez avec personne. Si vous la perdez, demandez-en une nouvelle.",
+    "inactiva": "Cette carte n'est plus valable.",
+    "inactivaTexto": "Si vous pensez que c'est une erreur, appelez l'église : {{telefono}}.",
+    "noEncontrada": "Nous n'avons pas trouvé cette carte. Demandez à l'administrateur de vous renvoyer le lien.",
+    "sinConexion": "La carte n'a pas pu être chargée. Vérifiez votre signal et rouvrez le lien.",
+    "horas": {
+      "titulo": "Vos heures de service",
+      "llevas_one": "Vous avez {{duracion}} sur {{count}} jour.",
+      "llevas_many": "Vous avez {{duracion}} sur {{count}} de jours.",
+      "llevas_other": "Vous avez {{duracion}} sur {{count}} jours.",
+      "todavia": "Vous n'avez pas encore de visite complète. Les heures sont comptées à la fin de chaque journée de service.",
+      "ayuda": "Seules les visites avec arrivée et départ sont comptées. Les 10 dernières sont affichées ici.",
+      "todaviaYSalida": "Vous n'avez pas encore de visite complète. Quand on vous aura scanné à l'arrivée et au départ, vos heures apparaîtront ici."
+    },
+    "ensenialaYSalida": "Montrez-la en arrivant et en partant",
+    "comoFuncionaYSalida": "En arrivant, montrez ce QR à l'administrateur ; en partant, montrez-le de nouveau. C'est ainsi que vos heures de service sont enregistrées."
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}} min",
+      "h": "{{h}} h",
+      "hMin": "{{h}} h {{m}} min"
+    },
+    "envio": {
+      "mensaje": "Bonjour {{nombre}} ! Voici votre carte de bénévole de Cajita de Bendición (Iglesia Casa de Alabanza) :\n{{enlace}}\n\nGardez-la sur votre téléphone et montrez-la en arrivant et en partant : c'est ainsi que vos heures de service sont enregistrées. Elle est à vous seul, ne la partagez pas. Merci pour votre service !",
+      "mensajeSoloEntrada": "Bonjour {{nombre}} ! Voici votre carte de bénévole de Cajita de Bendición (Iglesia Casa de Alabanza) :\n{{enlace}}\n\nGardez-la sur votre téléphone et montrez-la en arrivant : c'est ainsi que vos heures de service sont enregistrées. Elle est à vous seul, ne la partagez pas. Merci pour votre service !"
+    }
+  },
+  "preferente": {
+    "etiqueta": "Sans faire la file",
+    "voluntario": "Passe sans faire la file. Avant de remettre le colis, vérifiez que c'est bien la bonne personne.",
+    "persona": "Vous passez sans faire la file : montrez ce QR au bénévole."
+  },
+  "filaEnVivo": {
+    "titulo": "La file à pied en ce moment",
+    "subtitulo": "Regardez comment avance la file. Pas besoin d'avoir un numéro.",
+    "cargando": "Nous vérifions la file…",
+    "noHay": "Il n'y a pas de file à pied aujourd'hui.",
+    "porAbrir": "Pas encore commencé : les numéros seront distribués à partir de {{hora}}.",
+    "terminada_one": "La file d'aujourd'hui est terminée : {{count}} personne a reçu de la nourriture. Merci !",
+    "terminada_many": "La file d'aujourd'hui est terminée : {{count}} de personnes ont reçu de la nourriture. Merci !",
+    "terminada_other": "La file d'aujourd'hui est terminée : {{count}} personnes ont reçu de la nourriture. Merci !",
+    "asiVa": "Où en est la file",
+    "noEsTuyo": "Ce sont les numéros d'autres personnes, pas le vôtre.",
+    "tuNumero": "Votre numéro est le {{turno}}.",
+    "recibio": "A reçu",
+    "llamando": "Appel en cours",
+    "sigue": "Suivant",
+    "nadieEspera": "Personne n'attend en ce moment.",
+    "esperando": "En attente",
+    "recibieron": "Ont reçu",
+    "dados": "Numéros",
+    "yaNoSeDan": "On ne distribue plus de nouveaux numéros aujourd'hui.",
+    "sinSenal": "Pas de signal : ce sont les dernières informations connues. Cela se mettra à jour quand la connexion reviendra.",
+    "miTurno": "Mon numéro ({{turno}})",
+    "sacar": "Prendre mon numéro"
+  },
+  "video": {
+    "titulo": "Qu'est-ce que Cajita de Bendición ?",
+    "presentacion": "vidéo",
+    "idioma": "Langue",
+    "hazTuCita": "Prendre rendez-vous",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Nourriture gratuite les lundis et jeudis. Un ministère de {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "Comment venez-vous ?",
+      "texto": "En voiture, vous prenez rendez-vous et choisissez votre heure. À pied, vous prenez un numéro sur votre téléphone le jour de la distribution.",
+      "carro": "En voiture",
+      "aPie": "À pied"
+    },
+    "cita": {
+      "titulo": "Prenez rendez-vous depuis votre téléphone",
+      "texto": "Choisissez le jour et l'heure. Pas besoin de compte ni de mot de passe.",
+      "lunes": "Lundi",
+      "jueves": "Jeudi"
+    },
+    "codigo": {
+      "titulo": "Gardez votre code",
+      "texto": "Vous recevrez un code QR et un numéro. Faites une capture d'écran."
+    },
+    "despensa": {
+      "titulo": "Venez chercher votre nourriture",
+      "texto": "Montrez votre code en arrivant et recevez votre colis. Chaque personne de 18 ans ou plus prend son propre rendez-vous.",
+      "unaCaja": "1 colis par adulte"
+    },
+    "privado": {
+      "titulo": "Gratuit et confidentiel",
+      "texto": "Aucun don n'est nécessaire. Vos informations ne sont partagées avec personne, y compris les autorités."
+    },
+    "final": {
+      "titulo": "Prenez rendez-vous",
+      "texto": "En voiture sur rendez-vous, à pied avec un numéro. Appuyez sur le bouton pour commencer."
+    },
+    "otraVez": "Revoir",
+    "anterior": "Précédent",
+    "siguiente": "Suivant",
+    "pausar": "Pause",
+    "seguir": "Reprendre"
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuRefreshCw } from 'react-icons/lu'
 import { clasificarErrorCamara, leerQR, zonaVisible } from '../datos/escaneo'
@@ -26,8 +26,10 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
   const videoRef = useRef(null)
   const lienzoRef = useRef(null)
   const [error, setError] = useState(null)
-  //  Sube con "Intentar de nuevo": vuelve a pedir la camara sin recargar.
+  //  Sube con "Intentar de nuevo" o "Reiniciar camara": vuelve a pedir la
+  //  camara sin recargar la pagina.
   const [intento, setIntento] = useState(0)
+  const reiniciar = useCallback(() => setIntento((n) => n + 1), [])
   //  En una referencia para no reiniciar la camara cuando cambia.
   const ignorarRef = useRef(ignorar)
   useEffect(() => {
@@ -61,6 +63,13 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
           flujo.getTracks().forEach((t) => t.stop())
           return
         }
+
+        //  Si el telefono corta la camara (otra app la tomo), se pide otra vez.
+        flujo.getVideoTracks().forEach((pista) =>
+          pista.addEventListener('ended', () => {
+            if (vigente) reiniciar()
+          }),
+        )
 
         const video = videoRef.current
         video.srcObject = flujo
@@ -111,7 +120,23 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
       if (cuadro) cancelAnimationFrame(cuadro)
       if (flujo) flujo.getTracks().forEach((t) => t.stop())
     }
-  }, [activo, alLeer, intento])
+  }, [activo, alLeer, intento, reiniciar])
+
+  //  Al regresar a la pagina (se bloqueo el telefono o se cambio de app) la
+  //  camara se quedaba congelada, sobre todo en el iPhone: se vuelve a pedir.
+  useEffect(() => {
+    if (!activo) return undefined
+    let seFue = false
+    const alCambiar = () => {
+      if (document.visibilityState === 'hidden') seFue = true
+      else if (seFue) {
+        seFue = false
+        reiniciar()
+      }
+    }
+    document.addEventListener('visibilitychange', alCambiar)
+    return () => document.removeEventListener('visibilitychange', alCambiar)
+  }, [activo, reiniciar])
 
   if (error) {
     return (
@@ -162,6 +187,17 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
             <span className="absolute -bottom-1 -right-1 h-10 w-10 rounded-br-2xl border-b-[6px] border-r-[6px] border-white" />
           </div>
         </div>
+
+        {/* Cuando la camara se traba sin dar error: abajo, fuera del cuadro
+            del QR (5 de noviembre de 2026). */}
+        <button
+          className="absolute bottom-1.5 left-1/2 inline-flex min-h-12 -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-black/60 px-4 text-base font-semibold text-white"
+          onClick={reiniciar}
+          type="button"
+        >
+          <LuRefreshCw aria-hidden="true" className="h-5 w-5 shrink-0" />
+          {t('escaneo.camara.reiniciar')}
+        </button>
       </div>
       {/* Vive aqui y no en la pagina para que no quede colgado cuando la
           camara no arranca. */}

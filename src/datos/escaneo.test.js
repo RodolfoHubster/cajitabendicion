@@ -14,6 +14,7 @@ import {
   clasificarErrorCamara,
   cuentaDeLista,
   listaParaEscaneo,
+  cajasDeHoy,
   yaRecibio,
   MS_DESHACER_PROPIA,
   entregaDirecta,
@@ -22,6 +23,22 @@ import {
   previaPorError,
   queEsElQR,
 } from './escaneo'
+
+describe('cajasDeHoy', () => {
+  beforeEach(() => supabase.rpc.mockReset())
+
+  it('pregunta por la fila del escaner y devuelve los tres numeros', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ cajas: 143, cajas_fila: 98, faltan_fila: 37 }], error: null })
+    await expect(cajasDeHoy('carro')).resolves.toEqual({ cajas: 143, cajas_fila: 98, faltan_fila: 37 })
+    expect(supabase.rpc).toHaveBeenCalledWith('cajas_de_hoy', { p_fila: 'carro' })
+  })
+
+  it('una fila rara pregunta por todas; sin respuesta, ceros', async () => {
+    supabase.rpc.mockResolvedValue({ data: [], error: null })
+    await expect(cajasDeHoy('ambas')).resolves.toEqual({ cajas: 0, cajas_fila: 0, faltan_fila: 0 })
+    expect(supabase.rpc).toHaveBeenCalledWith('cajas_de_hoy', { p_fila: null })
+  })
+})
 
 beforeEach(() => {
   supabase.rpc.mockReset()

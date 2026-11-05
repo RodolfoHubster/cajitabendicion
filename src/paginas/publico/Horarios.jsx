@@ -12,6 +12,7 @@ import {
 } from '../../datos/anticipado'
 import { aFechaLocal, consultarBloquesDeFecha, formatearHora } from '../../datos/disponibilidad'
 import { EsqueletoHorarios } from '../../componentes/Esqueleto'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/
 
@@ -119,7 +120,7 @@ export default function Horarios() {
     }
   }
 
-  const titulo = new Intl.DateTimeFormat(i18n.language, {
+  const titulo = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

@@ -22,6 +22,7 @@ import {
 } from '../../datos/disponibilidad'
 import { ORGANIZACION } from '../../datos/organizacion'
 import { EsqueletoProximaFecha } from '../../componentes/Esqueleto'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 // Azul de Facebook un poco mas oscuro que el oficial (#1877F2): con letra
 // blanca, el oficial no llega al contraste minimo legible.
@@ -115,7 +116,7 @@ export default function Calendario() {
     )
   }
 
-  const titulo = new Intl.DateTimeFormat(i18n.language, {
+  const titulo = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

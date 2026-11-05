@@ -131,7 +131,8 @@
       "comoArreglar": {
         "SIN_PERMISO": "Để bật: bấm vào ổ khóa (hoặc ba dấu chấm) cạnh địa chỉ trang, vào «Quyền» và cho phép máy ảnh. Sau đó bấm «Thử lại».",
         "CAMARA_OCUPADA": "Hãy đóng cuộc gọi video hoặc ứng dụng khác đang dùng máy ảnh, rồi bấm «Thử lại»."
-      }
+      },
+      "reiniciar": "Khởi động lại camera"
     },
     "errores": {
       "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
@@ -262,6 +263,14 @@
       "nota": "Để nhận ra: {{nota}}",
       "revisa": "Có đúng người không? Kiểm tra tên và ghi chú trước khi phát.",
       "entregar": "Đúng người, phát"
+    },
+    "sonido": {
+      "probar": "Thử âm thanh"
+    },
+    "cajas": {
+      "hoy": "Số thùng đã phát hôm nay",
+      "enTuFila": "Ở hàng của bạn: {{n}}",
+      "faltan": "Còn chờ đến: {{n}}"
     }
   },
   "pase": {
@@ -545,7 +554,8 @@
       "SIN_CONEXION": "Mất kết nối. Hãy kiểm tra sóng và bấm «Xác nhận» lại.",
       "ACOMPANANTE_SIN_CITA": "Không tìm thấy lịch hẹn đi xe với mã này trong ngày này. Hãy kiểm tra lại mã với người lái xe.",
       "CARRO_LLENO": "Xe đó đã đủ số người đi chung.",
-      "FALTA_FECHA": "Hãy chọn ngày."
+      "FALTA_FECHA": "Hãy chọn ngày.",
+      "LLAVE_VENCIDA": "Đã quá lâu. Hãy nhập lại mã và số điện thoại của bạn."
     },
     "apellidos": "Họ",
     "pais": "Quốc gia của số điện thoại",
@@ -571,6 +581,23 @@
       "BLOQUE_NO_EXISTE": "Hàng đi bộ này không còn nữa. Hãy xem lại trang hàng đi bộ.",
       "AUN_NO_ABRE": "Chưa mở lấy số. Hãy quay lại vào giờ ghi trên trang.",
       "DIA_CERRADO": "Ngày này không còn phát số."
+    },
+    "yaViniste": {
+      "titulo": "Bạn đã từng đến chưa?",
+      "ayuda": "Với mã CB và số điện thoại, bạn không cần nhập lại thông tin.",
+      "abrir": "Dùng mã của tôi",
+      "codigo": "Mã CB của bạn",
+      "codigoAyuda": "Mã có trong trang xác nhận và trong email về lịch hẹn của bạn.",
+      "telefono": "Số điện thoại của bạn (giống lần trước)",
+      "buscar": "Tiếp tục",
+      "buscando": "Đang tìm…",
+      "cerrar": "Tôi muốn tự nhập thông tin",
+      "listo": "Dùng thông tin lần trước của bạn, {{nombre}}",
+      "listoAyuda": "Mã CB của bạn vẫn như cũ. Chỉ cần xác nhận lịch hẹn.",
+      "noSoyYo": "Không phải tôi / dùng thông tin khác",
+      "faltaCodigo": "Hãy nhập các số trong mã của bạn.",
+      "NO_COINCIDE": "Mã và số điện thoại này không khớp. Hãy kiểm tra lại, hoặc nhập thông tin ở bên dưới.",
+      "DEMASIADOS_INTENTOS": "Thử quá nhiều lần. Hãy đợi {{minutos}} phút, hoặc nhập thông tin ở bên dưới."
     }
   },
   "pasos": {

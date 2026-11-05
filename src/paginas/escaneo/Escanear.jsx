@@ -5,6 +5,7 @@ import { LuArrowLeftRight, LuKeyRound, LuLayers, LuLogIn, LuRefreshCw, LuShieldC
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import BuscarTurno from '../../componentes/BuscarTurno'
+import CajasDeHoy from '../../componentes/CajasDeHoy'
 import Campo from '../../componentes/Campo'
 import DeshacerEntrega from '../../componentes/DeshacerEntrega'
 import ElegirFila from '../../componentes/ElegirFila'
@@ -37,7 +38,7 @@ import {
 import { anularTurno, elegirFila, entregarTurno, miFilaDeHoy, saltarTurno, turnoAdelantado } from '../../datos/filaAPie'
 import { esDeOtraFila, filaDe, miFila } from '../../datos/filas'
 import { hoyLocal } from '../../datos/panel'
-import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido } from '../../datos/sonido'
+import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido, sonarAunEnSilencio } from '../../datos/sonido'
 
 // Colores del logo, segun CLAUDE.md: verde puede pasar, rojo ya recibio.
 const ESTILO_RESULTADO = {
@@ -299,7 +300,11 @@ export default function Escanear() {
   //  alguien la haya tocado. Se prepara con el primer toque, sea cual sea:
   //  para cuando se lea un codigo, el bip ya puede sonar.
   useEffect(() => {
-    const preparar = () => prepararSonido()
+    //  Antes de preparar: que el iPhone suene aunque este en silencio.
+    const preparar = () => {
+      sonarAunEnSilencio()
+      prepararSonido()
+    }
     document.addEventListener('pointerdown', preparar, { once: true })
     return () => document.removeEventListener('pointerdown', preparar)
   }, [])
@@ -520,6 +525,9 @@ export default function Escanear() {
             fila={fila}
           />
         )}
+
+        {/* Cuantas cajas van hoy; se vuelve a preguntar con cada entrega. */}
+        {listo && <CajasDeHoy fila={fila} version={versionTurnos} />}
 
         {/* Cambiarse de fila se confirma: un toque sin querer dejaria a la
             voluntaria entregando en la fila de otros. */}

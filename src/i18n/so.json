@@ -1,0 +1,764 @@
+{
+  "avisoIdioma": {
+    "titulo": "Soomaaliga weli waa la horumarinayaa",
+    "detalle": "Tarjumaaddan weli waa la horumarinayaa, waxaana laga yaabaa inay khaladaad leedahay. Haddii wax aan la fahmin, kor kaga beddel Ingiriisi ama Isbaanish.",
+    "ingles": "Somali is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "hadda",
+      "haceMin": "{{n}} daqiiqo ka hor",
+      "haceHoras": "{{h}} saac iyo {{m}} daqiiqo ka hor"
+    }
+  },
+  "pase": {
+    "etiqueta": "Kaarka joogtada ah",
+    "titulo": "Kaarkaaga",
+    "dias": "Isniinta iyo Khamiista",
+    "cargando": "Waxaan diyaarinaynaa kaarkaaga…",
+    "noEncontrado": "Ma helin kaarkan. Waxaa laga yaabaa in xiriirku dhammaystirnayn.",
+    "revocado": "Kaarkani hadda ma shaqeeyo",
+    "revocadoTexto": "Haddii aad u malaynayso inay khalad tahay, wac kaniisadda: {{telefono}}.",
+    "comoFunciona": "Kaalay Isniin ama Khamiis kasta, waqtiga kugu habboon. Tus koodkan, waxaana lagu siin doonaa sanduuqaaga.",
+    "soloTuyo": "Kaarkani adiga oo keliya ayuu kuu yahay, maalintiina hal sanduuq ayuu ku siinayaa. Haddii aad cid kale la wadaagto, waa la joojin doonaa.",
+    "sello": "Astaanta Cajita de Bendición ee ku dhex jirta koodka waa calaamadda kaarkaaga: tabarucuhu sidaas ayuu ku aqoonsadaa."
+  },
+  "confirmacion": {
+    "cargando": "Waxaan diyaarinaynaa koodkaaga…",
+    "noEncontrada": "Ma helin ballantan. Waxaa laga yaabaa in xiriirku dhammaystirnayn.",
+    "volverInicio": "Ku noqo bogga hore",
+    "lista": "Ballantaadu waa diyaar",
+    "horarioCambiado": "Waa diyaar, waqtigaagii waa la beddelay. Koodku waa isku mid, laakiin sawirka mar kale kaydi: kii hore wuxuu sitaa waqtigii hore.",
+    "qrAlt": "Koodka QR ee ballantaada",
+    "siNoSeLee": "Haddii koodka la akhrin waayo, sheeg lambarkan:",
+    "aNombreDe": "Magaca",
+    "unSoloUso": "Koodkani hal mar oo keliya ayuu shaqeeyaa, hal sanduuqna wuxuu ku siinayaa. Haddii qof kale oo qoyskaaga ka mid ah uu sanduuq u baahan yahay, waa inuu isagu ballan qabsadaa.",
+    "cambiarHorario": "Beddel waqtiga",
+    "guardarImagen": "Kaydi sawirka",
+    "descargada": "Sawirka waa la soo dejiyay. Haddii aadan ku arkin sawirradaada, ku hay farta koodka QR ee kor ku yaal oo dooro «Kaydi sawirka» ama «Ku dar Sawirrada».",
+    "consejoCaptura": "Waxaad sidoo kale qaadan kartaa sawirka shaashadda.",
+    "cancelar": "Jooji ballanta",
+    "cancelarPregunta": "Ma hubtaa inaad joojinayso ballantaada? Meeshaada waxaa la siin doonaa qof kale.",
+    "cancelarSi": "Haa, jooji ballantayda",
+    "cancelarNo": "Maya, ballantayda hay",
+    "cancelando": "Waa la joojinayaa…",
+    "canceladaTitulo": "Ballantaadii waa la joojiyay",
+    "canceladaTexto": "Meeshaadii waa la sii daayay. Haddii aad u baahato, mar kale ballan qabso.",
+    "registrarOtra": "Mar kale ballan qabso",
+    "yaExistia": "Ballantan hore ayaad u lahayd. Mid cusub lama samayn: waa isla ballantii, isla koodkii.",
+    "consejoBrillo": "Maalinta qaybinta, kor u qaad iftiinka shaashadda si koodka loo akhriyo markiiba."
+  },
+  "cambiar": {
+    "titulo": "Beddel waqtiga",
+    "cargando": "Waxaan raadinaynaa ballantaada…",
+    "volver": "Ku noqo ballantayda",
+    "tuCitaAhora": "Ballantaada hadda",
+    "aviso": "Waqtiga hal mar oo keliya ayaad beddeli kartaa. Koodkaaga {{codigo}} iyo QR-kaagu waa sidoodii.",
+    "elegirDia": "Dooro maalinta",
+    "elegirHora": "Dooro waqtiga",
+    "actual": "Waqtigaaga hadda",
+    "deAcuerdo": "Waan fahmay in aan waqtiga hal mar oo keliya beddeli karo.",
+    "confirmar": "Beddel waqtiga",
+    "cambiando": "Waa la beddelayaa…",
+    "sinDias": "Hadda ma jiraan maalmo kale oo boos leh. Mar dambe isku day.",
+    "noSePuede": "Ballantan hadda lama beddeli karo.",
+    "yaCambiaste": "Waqtigaaga hal mar ayaad hore u beddeshay. Haddii aad aad ugu baahan tahay, wac kaniisadda: {{telefono}}."
+  },
+  "registro": {
+    "cargando": "Waxaan diyaarinaynaa ballanta…",
+    "sinHorario": "Marka hore dooro maalinta iyo waqtiga ballantaada.",
+    "horarioNoDisponible": "Waqtigaas hadda lama heli karo. Dooro mid kale.",
+    "nombre": "Magaca",
+    "telefono": "Taleefanka gacanta",
+    "correo": "Iimaylka",
+    "correoAyuda": "Halkan ayaan kuugu soo diri doonaa koodkaaga gelitaanka.",
+    "confirmar": "Xaqiiji ballanta",
+    "enviando": "Waxaan kuu kaydinaynaa meeshaada…",
+    "errores": {
+      "BLOQUE_LLENO": "Intaad buuxinaysay foomka, waqtigaas waa buuxsamay. Dooro mid kale.",
+      "BLOQUE_CERRADO": "Waqtigaas waa la xiray.",
+      "BLOQUE_NO_EXISTE": "Waqtigaas hadda ma jiro. Dooro mid kale.",
+      "FECHA_PASADA": "Taariikhdaas waa la dhaafay.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Toddobaadkan ballan ayaa horay loogu qabsaday. Toddobaadkii hal ballan ayaa la qabsan karaa: Isniinta ama Khamiista, labadaba maya.",
+      "LIMITE_DISPOSITIVO": "Qalabkan waxaa horay looga qabsaday ballan maalintan. Qof kastaa waa inuu ka qabsadaa taleefankiisa ama kombiyuutarkiisa.",
+      "NOMBRE_REQUERIDO": "Qor magacaaga.",
+      "TELEFONO_REQUERIDO": "Qor taleefankaaga.",
+      "EMAIL_REQUERIDO": "Qor iimaylkaaga.",
+      "EMAIL_INVALIDO": "Iimaylku wuxuu u muuqdaa mid khaldan. Fadlan hubi.",
+      "SIN_CODIGOS_DISPONIBLES": "Ma suurtoobin in koodkaaga la sameeyo. Mar kale isku day.",
+      "ERROR_DESCONOCIDO": "Ma suurtoobin in meeshaada la kaydiyo. Daqiiqad kadib isku day.",
+      "AUN_NO_ABRE": "Ballamaha maalintan weli lama furin.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Koodkaaga macmiilka hadda ma shaqeeyo. Waxaa laga yaabaa in la beddelay; eeg qoraalka Facebook.",
+      "DIA_CERRADO": "Ballamaha maalintan waa la xiray.",
+      "APELLIDOS_REQUERIDOS": "Qor magaca qoyskaaga.",
+      "NOMBRE_INVALIDO": "Magaca iyo magaca qoysku waa inaysan lambarro lahayn.",
+      "TELEFONO_INVALIDO": "Hubi taleefankaaga: lambarku waa dhiman yahay ama wax dheeraad ah ayuu leeyahay.",
+      "PAIS_INVALIDO": "Dooro Mexico ama Mareykanka.",
+      "CODIGO_POSTAL_REQUERIDO": "Qor koodka boostada.",
+      "CODIGO_POSTAL_INVALIDO": "Koodka boostadu waa 5 lambar.",
+      "CODIGO_POSTAL_NO_EXISTE": "Koodkaas boostada kama helin California iyo Baja California midkoodna.",
+      "COLONIA_REQUERIDA": "Dooro xaafaddaada (colonia).",
+      "COLONIA_INVALIDA": "Xaafaddaas kama mid aha koodkaas boostada.",
+      "CALLE_REQUERIDA": "Qor waddadaada.",
+      "CALLE_INVALIDA": "Hubi magaca waddada.",
+      "NUMERO_REQUERIDO": "Qor lambarka gurigaaga.",
+      "NUMERO_INVALIDO": "Hubi lambarka gurigaaga.",
+      "NUMERO_INTERIOR_INVALIDO": "Hubi lambarka gudaha.",
+      "CONSENTIMIENTO_REQUERIDO": "Xaqiiji inaad xogtaada u bixinayso si ikhtiyaari ah.",
+      "FALTA_HORARIO": "Dooro taariikh iyo waqti.",
+      "YA_REGISTRADO_ESE_DIA": "Maalintaas ballan ayaa horay ugu qabsatay magacaaga. Haddii aad koodkaaga lumisay, maalinta qaybinta la hadal kooxda: magacaaga ayay kugu raadin doonaan.",
+      "A_PIE_CERRADO": "Maalintan weli ma jiro saf lugta ah.",
+      "SIN_CONEXION": "Xiriirku waa go'ay. Hubi signalka oo mar kale riix «Xaqiiji».",
+      "ACOMPANANTE_SIN_CITA": "Maalintan ma jirto ballan baabuur oo leh koodkaas. Koodka la hubi qofka wadaya.",
+      "CARRO_LLENO": "Baabuurkaasi wuxuu leeyahay tirada ugu badan ee rakaabka.",
+      "FALTA_FECHA": "Dooro taariikh.",
+      "LLAVE_VENCIDA": "Waqti badan ayaa dhaafay. Mar kale qor koodkaaga iyo taleefankaaga."
+    },
+    "apellidos": "Magaca qoyska",
+    "pais": "Dalka taleefanka",
+    "paisesPrincipales": "Kuwa ugu badan",
+    "paisesTodos": "Dhammaan dalalka",
+    "otrosHorarios": {
+      "buscando": "Waxaan raadinaynaa waqtiyo kale maalintaas…",
+      "titulo": "Dooro waqti kale isla maalintaas:",
+      "seQueda": "Wixii aad qortay waa sidoodii. Waqtiga oo keliya ayaa isbeddelaya.",
+      "ninguno": "Maalintaas hadda ma jiraan waqtiyo bannaan.",
+      "otroDia": "Eeg maalmo kale"
+    },
+    "tuCitaGuardada": "Taleefankan horay ayaa loogu kaydiyay ballantan:",
+    "verTuCita": "Eeg ballantayda {{hora}} ({{nombre}})",
+    "horaCambiada": "Waa diyaar, hadda waqtigaagu waa {{hora}}. Riix «Xaqiiji» si aad u dhammaystirto.",
+    "borrador": {
+      "recuperado": "Waxaan soo celinay wixii aad qortay.",
+      "empezarDeNuevo": "Tirtir oo dib u bilow"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Intaad xogtaada qorayside, lambarradii waa dhammaadeen. Waan ka xunnahay.",
+      "BLOQUE_CERRADO": "Maalintan lambarrada waa la xiray.",
+      "BLOQUE_NO_EXISTE": "Safkan lugta hadda ma jiro. Mar kale eeg bogga safka lugta.",
+      "AUN_NO_ABRE": "Lambarrada weli lama bixinayo. Kaalay waqtiga ku qoran bogga.",
+      "DIA_CERRADO": "Maalintan lambarro dambe lama bixinayo."
+    },
+    "yaViniste": {
+      "titulo": "Hore ma u timid?",
+      "ayuda": "Koodkaaga CB iyo taleefankaaga, xogtaada dib uma qori doontid.",
+      "abrir": "Isticmaal koodkayga",
+      "codigo": "Koodkaaga CB",
+      "codigoAyuda": "Wuxuu ku jiraa xaqiijinta iyo iimaylka ballantaada.",
+      "telefono": "Taleefankaaga (kii hore oo kale)",
+      "buscar": "Sii wad",
+      "buscando": "Waa la raadinayaa…",
+      "cerrar": "Waxaan doorbidayaa inaan xogtayda qoro",
+      "listo": "Xogtaadii hore, {{nombre}}",
+      "listoAyuda": "Koodkaaga CB waa sidiisii. Kaliya xaqiiji ballantaada.",
+      "noSoyYo": "Ma ihi aniga / isticmaal xog kale",
+      "faltaCodigo": "Qor lambarrada koodkaaga.",
+      "NO_COINCIDE": "Koodkaas iyo taleefankaas isma waafaqsana. Hubi ama hoos ku qor xogtaada.",
+      "DEMASIADOS_INTENTOS": "Isku day badan. Sug {{minutos}} daqiiqo ama hoos ku qor xogtaada."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Horumarka ballanta",
+    "fecha": "Taariikhda",
+    "horario": "Waqtiga",
+    "datos": "Xogtaada"
+  },
+  "horarios": {
+    "duracion": "Waqti kastaa waa 15 daqiiqo.",
+    "cargando": "Waxaan raadinaynaa waqtiyada…",
+    "error": "Ma suurtoobin in waqtiyada la soo saaro. Daqiiqad kadib isku day.",
+    "sinBloques": "Maalintan ma harin waqtiyo bannaan.",
+    "fechaInvalida": "Taariikhdu waa khaldan tahay.",
+    "volverCalendario": "Dooro taariikh kale",
+    "lleno": "Waa buuxa",
+    "quedan_one": "{{count}} meel ayaa hartay",
+    "quedan_other": "{{count}} meelood ayaa haray",
+    "conCodigo": "Waxaad ku soo gashay koodka macmiilka. Dooro waqtigaaga.",
+    "revisandoCodigo": "Waxaan hubinaynaa koodkaaga…",
+    "continuarCon": "Ku sii wad {{hora}}",
+    "eligeUno": "Ka riix waqti liiska"
+  },
+  "calendario": {
+    "cargando": "Waxaan raadinaynaa maalmaha bannaan…",
+    "error": "Ma suurtoobin in maalmaha bannaan la soo saaro. Daqiiqad kadib isku day."
+  },
+  "pages": {
+    "calendario": "Qaybinta xigta",
+    "horarios": "Waqtiyada",
+    "registro": "Ballanta",
+    "confirmacion": "Xaqiijinta"
+  },
+  "inicio": {
+    "titulo": "Ballan qabso",
+    "subtitulo": "Cunto bilaash ah Isniinta iyo Khamiista",
+    "antesDeEmpezar": "Ka hor intaadan bilaabin",
+    "reglaRespaldo": "Qof kasta oo 18 jir ah ama ka weyn oo sanduuq qaadanaya wuxuu u baahan yahay ballan iyo kood u gaar ah.",
+    "comoVienes": "Sidee u imanaysaa?",
+    "enCarro": "Baabuur",
+    "aPie": "Lug",
+    "aPieAviso": "Lugta ballan ma leh: maalinta qaybinta halkan ka qaado lambar oo sug inta lagu yeerayo.",
+    "gratuito": "Cuntadu waa bilaash. Deeq looma baahna.",
+    "yaTienesCita": "Ballan ma leedahay? Maalinta qaybinta keen sawirka ama sawirka shaashadda ee koodkaaga.",
+    "hacerCita": "Ballan qabso",
+    "sacarTurno": "Qaado lambar"
+  },
+  "navegacion": {
+    "inicio": "Bogga hore",
+    "cambiarFecha": "Beddel taariikhda",
+    "cambiarHorario": "Beddel waqtiga",
+    "accesoPersonal": "Gelitaanka shaqaalaha",
+    "verSitio": "Eeg bogga"
+  },
+  "pie": {
+    "bienvenidos": "Ku soo dhawoow",
+    "comunidad": "Bulsho ku dhex jirta Masiixa",
+    "servicios": "Cibaadada kaniisadda",
+    "horarioServicios": "Khamiis 7:00 PM · Axad 6:00 PM",
+    "sitioIglesia": "Bogga kaniisadda",
+    "siguenos": "Na raac",
+    "apoya": "Taageer Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Cajita de Bendición ee Facebook",
+      "facebookIglesia": "Kaniisadda ee Facebook",
+      "tiktokCajita": "Cajita de Bendición ee TikTok",
+      "instagramIglesia": "Kaniisadda ee Instagram",
+      "tiktokIglesia": "Kaniisadda ee TikTok"
+    }
+  },
+  "donar": {
+    "titulo": "Ma rabtaa inaad taageerto Cajita de Bendición?",
+    "tituloTrasRegistro": "Haddii aad awooddo, ha illoobin inaad na taageerto",
+    "aclaracion": "Ballantaadu kuma xirna deeq: cuntadu waa bilaash.",
+    "texto": "Haddii aad awooddo oo aad rabto inaad caawiso, wax kasta oo aad bixiso waxay noo suurtagelinaysaa inaan toddobaad kasta caawinno qoysas badan.",
+    "paypal": "Ku deeq PayPal",
+    "gofundme": "Ku taageer GoFundMe",
+    "suscribirse": "Ku biir Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Halka aan joogno",
+    "entregas": "Qaybinta cuntada: Isniinta iyo Khamiista galabtii, ballan ahaan.",
+    "googleMaps": "Ka fur Google Maps",
+    "appleMaps": "Ka fur Apple Maps",
+    "llamar": "Wac"
+  },
+  "marca": {
+    "ministerio": "Adeeg ka mid ah {{iglesia}}"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "Qaybinta {{fecha}} waxay dib u dhacaysaa {{minutos}} daqiiqo. Qof walba isla kaalintiisa ayuu ku galayaa, {{minutos}} daqiiqo ka dib waqtigiisa.",
+      "movida": "Qaybinta {{fecha}} waxaa loo wareejiyay {{fechaNueva}}, isla waqtigii. Koodkaagu wali wuu shaqeeyaa.",
+      "cancelada": "Qaybinta {{fecha}} waa la joojiyay. Haddii aad ballan lahayd, kalandarka mar kale ka qabso."
+    },
+    "miCita": {
+      "retraso": "Qaybinta maalintaada waxay dib u dhacaysaa {{minutos}} daqiiqo: waqtigaaga cusub oo qiyaas ah waa {{hora}}. Koodkaagu wali wuu shaqeeyaa.",
+      "movida": "Ballantaada waxaa laga wareejiyay {{fecha}} loona wareejiyay {{fechaNueva}}, isla waqtigii. Koodkaagu wali wuu shaqeeyaa.",
+      "cancelada": "Qaybinta maalintaas waa la joojiyay."
+    }
+  },
+  "guia": {
+    "abrir": "Hagaha"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Qor magacaaga.",
+      "NUMEROS": "Magacu waa inuusan lambarro lahayn.",
+      "SIMBOLOS": "Xarfo oo keliya. Waad isticmaali kartaa meelo bannaan, xariiq (-) iyo calaamadda (').",
+      "CORTO": "Qor magacaaga oo dhan, ha qorin hal xaraf oo keliya."
+    },
+    "apellidos": {
+      "VACIO": "Qor magaca qoyskaaga.",
+      "NUMEROS": "Magaca qoysku waa inuusan lambarro lahayn.",
+      "SIMBOLOS": "Xarfo oo keliya. Waad isticmaali kartaa meelo bannaan, xariiq (-) iyo calaamadda (').",
+      "CORTO": "Qor magaca qoyska oo dhan, ha qorin hal xaraf oo keliya."
+    },
+    "correo": {
+      "VACIO": "Qor iimaylkaaga.",
+      "ESPACIOS": "Iimaylku meelo bannaan ma leh.",
+      "SIN_ARROBA": "Calaamadda @ ayaa ka maqan. Tusaale: nombre@gmail.com",
+      "VARIAS_ARROBAS": "Iimaylku hal @ oo keliya ayuu leeyahay.",
+      "SIN_USUARIO": "Qaybta ka horreysa @ ayaa ka maqan.",
+      "SIN_DOMINIO": "Qaybta ka dambeysa @ ayaa ka maqan, tusaale gmail.com",
+      "SIN_PUNTO": "Dhammaadka dhibicda kadib ayaa ka maqan, tusaale .com",
+      "DOMINIO_INVALIDO": "Hubi qaybta ka dambeysa @, tusaale gmail.com",
+      "sugerencia": "Ma waxaad ula jeeddaa {{correo}}?",
+      "usarSugerencia": "Haa, sax"
+    },
+    "telefono": {
+      "VACIO": "Qor taleefankaaga.",
+      "CARACTERES": "Taleefanku lambarro oo keliya ayuu leeyahay. Waad isticmaali kartaa meelo bannaan, xariiqyo iyo + bilowga.",
+      "LADA_DESCONOCIDA": "Koodkaas dalka ma aqoonno. Ka dooro dalkaaga liiska.",
+      "CORTO": "Lambarro ayaa ka maqan: lambarka {{pais}} wuxuu leeyahay {{digitos}} lambar, adiguna waxaad qortay {{llevan}}.",
+      "LARGO": "Lambarro dheeraad ah ayaa jira: lambarka {{pais}} wuxuu leeyahay {{digitos}} lambar, adiguna waxaad qortay {{llevan}}.",
+      "EMPIEZA_CON_1": "Hal lambar ayaa ka maqan: lambarka {{pais}} wuxuu leeyahay {{max}} lambar, iyadoo aan la tirin 1-ka bilowga.",
+      "entre": "{{min}} ilaa {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Qor magaca qofka.",
+      "NUMEROS": "Magacu waa inuusan lambarro lahayn.",
+      "SIMBOLOS": "Xarfo oo keliya. Waad isticmaali kartaa meelo bannaan, xariiq (-) iyo calaamadda (').",
+      "CORTO": "Qor magaca oo dhan, ha qorin hal xaraf oo keliya."
+    }
+  },
+  "proxima": {
+    "etiqueta": "Qaybinta xigta",
+    "horario": "Laga bilaabo {{inicio}} ilaa {{fin}}",
+    "duracion": "Waqti kastaa waa 15 daqiiqo.",
+    "lugares_one": "{{count}} meel bannaan",
+    "lugares_other": "{{count}} meelood oo bannaan",
+    "lleno": "Qaybintan meelo dambe ma jiraan.",
+    "abiertos": "Ballamaha waa furan yihiin.",
+    "abreEl": "Ballamaha waxay furmayaan {{cuando}}.",
+    "faltan": "Waxaa haray {{tiempo}}",
+    "suscriptoresDesde": "Macaamiisha Facebook waxay ballan qabsan karaan laga bilaabo {{cuando}}.",
+    "suscriptoresAhora": "Macaamiisha Facebook hadda ayay koodkooda ku qabsan karaan ballan.",
+    "conCodigo": "Ballanta macaamiisha Facebook",
+    "registrarme": "Ballan qabso",
+    "sinLugares": "Meelo ma jiraan",
+    "seActivara": "Badhanka «Ballan qabso» wuxuu shaqayn doonaa isagoo kaligiis marka la furo.",
+    "sinFechas": "Hadda ma jiraan qaybino la qorsheeyay. Mar dambe soo eeg.",
+    "tiempo": {
+      "dias_one": "{{count}} maalin",
+      "dias_other": "{{count}} maalmood",
+      "horas": "{{n}} saac",
+      "minutos": "{{n}} daqiiqo",
+      "segundos": "{{n}} ilbiriqsi"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Ballan hore oo macaamiisha ah",
+    "explicacion": "Haddii aad ku biirtay Cajita de Bendición ee Facebook, qor koodka ku jira qoraalka macaamiisha oo keliya.",
+    "desde": "Koodka waxaad isticmaali kartaa laga bilaabo {{cuando}}.",
+    "ahora": "Hadda waxaad isticmaali kartaa koodkaaga si aad hore ugu qabsato ballan.",
+    "sinAnticipado": "Qaybintan ma laha ballan hore oo macaamiisha ah.",
+    "yaAbierto": "Ballamaha hadda waa u furan yihiin qof walba: kood looma baahna.",
+    "irRegistro": "Tag ballanta",
+    "codigo": "Koodka macmiilka",
+    "entrar": "Ku gal koodkayga",
+    "validando": "Waa la hubinayaa…",
+    "invalido": "Koodkani ma shaqeeyo ama weli lama isticmaali karo.",
+    "noSuscriptor": "Weli kuma biirin?",
+    "invitacion": "Ku biir Cajita de Bendición ee Facebook si aad qaybin kasta hore ugu qabsato ballan.",
+    "suscribirme": "Ku biir Facebook",
+    "cerrar": "Xir"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "Ma helin ballantan.",
+      "CITA_YA_CANCELADA": "Ballantan horay ayaa loo joojiyay.",
+      "CITA_YA_ENTREGADA": "Ballantan horay ayaa loo isticmaalay: sanduuqa waa la bixiyay.",
+      "FECHA_PASADA": "Taariikhdaas waa la dhaafay.",
+      "MOTIVO_REQUERIDO": "Qor sababta ka-reebitaanka.",
+      "PERSONA_NO_EXISTE": "Qofna ma laha koodkaas. Hubi (tusaale CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Qofkani toddobaadkaas ballan ma leh, sidaa darteed ka-reebitaan uma baahna: si caadi ah ballan ugu qabso.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "Qofkani toddobaadkaas horay ayuu ka-reebitaan u lahaa. Hal keliya ayaa la ogol yahay.",
+      "BLOQUE_LLENO": "Waqtigaas waa buuxsamay. Dooro mid kale.",
+      "BLOQUE_CERRADO": "Waqtigaas waa xiran yahay.",
+      "BLOQUE_NO_EXISTE": "Waqtigaas hadda ma jiro.",
+      "DIA_CERRADO": "Maalintaas waa xiran tahay.",
+      "FUNCION_NO_INSTALADA": "Shaqadan hadda lama heli karo. Mar dambe isku day.",
+      "SIN_PERMISO": "Akoonkaagu fasax uma laha tan. Mar kale gal.",
+      "SIN_CONEXION": "Xiriir ma jiro. Hubi internetkaaga oo mar kale isku day.",
+      "ERROR_DESCONOCIDO": "Ma suurtoobin. Mar kale isku day.",
+      "NOMBRE_REQUERIDO": "Qor magaca qofka.",
+      "NOMBRE_INVALIDO": "Magacu waa inuusan lambarro lahayn.",
+      "ENTRADA_NO_EXISTE": "Ma helin diiwaankan.",
+      "ENTRADA_YA_ANULADA": "Diiwaankan horay ayaa loo tirtiray.",
+      "SIN_CODIGOS_DISPONIBLES": "Ma suurtoobin in kood la sameeyo. Mar kale isku day.",
+      "MISMO_HORARIO": "Kani waa waqtigaaga hadda. Dooro mid kale.",
+      "YA_CAMBIO_HORARIO": "Waqtigaaga hal mar ayaad hore u beddeshay. Haddii aad beddel kale u baahan tahay, wac kaniisadda.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "Toddobaadkan horay ayaad ballan u leedahay. Toddobaadkii hal keliya ayaa la ogol yahay.",
+      "AUN_NO_ABRE": "Maalintaas weli lama furin.",
+      "PASE_NO_EXISTE": "Qofkani kaar ma leh.",
+      "PASE_YA_REVOCADO": "Kaarkan horay ayaa loo joojiyay.",
+      "TELEFONO_INVALIDO": "Taleefanku waa khaldan yahay. Hubi koodka dalka iyo lambarka.",
+      "FECHA_FUTURA": "Taariikhdaas weli ma iman.",
+      "ACOMPANANTE_SIN_CAMBIO": "Waxaad la socotaa baabuur qof kale: waqtigaagu waa waqtiga qofka wadaya. Haddii uu waqtigiisa beddelo, kaaguna wuu isbeddelayaa.",
+      "A_PIE_SIN_CAMBIO": "Safka lugta waqtiga lama beddelo: maalintaas lambar cusub qaado.",
+      "NOTA_MUY_LARGA": "Qoraalku aad buu u dheer yahay: ugu badnaan 200 xaraf.",
+      "FILA_INVALIDA": "Dooro safka: baabuurta ama lugta.",
+      "NO_ES_DIA_DE_ENTREGA": "Maalintaas qaybin ma jirin (ama waa la joojiyay).",
+      "PASE_REVOCADO": "Maalintaas qofkani kaar ma lahayn.",
+      "PASE_YA_ENTREGADO": "Maalintaas kaarkan sanduuq horay ayaa loogu bixiyay: maalintii hal sanduuq."
+    }
+  },
+  "domicilio": {
+    "titulo": "Cinwaankaaga",
+    "tituloPanel": "Cinwaanka qofka",
+    "zona": "Waxaan aqbalnaa cinwaanno ku yaal California (Mareykanka) iyo Baja California (Mexico).",
+    "pais": "Dalka cinwaanka",
+    "paises": {
+      "MX": "Mexico",
+      "US": "Mareykanka"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (koodka boostada)",
+      "US": "ZIP code (koodka boostada)"
+    },
+    "buscando": "Waxaan raadinaynaa koodka boostada…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (xaafadda)",
+    "coloniaOpcional": "Colonia (xaafadda, ikhtiyaari)",
+    "elegirColonia": "Dooro xaafaddaada",
+    "calle": {
+      "MX": "Waddada",
+      "US": "Cinwaanka"
+    },
+    "numero": {
+      "MX": "Lambarka guriga"
+    },
+    "interior": {
+      "MX": "Lambarka gudaha (ikhtiyaari)",
+      "US": "Apt. (ikhtiyaari)"
+    },
+    "sinDomicilio": "Ma lihi cinwaan go'an",
+    "sinDomicilioAyuda": "Tusaale, haddii aad ku nooshahay baabuur ama aad si ku-meel-gaar ah ula joogto qaraabo. Koodka boostada oo keliya ayaan ku weydiin doonaa.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Qor koodka boostada.",
+        "FORMATO": "Koodka boostadu waa 5 lambar.",
+        "NO_EXISTE": "Koodkaas boostada kama helin California iyo Baja California midkoodna. Hubi.",
+        "BUSCANDO": "Daqiiqad: waxaan hubinaynaa koodka boostada."
+      },
+      "colonia": {
+        "VACIO": "Ka dooro xaafaddaada liiska.",
+        "NO_COINCIDE": "Xaafaddaas kama mid aha koodkaas boostada. Ka dooro liiska."
+      },
+      "calle": {
+        "VACIO": "Qor waddadaada.",
+        "SIN_LETRAS": "Qor magaca waddada.",
+        "SIN_NUMERO": "Lambarka guriga ayaa bilowga ka maqan, tusaale 7855 Lansing Dr.",
+        "LARGO": "Magaca waddadu aad buu u dheer yahay."
+      },
+      "numero": {
+        "VACIO": "Qor lambarka.",
+        "FORMATO": "Qor lambarka guriga, tusaale 4250 ama 12-B.",
+        "FORMATO_MX": "Qor lambarka, tusaale 1234 ama 12-B. Haddii uusan lahayn, qor S/N."
+      },
+      "interior": {
+        "FORMATO": "Xarfo iyo lambarro oo keliya, tusaale 5 ama B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Xogtaadu waa qarsoodi",
+    "texto": "Waxaan u isticmaalnaa oo keliya diiwaanka gudaha ee Cajita de Bendición iyo abaabulka qaybinta. Cidna lama wadaagno, oo ay ku jiraan maamulka dawladda.",
+    "casilla": "Waan xaqiijinayaa inaan xogtan u bixinayo si ikhtiyaari ah.",
+    "casillaPanel": "Qofku wuxuu ii xaqiijiyay inuu xogtiisa u bixinayo si ikhtiyaari ah.",
+    "falta": "Si aad ballan u qabsato, calaamadee sanduuqa xaqiijinta."
+  },
+  "boletin": {
+    "casilla": "Waxaan rabaa inaan iimayl ahaan u helo wararka iyo macluumaadka guud ee kaniisadda (ikhtiyaari).",
+    "ayuda": "Tani way ka duwan tahay iimaylada ballantaada, kuwaas oo aad heli doonto si kastaba. Waqti kasta waad ka bixi kartaa."
+  },
+  "reglas": {
+    "titulo": "Akhri ka hor intaadan xaqiijin ballantaada",
+    "casilla": "Waan akhriyay oo waan aqbalay xeerarkan.",
+    "falta": "Si aad u sii wadato, akhri oo aqbal xeerarka.",
+    "respaldo1": "Kaalay 5 daqiiqo ka hor waqtigaaga. Waa qasab.",
+    "respaldo2": "Koodkaagu wuxuu ku siinayaa hal sanduuq, hal mar oo keliya.",
+    "respaldo3": "Waqtigaaga hal mar oo keliya ayaad beddeli kartaa.",
+    "tituloAPie": "Akhri ka hor intaadan qaadan lambarkaaga",
+    "respaldoAPie1": "Qof kasta oo 18 jir ah ama ka weyn wuxuu u baahan yahay lambar iyo kood u gaar ah.",
+    "respaldoAPie2": "Ag sug. Marka lambarkaaga lagu yeero, kaalay oo tus koodkaaga."
+  },
+  "avisos": {
+    "cargando": "Waxaan soo saaraynaa qoraallada…"
+  },
+  "preguntas": {
+    "titulo": "Su'aalaha badanaa la is weydiiyo",
+    "ayuda": "Waxa inta badan nala weydiiyo. Riix su'aal si aad u aragto jawaabta.",
+    "cargando": "Waxaan soo saaraynaa su'aalaha…",
+    "sinPreguntas": "Halkan weli su'aalo ma jiraan.",
+    "masDudas": "Su'aal kale ma qabtaa? Na wac {{telefono}} ama maalinta qaybinta weydii kooxda."
+  },
+  "quienesSomos": {
+    "titulo": "Annaga",
+    "invitacion": "Kaniisadda, adeegga iyo sababta boggan loo sameeyay.",
+    "cargando": "Waa la soo saarayaa…",
+    "sinTexto": "Halkan weli macluumaad ma jiro.",
+    "sitioIglesia": "Bogga kaniisadda",
+    "verPreguntas": "Su'aalaha badanaa la is weydiiyo"
+  },
+  "tema": {
+    "aOscuro": "Habka mugdiga",
+    "aClaro": "Habka iftiinka",
+    "cambiarAOscuro": "U beddel habka mugdiga",
+    "cambiarAClaro": "U beddel habka iftiinka"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "Safka baabuurta",
+      "a_pie": "Safka lugta",
+      "ambas": "Labada saf"
+    }
+  },
+  "misCitas": {
+    "titulo": "Ballamahaaga",
+    "tituloUna": "Ballantaada",
+    "ayuda": "Waxaa laga qabsaday taleefankan. Riix badhanka si aad u aragto koodka.",
+    "hoy": "Maanta!",
+    "ver": "Eeg koodkayga",
+    "quitar": "Ka saar taleefankan",
+    "quitarPregunta": "Ma ka saaraysaa taleefankan? Ballanta LAMA joojinayo: wali waa taada.",
+    "quitarSi": "Haa, halkan ka saar",
+    "quitarNo": "Maya, hay",
+    "ayudaUna": "Waxaa laga qabsaday taleefankan. Riix badhanka si aad u aragto koodka."
+  },
+  "letra": {
+    "titulo": "Cabbirka qoraalka",
+    "normal": "Qoraal caadi ah",
+    "grande": "Qoraal weyn",
+    "muy_grande": "Qoraal aad u weyn"
+  },
+  "recordatorio": {
+    "agregar": "Ku dar kalandarka",
+    "titulo": "Cajita de Bendición: ballantaada",
+    "descripcion": "Koodkaaga: {{codigo}}. Kaalay dhowr daqiiqo ka hor oo keen koodka QR.\nKoodkaaga: {{enlace}}",
+    "aviso": "Maanta waa ballantaada Cajita de Bendición. Keen koodkaaga."
+  },
+  "redDeSeguridad": {
+    "titulo": "Shaashaddan wax baa ku khaldamay",
+    "texto": "Ma aha khaladkaaga. Haddii aad horay ballan u qabsatay, way kaydsan tahay.",
+    "recargar": "Dib u soo celi",
+    "inicio": "Ku noqo bogga hore",
+    "ayuda": "Haddii ay soo noqnoqoto, wac kaniisadda: {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Dhageyso ballantayda",
+    "frase": "Ballantaadu waa {{fecha}}, {{hora}}. Koodkaagu waa {{codigo}} Kaalay dhowr daqiiqo ka hor."
+  },
+  "entornoPruebas": {
+    "aviso": "Kaydka tijaabada · halkan waxba dhab ma aha",
+    "lento": "hab gaabis ah: {{segundos}} ilbiriqsi"
+  },
+  "aPie": {
+    "noHay": "Hadda ma jiro saf lugta ah. Marka uu jiro, halkan ayaad lambar ka qaadan kartaa.",
+    "proxima": "Safka lugta ee xiga",
+    "empiezaA": "Qaybinta waxaan bilaabaynaa {{hora}}",
+    "abreA": "Lambarrada waxaa la bilaabayaa {{cuando}}.",
+    "seActualiza": "Boggan ha xirin: badhanku isagoo kaligiis ayuu soo muuqan doonaa marka lambarrada la bilaabo.",
+    "volver": "Ku noqo safka lugta",
+    "registroTitulo": "Qaado lambarkaaga",
+    "confirmar": "Qaado lambarkayga"
+  },
+  "turno": {
+    "tuTurno": "Lambarkaaga",
+    "numero": "Lambarka {{turno}}",
+    "listo": "Lambarkaaga waa diyaar",
+    "van": "Hadda waxaa la adeegayaa lambarka {{turno}}",
+    "antes_one": "{{count}} qof ayaa kaa horreeya",
+    "antes_other": "{{count}} qof ayaa kaa horreeya",
+    "eresElSiguiente": "Adiga ayaa xiga! Soo dhowow.",
+    "esTuTurno": "Waa kaalintaada! Kaalay oo tus koodkaaga.",
+    "teLlamaron": "Lambarkaaga waa lagu yeeray mana joogin. Hadda u tag tabarucaha oo tus lambarkaaga ama koodkaaga. Haddii aad aad u daahdo, lambarkaaga waa la tirtirayaa waxaadna u baahan doontaa mid cusub.",
+    "recibida": "Sanduuqaaga waad qaadatay. Waad ku mahadsan tahay imaanshahaaga!",
+    "otroDia": "Maalinta qaybinta, halkan waxaad ku arki doontaa lambarka la adeegayo.",
+    "seActualiza": "Wuxuu isagoo kaligiis isu cusboonaysiinayaa dhowr ilbiriqsi kasta.",
+    "terminada": "Safka maanta waa dhammaaday. Waad ku mahadsan tahay imaanshahaaga; waxaan kugu sugaynaa qaybinta xigta.",
+    "anulado": "Lambarkaaga waa la tirtiray: waa lagu yeeray mana joogin. Haddii aad wali cuntada u baahan tahay, qaado lambar cusub: safka dabadiisa ayaad ka sugi doontaa.",
+    "repetido": "Lambarkan waa la joojiyay sababtoo ah horay ayaad lambar kale u lahayd.",
+    "repetidoCon": "Lambarkan waa la joojiyay sababtoo ah horay ayaad u lahayd lambarka {{turno}}.",
+    "repetidoAyuda": "Isticmaal lambarka aad marka hore qaadatay. Haddii aadan haysan, la hadal tabaruce."
+  },
+  "acompanante": {
+    "titulo": "Sidee u imanaysaa?",
+    "queEs": "Waa maxay tani?",
+    "explicacion": "Meel kastaa waa hal baabuur. Haddii aad la socoto baabuurka qof horay ballan u leh, dooro \"Waxaan la socdaa baabuur qof kale\": waxaad yeelan doontaa kood iyo sanduuq kuu gaar ah, laakiin meel kale ma qaadanaysid. Waqtigaagu waa waqtiga qofka wadaya.",
+    "propio": "Baabuurkayga ayaan keenayaa",
+    "propioAyuda": "Meel ayaad u qabsanaysaa baabuurkaaga.",
+    "acompanante": "Waxaan la socdaa baabuurka qof horay ballan u leh",
+    "acompananteAyuda": "Meel kale ma qaadanaysid.",
+    "codigo": "Koodka qofka wadaya",
+    "codigoAyuda": "Wuxuu ku yaal bogga ballantiisa, QR-kiisa hoostiisa (tusaale CB-4871).",
+    "faltaCodigo": "Qor koodka qofka wadaya, tusaale CB-4871.",
+    "horaDeQuienManeja": "Waqtigaagu waa waqtiga qofka wadaya.",
+    "enlace": "Ma la socotaa baabuurka qof horay ballan u leh? Halkan iska diiwaangeli",
+    "escogeHorario": "Si aad baabuurkaaga ugu timaado, marka hore dooro waqti meelo bannaan leh.",
+    "verHorarios": "Eeg waqtiyada"
+  },
+  "vip": {
+    "voluntario": "Si toos ah ayuu u gelayaa, saf la'aan",
+    "persona": "Si toos ah ayaad u gelaysaa, saf la'aan",
+    "etiqueta": "Kaarka VIP"
+  },
+  "demo": {
+    "aviso": "Tusaale fiidiyow: halkan waxba lama kaydiyo, koodka aad hesho ma shaqeeyo.",
+    "salir": "Ka bax tusaalaha"
+  },
+  "turnoAPie": {
+    "titulo": "Safka lugta",
+    "subtitulo": "Halkan ka qaado lambarkaaga. Xog looma baahna.",
+    "boton": "Qaado lambarkayga",
+    "sacando": "Waxaan kuu qaadaynaa lambar…",
+    "empiezaA": "Qaybinta waxaan bilaabaynaa {{hora}}",
+    "revisando": "Waxaan hubinaynaa safka…",
+    "noHay": "Maanta ma jiro saf lugta ah.",
+    "llena": "Maanta lambarro dambe ma jiraan.",
+    "esTuTurno": "Waa kaalintaada!",
+    "acercate": "Kaalay oo tus koodkaaga QR.",
+    "verMiQr": "Eeg koodkayga",
+    "avisos": {
+      "sinDatos": "Kuma weydiinno magacaaga, da'daada ama taleefankaaga. Waxba lama kaydiyo, cidna lama wadaago.",
+      "soloHoy": "Lambarkaagu waa maanta oo keliya, hal qayb cunto ah.",
+      "abierta": "Boggan ha xirin: halkan waxaad ku arkaysaa lambarka la adeegayo, taleefankaaguna wuu dhawaaqi doonaa marka 3 qof kaa horreeyaan iyo marka kaalintaadu timaado.",
+      "teLlaman": "Haddii laguu yeero oo aadan joogin, kaalay sida ugu dhakhsaha badan. Haddii aad aad u daahdo, lambarkaaga waa la tirtirayaa waxaadna u baahan doontaa mid cusub, safka dabadiisa.",
+      "cadaQuien": "Qof weyn kastaa lambarkiisa ayuu qaataa. Haddii aadan taleefan haysan, weydii tabaruce."
+    },
+    "carro": {
+      "titulo": "Maanta {{hora}} horay ayaad ballan baabuur u leedahay.",
+      "texto_one": "Haddii aad u gudubto safka lugta, ballantaada baabuurka waa la joojinayaa mana ku noqon kartid safka baabuurta.",
+      "texto_other": "Haddii aad u gudubto safka lugta, ballamahaaga baabuurka ee maanta waa la joojinayaa mana ku noqon kartid safka baabuurta.",
+      "si": "Haa, u gudub safka lugta",
+      "no": "Maya, baabuurka ayaan ku sii jirayaa",
+      "duenio_one": "Adiga ayaa baabuurka leh: ballanta rakaabkaaga ({{count}}) sidoo kale waa la joojinayaa. Wuxuu u baahan doonaa inuu qaato lambarkiisa (taleefankiisa ama tabaruce ha weydiiyo).",
+      "duenio_other": "Adiga ayaa baabuurka leh: ballamaha rakaabkaaga ({{count}}) sidoo kale waa la joojinayaa. Mid kastaa wuxuu u baahan doonaa inuu qaato lambarkiisa (taleefankiisa ama tabaruce ha weydiiyo).",
+      "seguro": "Ma hubtaa inaad u gudbayso safka lugta?",
+      "siTodos": "Haa, jooji baabuurka oo u gudub safka lugta"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "Maanta cuntadaada waxaad ku qaadatay baabuur. Waad ku mahadsan tahay imaanshahaaga!",
+      "AUN_NO_ABRE": "Lambarrada waxaa la bixinayaa laga bilaabo {{hora}}.",
+      "NO_HAY_FILA": "Maanta ma jiro saf lugta ah.",
+      "CERRADA": "Maanta lambarro dambe lama bixinayo.",
+      "TURNOS_ANULADOS": "Maanta labo lambar oo kuu ah ayaa la tirtiray sababtoo ah ma joogin markii laguu yeeray. Haddii aad caawimaad u baahan tahay, la hadal tabaruce.",
+      "TURNO_REPETIDO": "Maanta taleefankan laba lambar ayaa laga qaaday, mid waa la joojiyay. Isticmaal kan haray; haddii aadan haysan, la hadal tabaruce."
+    },
+    "errores": {
+      "SIN_CONEXION": "Xiriir ma jiro. Hubi signalka oo mar kale riix badhanka.",
+      "FUNCION_NO_INSTALADA": "Shaqadan weli ma diyaarsana. U sheeg tabaruce.",
+      "DISPOSITIVO_INVALIDO": "Taleefankan lambar lagama bixin karo. Tabaruce caawimaad weydii.",
+      "ERROR_DESCONOCIDO": "Lambarka lama bixin karin. Mar kale riix badhanka ama tabaruce caawimaad weydii."
+    },
+    "terminada": "Safka maanta waa dhammaaday. Waad ku mahadsan tahay imaanshahaaga! Waxaan kugu sugaynaa qaybinta xigta.",
+    "codigoEsTuyo": "Koodkani adiga oo keliya ayuu kuu yahay: cidna ha tusin. Waxaa lagu hubinayaa in lambarku kaaga yahay.",
+    "codigo": {
+      "etiqueta": "Koodka maanta",
+      "ayuda": "Waa 4 lambar oo ku qoran albaabka. Haddii aadan arkin, weydii tabaruce.",
+      "FALTA_CODIGO": "Qor koodka maanta si aad lambarkaaga u qaadato.",
+      "CODIGO_INCORRECTO": "Kani ma aha koodka maanta. Hubi oo mar kale isku day.",
+      "DEMASIADOS_INTENTOS": "Isku day badan. Mar kale waxaad isku dayi kartaa {{reloj}} kadib.",
+      "esperaBoton": "Sug {{reloj}}"
+    },
+    "anotalo": "Qor lambarkaaga ({{turno}}) ama sawir shaashaddan. Haddii boggu xirmo, lambar cusub ha qaadan: lambarkaaga u sheeg tabarucaha.",
+    "yaTenias": "Lambar ma qaadatay boggiina wuu xirmay? Mid cusub ha qaadan: lambarkaaga u sheeg tabarucaha.",
+    "otroTurno": "Qaado lambar cusub",
+    "carroCodigo": {
+      "abrir": "Maanta ballan baabuur ma lahayd?",
+      "titulo": "Ka gudub safka baabuurta una gudub safka lugta",
+      "ayuda": "Haddii safka baabuurtu aad u dheer yahay, waxaad u gudbi kartaa safka lugta. Qor koodka ballantaada baabuurka. Ballanta baabuurka waa la joojinayaa mana ku noqon kartid safka baabuurta.",
+      "etiqueta": "Koodka ballanta baabuurka",
+      "campoAyuda": "Lambarrada oo keliya (4 ama 5): «CB-» horay ayuu u qoran yahay.",
+      "boton": "U gudub safka lugta",
+      "cancelar": "Ma lahayn ballan baabuur",
+      "CODIGO_CARRO_NO_EXISTE": "Maanta ma jirto ballan baabuur oo leh koodkaas. Hubi lambarrada."
+    },
+    "verFila": "Safka hadda"
+  },
+  "credencial": {
+    "etiqueta": "TABARUCE",
+    "titulo": "Kaarka tabarucaha",
+    "enseniala": "Tus marka aad timaado",
+    "cargando": "Waxaan diyaarinaynaa kaarkaaga…",
+    "qrAlt": "Koodka QR ee kaarka {{nombre}}",
+    "comoFunciona": "Marka aad timaado, QR-kan tus qofka soo dhoweeya tabarucayaasha. Sidaas ayaa saacadahaaga adeegga loo diiwaangeliyaa.",
+    "soloTuya": "Adiga oo keliya ayuu kuu yahay: cidna ha la wadaagin. Haddii aad lumiso, weydiiso mid cusub.",
+    "inactiva": "Kaarkani hadda ma shaqeeyo.",
+    "inactivaTexto": "Haddii aad u malaynayso inay khalad tahay, wac kaniisadda: {{telefono}}.",
+    "noEncontrada": "Ma helin kaarkan. Weydii maamulaha inuu mar kale kuu soo diro xiriirka.",
+    "sinConexion": "Kaarka lama soo saari karin. Hubi signalka oo mar kale fur xiriirka.",
+    "horas": {
+      "titulo": "Saacadahaaga adeegga",
+      "llevas_one": "Waxaad leedahay {{duracion}} {{count}} maalin gudaheed.",
+      "llevas_other": "Waxaad leedahay {{duracion}} {{count}} maalmood gudahood.",
+      "todavia": "Weli ma lihid booqasho dhammaystiran. Saacadaha waxaa la xisaabiyaa dhammaadka maalin kasta oo adeeg.",
+      "ayuda": "Waxaa la tiriyaa oo keliya booqashooyinka leh gelitaan iyo bixitaan. Halkan waxaa ku jira 10-kii ugu dambeeyay.",
+      "todaviaYSalida": "Weli ma lihid booqasho dhammaystiran. Marka laguu iskaan gareeyo gelitaanka iyo bixitaanka, saacadahaaga halkan ayay ka muuqan doonaan."
+    },
+    "ensenialaYSalida": "Tus marka aad timaado iyo marka aad tagto",
+    "comoFuncionaYSalida": "Marka aad timaado, QR-kan tus maamulaha; marka aad tagto, mar kale tus. Sidaas ayaa saacadahaaga adeegga loo diiwaangeliyaa."
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}} daqiiqo",
+      "h": "{{h}} saac",
+      "hMin": "{{h}} saac {{m}} daqiiqo"
+    },
+    "envio": {
+      "mensaje": "Salaan {{nombre}}! Kani waa kaarkaaga tabarucaha Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nKu kaydi taleefankaaga oo tus marka aad timaado iyo marka aad tagto: sidaas ayaa saacadahaaga adeegga loo diiwaangeliyaa. Adiga oo keliya ayuu kuu yahay, ha la wadaagin. Waad ku mahadsan tahay adeeggaaga!",
+      "mensajeSoloEntrada": "Salaan {{nombre}}! Kani waa kaarkaaga tabarucaha Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nKu kaydi taleefankaaga oo tus marka aad timaado: sidaas ayaa saacadahaaga adeegga loo diiwaangeliyaa. Adiga oo keliya ayuu kuu yahay, ha la wadaagin. Waad ku mahadsan tahay adeeggaaga!"
+    }
+  },
+  "preferente": {
+    "etiqueta": "Saf la'aan",
+    "voluntario": "Saf la'aan ayuu u gelayaa. Ka hor intaadan bixin, hubi inuu yahay qofka saxda ah.",
+    "persona": "Saf la'aan ayaad u gelaysaa: QR-kan tus tabarucaha."
+  },
+  "filaEnVivo": {
+    "titulo": "Safka lugta hadda",
+    "subtitulo": "Eeg sida safku u socdo. Uma baahnid lambar.",
+    "cargando": "Waxaan hubinaynaa safka…",
+    "noHay": "Maanta ma jiro saf lugta ah.",
+    "porAbrir": "Weli ma bilaaban: lambarrada waxaa la bilaabayaa {{hora}}.",
+    "terminada_one": "Safka maanta waa dhammaaday: {{count}} qof ayaa cunto qaatay. Mahadsanid!",
+    "terminada_other": "Safka maanta waa dhammaaday: {{count}} qof ayaa cunto qaatay. Mahadsanid!",
+    "asiVa": "Sida safku hadda yahay",
+    "noEsTuyo": "Kuwani waa lambarrada dad kale, ma aha kaaga.",
+    "tuNumero": "Lambarkaagu waa {{turno}}.",
+    "recibio": "Wuu qaatay",
+    "llamando": "Waa la yeerayaa",
+    "sigue": "Xiga",
+    "nadieEspera": "Hadda qofna ma sugayo.",
+    "esperando": "Sugaya",
+    "recibieron": "Qaatay",
+    "dados": "Lambarro",
+    "yaNoSeDan": "Maanta lambarro cusub lama bixinayo.",
+    "sinSenal": "Signal ma jiro: kani waa wixii ugu dambeeyay ee la ogaa. Wuu cusboonaanayaa marka xiriirku soo noqdo.",
+    "miTurno": "Lambarkayga ({{turno}})",
+    "sacar": "Qaado lambarkayga"
+  },
+  "video": {
+    "titulo": "Waa maxay Cajita de Bendición?",
+    "presentacion": "fiidiyow",
+    "idioma": "Luqadda",
+    "hazTuCita": "Ballan qabso",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Cunto bilaash ah Isniinta iyo Khamiista. Adeeg ka mid ah {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "Sidee u imanaysaa?",
+      "texto": "Baabuur — ballan qabso oo dooro waqtigaaga. Lug — maalinta qaybinta taleefankaaga ka qaado lambar.",
+      "carro": "Baabuur",
+      "aPie": "Lug"
+    },
+    "cita": {
+      "titulo": "Taleefankaaga ka qabso ballanta",
+      "texto": "Dooro maalinta iyo waqtiga. Uma baahnid akoon ama furaha sirta.",
+      "lunes": "Isniin",
+      "jueves": "Khamiis"
+    },
+    "codigo": {
+      "titulo": "Kaydi koodkaaga",
+      "texto": "Waxaad heli doontaa kood QR iyo lambar. Sawir shaashadda."
+    },
+    "despensa": {
+      "titulo": "Kaalay oo qaado cuntadaada",
+      "texto": "Marka aad timaado tus koodkaaga oo qaado sanduuqaaga. Qof kasta oo 18 jir ah ama ka weyn ballantiisa ayuu qabsadaa.",
+      "unaCaja": "1 sanduuq qof weyn kasta"
+    },
+    "privado": {
+      "titulo": "Bilaash iyo qarsoodi",
+      "texto": "Deeq looma baahna. Xogtaada cidna lama wadaago, oo ay ku jiraan maamulka dawladda."
+    },
+    "final": {
+      "titulo": "Ballan qabso",
+      "texto": "Baabuur ballan ahaan, lug lambar ahaan. Riix badhanka si aad u bilowdo."
+    },
+    "otraVez": "Mar kale daawo",
+    "anterior": "Hore",
+    "siguiente": "Xiga",
+    "pausar": "Jooji",
+    "seguir": "Sii wad"
+  }
+}

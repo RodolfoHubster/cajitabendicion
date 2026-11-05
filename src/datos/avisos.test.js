@@ -12,6 +12,7 @@ import {
   listarAvisos,
   moverAviso,
   textoDeAviso,
+  tituloDeAviso,
 } from './avisos'
 
 beforeEach(() => {
@@ -39,6 +40,17 @@ describe('el idioma del aviso', () => {
     const soloEs = { texto_es: 'Solo español', texto_en: null, texto_vi: null }
     expect(textoDeAviso(soloEs, 'vi')).toBe('Solo español')
     expect(textoDeAviso(soloEs, 'en')).toBe('Solo español')
+  })
+
+  it('los demás idiomas de la app (coreano, ruso...) caen a inglés, y sin inglés al español', () => {
+    expect(textoDeAviso(completo, 'ko')).toBe('Arrive 5 minutes early.')
+    expect(textoDeAviso(completo, 'ru-RU')).toBe('Arrive 5 minutes early.')
+    expect(textoDeAviso({ ...completo, texto_en: null }, 'fr')).toBe('Llega 5 minutos antes.')
+    expect(tituloDeAviso({ titulo_es: '¿Cuesta?', titulo_en: 'Does it cost?' }, 'zh')).toBe('Does it cost?')
+  })
+
+  it('un idioma que la app no tiene, en español', () => {
+    expect(textoDeAviso(completo, 'de')).toBe('Llega 5 minutos antes.')
   })
 
   it('una traducción vacía cuenta como si no estuviera', () => {

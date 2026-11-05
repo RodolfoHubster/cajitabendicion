@@ -288,6 +288,10 @@ export function respuestaDemo(
     case 'validar_codigo_anticipado':
       return ok(false)
 
+    case 'abrir_mis_datos':
+      //  "¿Ya viniste antes?" (seccion 56): en el ejemplo, cualquier codigo es de Maria.
+      return ok([{ resultado: 'LISTO', nombre: 'María P.', llave: 'demo-llave', segundos: null }])
+
     default:
       //  Lo que no se conoce no sale de aqui: en el ejemplo nada llega a la base.
       return falla(`MODO_DEMO: ${nombre}`)

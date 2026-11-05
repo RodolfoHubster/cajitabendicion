@@ -1,6 +1,7 @@
 import { formatearHora } from './disponibilidad'
 import { clasificarError } from './errores'
 import { supabase } from '../lib/supabase'
+import { idiomaDeFechas } from '../i18n/idiomas'
 
 /**
  * Incidencias del dia: el camion llega tarde, llueve, dia festivo.
@@ -102,7 +103,7 @@ export function enlaceWhatsApp(telefono, texto) {
 /** '2026-09-27' -> 'sábado, 27 de septiembre' (o en ingles). */
 export function fechaLarga(fecha, idioma = 'es') {
   const [anio, mes, dia] = fecha.split('-').map(Number)
-  return new Intl.DateTimeFormat(idioma, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+  return new Intl.DateTimeFormat(idiomaDeFechas(idioma), { weekday: 'long', day: 'numeric', month: 'long' }).format(
     new Date(anio, mes - 1, dia),
   )
 }

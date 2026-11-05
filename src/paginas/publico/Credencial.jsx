@@ -11,10 +11,11 @@ import { ORGANIZACION } from '../../datos/organizacion'
 import { dibujarQRVoluntario } from '../../datos/qrPase'
 import { horaDeMarca } from '../../datos/filaAPie'
 import { credencialVoluntario, historialDeCredencial, textoDuracion } from '../../datos/voluntarios'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 /** '2026-10-21' -> 'mié 21 oct'. */
 function diaCorto(fecha, idioma) {
-  return new Intl.DateTimeFormat(idioma, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
+  return new Intl.DateTimeFormat(idiomaDeFechas(idioma), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
     new Date(`${fecha}T12:00:00Z`),
   )
 }

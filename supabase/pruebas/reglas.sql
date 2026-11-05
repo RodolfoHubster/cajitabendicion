@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-10-28-correos-y-boletin.sql.
+--  Requiere todas las migraciones, hasta 2026-11-05-ya-viniste-antes.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -3899,6 +3899,145 @@ begin
       sqlerrm || ' | ' || split_part(v_c_donde, E'
 ', 1) || ' | ' || split_part(v_c_donde, E'
 ', 2));
+  end;
+
+  -- ==========================================================
+  --  55. El escáner: cuántas cajas van hoy
+  -- ==========================================================
+  declare
+    v_e_cajas   record;
+    v_e_resumen record;
+  begin
+    if v_admin is null then
+      perform pg_temp.comprobar('Cajas de hoy: OMITIDAS porque no hay ninguna cuenta admin', true, 'omitidas');
+    else
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      perform set_config('request.jwt.claims', json_build_object('sub', v_admin, 'role', 'authenticated')::text, true);
+      update personal set rol = 'admin', activo = true where usuario_id = v_admin;
+
+      select * into v_e_cajas from cajas_de_hoy();
+      select * into v_e_resumen from resumen_del_dia(current_date);
+      perform pg_temp.comprobar('Cajas de hoy: las mismas que suma Citas de hoy en "Juntas"',
+        v_e_cajas.cajas = v_e_resumen.ya_recibieron + v_e_resumen.sin_cita + v_e_resumen.con_pase
+        and v_e_cajas.cajas_fila = v_e_cajas.cajas
+        and v_e_cajas.faltan_fila = v_e_resumen.faltan_por_llegar,
+        format('cajas %s, Juntas %s+%s+%s; faltan %s vs %s', v_e_cajas.cajas, v_e_resumen.ya_recibieron,
+               v_e_resumen.sin_cita, v_e_resumen.con_pase, v_e_cajas.faltan_fila, v_e_resumen.faltan_por_llegar));
+
+      select * into v_e_cajas from cajas_de_hoy('carro');
+      select * into v_e_resumen from resumen_del_dia(current_date, 'carro');
+      perform pg_temp.comprobar('Cajas de hoy: las de una fila, igual que Citas de hoy en esa fila',
+        v_e_cajas.cajas_fila = v_e_resumen.ya_recibieron + v_e_resumen.sin_cita + v_e_resumen.con_pase
+        and v_e_cajas.faltan_fila = v_e_resumen.faltan_por_llegar,
+        format('fila %s vs %s+%s+%s', v_e_cajas.cajas_fila, v_e_resumen.ya_recibieron, v_e_resumen.sin_cita, v_e_resumen.con_pase));
+
+      perform pg_temp.esperar_error('Cajas de hoy: una fila que no existe',
+        'select * from cajas_de_hoy(''bicicleta'')', 'FILA_INVALIDA');
+
+      --  Un voluntario las ve aunque no tenga la palomita de Citas de hoy.
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+      v_texto := pg_temp.valor('select cajas::text from cajas_de_hoy()');
+      perform pg_temp.comprobar('Cajas de hoy: un voluntario las ve', v_texto not like 'ERROR%', v_texto);
+      update personal set rol = 'admin' where usuario_id = v_admin;
+
+      perform set_config('request.jwt.claim.sub', '', true);
+      perform pg_temp.esperar_error('Cajas de hoy: sin sesión no se ven', 'select * from cajas_de_hoy()', 'SIN_SESION');
+      perform set_config('request.jwt.claim.sub', v_admin::text, true);
+    end if;
+  exception when others then
+    perform pg_temp.comprobar('Cajas de hoy: las pruebas corrieron completas', false, sqlerrm);
+  end;
+
+  -- ==========================================================
+  --  56. ¿Ya viniste antes? El mismo código, sin llenar todo otra vez
+  -- ==========================================================
+  declare
+    v_y_dia1     date := v_lunes + 105;
+    v_y_dia2     date := v_lunes + 108;
+    v_y_dia3     date := v_lunes + 112;
+    v_y_b1       uuid;
+    v_y_b2       uuid;
+    v_y_b3       uuid;
+    v_y_codigo   text;
+    v_y_llave    text;
+    v_y_fila     record;
+    v_y_personas int;
+    v_y_i        int;
+  begin
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values
+      (v_y_dia1, now() - interval '1 day', 'YAVIN1'),
+      (v_y_dia2, now() - interval '1 day', 'YAVIN2'),
+      (v_y_dia3, now() - interval '1 day', 'YAVIN3');
+    insert into bloques (fecha, hora, capacidad) values (v_y_dia1, '15:00', 20) returning id into v_y_b1;
+    insert into bloques (fecha, hora, capacidad) values (v_y_dia2, '15:00', 20) returning id into v_y_b2;
+    insert into bloques (fecha, hora, capacidad) values (v_y_dia3, '15:00', 20) returning id into v_y_b3;
+
+    --  La primera vez, con todos sus datos.
+    v_y_codigo := pg_temp.valor(format('select r.codigo_corto from (%s) r',
+      pg_temp.registro(v_y_b1, p_nombre => 'Yolanda', p_apellidos => 'Vino Antes', p_telefono => '+16195550971',
+                       p_email => 'yolanda.cb@gmail.com')));
+
+    select * into v_y_fila from abrir_mis_datos(v_y_codigo, '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: con su código y su teléfono la reconoce, solo con su nombre y una inicial',
+      v_y_fila.resultado = 'LISTO' and v_y_fila.nombre = 'Yolanda V.' and length(v_y_fila.llave) >= 32,
+      coalesce(v_y_fila.resultado, 'nada') || ' ' || coalesce(v_y_fila.nombre, ''));
+    v_y_llave := v_y_fila.llave;
+
+    select * into v_y_fila from abrir_mis_datos(lower(replace(v_y_codigo, '-', ' ')), '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: el código se acepta como se teclee', v_y_fila.resultado = 'LISTO', v_y_fila.resultado);
+
+    --  La semana siguiente, sin llenar nada.
+    select count(*) into v_y_personas from personas;
+    select * into v_y_fila from registrar_y_reservar(p_nombre => null, p_apellidos => null, p_telefono => null,
+      p_bloque_id => v_y_b3, p_email => null, p_llave_persona => v_y_llave, p_idioma => 'ht');
+    perform pg_temp.comprobar('Ya viniste antes: aparta su lugar con su MISMO código CB, sin crear otra persona',
+      v_y_fila.codigo_corto = v_y_codigo and (select count(*) from personas) = v_y_personas,
+      coalesce(v_y_fila.codigo_corto, 'nada') || ' vs ' || v_y_codigo);
+    perform pg_temp.comprobar('Ya viniste antes: guarda el idioma de hoy (criollo haitiano)',
+      (select p.idioma from personas p where p.codigo_corto = v_y_codigo) = 'ht');
+    perform pg_temp.comprobar('Ya viniste antes: su confirmación sale a su correo de siempre',
+      exists (select 1 from correos co join citas c on c.id = co.cita_id
+               where c.token_qr = v_y_fila.token_qr and co.tipo = 'confirmacion'));
+
+    perform pg_temp.esperar_error('Ya viniste antes: una cita por semana (no el lunes y el jueves)',
+      format('select * from registrar_y_reservar(p_nombre => null, p_apellidos => null, p_telefono => null, '
+             'p_bloque_id => %L::uuid, p_email => null, p_llave_persona => %L)', v_y_b2, v_y_llave),
+      'YA_TIENE_CITA_ESTA_SEMANA');
+    perform pg_temp.esperar_error('Ya viniste antes: una llave que no existe no sirve',
+      format('select * from registrar_y_reservar(p_nombre => null, p_apellidos => null, p_telefono => null, '
+             'p_bloque_id => %L::uuid, p_email => null, p_llave_persona => %L)', v_y_b3, 'no-existe'),
+      'LLAVE_VENCIDA');
+    update llaves_persona set vence_en = now() - interval '1 minute' where llave = v_y_llave;
+    perform pg_temp.esperar_error('Ya viniste antes: la llave vence a los 15 minutos',
+      format('select * from registrar_y_reservar(p_nombre => null, p_apellidos => null, p_telefono => null, '
+             'p_bloque_id => %L::uuid, p_email => null, p_llave_persona => %L)', v_y_b3, v_y_llave),
+      'LLAVE_VENCIDA');
+
+    --  Adivinar: un código equivocado no dice de quién es, y 5 frenan.
+    select * into v_y_fila from abrir_mis_datos('CB-00000', '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: un código equivocado no dice nada de nadie',
+      v_y_fila.resultado = 'NO_COINCIDE' and v_y_fila.nombre is null and v_y_fila.llave is null, v_y_fila.resultado);
+    select * into v_y_fila from abrir_mis_datos(v_y_codigo, '+16195550000');
+    perform pg_temp.comprobar('Ya viniste antes: su código con otro teléfono no entra', v_y_fila.resultado = 'NO_COINCIDE', v_y_fila.resultado);
+    for v_y_i in 1..3 loop
+      perform abrir_mis_datos('CB-00000', '+16195550971');
+    end loop;
+    select * into v_y_fila from abrir_mis_datos('CB-00000', '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: al quinto intento mal, ese teléfono se frena 15 minutos',
+      v_y_fila.resultado = 'DEMASIADOS_INTENTOS' and v_y_fila.segundos = 900, v_y_fila.resultado);
+    select * into v_y_fila from abrir_mis_datos(v_y_codigo, '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: frenado, ni con el código bueno entra',
+      v_y_fila.resultado = 'DEMASIADOS_INTENTOS' and v_y_fila.llave is null, v_y_fila.resultado);
+    update intentos_mis_datos set frenado_hasta = now() - interval '1 second' where telefono = '+16195550971';
+    select * into v_y_fila from abrir_mis_datos(v_y_codigo, '+16195550971');
+    perform pg_temp.comprobar('Ya viniste antes: pasado el freno, vuelve a entrar', v_y_fila.resultado = 'LISTO', v_y_fila.resultado);
+
+    perform pg_temp.comprobar('Ya viniste antes: el navegador no ve las llaves ni los intentos',
+      not has_table_privilege('anon', 'llaves_persona', 'select')
+      and not has_table_privilege('anon', 'intentos_mis_datos', 'select')
+      and has_function_privilege('anon', 'abrir_mis_datos(text, text)', 'execute'));
+  exception when others then
+    perform pg_temp.comprobar('Ya viniste antes: las pruebas corrieron completas', false, sqlerrm);
   end;
 
   -- ==========================================================

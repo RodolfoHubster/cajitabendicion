@@ -6,7 +6,7 @@ import { IDIOMAS } from '../i18n/config'
 /**
  * El idioma, arriba a la derecha.
  *
- * Se abre como menu y NO va cambiando de idioma a cada toque: con tres
+ * Se abre como menu y NO va cambiando de idioma a cada toque: con tantos
  * idiomas, quien le pica dos veces sin querer termina en uno que no lee y
  * ya no sabe como volver. En el menu cada idioma esta escrito en el suyo,
  * asi la persona reconoce el que busca sin entender el resto de la
@@ -57,7 +57,7 @@ export default function SelectorIdioma() {
       >
         <LuGlobe aria-hidden="true" className="h-5 w-5 shrink-0" />
         {/* En el celular no cabe junto al nombre del programa: ahi
-            queda el globo, y el menu si dice los tres nombres completos. */}
+            queda el globo, y el menu si dice todos los nombres completos. */}
         <span className="hidden sm:inline" lang={actual.codigo}>
           {actual.nombre}
         </span>
@@ -70,7 +70,7 @@ export default function SelectorIdioma() {
       {abierto && (
         <ul
           aria-label="Idioma · Language · Ngôn ngữ"
-          className="absolute right-0 z-30 mt-2 w-52 rounded-xl border border-principal/15 bg-superficie p-1 shadow-lg"
+          className="absolute right-0 z-30 mt-2 max-h-[calc(100dvh_-_6rem)] w-52 overflow-y-auto rounded-xl border border-principal/15 bg-superficie p-1 shadow-lg"
           role="menu"
         >
           {IDIOMAS.map(({ codigo, nombre }) => {

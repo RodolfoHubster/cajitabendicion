@@ -33,7 +33,7 @@
  * franja abre la presentacion en otra pestana.
  *
  * Sin dependencias, sin cookies y sin rastreo. Los textos, en el idioma del
- * telefono: espanol, ingles o vietnamita (espanol si es otro).
+ * telefono si es uno de los de la app (espanol si es otro).
  */
 ;(function () {
   'use strict'
@@ -82,8 +82,94 @@
       cerrar: 'Đóng video',
       etiqueta: 'Video Cajita de Bendición: hiện ở góc trang khi đã xuất bản.',
     },
+    zh: {
+      titulo: 'Cajita de Bendición',
+      pregunta: '什么是 Cajita de Bendición？',
+      ver: '看视频',
+      tocar: '点一下观看',
+      abrir: '观看 Cajita de Bendición 的视频',
+      mas: '更多信息',
+      volver: '回到视频',
+      chiquito: '把视频缩小',
+      cerrar: '关闭视频',
+      etiqueta: 'Cajita de Bendición 视频：发布后会出现在页面的角落。',
+    },
+    tl: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Ano ang Cajita de Bendición?',
+      ver: 'Panoorin ang video',
+      tocar: 'Pindutin para manood',
+      abrir: 'Panoorin ang video ng Cajita de Bendición',
+      mas: 'Higit pang impormasyon',
+      volver: 'Bumalik sa video',
+      chiquito: 'Paliitin ang video',
+      cerrar: 'Isara ang video',
+      etiqueta: 'Video ng Cajita de Bendición: lumalabas ito sa sulok ng na-publish na pahina.',
+    },
+    ko: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Cajita de Bendición이란?',
+      ver: '영상 보기',
+      tocar: '눌러서 보기',
+      abrir: 'Cajita de Bendición 영상 보기',
+      mas: '더 알아보기',
+      volver: '영상으로 돌아가기',
+      chiquito: '영상 작게 하기',
+      cerrar: '영상 닫기',
+      etiqueta: 'Cajita de Bendición 영상: 게시된 페이지의 모서리에 나타납니다.',
+    },
+    ht: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Kisa Cajita de Bendición ye?',
+      ver: 'Gade videyo a',
+      tocar: 'Peze pou gade',
+      abrir: 'Gade videyo Cajita de Bendición',
+      mas: 'Plis enfòmasyon',
+      volver: 'Retounen nan videyo a',
+      chiquito: 'Fè videyo a piti',
+      cerrar: 'Fèmen videyo a',
+      etiqueta: 'Videyo Cajita de Bendición: li parèt nan kwen paj ki pibliye a.',
+    },
+    ru: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Что такое Cajita de Bendición?',
+      ver: 'Смотреть видео',
+      tocar: 'Нажмите, чтобы посмотреть',
+      abrir: 'Смотреть видео Cajita de Bendición',
+      mas: 'Подробнее',
+      volver: 'Вернуться к видео',
+      chiquito: 'Уменьшить видео',
+      cerrar: 'Закрыть видео',
+      etiqueta: 'Видео Cajita de Bendición: появляется в углу опубликованной страницы.',
+    },
+    so: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Waa maxay Cajita de Bendición?',
+      ver: 'Daawo fiidiyowga',
+      tocar: 'Riix si aad u daawato',
+      abrir: 'Daawo fiidiyowga Cajita de Bendición',
+      mas: 'Macluumaad dheeraad ah',
+      volver: 'Ku noqo fiidiyowga',
+      chiquito: 'Yaree fiidiyowga',
+      cerrar: 'Xir fiidiyowga',
+      etiqueta: 'Fiidiyowga Cajita de Bendición: wuxuu ka muuqdaa geeska bogga la daabacay.',
+    },
+    fr: {
+      titulo: 'Cajita de Bendición',
+      pregunta: 'Qu’est-ce que Cajita de Bendición ?',
+      ver: 'Voir la vidéo',
+      tocar: 'Touchez pour voir',
+      abrir: 'Voir la vidéo de Cajita de Bendición',
+      mas: 'Plus d’informations',
+      volver: 'Revenir à la vidéo',
+      chiquito: 'Réduire la vidéo',
+      cerrar: 'Fermer la vidéo',
+      etiqueta: 'Vidéo de Cajita de Bendición : elle apparaît dans le coin de la page publiée.',
+    },
   }
-  var preferido = ((navigator.languages && navigator.languages[0]) || navigator.language || 'es').slice(0, 2).toLowerCase()
+  //  'es-MX' -> 'es'. Los telefonos en filipino dicen 'fil': sus textos son 'tl'.
+  var preferido = ((navigator.languages && navigator.languages[0]) || navigator.language || 'es').toLowerCase().split('-')[0]
+  if (preferido === 'fil') preferido = 'tl'
   var idioma = TEXTOS[preferido] ? preferido : 'es'
   var T = TEXTOS[idioma]
   var VIDEO = ORIGEN + '/video?lng=' + idioma

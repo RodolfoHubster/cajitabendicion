@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { idiomaDeFechas } from '../i18n/idiomas'
 
 /**
  * Bloques con lugares libres.
@@ -212,7 +213,7 @@ export function formatearFechaHora(marca, idioma) {
   if (!marca) return ''
 
   const [fecha, hora] = marca.split('T')
-  const dia = new Intl.DateTimeFormat(idioma, {
+  const dia = new Intl.DateTimeFormat(idiomaDeFechas(idioma), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

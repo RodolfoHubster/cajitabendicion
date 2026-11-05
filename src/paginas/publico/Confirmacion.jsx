@@ -33,6 +33,7 @@ import { ORGANIZACION } from '../../datos/organizacion'
 import { hoyLocal } from '../../datos/panel'
 import { callar, deletrear, hablar, puedeHablar } from '../../datos/voz'
 import { EsqueletoQR } from '../../componentes/Esqueleto'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 export default function Confirmacion() {
   const { t, i18n } = useTranslation()
@@ -104,7 +105,7 @@ export default function Confirmacion() {
 
     let vigente = true
     const idioma = i18n.language
-    const fecha = new Intl.DateTimeFormat(idioma, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+    const fecha = new Intl.DateTimeFormat(idiomaDeFechas(idioma), { weekday: 'long', day: 'numeric', month: 'long' }).format(
       aFechaLocal(cita.fecha),
     )
     //  A pie, la imagen lleva su numero de turno en vez de la hora.
@@ -180,7 +181,7 @@ export default function Confirmacion() {
   useEffect(() => callar, [])
 
   function escuchar() {
-    const fecha = new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+    const fecha = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), { weekday: 'long', day: 'numeric', month: 'long' }).format(
       aFechaLocal(cita.fecha),
     )
     hablar(
@@ -221,7 +222,7 @@ export default function Confirmacion() {
     )
   }
 
-  const fechaLarga = new Intl.DateTimeFormat(i18n.language, {
+  const fechaLarga = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

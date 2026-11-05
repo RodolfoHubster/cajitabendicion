@@ -4,7 +4,7 @@ import { useAnchoPagina } from '../rutas/anchoPagina'
 
 /**
  * Aviso para los idiomas cuya traduccion todavia no revisa un hablante
- * nativo. Hoy aplica al vietnamita.
+ * nativo. Hoy: todos menos el espanol y el ingles.
  *
  * Lleva una segunda linea en ingles porque, si la traduccion salio mal,
  * justo el aviso de que puede estar mal seria lo que no se entiende.

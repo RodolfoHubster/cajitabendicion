@@ -1,0 +1,756 @@
+{
+  "avisoIdioma": {
+    "titulo": "한국어는 아직 준비 중입니다",
+    "detalle": "이 번역은 아직 다듬는 중이라 틀린 부분이 있을 수 있습니다. 이해가 안 되는 곳이 있으면 위에서 영어나 스페인어로 바꿀 수 있습니다.",
+    "ingles": "Korean is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "방금",
+      "haceMin": "{{n}}분 전",
+      "haceHoras": "{{h}}시간 {{m}}분 전"
+    }
+  },
+  "pase": {
+    "etiqueta": "상시 이용권",
+    "titulo": "내 이용권",
+    "dias": "월요일과 목요일",
+    "cargando": "이용권을 준비하는 중…",
+    "noEncontrado": "이용권을 찾을 수 없습니다. 링크가 완전하지 않을 수 있습니다.",
+    "revocado": "이 이용권은 더 이상 유효하지 않습니다",
+    "revocadoTexto": "잘못된 것 같으면 교회에 전화하세요: {{telefono}}.",
+    "comoFunciona": "편한 월요일이나 목요일, 편한 시간에 오세요. 이 코드를 보여 주시면 상자를 드립니다.",
+    "soloTuyo": "이 이용권은 본인 전용이며 하루에 한 상자만 받을 수 있습니다. 다른 사람과 같이 쓰면 취소됩니다.",
+    "sello": "코드 가운데의 Cajita de Bendición 로고가 이용권 표시입니다. 자원봉사자는 이것을 보고 알아봅니다."
+  },
+  "confirmacion": {
+    "cargando": "코드를 준비하는 중…",
+    "noEncontrada": "예약을 찾을 수 없습니다. 링크가 완전하지 않을 수 있습니다.",
+    "volverInicio": "처음으로 돌아가기",
+    "lista": "예약이 완료되었습니다",
+    "horarioCambiado": "시간이 변경되었습니다. 코드는 그대로지만 이미지를 다시 저장하세요. 전에 저장한 것은 이전 시간이 적혀 있습니다.",
+    "qrAlt": "내 예약 QR 코드",
+    "siNoSeLee": "코드가 읽히지 않으면 이 번호를 말씀해 주세요:",
+    "aNombreDe": "예약자",
+    "unSoloUso": "이 코드는 한 번만, 한 상자에만 사용할 수 있습니다. 가족 중 다른 분도 필요하면 그분이 직접 등록해야 합니다.",
+    "cambiarHorario": "시간 변경",
+    "guardarImagen": "이미지 저장",
+    "descargada": "이미지를 내려받았습니다. 사진에서 보이지 않으면 위의 QR 코드를 길게 누르고 '이미지 저장' 또는 '사진에 추가'를 고르세요.",
+    "consejoCaptura": "화면을 캡처해 두셔도 됩니다.",
+    "cancelar": "예약 취소",
+    "cancelarPregunta": "정말 예약을 취소하시겠어요? 자리는 다른 분에게 돌아갑니다.",
+    "cancelarSi": "네, 예약을 취소합니다",
+    "cancelarNo": "아니요, 예약을 유지합니다",
+    "cancelando": "취소하는 중…",
+    "canceladaTitulo": "예약이 취소되었습니다",
+    "canceladaTexto": "자리가 비었습니다. 필요하면 다시 등록할 수 있습니다.",
+    "registrarOtra": "다시 예약하기",
+    "yaExistia": "이미 이 예약이 있었습니다. 새 예약은 만들지 않았습니다. 같은 예약, 같은 코드입니다.",
+    "consejoBrillo": "배부하는 날에는 화면 밝기를 높여 주세요. 그러면 코드가 한 번에 읽힙니다."
+  },
+  "cambiar": {
+    "titulo": "시간 변경",
+    "cargando": "예약을 찾는 중…",
+    "volver": "내 예약으로 돌아가기",
+    "tuCitaAhora": "현재 예약",
+    "aviso": "시간은 한 번만 바꿀 수 있습니다. 번호 {{codigo}}와 QR 코드는 그대로입니다.",
+    "elegirDia": "날짜를 고르세요",
+    "elegirHora": "시간을 고르세요",
+    "actual": "지금 시간",
+    "deAcuerdo": "시간은 한 번만 바꿀 수 있다는 것을 이해했습니다.",
+    "confirmar": "시간 변경",
+    "cambiando": "변경하는 중…",
+    "sinDias": "지금은 자리가 있는 다른 날짜가 없습니다. 나중에 다시 해 보세요.",
+    "noSePuede": "이 예약은 더 이상 바꿀 수 없습니다.",
+    "yaCambiaste": "이미 한 번 시간을 바꾸셨습니다. 꼭 필요하면 교회에 전화하세요: {{telefono}}."
+  },
+  "registro": {
+    "cargando": "등록을 준비하는 중…",
+    "sinHorario": "먼저 예약 날짜와 시간을 고르세요.",
+    "horarioNoDisponible": "그 시간은 더 이상 없습니다. 다른 시간을 고르세요.",
+    "nombre": "이름",
+    "telefono": "휴대전화",
+    "correo": "이메일",
+    "correoAyuda": "입장 코드를 이 이메일로 보내 드립니다.",
+    "confirmar": "예약 확정",
+    "enviando": "자리를 잡는 중…",
+    "errores": {
+      "BLOQUE_LLENO": "양식을 작성하는 동안 그 시간이 다 찼습니다. 다른 시간을 고르세요.",
+      "BLOQUE_CERRADO": "그 시간은 마감되었습니다.",
+      "BLOQUE_NO_EXISTE": "그 시간은 더 이상 없습니다. 다른 시간을 고르세요.",
+      "FECHA_PASADA": "이미 지난 날짜입니다.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "이번 주에 이미 예약이 있습니다. 한 주에 한 번만 예약할 수 있습니다. 월요일이나 목요일 중 하루만 됩니다.",
+      "LIMITE_DISPOSITIVO": "이 기기로 그날 이미 예약을 했습니다. 각자 자기 휴대전화나 컴퓨터로 등록해야 합니다.",
+      "NOMBRE_REQUERIDO": "이름을 입력하세요.",
+      "TELEFONO_REQUERIDO": "전화번호를 입력하세요.",
+      "EMAIL_REQUERIDO": "이메일을 입력하세요.",
+      "EMAIL_INVALIDO": "이메일이 바르게 쓰이지 않은 것 같습니다. 확인해 주세요.",
+      "SIN_CODIGOS_DISPONIBLES": "코드를 만드는 중에 문제가 생겼습니다. 다시 해 보세요.",
+      "ERROR_DESCONOCIDO": "자리를 잡지 못했습니다. 잠시 후 다시 해 보세요.",
+      "AUN_NO_ABRE": "이날의 등록은 아직 시작되지 않았습니다.",
+      "CODIGO_ANTICIPADO_INVALIDO": "구독자 코드가 더 이상 유효하지 않습니다. 바뀌었을 수 있으니 Facebook 게시물을 확인하세요.",
+      "DIA_CERRADO": "이날은 더 이상 등록을 받지 않습니다.",
+      "APELLIDOS_REQUERIDOS": "성을 입력하세요.",
+      "NOMBRE_INVALIDO": "이름과 성에는 숫자가 들어가지 않습니다.",
+      "TELEFONO_INVALIDO": "전화번호를 확인하세요. 번호가 모자라거나 남는 것이 있습니다.",
+      "PAIS_INVALIDO": "멕시코나 미국을 고르세요.",
+      "CODIGO_POSTAL_REQUERIDO": "우편번호를 입력하세요.",
+      "CODIGO_POSTAL_INVALIDO": "우편번호는 숫자 5자리입니다.",
+      "CODIGO_POSTAL_NO_EXISTE": "캘리포니아와 바하칼리포르니아에서 그 우편번호를 찾을 수 없습니다.",
+      "COLONIA_REQUERIDA": "동네(콜로니아)를 고르세요.",
+      "COLONIA_INVALIDA": "그 동네는 그 우편번호에 속하지 않습니다.",
+      "CALLE_REQUERIDA": "도로명을 입력하세요.",
+      "CALLE_INVALIDA": "도로명을 확인하세요.",
+      "NUMERO_REQUERIDO": "건물 번호를 입력하세요.",
+      "NUMERO_INVALIDO": "건물 번호를 확인하세요.",
+      "NUMERO_INTERIOR_INVALIDO": "아파트 호수를 확인하세요.",
+      "CONSENTIMIENTO_REQUERIDO": "스스로 원해서 정보를 제공한다는 것을 확인해 주세요.",
+      "FALTA_HORARIO": "날짜와 시간을 고르세요.",
+      "YA_REGISTRADO_ESE_DIA": "그날 이미 이름으로 된 예약이 있습니다. 코드를 잃어버렸다면 배부하는 날 직원에게 도움을 요청하세요. 이름으로 찾아 드립니다.",
+      "A_PIE_CERRADO": "지금은 그날 도보 줄이 없습니다.",
+      "SIN_CONEXION": "연결이 끊겼습니다. 신호를 확인하고 '확정'을 다시 누르세요.",
+      "ACOMPANANTE_SIN_CITA": "이날 그 번호로 된 차량 예약을 찾을 수 없습니다. 운전하는 분과 번호를 확인하세요.",
+      "CARRO_LLENO": "그 차는 이미 동승자가 가득 찼습니다.",
+      "FALTA_FECHA": "날짜를 고르세요.",
+      "LLAVE_VENCIDA": "시간이 너무 지났습니다. 번호와 전화번호를 다시 입력하세요."
+    },
+    "apellidos": "성",
+    "pais": "전화번호 국가",
+    "paisesPrincipales": "자주 쓰는 국가",
+    "paisesTodos": "모든 국가",
+    "otrosHorarios": {
+      "buscando": "그날의 다른 시간을 찾는 중…",
+      "titulo": "같은 날의 다른 시간을 고르세요:",
+      "seQueda": "입력한 내용은 그대로 남습니다. 시간만 바뀝니다.",
+      "ninguno": "그날은 더 이상 빈 시간이 없습니다.",
+      "otroDia": "다른 날짜 보기"
+    },
+    "tuCitaGuardada": "이 휴대전화에 이 예약이 이미 저장되어 있습니다:",
+    "verTuCita": "{{hora}} 예약 보기 ({{nombre}})",
+    "horaCambiada": "이제 시간은 {{hora}}입니다. '확정'을 눌러 마치세요.",
+    "borrador": {
+      "recuperado": "입력하던 내용을 되찾았습니다.",
+      "empezarDeNuevo": "지우고 처음부터"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "정보를 입력하는 동안 번호표가 다 떨어졌습니다. 정말 죄송합니다.",
+      "BLOQUE_CERRADO": "이날 번호표 배부가 끝났습니다.",
+      "BLOQUE_NO_EXISTE": "이 도보 줄은 더 이상 없습니다. 도보 줄 페이지를 다시 확인하세요.",
+      "AUN_NO_ABRE": "번호표는 아직 나오지 않습니다. 페이지에 적힌 시간에 다시 오세요.",
+      "DIA_CERRADO": "이날은 더 이상 번호표를 주지 않습니다."
+    },
+    "yaViniste": {
+      "titulo": "전에 오신 적이 있나요?",
+      "ayuda": "CB 번호와 전화번호만 있으면 정보를 다시 쓸 필요가 없습니다.",
+      "abrir": "내 번호 사용하기",
+      "codigo": "내 CB 번호",
+      "codigoAyuda": "확인 화면과 예약 이메일에 있습니다.",
+      "telefono": "전화번호 (지난번과 같은 번호)",
+      "buscar": "계속",
+      "buscando": "찾는 중…",
+      "cerrar": "그냥 정보를 직접 쓸게요",
+      "listo": "지난번 정보로 진행합니다, {{nombre}}",
+      "listoAyuda": "CB 번호는 그대로입니다. 예약만 확정하세요.",
+      "noSoyYo": "제가 아닙니다 / 다른 정보 사용",
+      "faltaCodigo": "번호의 숫자를 입력하세요.",
+      "NO_COINCIDE": "그 번호와 전화번호가 맞지 않습니다. 확인하시거나 아래에 정보를 직접 쓰세요.",
+      "DEMASIADOS_INTENTOS": "너무 여러 번 시도했습니다. {{minutos}}분 기다리시거나 아래에 정보를 직접 쓰세요."
+    }
+  },
+  "pasos": {
+    "etiqueta": "등록 진행",
+    "fecha": "날짜",
+    "horario": "시간",
+    "datos": "내 정보"
+  },
+  "horarios": {
+    "duracion": "각 시간대는 15분입니다.",
+    "cargando": "시간을 찾는 중…",
+    "error": "시간을 불러오지 못했습니다. 잠시 후 다시 해 보세요.",
+    "sinBloques": "이날은 남은 시간이 없습니다.",
+    "fechaInvalida": "올바른 날짜가 아닙니다.",
+    "volverCalendario": "다른 날짜 고르기",
+    "lleno": "마감",
+    "quedan_other": "{{count}}자리 남음",
+    "conCodigo": "구독자 코드로 들어오셨습니다. 시간을 고르세요.",
+    "revisandoCodigo": "코드를 확인하는 중…",
+    "continuarCon": "{{hora}}(으)로 계속",
+    "eligeUno": "목록에서 시간을 누르세요"
+  },
+  "calendario": {
+    "cargando": "예약 가능한 날짜를 찾는 중…",
+    "error": "예약 가능한 날짜를 불러오지 못했습니다. 잠시 후 다시 해 보세요."
+  },
+  "pages": {
+    "calendario": "다음 배부",
+    "horarios": "시간",
+    "registro": "등록",
+    "confirmacion": "확인"
+  },
+  "inicio": {
+    "titulo": "예약하기",
+    "subtitulo": "무료 식료품, 월요일과 목요일",
+    "antesDeEmpezar": "시작하기 전에",
+    "reglaRespaldo": "상자를 받는 18세 이상은 한 사람마다 따로 등록하고 자기 코드를 받아야 합니다.",
+    "comoVienes": "어떻게 오시나요?",
+    "enCarro": "차로",
+    "aPie": "걸어서",
+    "aPieAviso": "걸어서 오시면 시간 예약이 없습니다. 배부하는 날 여기서 번호표를 받고 부를 때까지 기다리세요.",
+    "gratuito": "식료품은 무료입니다. 기부는 필요 없습니다.",
+    "yaTienesCita": "이미 예약하셨나요? 배부하는 날 코드 이미지나 캡처를 가져오세요.",
+    "hacerCita": "예약하기",
+    "sacarTurno": "번호표 받기"
+  },
+  "navegacion": {
+    "inicio": "처음으로 돌아가기",
+    "cambiarFecha": "날짜 바꾸기",
+    "cambiarHorario": "시간 바꾸기",
+    "accesoPersonal": "직원 전용",
+    "verSitio": "공개 사이트 보기"
+  },
+  "pie": {
+    "bienvenidos": "환영합니다",
+    "comunidad": "그리스도 안의 공동체",
+    "servicios": "교회 예배",
+    "horarioServicios": "목요일 7:00 PM · 일요일 6:00 PM",
+    "sitioIglesia": "교회 웹사이트",
+    "siguenos": "팔로우하기",
+    "apoya": "Cajita de Bendición 후원하기",
+    "redes": {
+      "facebookDespensa": "Cajita de Bendición Facebook",
+      "facebookIglesia": "교회 Facebook",
+      "tiktokCajita": "Cajita de Bendición TikTok",
+      "instagramIglesia": "교회 Instagram",
+      "tiktokIglesia": "교회 TikTok"
+    }
+  },
+  "donar": {
+    "titulo": "Cajita de Bendición을 후원하시겠어요?",
+    "tituloTrasRegistro": "가능하시다면 후원을 잊지 말아 주세요",
+    "aclaracion": "예약은 기부와 상관없습니다. 식료품은 무료입니다.",
+    "texto": "도울 수 있고 돕고 싶으시다면, 어떤 후원이든 매주 더 많은 가정에 닿는 데 도움이 됩니다.",
+    "paypal": "PayPal로 기부하기",
+    "gofundme": "GoFundMe에서 후원하기",
+    "suscribirse": "Facebook에서 구독하기"
+  },
+  "ubicacion": {
+    "titulo": "오시는 길",
+    "entregas": "식료품 배부: 월요일과 목요일 오후, 예약제.",
+    "googleMaps": "Google 지도에서 열기",
+    "appleMaps": "Apple 지도에서 열기",
+    "llamar": "전화하기"
+  },
+  "marca": {
+    "ministerio": "{{iglesia}}의 사역"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "{{fecha}} 배부가 {{minutos}}분 늦어집니다. 순서는 같고, 모두 자기 시간보다 {{minutos}}분 늦게 들어갑니다.",
+      "movida": "{{fecha}} 배부가 {{fechaNueva}}(으)로 옮겨졌습니다. 시간은 같습니다. 코드도 그대로 쓰면 됩니다.",
+      "cancelada": "{{fecha}} 배부가 취소되었습니다. 예약이 있었다면 달력에서 새로 예약할 수 있습니다."
+    },
+    "miCita": {
+      "retraso": "그날 배부가 {{minutos}}분 늦어집니다. 새 예상 시간은 {{hora}}입니다. 코드는 그대로 쓰면 됩니다.",
+      "movida": "예약이 {{fecha}}에서 {{fechaNueva}}(으)로 옮겨졌습니다. 시간은 같습니다. 코드도 그대로 쓰면 됩니다.",
+      "cancelada": "이날 배부가 취소되었습니다."
+    }
+  },
+  "guia": {
+    "abrir": "사용 안내"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "이름을 입력하세요.",
+      "NUMEROS": "이름에는 숫자가 들어가지 않습니다.",
+      "SIMBOLOS": "글자만 쓰세요. 띄어쓰기, 하이픈(-), 아포스트로피(')는 괜찮습니다.",
+      "CORTO": "한 글자가 아니라 이름 전체를 쓰세요."
+    },
+    "apellidos": {
+      "VACIO": "성을 입력하세요.",
+      "NUMEROS": "성에는 숫자가 들어가지 않습니다.",
+      "SIMBOLOS": "글자만 쓰세요. 띄어쓰기, 하이픈(-), 아포스트로피(')는 괜찮습니다.",
+      "CORTO": "한 글자가 아니라 성 전체를 쓰세요."
+    },
+    "correo": {
+      "VACIO": "이메일을 입력하세요.",
+      "ESPACIOS": "이메일에는 띄어쓰기가 없습니다.",
+      "SIN_ARROBA": "@가 빠졌습니다. 예: nombre@gmail.com",
+      "VARIAS_ARROBAS": "이메일에는 @가 하나만 있습니다.",
+      "SIN_USUARIO": "@ 앞부분이 빠졌습니다.",
+      "SIN_DOMINIO": "@ 뒷부분이 빠졌습니다. 예: gmail.com",
+      "SIN_PUNTO": "점 뒤의 끝부분이 빠졌습니다. 예: .com",
+      "DOMINIO_INVALIDO": "@ 뒷부분을 확인하세요. 예: gmail.com",
+      "sugerencia": "{{correo}}을(를) 말씀하신 건가요?",
+      "usarSugerencia": "네, 고칠게요"
+    },
+    "telefono": {
+      "VACIO": "전화번호를 입력하세요.",
+      "CARACTERES": "전화번호는 숫자만 씁니다. 띄어쓰기, 하이픈, 맨 앞의 +는 괜찮습니다.",
+      "LADA_DESCONOCIDA": "그 국가 번호를 알 수 없습니다. 목록에서 국가를 고르세요.",
+      "CORTO": "숫자가 모자랍니다. {{pais}} 전화번호는 {{digitos}}자리인데 {{llevan}}자리를 쓰셨습니다.",
+      "LARGO": "숫자가 남습니다. {{pais}} 전화번호는 {{digitos}}자리인데 {{llevan}}자리를 쓰셨습니다.",
+      "EMPIEZA_CON_1": "숫자 하나가 모자랍니다. {{pais}} 전화번호는 맨 앞의 1을 빼고 {{max}}자리입니다.",
+      "entre": "{{min}}~{{max}}"
+    },
+    "sinCita": {
+      "VACIO": "그분의 이름을 쓰세요.",
+      "NUMEROS": "이름에는 숫자가 들어가지 않습니다.",
+      "SIMBOLOS": "글자만 쓰세요. 띄어쓰기, 하이픈(-), 아포스트로피(')는 괜찮습니다.",
+      "CORTO": "한 글자가 아니라 이름 전체를 쓰세요."
+    }
+  },
+  "proxima": {
+    "etiqueta": "다음 배부",
+    "horario": "{{inicio}}부터 {{fin}}까지",
+    "duracion": "각 시간대는 15분입니다.",
+    "lugares_other": "{{count}}자리 남음",
+    "lleno": "이번 배부는 남은 자리가 없습니다.",
+    "abiertos": "등록이 열려 있습니다.",
+    "abreEl": "등록은 {{cuando}}에 시작합니다.",
+    "faltan": "{{tiempo}} 남음",
+    "suscriptoresDesde": "Facebook 구독자는 {{cuando}}부터 등록할 수 있습니다.",
+    "suscriptoresAhora": "Facebook 구독자는 지금 코드로 등록할 수 있습니다.",
+    "conCodigo": "Facebook 구독자 예약",
+    "registrarme": "예약하기",
+    "sinLugares": "자리 없음",
+    "seActivara": "'예약하기' 버튼은 등록 시작 시간에 저절로 켜집니다.",
+    "sinFechas": "지금은 예정된 배부가 없습니다. 나중에 다시 확인하세요.",
+    "tiempo": {
+      "dias_other": "{{count}}일",
+      "horas": "{{n}}시간",
+      "minutos": "{{n}}분",
+      "segundos": "{{n}}초"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "구독자 사전 등록",
+    "explicacion": "Facebook에서 Cajita de Bendición을 구독하신다면, 구독자 전용 게시물에 있는 코드를 입력하세요.",
+    "desde": "{{cuando}}부터 코드를 쓸 수 있습니다.",
+    "ahora": "지금 코드로 일반 등록보다 먼저 등록할 수 있습니다.",
+    "sinAnticipado": "이번 배부에는 구독자 사전 등록이 없습니다.",
+    "yaAbierto": "등록이 이미 모두에게 열려 있습니다. 코드가 필요 없습니다.",
+    "irRegistro": "예약하러 가기",
+    "codigo": "구독자 코드",
+    "entrar": "내 코드로 들어가기",
+    "validando": "확인하는 중…",
+    "invalido": "유효하지 않거나 아직 쓸 수 없는 코드입니다.",
+    "noSuscriptor": "아직 구독자가 아니신가요?",
+    "invitacion": "Facebook에서 Cajita de Bendición을 구독하시면 매번 일반 등록보다 먼저 등록할 수 있습니다.",
+    "suscribirme": "Facebook에서 구독하기",
+    "cerrar": "닫기"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "예약을 찾을 수 없습니다.",
+      "CITA_YA_CANCELADA": "이 예약은 이미 취소되었습니다.",
+      "CITA_YA_ENTREGADA": "이 예약은 이미 사용되었습니다. 상자를 이미 받으셨습니다.",
+      "FECHA_PASADA": "이미 지난 날짜입니다.",
+      "MOTIVO_REQUERIDO": "예외 사유를 쓰세요.",
+      "PERSONA_NO_EXISTE": "그 번호를 가진 사람이 없습니다. 확인하세요 (예: CB-4871).",
+      "NO_NECESITA_EXCEPCION": "이분은 그 주에 예약이 없어서 예외가 필요 없습니다. 보통대로 등록하세요.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "이분은 그 주에 이미 예외가 있습니다. 한 번만 허용됩니다.",
+      "BLOQUE_LLENO": "그 시간은 가득 찼습니다. 다른 시간을 고르세요.",
+      "BLOQUE_CERRADO": "그 시간은 마감되었습니다.",
+      "BLOQUE_NO_EXISTE": "그 시간은 더 이상 없습니다.",
+      "DIA_CERRADO": "그날은 마감되었습니다.",
+      "FUNCION_NO_INSTALADA": "지금은 이 기능을 쓸 수 없습니다. 나중에 다시 해 보세요.",
+      "SIN_PERMISO": "이 계정에는 권한이 없습니다. 다시 로그인하세요.",
+      "SIN_CONEXION": "연결이 없습니다. 인터넷을 확인하고 다시 해 보세요.",
+      "ERROR_DESCONOCIDO": "완료하지 못했습니다. 다시 해 보세요.",
+      "NOMBRE_REQUERIDO": "그분의 이름을 쓰세요.",
+      "NOMBRE_INVALIDO": "이름에는 숫자가 들어가지 않습니다.",
+      "ENTRADA_NO_EXISTE": "그 기록을 찾을 수 없습니다.",
+      "ENTRADA_YA_ANULADA": "그 기록은 이미 무효 처리되었습니다.",
+      "SIN_CODIGOS_DISPONIBLES": "번호를 만들지 못했습니다. 다시 해 보세요.",
+      "MISMO_HORARIO": "지금 갖고 계신 시간입니다. 다른 시간을 고르세요.",
+      "YA_CAMBIO_HORARIO": "이미 한 번 시간을 바꾸셨습니다. 또 바꿔야 하면 교회에 전화하세요.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "그 주에 이미 예약이 있습니다. 한 주에 한 번만 됩니다.",
+      "AUN_NO_ABRE": "그날은 아직 열리지 않았습니다.",
+      "PASE_NO_EXISTE": "이분은 이용권이 없습니다.",
+      "PASE_YA_REVOCADO": "그 이용권은 이미 회수되었습니다.",
+      "TELEFONO_INVALIDO": "전화번호가 올바르지 않습니다. 국가 번호와 번호를 확인하세요.",
+      "FECHA_FUTURA": "아직 오지 않은 날짜입니다.",
+      "ACOMPANANTE_SIN_CAMBIO": "다른 사람의 차로 오십니다. 시간은 운전하는 분의 시간입니다. 그분이 시간을 바꾸면 같이 바뀝니다.",
+      "A_PIE_SIN_CAMBIO": "도보 줄은 시간을 바꾸지 않습니다. 그날 새 번호표를 받으세요.",
+      "NOTA_MUY_LARGA": "메모가 너무 깁니다. 최대 200자입니다.",
+      "FILA_INVALIDA": "줄을 고르세요: 차량 또는 도보.",
+      "NO_ES_DIA_DE_ENTREGA": "그날은 배부가 없었습니다 (또는 취소되었습니다).",
+      "PASE_REVOCADO": "그날 이분은 이용권이 더 이상 없었습니다.",
+      "PASE_YA_ENTREGADO": "그날 이미 이 이용권으로 상자를 받으셨습니다. 하루에 한 상자입니다."
+    }
+  },
+  "domicilio": {
+    "titulo": "주소",
+    "tituloPanel": "그분의 주소",
+    "zona": "캘리포니아(미국)와 바하칼리포르니아(멕시코) 주소를 받습니다.",
+    "pais": "주소 국가",
+    "paises": {
+      "MX": "멕시코",
+      "US": "미국"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (우편번호)",
+      "US": "ZIP code (우편번호)"
+    },
+    "buscando": "우편번호를 찾는 중…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (동네)",
+    "coloniaOpcional": "Colonia (동네, 선택)",
+    "elegirColonia": "동네를 고르세요",
+    "calle": {
+      "MX": "도로명",
+      "US": "주소"
+    },
+    "numero": {
+      "MX": "건물 번호"
+    },
+    "interior": {
+      "MX": "호수 (선택)",
+      "US": "아파트 호수 (선택)"
+    },
+    "sinDomicilio": "정해진 주소가 없습니다",
+    "sinDomicilioAyuda": "예를 들어 차에서 지내거나 잠시 친척 집에 머무는 경우입니다. 우편번호만 여쭤봅니다.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "우편번호를 입력하세요.",
+        "FORMATO": "우편번호는 숫자 5자리입니다.",
+        "NO_EXISTE": "캘리포니아와 바하칼리포르니아에서 그 우편번호를 찾을 수 없습니다. 확인하세요.",
+        "BUSCANDO": "잠시만 기다려 주세요. 우편번호를 확인하고 있습니다."
+      },
+      "colonia": {
+        "VACIO": "목록에서 동네를 고르세요.",
+        "NO_COINCIDE": "그 동네는 그 우편번호에 속하지 않습니다. 목록에서 고르세요."
+      },
+      "calle": {
+        "VACIO": "도로명을 입력하세요.",
+        "SIN_LETRAS": "도로 이름을 쓰세요.",
+        "SIN_NUMERO": "맨 앞에 건물 번호가 빠졌습니다. 예: 7855 Lansing Dr.",
+        "LARGO": "도로 이름이 너무 깁니다."
+      },
+      "numero": {
+        "VACIO": "번호를 입력하세요.",
+        "FORMATO": "건물 번호를 쓰세요. 예: 4250 또는 12-B.",
+        "FORMATO_MX": "번호를 쓰세요. 예: 1234 또는 12-B. 번호가 없으면 S/N이라고 쓰세요."
+      },
+      "interior": {
+        "FORMATO": "글자와 숫자만 쓰세요. 예: 5 또는 B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "정보는 비밀로 지켜집니다",
+    "texto": "Cajita de Bendición의 내부 기록과 배부 준비에만 씁니다. 누구와도, 정부 기관과도 나누지 않습니다.",
+    "casilla": "스스로 원해서 이 정보를 제공한다는 것을 확인합니다.",
+    "casillaPanel": "그분이 스스로 원해서 정보를 제공한다고 확인해 주셨습니다.",
+    "falta": "등록하려면 확인란에 표시하세요."
+  },
+  "boletin": {
+    "casilla": "교회 소식과 일반 안내를 이메일로 받고 싶습니다 (선택).",
+    "ayuda": "예약 관련 이메일과는 별개이며, 예약 이메일은 어차피 받으십니다. 언제든 구독을 해지할 수 있습니다."
+  },
+  "reglas": {
+    "titulo": "예약을 확정하기 전에 읽어 주세요",
+    "casilla": "안내를 읽었고 따르겠습니다.",
+    "falta": "계속하려면 안내를 읽고 동의해야 합니다.",
+    "respaldo1": "예약 시간 5분 전에 도착하세요. 꼭 지켜야 합니다.",
+    "respaldo2": "코드는 한 상자에만, 한 번만 쓸 수 있습니다.",
+    "respaldo3": "시간은 한 번만 바꿀 수 있습니다.",
+    "tituloAPie": "번호표를 받기 전에 읽어 주세요",
+    "respaldoAPie1": "18세 이상은 한 사람마다 자기 번호표와 코드가 필요합니다.",
+    "respaldoAPie2": "가까이에서 기다리세요. 번호를 부르면 앞으로 와서 코드를 보여 주세요."
+  },
+  "avisos": {
+    "cargando": "안내를 불러오는 중…"
+  },
+  "preguntas": {
+    "titulo": "자주 묻는 질문",
+    "ayuda": "가장 많이 묻는 질문입니다. 질문을 누르면 답이 보입니다.",
+    "cargando": "질문을 불러오는 중…",
+    "sinPreguntas": "아직 질문이 없습니다.",
+    "masDudas": "다른 질문이 있으세요? {{telefono}}로 전화하시거나 배부하는 날 직원에게 물어보세요."
+  },
+  "quienesSomos": {
+    "titulo": "소개",
+    "invitacion": "교회와 이 사역, 그리고 이 페이지가 있는 이유.",
+    "cargando": "불러오는 중…",
+    "sinTexto": "아직 안내가 없습니다.",
+    "sitioIglesia": "교회 웹사이트",
+    "verPreguntas": "자주 묻는 질문"
+  },
+  "tema": {
+    "aOscuro": "어두운 화면",
+    "aClaro": "밝은 화면",
+    "cambiarAOscuro": "어두운 화면으로 바꾸기",
+    "cambiarAClaro": "밝은 화면으로 바꾸기"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "차량 줄",
+      "a_pie": "도보 줄",
+      "ambas": "두 줄 모두"
+    }
+  },
+  "misCitas": {
+    "titulo": "내 예약",
+    "tituloUna": "내 예약",
+    "ayuda": "이 휴대전화로 한 예약입니다. 버튼을 눌러 코드를 보세요.",
+    "hoy": "오늘!",
+    "ver": "내 코드 보기",
+    "quitar": "이 휴대전화에서 지우기",
+    "quitarPregunta": "이 휴대전화에서 지울까요? 예약은 취소되지 않고 그대로 유지됩니다.",
+    "quitarSi": "네, 여기서 지웁니다",
+    "quitarNo": "아니요, 둡니다",
+    "ayudaUna": "이 휴대전화로 한 예약입니다. 버튼을 눌러 코드를 보세요."
+  },
+  "letra": {
+    "titulo": "글자 크기",
+    "normal": "보통 글자",
+    "grande": "큰 글자",
+    "muy_grande": "아주 큰 글자"
+  },
+  "recordatorio": {
+    "agregar": "내 캘린더에 추가",
+    "titulo": "Cajita de Bendición: 내 예약",
+    "descripcion": "내 번호: {{codigo}}. 몇 분 일찍 오시고 QR 코드를 가져오세요.\n내 코드 보기: {{enlace}}",
+    "aviso": "오늘은 Cajita de Bendición 예약일입니다. 코드를 가져오세요."
+  },
+  "redDeSeguridad": {
+    "titulo": "이 화면에 문제가 생겼습니다",
+    "texto": "여러분의 잘못이 아닙니다. 이미 예약하셨다면 예약은 그대로 저장되어 있습니다.",
+    "recargar": "다시 불러오기",
+    "inicio": "처음으로 가기",
+    "ayuda": "계속 그러면 교회에 전화하세요: {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "내 예약 듣기",
+    "frase": "예약은 {{fecha}}, {{hora}}입니다. 번호는: {{codigo}} 몇 분 일찍 오세요."
+  },
+  "entornoPruebas": {
+    "aviso": "테스트 데이터 · 실제가 아닙니다",
+    "lento": "느린 모드: {{segundos}}초"
+  },
+  "aPie": {
+    "noHay": "지금은 도보 줄이 없습니다. 생기면 바로 여기서 번호표를 받을 수 있습니다.",
+    "proxima": "다음 도보 줄",
+    "empiezaA": "{{hora}}에 배부를 시작합니다",
+    "abreA": "번호표는 {{cuando}}에 나옵니다.",
+    "seActualiza": "이 페이지를 열어 두세요. 번호표가 나오면 버튼이 저절로 나타납니다.",
+    "volver": "도보 줄로 돌아가기",
+    "registroTitulo": "번호표 받기",
+    "confirmar": "내 번호표 받기"
+  },
+  "turno": {
+    "tuTurno": "내 번호",
+    "numero": "{{turno}}번",
+    "listo": "번호표를 받으셨습니다",
+    "van": "지금 {{turno}}번 차례입니다",
+    "antes_other": "앞에 {{count}}명 있습니다",
+    "eresElSiguiente": "다음 차례입니다! 가까이 오세요.",
+    "esTuTurno": "차례입니다! 앞으로 와서 코드를 보여 주세요.",
+    "teLlamaron": "번호를 불렀는데 안 계셨습니다. 지금 자원봉사자에게 가서 번호나 코드를 보여 주세요. 너무 늦으면 번호가 무효가 되어 새로 받아야 합니다.",
+    "recibida": "상자를 받으셨습니다. 와 주셔서 감사합니다!",
+    "otroDia": "배부하는 날 여기서 지금 몇 번 차례인지 볼 수 있습니다.",
+    "seActualiza": "몇 초마다 저절로 바뀝니다.",
+    "terminada": "오늘 줄은 끝났습니다. 와 주셔서 감사합니다. 다음 배부 때 뵙겠습니다.",
+    "anulado": "번호를 불렀을 때 안 계셔서 번호가 무효가 되었습니다. 그래도 식료품이 필요하면 새 번호표를 받으세요. 줄 맨 뒤부터 기다립니다.",
+    "repetido": "이미 다른 번호표가 있어서 이 번호는 취소되었습니다.",
+    "repetidoCon": "이미 {{turno}}번이 있어서 이 번호는 취소되었습니다.",
+    "repetidoAyuda": "먼저 받은 번호를 쓰세요. 없으면 자원봉사자에게 말씀하세요."
+  },
+  "acompanante": {
+    "titulo": "어떻게 오시나요?",
+    "queEs": "이게 뭔가요?",
+    "explicacion": "자리 하나는 차 한 대입니다. 이미 예약한 분의 차로 오신다면 \"다른 사람의 차로 갑니다\"를 고르세요. 본인 번호와 본인 상자를 받지만, 자리를 하나 더 차지하지 않습니다. 시간은 운전하는 분의 시간입니다.",
+    "propio": "제 차로 갑니다",
+    "propioAyuda": "차 한 대 자리를 잡습니다.",
+    "acompanante": "이미 예약한 분의 차로 갑니다",
+    "acompananteAyuda": "자리를 하나 더 차지하지 않습니다.",
+    "codigo": "운전하는 분의 번호",
+    "codigoAyuda": "그분의 예약 페이지, QR 아래에 있습니다 (예: CB-4871).",
+    "faltaCodigo": "운전하는 분의 번호를 쓰세요. 예: CB-4871.",
+    "horaDeQuienManeja": "시간은 운전하는 분의 시간입니다.",
+    "enlace": "이미 예약한 분의 차로 오시나요? 여기서 등록하세요",
+    "escogeHorario": "자기 차로 오시려면 먼저 자리가 있는 시간을 고르세요.",
+    "verHorarios": "시간 보기"
+  },
+  "vip": {
+    "voluntario": "줄 서지 않고 바로 들어갑니다",
+    "persona": "줄 서지 않고 바로 들어가십니다",
+    "etiqueta": "VIP 이용권"
+  },
+  "demo": {
+    "aviso": "영상용 예시: 여기서 하는 것은 저장되지 않고, 나오는 코드도 쓸 수 없습니다.",
+    "salir": "예시 나가기"
+  },
+  "turnoAPie": {
+    "titulo": "도보 줄",
+    "subtitulo": "여기서 번호표를 받으세요. 정보를 주실 필요가 없습니다.",
+    "boton": "내 번호표 받기",
+    "sacando": "번호표를 받는 중…",
+    "empiezaA": "{{hora}}에 배부를 시작합니다",
+    "revisando": "줄을 확인하는 중…",
+    "noHay": "오늘은 도보 줄이 없습니다.",
+    "llena": "오늘은 번호표가 더 없습니다.",
+    "esTuTurno": "차례입니다!",
+    "acercate": "앞으로 와서 QR 코드를 보여 주세요.",
+    "verMiQr": "내 코드 보기",
+    "avisos": {
+      "sinDatos": "이름, 나이, 전화번호를 묻지 않습니다. 아무것도 저장하거나 나누지 않습니다.",
+      "soloHoy": "번호표는 오늘만, 식료품 한 상자에만 쓸 수 있습니다.",
+      "abierta": "이 페이지를 열어 두세요. 지금 몇 번 차례인지 보이고, 3명 남았을 때와 차례가 됐을 때 휴대전화가 울립니다.",
+      "teLlaman": "불렀을 때 안 계시면 되도록 빨리 오세요. 너무 늦으면 번호가 무효가 되어 줄 맨 뒤에서 새로 받아야 합니다.",
+      "cadaQuien": "어른은 한 사람마다 번호표를 받습니다. 휴대전화가 없으면 자원봉사자에게 부탁하세요."
+    },
+    "carro": {
+      "titulo": "오늘 {{hora}}에 차량 예약이 이미 있습니다.",
+      "texto_other": "도보로 바꾸면 오늘의 차량 예약이 취소되고 다시 차량 줄로 돌아갈 수 없습니다.",
+      "si": "네, 도보로 바꿉니다",
+      "no": "아니요, 차로 있겠습니다",
+      "duenio_other": "차 주인이십니다. 동승자 {{count}}명의 예약도 취소됩니다. 각자 자기 번호표를 받아야 합니다 (자기 휴대전화로, 또는 자원봉사자에게 부탁해서).",
+      "seguro": "정말 도보로 바꾸시겠어요?",
+      "siTodos": "네, 차량 예약을 취소하고 도보로 바꿉니다"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "오늘 이미 차로 식료품을 받으셨습니다. 와 주셔서 감사합니다!",
+      "AUN_NO_ABRE": "번호표는 {{hora}}부터 나옵니다.",
+      "NO_HAY_FILA": "오늘은 도보 줄이 없습니다.",
+      "CERRADA": "오늘은 더 이상 번호표를 주지 않습니다.",
+      "TURNOS_ANULADOS": "불렀을 때 안 계셔서 오늘 번호표 두 장이 이미 무효가 되었습니다. 도움이 필요하면 자원봉사자에게 말씀하세요.",
+      "TURNO_REPETIDO": "오늘 이 휴대전화로 번호표를 두 장 받아서 한 장은 취소되었습니다. 남은 것을 쓰세요. 없으면 자원봉사자에게 말씀하세요."
+    },
+    "errores": {
+      "SIN_CONEXION": "연결이 없습니다. 신호를 확인하고 버튼을 다시 누르세요.",
+      "FUNCION_NO_INSTALADA": "이 기능은 아직 준비되지 않았습니다. 자원봉사자에게 알려 주세요.",
+      "DISPOSITIVO_INVALIDO": "이 휴대전화로는 번호표를 드리지 못했습니다. 자원봉사자에게 도움을 요청하세요.",
+      "ERROR_DESCONOCIDO": "번호표를 드리지 못했습니다. 버튼을 다시 누르시거나 자원봉사자에게 도움을 요청하세요."
+    },
+    "terminada": "오늘 줄은 끝났습니다. 와 주셔서 감사합니다! 다음 배부 때 뵙겠습니다.",
+    "codigoEsTuyo": "이 코드는 본인만의 것입니다. 아무에게도 보여 주지 마세요. 이 코드로 번호표가 본인 것인지 확인합니다.",
+    "codigo": {
+      "etiqueta": "오늘의 코드",
+      "ayuda": "숫자 4개입니다. 입구에 적혀 있습니다. 안 보이면 자원봉사자에게 물어보세요.",
+      "FALTA_CODIGO": "번호표를 받으려면 오늘의 코드를 입력하세요.",
+      "CODIGO_INCORRECTO": "오늘의 코드가 아닙니다. 확인하고 다시 해 보세요.",
+      "DEMASIADOS_INTENTOS": "너무 여러 번 시도했습니다. {{reloj}} 후에 다시 할 수 있습니다.",
+      "esperaBoton": "{{reloj}} 기다리세요"
+    },
+    "anotalo": "번호({{turno}})를 적어 두시거나 이 화면을 사진으로 찍어 두세요. 페이지가 닫혀도 새 번호표를 받지 말고 자원봉사자에게 번호를 말씀하세요.",
+    "yaTenias": "번호표를 받았는데 페이지가 닫혔나요? 새로 받지 말고 자원봉사자에게 번호를 말씀하세요.",
+    "otroTurno": "새 번호표 받기",
+    "carroCodigo": {
+      "abrir": "오늘 차량 예약이 있었나요?",
+      "titulo": "차량에서 도보로 바꾸기",
+      "ayuda": "차량 줄이 너무 길면 도보 줄로 바꿀 수 있습니다. 차량 예약 번호를 입력하세요. 차량 예약은 취소되고 다시 차량 줄로 돌아갈 수 없습니다.",
+      "etiqueta": "차량 예약 번호",
+      "campoAyuda": "숫자만 (4자리 또는 5자리): 'CB-'는 이미 들어가 있습니다.",
+      "boton": "도보로 바꾸기",
+      "cancelar": "차량 예약이 없었습니다",
+      "CODIGO_CARRO_NO_EXISTE": "오늘 그 번호로 된 차량 예약을 찾을 수 없습니다. 숫자를 확인하세요."
+    },
+    "verFila": "실시간 줄 보기"
+  },
+  "credencial": {
+    "etiqueta": "자원봉사자",
+    "titulo": "자원봉사자 명찰",
+    "enseniala": "도착하면 보여 주세요",
+    "cargando": "명찰을 준비하는 중…",
+    "qrAlt": "{{nombre}}님의 명찰 QR 코드",
+    "comoFunciona": "도착하면 자원봉사자를 맞이하는 분에게 이 QR을 보여 주세요. 그렇게 봉사 시간이 기록됩니다.",
+    "soloTuya": "본인 전용입니다. 다른 사람에게 주지 마세요. 잃어버리면 새로 요청하세요.",
+    "inactiva": "이 명찰은 더 이상 유효하지 않습니다.",
+    "inactivaTexto": "잘못된 것 같으면 교회에 전화하세요: {{telefono}}.",
+    "noEncontrada": "이 명찰을 찾을 수 없습니다. 관리자에게 링크를 다시 보내 달라고 하세요.",
+    "sinConexion": "명찰을 불러오지 못했습니다. 신호를 확인하고 링크를 다시 여세요.",
+    "horas": {
+      "titulo": "내 봉사 시간",
+      "llevas_other": "{{count}}일 동안 {{duracion}} 봉사하셨습니다.",
+      "todavia": "아직 완료된 기록이 없습니다. 봉사하는 날이 끝날 때마다 시간이 계산됩니다.",
+      "ayuda": "도착과 떠남이 모두 기록된 방문만 셉니다. 최근 10번이 여기 나옵니다.",
+      "todaviaYSalida": "아직 완료된 기록이 없습니다. 도착할 때와 떠날 때 스캔하면 여기에 시간이 나옵니다."
+    },
+    "ensenialaYSalida": "도착할 때와 떠날 때 보여 주세요",
+    "comoFuncionaYSalida": "도착하면 관리자에게 이 QR을 보여 주시고, 떠날 때 다시 보여 주세요. 그렇게 봉사 시간이 기록됩니다."
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}}분",
+      "h": "{{h}}시간",
+      "hMin": "{{h}}시간 {{m}}분"
+    },
+    "envio": {
+      "mensaje": "{{nombre}}님, 안녕하세요. Cajita de Bendición(Iglesia Casa de Alabanza) 자원봉사자 명찰입니다:\n{{enlace}}\n\n휴대전화에 저장하시고 도착할 때와 떠날 때 보여 주세요. 그렇게 봉사 시간이 기록됩니다. 본인 전용이니 나누지 마세요. 섬겨 주셔서 감사합니다!",
+      "mensajeSoloEntrada": "{{nombre}}님, 안녕하세요. Cajita de Bendición(Iglesia Casa de Alabanza) 자원봉사자 명찰입니다:\n{{enlace}}\n\n휴대전화에 저장하시고 도착할 때 보여 주세요. 그렇게 봉사 시간이 기록됩니다. 본인 전용이니 나누지 마세요. 섬겨 주셔서 감사합니다!"
+    }
+  },
+  "preferente": {
+    "etiqueta": "우선",
+    "voluntario": "줄 없이 들어갑니다. 드리기 전에 본인인지 확인하세요.",
+    "persona": "줄 서지 않으셔도 됩니다. 자원봉사자에게 이 QR을 보여 주세요."
+  },
+  "filaEnVivo": {
+    "titulo": "도보 줄 실시간",
+    "subtitulo": "줄이 어떻게 줄어드는지 보세요. 번호표가 없어도 됩니다.",
+    "cargando": "줄을 확인하는 중…",
+    "noHay": "오늘은 도보 줄이 없습니다.",
+    "porAbrir": "아직 시작하지 않았습니다. 번호표는 {{hora}}에 나옵니다.",
+    "terminada_other": "오늘 줄은 끝났습니다. {{count}}명이 식료품을 받았습니다. 감사합니다!",
+    "asiVa": "지금 줄 상황",
+    "noEsTuyo": "이 번호들은 다른 분들의 번호입니다. 내 번호가 아닙니다.",
+    "tuNumero": "내 번호는 {{turno}}번입니다.",
+    "recibio": "받음",
+    "llamando": "부르는 중",
+    "sigue": "다음",
+    "nadieEspera": "지금 기다리는 사람이 없습니다.",
+    "esperando": "대기",
+    "recibieron": "받음",
+    "dados": "번호표",
+    "yaNoSeDan": "오늘은 새 번호표를 더 주지 않습니다.",
+    "sinSenal": "신호 없음: 마지막으로 알려진 상황입니다. 연결되면 다시 바뀝니다.",
+    "miTurno": "내 번호 보기 ({{turno}})",
+    "sacar": "내 번호표 받기"
+  },
+  "video": {
+    "titulo": "Cajita de Bendición이란?",
+    "presentacion": "영상",
+    "idioma": "언어",
+    "hazTuCita": "예약하기",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "월요일과 목요일 무료 식료품. {{iglesia}}의 사역입니다."
+    },
+    "comoVienes": {
+      "titulo": "어떻게 오시나요?",
+      "texto": "차로 오시면 예약하고 시간을 고릅니다. 걸어서 오시면 배부하는 날 휴대전화로 번호표를 받습니다.",
+      "carro": "차로",
+      "aPie": "걸어서"
+    },
+    "cita": {
+      "titulo": "휴대전화로 예약하세요",
+      "texto": "날짜와 시간을 고르세요. 계정도 비밀번호도 필요 없습니다.",
+      "lunes": "월요일",
+      "jueves": "목요일"
+    },
+    "codigo": {
+      "titulo": "코드를 저장하세요",
+      "texto": "QR 코드와 번호를 드립니다. 화면을 캡처해 두세요."
+    },
+    "despensa": {
+      "titulo": "오셔서 식료품을 받으세요",
+      "texto": "도착하면 코드를 보여 주시고 상자를 받으세요. 18세 이상은 한 사람마다 직접 예약합니다.",
+      "unaCaja": "어른 한 명당 1상자"
+    },
+    "privado": {
+      "titulo": "무료이고 비밀이 지켜집니다",
+      "texto": "기부는 필요 없습니다. 정보는 누구와도, 정부 기관과도 나누지 않습니다."
+    },
+    "final": {
+      "titulo": "예약하기",
+      "texto": "차로는 예약하고, 걸어서는 번호표를 받습니다. 버튼을 눌러 시작하세요."
+    },
+    "otraVez": "다시 보기",
+    "anterior": "이전",
+    "siguiente": "다음",
+    "pausar": "일시정지",
+    "seguir": "계속"
+  }
+}

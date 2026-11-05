@@ -13,6 +13,11 @@
 
 let contexto = null
 
+//  El escaner suena en la calle, con la fila y los motores: mas fuerte que
+//  la pagina de la gente (5 de noviembre de 2026).
+const VOLUMEN_ESCANER = 0.4
+const VOLUMEN_DETENTE = 0.45
+
 /**
  * Deja el sonido listo. Tiene que llamarse DENTRO de un toque de la
  * persona: ni el iPhone ni Chrome dejan que una pagina suene sola antes de
@@ -31,6 +36,22 @@ export function prepararSonido(Constructor = globalThis.AudioContext ?? globalTh
   return contexto
 }
 
+/**
+ * Que el iPhone suene aunque tenga puesto el interruptor de silencio
+ * (Safari 16.4 en adelante). Sin esto, con el telefono en silencio el
+ * escaner no hace ningun ruido. Solo lo usa el escaner: la pagina de la
+ * gente sigue respetando el silencio de su telefono. Devuelve si se pudo.
+ */
+export function sonarAunEnSilencio(navegador = globalThis.navigator) {
+  try {
+    if (!navegador?.audioSession) return false
+    navegador.audioSession.type = 'playback'
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Solo para las pruebas: olvida el contexto preparado. */
 export function olvidarSonido() {
   contexto = null
@@ -42,6 +63,9 @@ export function tono({ hz = 880, segundos = 0.12, volumen = 0.15, retraso = 0 } 
   if (!ctx) return false
 
   try {
+    //  Al bloquear el telefono o cambiar de app, el navegador lo duerme.
+    if (ctx.state === 'suspended') ctx.resume?.()
+
     const oscilador = ctx.createOscillator()
     const ganancia = ctx.createGain()
     const empieza = ctx.currentTime + retraso
@@ -76,21 +100,28 @@ export function vibrar(patron = 60, navegador = globalThis.navigator) {
 /** "Ya lo lei": un bip corto, apenas se lee el codigo. */
 export function avisoLeido() {
   vibrar(40)
-  return tono({ hz: 880, segundos: 0.1 })
+  return tono({ hz: 880, segundos: 0.1, volumen: VOLUMEN_ESCANER })
 }
 
 /** "Puede pasar": dos bips que suben. */
 export function avisoValido() {
   vibrar([40, 60, 40])
-  const uno = tono({ hz: 880, segundos: 0.1 })
-  const dos = tono({ hz: 1320, segundos: 0.16, retraso: 0.11 })
+  const uno = tono({ hz: 880, segundos: 0.1, volumen: VOLUMEN_ESCANER })
+  const dos = tono({ hz: 1320, segundos: 0.16, volumen: VOLUMEN_ESCANER, retraso: 0.11 })
   return uno && dos
 }
 
 /** "Detente": un tono grave y largo, distinto del de pasar. */
 export function avisoDetente() {
   vibrar([120, 80, 120])
-  return tono({ hz: 320, segundos: 0.45, volumen: 0.18 })
+  return tono({ hz: 320, segundos: 0.45, volumen: VOLUMEN_DETENTE })
+}
+
+/** "Probar sonido": el de pasar y, un momento despues, el de detente. */
+export function probarSonido() {
+  const pasa = avisoValido()
+  const detente = tono({ hz: 320, segundos: 0.45, volumen: VOLUMEN_DETENTE, retraso: 0.7 })
+  return pasa && detente
 }
 
 /** La fila a pie: "faltan 3, acercate". Dos tonos medianos. */

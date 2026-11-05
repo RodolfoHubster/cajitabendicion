@@ -1,0 +1,764 @@
+{
+  "avisoIdioma": {
+    "titulo": "Inaayos pa ang Tagalog",
+    "detalle": "Inaayos pa ang pagsasaling ito at baka may mali. Kung may hindi malinaw, puwede kang lumipat sa Ingles o Espanyol sa itaas.",
+    "ingles": "Tagalog is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "ngayon lang",
+      "haceMin": "{{n}} min ang nakalipas",
+      "haceHoras": "{{h}} oras {{m}} min ang nakalipas"
+    }
+  },
+  "pase": {
+    "etiqueta": "Permanenteng pass",
+    "titulo": "Ang pass mo",
+    "dias": "Lunes at Huwebes",
+    "cargando": "Inihahanda ang pass mo…",
+    "noEncontrado": "Hindi namin makita ang pass na iyan. Baka kulang ang link.",
+    "revocado": "Hindi na aktibo ang pass na ito",
+    "revocadoTexto": "Kung sa tingin mo ay mali ito, tawagan ang simbahan sa {{telefono}}.",
+    "comoFunciona": "Pumunta sa Lunes o Huwebes na kaya mo, sa oras na kaya mo. Ipakita ang code na ito at ibibigay sa iyo ang kahon mo.",
+    "soloTuyo": "Iyo lang ang pass na ito at para sa isang kahon bawat araw. Kapag ipinahiram, makakansela ito.",
+    "sello": "Ang logo ng Cajita de Bendición sa gitna ng code ang tanda ng pass mo: ganoon ito nakikilala ng volunteer."
+  },
+  "confirmacion": {
+    "cargando": "Inihahanda ang code mo…",
+    "noEncontrada": "Hindi namin makita ang appointment na iyan. Baka kulang ang link.",
+    "volverInicio": "Bumalik sa simula",
+    "lista": "Handa na ang appointment mo",
+    "horarioCambiado": "Ayos, napalitan na ang oras mo. Pareho pa rin ang code mo, pero i-save ulit ang larawan: ang luma ay may lumang oras.",
+    "qrAlt": "QR code ng appointment mo",
+    "siNoSeLee": "Kung hindi mabasa ang code, ibigay ang numerong ito:",
+    "aNombreDe": "Sa pangalan ni",
+    "unSoloUso": "Isang beses lang magagamit ang code na ito at para sa isang kahon lang. Kung may iba sa bahay mo na nangangailangan, kailangan niyang magparehistro nang sarili.",
+    "cambiarHorario": "Palitan ang oras ko",
+    "guardarImagen": "I-save ang larawan",
+    "descargada": "Na-download na ang larawan. Kung hindi mo makita sa mga litrato mo, pindutin nang matagal ang QR code sa itaas at piliin ang \"Save Image\" o \"Add to Photos\".",
+    "consejoCaptura": "Puwede ka ring mag-screenshot.",
+    "cancelar": "Kanselahin ang appointment ko",
+    "cancelarPregunta": "Sigurado ka bang kakanselahin mo ang appointment mo? Mapupunta sa iba ang puwesto mo.",
+    "cancelarSi": "Oo, kanselahin ang appointment ko",
+    "cancelarNo": "Hindi, panatilihin ang appointment ko",
+    "cancelando": "Kinakansela…",
+    "canceladaTitulo": "Nakansela na ang appointment mo",
+    "canceladaTexto": "Bakante na ang puwesto mo. Kung kailangan mo, puwede kang magparehistro ulit.",
+    "registrarOtra": "Mag-book ulit",
+    "yaExistia": "Mayroon ka nang appointment na ito. Walang ginawang bago: iyon pa rin, at pareho ang code.",
+    "consejoBrillo": "Sa araw ng pamimigay, lakasan ang liwanag ng screen mo: para mabasa agad ang code."
+  },
+  "cambiar": {
+    "titulo": "Palitan ang oras ko",
+    "cargando": "Hinahanap ang appointment mo…",
+    "volver": "Bumalik sa appointment ko",
+    "tuCitaAhora": "Ang appointment mo ngayon",
+    "aviso": "Isang beses mo lang mapapalitan ang oras mo. Pareho pa rin ang code mo na {{codigo}} at ang QR code mo.",
+    "elegirDia": "Piliin ang araw",
+    "elegirHora": "Piliin ang oras",
+    "actual": "Ang hawak mo ngayon",
+    "deAcuerdo": "Naiintindihan ko na isang beses ko lang mapapalitan ang oras ko.",
+    "confirmar": "Palitan ang oras ko",
+    "cambiando": "Pinapalitan…",
+    "sinDias": "Wala pang ibang araw na may puwesto ngayon. Subukan ulit mamaya.",
+    "noSePuede": "Hindi na mapapalitan ang appointment na ito.",
+    "yaCambiaste": "Napalitan mo na ang oras mo nang isang beses. Kung talagang kailangan, tawagan ang simbahan sa {{telefono}}."
+  },
+  "registro": {
+    "cargando": "Inihahanda ang pagpaparehistro mo…",
+    "sinHorario": "Piliin muna ang araw at oras ng appointment mo.",
+    "horarioNoDisponible": "Wala na ang oras na iyan. Pumili ng iba.",
+    "nombre": "Pangalan",
+    "telefono": "Cellphone",
+    "correo": "Email",
+    "correoAyuda": "Dito namin ipapadala ang code mo para makapasok.",
+    "confirmar": "Kumpirmahin ang appointment ko",
+    "enviando": "Inirereserba ang puwesto mo…",
+    "errores": {
+      "BLOQUE_LLENO": "Napuno ang oras na iyan habang nagsasagot ka. Pumili ng iba.",
+      "BLOQUE_CERRADO": "Sarado na ang oras na iyan.",
+      "BLOQUE_NO_EXISTE": "Wala na ang oras na iyan. Pumili ng iba.",
+      "FECHA_PASADA": "Lumipas na ang petsang iyan.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "May appointment na para sa linggong ito. Isa lang bawat linggo: Lunes o Huwebes, hindi pareho.",
+      "LIMITE_DISPOSITIVO": "May appointment nang ginawa mula sa device na ito para sa araw na iyan. Bawat tao ay kailangang magparehistro gamit ang sarili niyang cellphone o computer.",
+      "NOMBRE_REQUERIDO": "Kulang ang pangalan mo.",
+      "TELEFONO_REQUERIDO": "Kulang ang telepono mo.",
+      "EMAIL_REQUERIDO": "Kulang ang email mo.",
+      "EMAIL_INVALIDO": "Mukhang mali ang pagkakasulat ng email. Pakitingnan.",
+      "SIN_CODIGOS_DISPONIBLES": "Nagkaproblema sa paggawa ng code mo. Subukan ulit.",
+      "ERROR_DESCONOCIDO": "Hindi namin mareserba ang puwesto mo. Subukan ulit maya-maya.",
+      "AUN_NO_ABRE": "Hindi pa bukas ang pagpaparehistro para sa araw na ito.",
+      "CODIGO_ANTICIPADO_INVALIDO": "Hindi na valid ang subscriber code mo. Baka napalitan na; tingnan ang post sa Facebook.",
+      "DIA_CERRADO": "Hindi na tumatanggap ng rehistro ang araw na ito.",
+      "APELLIDOS_REQUERIDOS": "Kulang ang apelyido mo.",
+      "NOMBRE_INVALIDO": "Walang numero ang pangalan at apelyido.",
+      "TELEFONO_INVALIDO": "Tingnan ang telepono mo: kulang o may sobra ang numero.",
+      "PAIS_INVALIDO": "Piliin ang Mexico o Estados Unidos.",
+      "CODIGO_POSTAL_REQUERIDO": "Kulang ang postal code.",
+      "CODIGO_POSTAL_INVALIDO": "Limang numero ang postal code.",
+      "CODIGO_POSTAL_NO_EXISTE": "Hindi namin makita ang postal code na iyan sa California o sa Baja California.",
+      "COLONIA_REQUERIDA": "Piliin ang colonia mo.",
+      "COLONIA_INVALIDA": "Hindi sakop ng postal code na iyan ang colonia na iyan.",
+      "CALLE_REQUERIDA": "Kulang ang kalye.",
+      "CALLE_INVALIDA": "Pakitingnan ang pangalan ng kalye.",
+      "NUMERO_REQUERIDO": "Kulang ang numero ng bahay.",
+      "NUMERO_INVALIDO": "Pakitingnan ang numero ng bahay.",
+      "NUMERO_INTERIOR_INVALIDO": "Pakitingnan ang numero ng apartment o unit.",
+      "CONSENTIMIENTO_REQUERIDO": "Kumpirmahin na kusa mong ibinibigay ang impormasyon mo.",
+      "FALTA_HORARIO": "Piliin ang petsa at oras.",
+      "YA_REGISTRADO_ESE_DIA": "May appointment na sa pangalan mo para sa araw na iyan. Kung nawala ang code mo, humingi ng tulong sa team sa araw ng pamimigay: hahanapin ka nila sa pangalan.",
+      "A_PIE_CERRADO": "Wala pang pila ng naglalakad para sa araw na iyan.",
+      "SIN_CONEXION": "Naputol ang koneksyon. Tingnan ang signal mo at pindutin ulit ang \"Kumpirmahin\".",
+      "ACOMPANANTE_SIN_CITA": "Wala kaming makitang appointment ng kotse na may ganyang code sa araw na ito. Tingnan ang code kasama ang nagmamaneho.",
+      "CARRO_LLENO": "Puno na ng kasama ang kotseng iyan.",
+      "FALTA_FECHA": "Piliin ang petsa.",
+      "LLAVE_VENCIDA": "Matagal na ang lumipas. Ilagay ulit ang code at telepono mo."
+    },
+    "apellidos": "Apelyido",
+    "pais": "Bansa ng telepono",
+    "paisesPrincipales": "Pinakakaraniwan",
+    "paisesTodos": "Lahat ng bansa",
+    "otrosHorarios": {
+      "buscando": "Naghahanap ng ibang oras sa araw na iyan…",
+      "titulo": "Pumili ng ibang oras sa parehong araw:",
+      "seQueda": "Mananatili ang isinulat mo. Oras lang ang magbabago.",
+      "ninguno": "Wala nang bakanteng oras sa araw na iyan.",
+      "otroDia": "Tingnan ang ibang araw"
+    },
+    "tuCitaGuardada": "Naka-save na sa teleponong ito ang appointment na ito:",
+    "verTuCita": "Tingnan ang appointment ng {{hora}} ({{nombre}})",
+    "horaCambiada": "Ayos, {{hora}} na ang oras mo. Pindutin ang \"Kumpirmahin\" para matapos.",
+    "borrador": {
+      "recuperado": "Nabawi namin ang isinulat mo.",
+      "empezarDeNuevo": "Burahin at magsimula ulit"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "Naubos ang numero habang nagsasagot ka. Paumanhin talaga.",
+      "BLOQUE_CERRADO": "Sarado na ang numero para sa araw na ito.",
+      "BLOQUE_NO_EXISTE": "Wala na ang pila ng naglalakad na ito. Tingnan ulit ang page ng pila.",
+      "AUN_NO_ABRE": "Hindi pa nagbibigay ng numero. Bumalik sa oras na nakasulat sa page.",
+      "DIA_CERRADO": "Hindi na nagbibigay ng numero ang araw na ito."
+    },
+    "yaViniste": {
+      "titulo": "Nakapunta ka na ba dati?",
+      "ayuda": "Gamit ang CB code at telepono mo, hindi mo na kailangang isulat ulit ang impormasyon mo.",
+      "abrir": "Gamitin ang code ko",
+      "codigo": "Ang CB code mo",
+      "codigoAyuda": "Nasa confirmation mo ito at sa email ng appointment mo.",
+      "telefono": "Ang telepono mo (pareho noong huli)",
+      "buscar": "Magpatuloy",
+      "buscando": "Hinahanap…",
+      "cerrar": "Isusulat ko na lang ang impormasyon ko",
+      "listo": "Gamit ang impormasyon mo noong huli, {{nombre}}",
+      "listoAyuda": "Pareho pa rin ang CB code mo. Kumpirmahin mo na lang ang appointment mo.",
+      "noSoyYo": "Hindi ako ito / ibang impormasyon",
+      "faltaCodigo": "Isulat ang mga numero ng code mo.",
+      "NO_COINCIDE": "Hindi tugma ang code at teleponong iyan. Tingnan ulit, o isulat ang impormasyon mo sa ibaba.",
+      "DEMASIADOS_INTENTOS": "Masyadong maraming subok. Maghintay ng {{minutos}} minuto, o isulat ang impormasyon mo sa ibaba."
+    }
+  },
+  "pasos": {
+    "etiqueta": "Takbo ng pagpaparehistro",
+    "fecha": "Petsa",
+    "horario": "Oras",
+    "datos": "Impormasyon mo"
+  },
+  "horarios": {
+    "duracion": "15 minuto ang bawat oras.",
+    "cargando": "Naghahanap ng oras…",
+    "error": "Hindi namin mai-load ang mga oras. Subukan ulit maya-maya.",
+    "sinBloques": "Wala nang oras para sa araw na ito.",
+    "fechaInvalida": "Hindi valid ang petsang iyan.",
+    "volverCalendario": "Pumili ng ibang petsa",
+    "lleno": "Puno",
+    "quedan_one": "{{count}} puwesto na lang",
+    "quedan_other": "{{count}} puwesto na lang",
+    "conCodigo": "Pumasok ka gamit ang subscriber code mo. Piliin ang oras mo.",
+    "revisandoCodigo": "Tinitingnan ang code mo…",
+    "continuarCon": "Magpatuloy sa {{hora}}",
+    "eligeUno": "Pumindot ng oras sa listahan"
+  },
+  "calendario": {
+    "cargando": "Naghahanap ng mga bakanteng araw…",
+    "error": "Hindi namin mai-load ang mga bakanteng araw. Subukan ulit maya-maya."
+  },
+  "pages": {
+    "calendario": "Susunod na pamimigay",
+    "horarios": "Mga oras",
+    "registro": "Pagpaparehistro",
+    "confirmacion": "Kumpirmasyon"
+  },
+  "inicio": {
+    "titulo": "Mag-book ng appointment",
+    "subtitulo": "Libreng groceries, tuwing Lunes at Huwebes",
+    "antesDeEmpezar": "Bago magsimula",
+    "reglaRespaldo": "Bawat taong 18 taong gulang pataas na tatanggap ng kahon ay kailangan ng sariling rehistro at sariling code.",
+    "comoVienes": "Paano ka pupunta?",
+    "enCarro": "Naka-kotse",
+    "aPie": "Naglalakad",
+    "aPieAviso": "Kapag naglalakad, walang oras na nakatakda: sa araw ng pamimigay, kukuha ka ng numero dito at maghihintay na tawagin.",
+    "gratuito": "Libre ang pagkain. Walang kailangang donasyon.",
+    "yaTienesCita": "May appointment ka na? Dalhin ang larawan o screenshot ng code mo sa araw ng pamimigay.",
+    "hacerCita": "Mag-book",
+    "sacarTurno": "Kumuha ng numero"
+  },
+  "navegacion": {
+    "inicio": "Bumalik sa simula",
+    "cambiarFecha": "Palitan ang petsa",
+    "cambiarHorario": "Palitan ang oras",
+    "accesoPersonal": "Para sa staff",
+    "verSitio": "Tingnan ang public site"
+  },
+  "pie": {
+    "bienvenidos": "Maligayang pagdating sa",
+    "comunidad": "Komunidad kay Kristo",
+    "servicios": "Mga pagsamba ng simbahan",
+    "horarioServicios": "Huwebes 7:00 PM · Linggo 6:00 PM",
+    "sitioIglesia": "Website ng simbahan",
+    "siguenos": "I-follow kami",
+    "apoya": "Suportahan ang Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Facebook ng Cajita de Bendición",
+      "facebookIglesia": "Facebook ng simbahan",
+      "tiktokCajita": "TikTok ng Cajita de Bendición",
+      "instagramIglesia": "Instagram ng simbahan",
+      "tiktokIglesia": "TikTok ng simbahan"
+    }
+  },
+  "donar": {
+    "titulo": "Gusto mo bang suportahan ang Cajita de Bendición?",
+    "tituloTrasRegistro": "Kung kaya mo, huwag kalimutang suportahan kami",
+    "aclaracion": "Hindi nakadepende sa donasyon ang appointment mo: libre ang pagkain.",
+    "texto": "Kung kaya mo at gusto mong tumulong, anumang tulong ay nagpapaabot sa amin sa mas maraming pamilya bawat linggo.",
+    "paypal": "Mag-donate sa PayPal",
+    "gofundme": "Sumuporta sa GoFundMe",
+    "suscribirse": "Mag-subscribe sa Facebook"
+  },
+  "ubicacion": {
+    "titulo": "Nasaan kami",
+    "entregas": "Pamimigay ng groceries: Lunes at Huwebes ng hapon, may appointment.",
+    "googleMaps": "Buksan sa Google Maps",
+    "appleMaps": "Buksan sa Apple Maps",
+    "llamar": "Tumawag"
+  },
+  "marca": {
+    "ministerio": "Isang ministeryo ng {{iglesia}}"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "Ang pamimigay sa {{fecha}} ay {{minutos}} minutong huli. Pareho ang pagkakasunod-sunod, {{minutos}} minuto pagkatapos ng oras ng bawat isa.",
+      "movida": "Inilipat ang pamimigay sa {{fecha}} sa {{fechaNueva}}, parehong oras. Gumagana pa rin ang code mo.",
+      "cancelada": "Kinansela ang pamimigay sa {{fecha}}. Kung may appointment ka, puwede kang mag-book ng bago sa kalendaryo."
+    },
+    "miCita": {
+      "retraso": "Ang pamimigay sa araw mo ay {{minutos}} minutong huli: ang bago mong tinatayang oras ay {{hora}}. Gumagana pa rin ang code mo.",
+      "movida": "Inilipat ang appointment mo mula {{fecha}} papuntang {{fechaNueva}}, parehong oras. Gumagana pa rin ang code mo.",
+      "cancelada": "Kinansela ang pamimigay sa araw na ito."
+    }
+  },
+  "guia": {
+    "abrir": "Gabay sa paggamit"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "Kulang ang pangalan mo.",
+      "NUMEROS": "Walang numero ang pangalan.",
+      "SIMBOLOS": "Mga titik lang. Puwede ang espasyo, gitling (-) at kudlit (').",
+      "CORTO": "Isulat ang buong pangalan mo, hindi lang isang titik."
+    },
+    "apellidos": {
+      "VACIO": "Kulang ang apelyido mo.",
+      "NUMEROS": "Walang numero ang apelyido.",
+      "SIMBOLOS": "Mga titik lang. Puwede ang espasyo, gitling (-) at kudlit (').",
+      "CORTO": "Isulat ang buong apelyido mo, hindi lang isang titik."
+    },
+    "correo": {
+      "VACIO": "Kulang ang email mo.",
+      "ESPACIOS": "Walang espasyo ang email.",
+      "SIN_ARROBA": "Kulang ang @. Halimbawa: nombre@gmail.com",
+      "VARIAS_ARROBAS": "Isa lang ang @ sa email.",
+      "SIN_USUARIO": "Kulang ang bahagi bago ang @.",
+      "SIN_DOMINIO": "Kulang ang bahagi pagkatapos ng @, halimbawa gmail.com",
+      "SIN_PUNTO": "Kulang ang dulo pagkatapos ng tuldok, halimbawa .com",
+      "DOMINIO_INVALIDO": "Tingnan ang bahagi pagkatapos ng @, halimbawa gmail.com",
+      "sugerencia": "Ang ibig mo bang sabihin ay {{correo}}?",
+      "usarSugerencia": "Oo, ayusin"
+    },
+    "telefono": {
+      "VACIO": "Kulang ang telepono mo.",
+      "CARACTERES": "Numero lang ang telepono. Puwede ang espasyo, gitling at + sa simula.",
+      "LADA_DESCONOCIDA": "Hindi namin kilala ang country code na iyan. Piliin ang bansa mo sa listahan.",
+      "CORTO": "Kulang ang numero: ang telepono sa {{pais}} ay may {{digitos}} numero at {{llevan}} ang isinulat mo.",
+      "LARGO": "Sobra ang numero: ang telepono sa {{pais}} ay may {{digitos}} numero at {{llevan}} ang isinulat mo.",
+      "EMPIEZA_CON_1": "Kulang ng isang numero: ang telepono sa {{pais}} ay may {{max}} numero, hindi kasama ang 1 sa simula.",
+      "entre": "mula {{min}} hanggang {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "Isulat ang pangalan ng tao.",
+      "NUMEROS": "Walang numero ang pangalan.",
+      "SIMBOLOS": "Mga titik lang. Puwede ang espasyo, gitling (-) at kudlit (').",
+      "CORTO": "Isulat ang buong pangalan, hindi lang isang titik."
+    }
+  },
+  "proxima": {
+    "etiqueta": "Susunod na pamimigay",
+    "horario": "Mula {{inicio}} hanggang {{fin}}",
+    "duracion": "15 minuto ang bawat oras.",
+    "lugares_one": "{{count}} puwesto na bakante",
+    "lugares_other": "{{count}} puwestong bakante",
+    "lleno": "Wala nang puwesto para sa pamimigay na ito.",
+    "abiertos": "Bukas na ang pagpaparehistro.",
+    "abreEl": "Magbubukas ang pagpaparehistro sa {{cuando}}.",
+    "faltan": "{{tiempo}} pa",
+    "suscriptoresDesde": "Ang mga subscriber sa Facebook ay puwedeng magparehistro simula {{cuando}}.",
+    "suscriptoresAhora": "Puwede nang magparehistro ang mga subscriber sa Facebook gamit ang code nila.",
+    "conCodigo": "Mag-book para sa mga subscriber sa Facebook",
+    "registrarme": "Mag-book",
+    "sinLugares": "Wala nang puwesto",
+    "seActivara": "Kusang magbubukas ang button na \"Mag-book\" sa oras ng pagbubukas.",
+    "sinFechas": "Wala pang nakatakdang pamimigay. Tingnan ulit mamaya.",
+    "tiempo": {
+      "dias_one": "{{count}} araw",
+      "dias_other": "{{count}} araw",
+      "horas": "{{n}} oras",
+      "minutos": "{{n}} min",
+      "segundos": "{{n}} seg"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "Maagang pagpaparehistro para sa mga subscriber",
+    "explicacion": "Kung naka-subscribe ka sa Cajita de Bendición sa Facebook, ilagay ang code mula sa post na para lang sa mga subscriber.",
+    "desde": "Magagamit mo ang code mo simula {{cuando}}.",
+    "ahora": "Magagamit mo na ang code mo para magparehistro bago ang publiko.",
+    "sinAnticipado": "Walang maagang pagpaparehistro para sa mga subscriber sa pamimigay na ito.",
+    "yaAbierto": "Bukas na ang pagpaparehistro sa lahat: hindi mo na kailangan ng code.",
+    "irRegistro": "Pumunta sa pag-book",
+    "codigo": "Subscriber code",
+    "entrar": "Pumasok gamit ang code ko",
+    "validando": "Tinitingnan…",
+    "invalido": "Hindi valid ang code na iyan o hindi pa ito magagamit.",
+    "noSuscriptor": "Hindi ka pa subscriber?",
+    "invitacion": "Mag-subscribe sa Cajita de Bendición sa Facebook para makapagparehistro bago ang publiko sa bawat pamimigay.",
+    "suscribirme": "Mag-subscribe sa Facebook",
+    "cerrar": "Isara"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "Hindi namin makita ang appointment na iyan.",
+      "CITA_YA_CANCELADA": "Nakansela na dati ang appointment na ito.",
+      "CITA_YA_ENTREGADA": "Nagamit na ang appointment na ito: naibigay na ang kahon.",
+      "FECHA_PASADA": "Lumipas na ang petsang iyan.",
+      "MOTIVO_REQUERIDO": "Isulat ang dahilan ng exception.",
+      "PERSONA_NO_EXISTE": "Walang tao na may ganyang code. Pakitingnan (halimbawa CB-4871).",
+      "NO_NECESITA_EXCEPCION": "Walang appointment ang taong ito sa linggong iyan, kaya hindi kailangan ng exception: iparehistro nang normal.",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "May exception na ang taong ito sa linggong iyan. Isa lang ang puwede.",
+      "BLOQUE_LLENO": "Puno na ang oras na iyan. Pumili ng iba.",
+      "BLOQUE_CERRADO": "Sarado na ang oras na iyan.",
+      "BLOQUE_NO_EXISTE": "Wala na ang oras na iyan.",
+      "DIA_CERRADO": "Sarado na ang araw na iyan.",
+      "FUNCION_NO_INSTALADA": "Hindi pa magagamit ang opsyong ito. Subukan ulit mamaya.",
+      "SIN_PERMISO": "Walang pahintulot ang account mo para dito. Mag-sign in ulit.",
+      "SIN_CONEXION": "Walang koneksyon. Tingnan ang internet mo at subukan ulit.",
+      "ERROR_DESCONOCIDO": "Hindi natapos. Subukan ulit.",
+      "NOMBRE_REQUERIDO": "Isulat ang pangalan ng tao.",
+      "NOMBRE_INVALIDO": "Walang numero ang pangalan.",
+      "ENTRADA_NO_EXISTE": "Hindi namin makita ang entry na iyan.",
+      "ENTRADA_YA_ANULADA": "Na-void na dati ang entry na iyan.",
+      "SIN_CODIGOS_DISPONIBLES": "Hindi nagawa ang code. Subukan ulit.",
+      "MISMO_HORARIO": "Iyan ang oras na hawak mo na. Pumili ng iba.",
+      "YA_CAMBIO_HORARIO": "Napalitan mo na ang oras mo nang isang beses. Kung kailangan pa, tumawag sa simbahan.",
+      "YA_TIENE_CITA_ESTA_SEMANA": "May appointment ka na sa linggong iyan. Isa lang bawat linggo.",
+      "AUN_NO_ABRE": "Hindi pa bukas ang araw na iyan.",
+      "PASE_NO_EXISTE": "Walang pass ang taong ito.",
+      "PASE_YA_REVOCADO": "Binawi na dati ang pass na iyan.",
+      "TELEFONO_INVALIDO": "Hindi valid ang telepono. Tingnan ang country code at numero.",
+      "FECHA_FUTURA": "Hindi pa dumarating ang petsang iyan.",
+      "ACOMPANANTE_SIN_CAMBIO": "Sakay ka sa kotse ng iba: ang oras mo ay ang oras ng nagmamaneho. Kapag pinalitan niya ang oras niya, mapapalitan din ang sa iyo.",
+      "A_PIE_SIN_CAMBIO": "Sa pila ng naglalakad, hindi pinapalitan ang oras: kumuha ng bagong numero sa araw na iyon.",
+      "NOTA_MUY_LARGA": "Masyadong mahaba ang tala: hanggang 200 titik lang.",
+      "FILA_INVALIDA": "Piliin ang pila: kotse o naglalakad.",
+      "NO_ES_DIA_DE_ENTREGA": "Walang pamimigay noong araw na iyon (o kinansela).",
+      "PASE_REVOCADO": "Noong araw na iyon, wala nang pass ang taong ito.",
+      "PASE_YA_ENTREGADO": "Nakatanggap na siya ng kahon gamit ang pass na ito noong araw na iyon: isang kahon bawat araw."
+    }
+  },
+  "domicilio": {
+    "titulo": "Ang tirahan mo",
+    "tituloPanel": "Tirahan ng tao",
+    "zona": "Tumatanggap kami ng tirahan sa California (Estados Unidos) at Baja California (Mexico).",
+    "pais": "Bansa ng tirahan",
+    "paises": {
+      "MX": "Mexico",
+      "US": "Estados Unidos"
+    },
+    "codigoPostal": {
+      "MX": "Código postal (postal code)",
+      "US": "ZIP code"
+    },
+    "buscando": "Hinahanap ang postal code…",
+    "encontrado": "{{ciudad}}, {{estado}}",
+    "colonia": "Colonia (barangay)",
+    "coloniaOpcional": "Colonia (opsyonal)",
+    "elegirColonia": "Piliin ang colonia mo",
+    "calle": {
+      "MX": "Kalye",
+      "US": "Address"
+    },
+    "numero": {
+      "MX": "Numero"
+    },
+    "interior": {
+      "MX": "Unit (opsyonal)",
+      "US": "Apt. (opsyonal)"
+    },
+    "sinDomicilio": "Wala akong permanenteng tirahan",
+    "sinDomicilioAyuda": "Halimbawa, kung nakatira ka sa kotse mo o pansamantala sa mga kamag-anak. Postal code mo lang ang hihingin namin.",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "Kulang ang postal code.",
+        "FORMATO": "Limang numero ang postal code.",
+        "NO_EXISTE": "Hindi namin makita ang postal code na iyan sa California o sa Baja California. Pakitingnan.",
+        "BUSCANDO": "Sandali lang: tinitingnan namin ang postal code."
+      },
+      "colonia": {
+        "VACIO": "Piliin ang colonia mo sa listahan.",
+        "NO_COINCIDE": "Hindi sakop ng postal code na iyan ang colonia na iyan. Piliin sa listahan."
+      },
+      "calle": {
+        "VACIO": "Kulang ang kalye.",
+        "SIN_LETRAS": "Isulat ang pangalan ng kalye.",
+        "SIN_NUMERO": "Ilagay ang numero ng bahay sa simula, halimbawa 7855 Lansing Dr.",
+        "LARGO": "Masyadong mahaba ang pangalan ng kalye."
+      },
+      "numero": {
+        "VACIO": "Kulang ang numero.",
+        "FORMATO": "Isulat ang numero ng bahay, halimbawa 4250 o 12-B.",
+        "FORMATO_MX": "Isulat ang numero, halimbawa 1234 o 12-B. Kung wala, isulat ang S/N."
+      },
+      "interior": {
+        "FORMATO": "Mga titik at numero lang, halimbawa 5 o B-2."
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "Pribado ang impormasyon mo",
+    "texto": "Ginagamit lang namin ito para sa sariling talaan ng Cajita de Bendición at para ayusin ang pamimigay. Hindi namin ito ibinabahagi kaninuman, pati sa mga awtoridad.",
+    "casilla": "Kinukumpirma ko na kusa kong ibinibigay ang impormasyong ito.",
+    "casillaPanel": "Kinumpirma sa akin ng tao na kusa niyang ibinibigay ang impormasyon niya.",
+    "falta": "Para makapagparehistro, i-check ang kahon ng kumpirmasyon."
+  },
+  "boletin": {
+    "casilla": "Gusto kong makatanggap sa email ng mga balita at pangkalahatang impormasyon ng simbahan (opsyonal).",
+    "ayuda": "Hiwalay ito sa mga email ng appointment mo, na matatanggap mo pa rin. Puwede kang mag-unsubscribe kahit kailan."
+  },
+  "reglas": {
+    "titulo": "Bago kumpirmahin ang appointment mo, basahin ito",
+    "casilla": "Nabasa ko at tinatanggap ko ang mga tagubiling ito.",
+    "falta": "Kailangan mong basahin at tanggapin ang mga tagubilin para magpatuloy.",
+    "respaldo1": "Dumating 5 minuto bago ang oras mo. Kailangan ito.",
+    "respaldo2": "Para sa isang kahon lang ang code mo at isang beses lang magagamit.",
+    "respaldo3": "Isang beses mo lang mapapalitan ang oras mo.",
+    "tituloAPie": "Bago kumuha ng numero, basahin ito",
+    "respaldoAPie1": "Bawat taong 18 taong gulang pataas ay kailangan ng sariling numero at sariling code.",
+    "respaldoAPie2": "Maghintay sa malapit. Kapag tinawag ang numero mo, lumapit at ipakita ang code mo."
+  },
+  "avisos": {
+    "cargando": "Nilo-load ang mga teksto…"
+  },
+  "preguntas": {
+    "titulo": "Mga madalas itanong",
+    "ayuda": "Ang pinakamadalas itanong sa amin. Pumindot ng tanong para makita ang sagot.",
+    "cargando": "Nilo-load ang mga tanong…",
+    "sinPreguntas": "Wala pang mga tanong dito.",
+    "masDudas": "May iba ka pang tanong? Tawagan kami sa {{telefono}} o magtanong sa team sa araw ng pamimigay."
+  },
+  "quienesSomos": {
+    "titulo": "Tungkol sa amin",
+    "invitacion": "Ang simbahan, ang ministeryo at kung bakit may page na ito.",
+    "cargando": "Nilo-load…",
+    "sinTexto": "Wala pang impormasyon dito.",
+    "sitioIglesia": "Website ng simbahan",
+    "verPreguntas": "Mga madalas itanong"
+  },
+  "tema": {
+    "aOscuro": "Dark mode",
+    "aClaro": "Light mode",
+    "cambiarAOscuro": "Lumipat sa dark mode",
+    "cambiarAClaro": "Lumipat sa light mode"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "Pila ng kotse",
+      "a_pie": "Pila ng naglalakad",
+      "ambas": "Parehong pila"
+    }
+  },
+  "misCitas": {
+    "titulo": "Mga appointment mo",
+    "tituloUna": "Ang appointment mo",
+    "ayuda": "Ginawa mula sa teleponong ito. Pindutin ang button para makita ang code mo.",
+    "hoy": "Ngayon!",
+    "ver": "Tingnan ang code ko",
+    "quitar": "Alisin sa teleponong ito",
+    "quitarPregunta": "Aalisin ba namin ito sa teleponong ito? HINDI makakansela ang appointment: iyo pa rin ito.",
+    "quitarSi": "Oo, alisin dito",
+    "quitarNo": "Hindi, iwan",
+    "ayudaUna": "Ginawa mula sa teleponong ito. Pindutin ang button para makita ang code mo."
+  },
+  "letra": {
+    "titulo": "Laki ng letra",
+    "normal": "Normal na letra",
+    "grande": "Malaking letra",
+    "muy_grande": "Napakalaking letra"
+  },
+  "recordatorio": {
+    "agregar": "Idagdag sa kalendaryo ko",
+    "titulo": "Cajita de Bendición: ang appointment mo",
+    "descripcion": "Ang code mo: {{codigo}}. Dumating nang ilang minuto nang maaga at dalhin ang QR code mo.\nTingnan ang code mo: {{enlace}}",
+    "aviso": "Ngayon ang appointment mo sa Cajita de Bendición. Dalhin ang code mo."
+  },
+  "redDeSeguridad": {
+    "titulo": "May nangyaring mali sa screen na ito",
+    "texto": "Hindi mo ito kasalanan. Kung nakapag-book ka na, naka-save pa rin ang appointment mo.",
+    "recargar": "I-load ulit",
+    "inicio": "Pumunta sa simula",
+    "ayuda": "Kung patuloy itong nangyayari, tawagan ang simbahan sa {{telefono}}."
+  },
+  "escuchar": {
+    "boton": "Pakinggan ang appointment ko",
+    "frase": "Ang appointment mo ay sa {{fecha}}, nang {{hora}}. Ang code mo ay: {{codigo}} Dumating nang ilang minuto nang maaga."
+  },
+  "entornoPruebas": {
+    "aviso": "Test database · walang totoo rito",
+    "lento": "mabagal na mode: {{segundos}} seg"
+  },
+  "aPie": {
+    "noHay": "Wala pang pila ng naglalakad ngayon. Kapag mayroon na, dito ka mismo kukuha ng numero.",
+    "proxima": "Susunod na pila ng naglalakad",
+    "empiezaA": "Magsisimula ang pamimigay nang {{hora}}",
+    "abreA": "Magbubukas ang mga numero sa {{cuando}}.",
+    "seActualiza": "Iwanang bukas ang page na ito: kusang lalabas ang button kapag nagbukas na.",
+    "volver": "Bumalik sa pila ng naglalakad",
+    "registroTitulo": "Kumuha ng numero",
+    "confirmar": "Kunin ang numero ko"
+  },
+  "turno": {
+    "tuTurno": "Ang numero mo",
+    "numero": "Numero {{turno}}",
+    "listo": "May numero ka na",
+    "van": "Ngayon ay numero {{turno}}",
+    "antes_one": "{{count}} tao pa bago ka",
+    "antes_other": "{{count}} tao pa bago ka",
+    "eresElSiguiente": "Ikaw na ang susunod! Lumapit ka.",
+    "esTuTurno": "Ikaw na! Lumapit at ipakita ang code mo.",
+    "teLlamaron": "Tinawag na ang numero mo at wala ka. Pumunta ka na sa volunteer at ipakita ang numero o code mo. Kapag natagalan ka, mawawalan ng bisa ang numero mo at kukuha ka ng bago.",
+    "recibida": "Natanggap mo na ang kahon mo. Salamat sa pagpunta!",
+    "otroDia": "Sa araw ng pamimigay, dito mo makikita kung anong numero na.",
+    "seActualiza": "Kusang nag-a-update bawat ilang segundo.",
+    "terminada": "Tapos na ang pila ngayong araw. Salamat sa pagpunta; hinihintay ka namin sa susunod na pamimigay.",
+    "anulado": "Nawalan ng bisa ang numero mo dahil tinawag ka at wala ka. Kung gusto mo pa rin ng groceries, kumuha ng bagong numero: maghihintay ka mula sa dulo ng pila.",
+    "repetido": "Kinansela ang numerong ito dahil may iba ka nang numero.",
+    "repetidoCon": "Kinansela ang numerong ito dahil mayroon ka nang numero {{turno}}.",
+    "repetidoAyuda": "Gamitin ang numerong nauna mong kinuha. Kung wala sa iyo, kausapin ang isang volunteer."
+  },
+  "acompanante": {
+    "titulo": "Paano ka darating?",
+    "queEs": "Ano ito?",
+    "explicacion": "Isang puwesto ang bawat kotse. Kung sasakay ka sa kotse ng taong may appointment na, piliin ang \"Sasakay ako sa kotse ng iba\": may sarili kang code at sariling kahon, pero hindi ka kukuha ng isa pang puwesto. Ang oras mo ay ang oras ng nagmamaneho.",
+    "propio": "Dadalhin ko ang sarili kong kotse",
+    "propioAyuda": "Magrereserba ka ng puwesto para sa kotse mo.",
+    "acompanante": "Sasakay ako sa kotse ng taong may appointment na",
+    "acompananteAyuda": "Hindi ka kukuha ng isa pang puwesto.",
+    "codigo": "Code ng nagmamaneho",
+    "codigoAyuda": "Nasa pahina ng appointment niya, sa ilalim ng QR niya (halimbawa CB-4871).",
+    "faltaCodigo": "Isulat ang code ng nagmamaneho, halimbawa CB-4871.",
+    "horaDeQuienManeja": "Ang oras mo ay ang oras ng nagmamaneho.",
+    "enlace": "Sasakay ka sa kotse ng taong may appointment na? Magparehistro dito",
+    "escogeHorario": "Para dalhin ang sarili mong kotse, pumili muna ng oras na may puwesto.",
+    "verHorarios": "Tingnan ang mga oras"
+  },
+  "vip": {
+    "voluntario": "Diretso papasok, walang pila",
+    "persona": "Diretso kang papasok, walang pila",
+    "etiqueta": "VIP pass"
+  },
+  "demo": {
+    "aviso": "Halimbawa para sa video: walang nase-save dito at hindi gagana ang lalabas na code.",
+    "salir": "Umalis sa halimbawa"
+  },
+  "turnoAPie": {
+    "titulo": "Pila ng naglalakad",
+    "subtitulo": "Kumuha ng numero dito. Hindi mo kailangang magbigay ng impormasyon.",
+    "boton": "Kunin ang numero ko",
+    "sacando": "Kinukuha ang numero mo…",
+    "empiezaA": "Magsisimula ang pamimigay nang {{hora}}",
+    "revisando": "Tinitingnan ang pila…",
+    "noHay": "Walang pila ng naglalakad ngayon.",
+    "llena": "Wala nang numero ngayong araw.",
+    "esTuTurno": "Ikaw na!",
+    "acercate": "Lumapit at ipakita ang QR code mo.",
+    "verMiQr": "Tingnan ang code ko",
+    "avisos": {
+      "sinDatos": "Hindi namin hinihingi ang pangalan, edad o telepono mo. Walang nase-save o naibabahagi.",
+      "soloHoy": "Para sa araw na ito lang ang numero mo at para sa isang kahon.",
+      "abierta": "Iwanang bukas ang page na ito: makikita mo kung anong numero na, at tutunog ang telepono mo kapag 3 na lang bago ka at kapag ikaw na.",
+      "teLlaman": "Kung tinawag ka at wala ka, lumapit agad hangga't kaya. Kapag natagalan ka, mawawalan ng bisa ang numero mo at kukuha ka ng bago, sa dulo ng pila.",
+      "cadaQuien": "Bawat adulto ay kukuha ng sariling numero. Kung wala kang telepono, humingi sa isang volunteer."
+    },
+    "carro": {
+      "titulo": "May appointment ka na ng kotse ngayon nang {{hora}}.",
+      "texto_one": "Kapag lumipat ka sa paglalakad, makakansela ang appointment mo ng kotse at hindi ka na makakabalik sa pila ng kotse.",
+      "texto_other": "Kapag lumipat ka sa paglalakad, makakansela ang mga appointment mo ng kotse ngayon at hindi ka na makakabalik sa pila ng kotse.",
+      "si": "Oo, lilipat ako sa paglalakad",
+      "no": "Hindi, mananatili ako sa kotse",
+      "duenio_one": "Ikaw ang may-ari ng kotse: makakansela rin ang appointment ng {{count}} kasama mo. Kailangan niyang kumuha ng sariling numero (gamit ang telepono niya, o humingi sa isang volunteer).",
+      "duenio_other": "Ikaw ang may-ari ng kotse: makakansela rin ang mga appointment ng {{count}} kasama mo. Bawat isa ay kailangang kumuha ng sariling numero (gamit ang telepono niya, o humingi sa isang volunteer).",
+      "seguro": "Sigurado ka bang lilipat ka sa paglalakad?",
+      "siTodos": "Oo, kanselahin ang kotse at lumipat sa paglalakad"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "Natanggap mo na ang groceries mo sa kotse ngayon. Salamat sa pagpunta!",
+      "AUN_NO_ABRE": "Magbibigay ng numero simula {{hora}}.",
+      "NO_HAY_FILA": "Walang pila ng naglalakad ngayon.",
+      "CERRADA": "Hindi na nagbibigay ng numero ngayong araw.",
+      "TURNOS_ANULADOS": "Dalawa na sa numero mo ang nawalan ng bisa ngayon dahil wala ka nang tawagin. Kung kailangan mo ng tulong, kausapin ang isang volunteer.",
+      "TURNO_REPETIDO": "Dalawang numero ang kinuha mula sa teleponong ito ngayon at kinansela ang isa. Gamitin ang natira; kung wala sa iyo, kausapin ang isang volunteer."
+    },
+    "errores": {
+      "SIN_CONEXION": "Walang koneksyon. Tingnan ang signal mo at pindutin ulit ang button.",
+      "FUNCION_NO_INSTALADA": "Hindi pa handa ang opsyong ito. Sabihan ang isang volunteer.",
+      "DISPOSITIVO_INVALIDO": "Hindi ka namin mabigyan ng numero mula sa teleponong ito. Humingi ng tulong sa isang volunteer.",
+      "ERROR_DESCONOCIDO": "Hindi ka namin mabigyan ng numero. Pindutin ulit ang button o humingi ng tulong sa isang volunteer."
+    },
+    "terminada": "Tapos na ang pila ngayong araw. Salamat sa pagpunta! Hinihintay ka namin sa susunod na pamimigay.",
+    "codigoEsTuyo": "Iyo lang ang code na ito: huwag ipakita kaninuman. Dito napapatunayan na iyo ang numero.",
+    "codigo": {
+      "etiqueta": "Code ngayong araw",
+      "ayuda": "Apat na numero ito, nakasulat sa pasukan. Kung hindi mo makita, magtanong sa isang volunteer.",
+      "FALTA_CODIGO": "Isulat ang code ngayong araw para makakuha ng numero.",
+      "CODIGO_INCORRECTO": "Hindi iyan ang code ngayong araw. Tingnan at subukan ulit.",
+      "DEMASIADOS_INTENTOS": "Masyadong maraming subok. Puwede kang sumubok ulit sa loob ng {{reloj}}.",
+      "esperaBoton": "Maghintay ng {{reloj}}"
+    },
+    "anotalo": "Isulat ang numero mo ({{turno}}) o kunan ng litrato ang screen na ito. Kung magsara ang page, huwag kumuha ng bagong numero: sabihin ang numero mo sa volunteer.",
+    "yaTenias": "Nakakuha ka na ng numero at nagsara ang page? Huwag kumuha ng bago: sabihin ang numero mo sa volunteer.",
+    "otroTurno": "Kumuha ng bagong numero",
+    "carroCodigo": {
+      "abrir": "May appointment ka ba ng kotse ngayon?",
+      "titulo": "Lumipat mula kotse papuntang paglalakad",
+      "ayuda": "Kung napakahaba ng pila ng kotse, puwede kang lumipat sa pila ng naglalakad. Isulat ang code ng appointment mo ng kotse. Makakansela ang appointment mo ng kotse at hindi ka na makakabalik sa pila ng kotse.",
+      "etiqueta": "Code ng appointment mo ng kotse",
+      "campoAyuda": "Mga numero lang (4 o 5): nakalagay na ang \"CB-\".",
+      "boton": "Lumipat sa paglalakad",
+      "cancelar": "Wala akong appointment ng kotse",
+      "CODIGO_CARRO_NO_EXISTE": "Wala kaming makitang appointment ng kotse ngayon na may ganyang code. Tingnan ang mga numero."
+    },
+    "verFila": "Tingnan ang pila nang live"
+  },
+  "credencial": {
+    "etiqueta": "VOLUNTEER",
+    "titulo": "ID ng volunteer",
+    "enseniala": "Ipakita pagdating",
+    "cargando": "Inihahanda ang ID…",
+    "qrAlt": "QR code ng ID ni {{nombre}}",
+    "comoFunciona": "Pagdating mo, ipakita ang QR na ito sa taong tumatanggap sa mga volunteer. Ganoon binibilang ang oras ng serbisyo mo.",
+    "soloTuya": "Iyo lang ito: huwag ipahiram. Kung mawala, humingi ng bago.",
+    "inactiva": "Hindi na aktibo ang ID na ito.",
+    "inactivaTexto": "Kung sa tingin mo ay mali ito, tawagan ang simbahan sa {{telefono}}.",
+    "noEncontrada": "Hindi namin makita ang ID na ito. Hilingin sa isang admin na ipadala ulit ang link.",
+    "sinConexion": "Hindi ma-load ang ID mo. Tingnan ang signal mo at buksan ulit ang link.",
+    "horas": {
+      "titulo": "Ang oras ng serbisyo mo",
+      "llevas_one": "Mayroon kang {{duracion}} sa {{count}} araw.",
+      "llevas_other": "Mayroon kang {{duracion}} sa {{count}} araw.",
+      "todavia": "Wala ka pang kumpletong pagbisita. Binibilang ang oras mo sa pagtatapos ng bawat araw ng serbisyo.",
+      "ayuda": "Ang mga pagbisitang may pagpasok at paglabas lang ang bilang. Ang huling 10 ang nakikita rito.",
+      "todaviaYSalida": "Wala ka pang kumpletong pagbisita. Kapag na-scan ka pagdating at pag-alis, makikita mo rito ang oras mo."
+    },
+    "ensenialaYSalida": "Ipakita pagdating at pag-alis",
+    "comoFuncionaYSalida": "Pagdating mo, ipakita ang QR na ito sa isang admin; pag-alis mo, ipakita ulit. Ganoon binibilang ang oras ng serbisyo mo."
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}} min",
+      "h": "{{h}} oras",
+      "hMin": "{{h}} oras {{m}} min"
+    },
+    "envio": {
+      "mensaje": "Hi {{nombre}}, ito ang ID mo bilang volunteer ng Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nI-save ito sa telepono mo at ipakita pagdating at pag-alis: ganoon binibilang ang oras ng serbisyo mo. Iyo lang ito, huwag ipahiram. Salamat sa paglilingkod!",
+      "mensajeSoloEntrada": "Hi {{nombre}}, ito ang ID mo bilang volunteer ng Cajita de Bendición (Iglesia Casa de Alabanza):\n{{enlace}}\n\nI-save ito sa telepono mo at ipakita pagdating: ganoon binibilang ang oras ng serbisyo mo. Iyo lang ito, huwag ipahiram. Salamat sa paglilingkod!"
+    }
+  },
+  "preferente": {
+    "etiqueta": "Priority",
+    "voluntario": "Walang pila. Tiyakin na siya ang tamang tao bago ibigay.",
+    "persona": "Hindi ka na pipila: ipakita ang QR na ito sa isang volunteer."
+  },
+  "filaEnVivo": {
+    "titulo": "Pila ng naglalakad, live",
+    "subtitulo": "Tingnan kung paano umuusad ang pila. Hindi mo kailangan ng numero.",
+    "cargando": "Tinitingnan ang pila…",
+    "noHay": "Walang pila ng naglalakad ngayon.",
+    "porAbrir": "Hindi pa nagsisimula: magbubukas ang mga numero nang {{hora}}.",
+    "terminada_one": "Tapos na ang pila ngayong araw: {{count}} tao ang nakatanggap ng groceries. Salamat!",
+    "terminada_other": "Tapos na ang pila ngayong araw: {{count}} tao ang nakatanggap ng groceries. Salamat!",
+    "asiVa": "Ganito ang pila ngayon",
+    "noEsTuyo": "Numero ng ibang tao ang mga ito, hindi sa iyo.",
+    "tuNumero": "Ang numero mo ay {{turno}}.",
+    "recibio": "Nakatanggap na",
+    "llamando": "Tinatawag",
+    "sigue": "Susunod",
+    "nadieEspera": "Walang naghihintay ngayon.",
+    "esperando": "Naghihintay",
+    "recibieron": "Nakatanggap",
+    "dados": "Mga numero",
+    "yaNoSeDan": "Hindi na nagbibigay ng bagong numero ngayong araw.",
+    "sinSenal": "Walang signal: ito ang huling nalaman. Mag-a-update ito kapag bumalik ang koneksyon.",
+    "miTurno": "Tingnan ang numero ko ({{turno}})",
+    "sacar": "Kunin ang numero ko"
+  },
+  "video": {
+    "titulo": "Ano ang Cajita de Bendición?",
+    "presentacion": "video",
+    "idioma": "Wika",
+    "hazTuCita": "Mag-book",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "Libreng groceries tuwing Lunes at Huwebes. Isang ministeryo ng {{iglesia}}."
+    },
+    "comoVienes": {
+      "titulo": "Paano ka pupunta?",
+      "texto": "Kung naka-kotse, mag-book ng appointment at piliin ang oras mo. Kung naglalakad, sa araw ng pamimigay kukuha ka ng numero gamit ang telepono mo.",
+      "carro": "Naka-kotse",
+      "aPie": "Naglalakad"
+    },
+    "cita": {
+      "titulo": "Mag-book gamit ang telepono mo",
+      "texto": "Piliin ang araw at oras. Hindi kailangan ng account o password.",
+      "lunes": "Lunes",
+      "jueves": "Huwebes"
+    },
+    "codigo": {
+      "titulo": "I-save ang code mo",
+      "texto": "Bibigyan ka namin ng QR code at numero. Mag-screenshot."
+    },
+    "despensa": {
+      "titulo": "Dumating at tanggapin ang groceries mo",
+      "texto": "Ipakita ang code mo pagdating at tanggapin ang kahon mo. Bawat taong 18 pataas ay magbu-book ng sariling appointment.",
+      "unaCaja": "1 kahon bawat adulto"
+    },
+    "privado": {
+      "titulo": "Libre at pribado",
+      "texto": "Walang hinihinging donasyon. Hindi ibinabahagi kaninuman ang impormasyon mo, pati sa mga awtoridad."
+    },
+    "final": {
+      "titulo": "Mag-book",
+      "texto": "Naka-kotse na may appointment, o naglalakad na may numero. Pindutin ang button para magsimula."
+    },
+    "otraVez": "Panoorin ulit",
+    "anterior": "Nakaraan",
+    "siguiente": "Susunod",
+    "pausar": "I-pause",
+    "seguir": "Ituloy"
+  }
+}

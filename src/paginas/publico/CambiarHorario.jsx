@@ -16,6 +16,7 @@ import {
 import { ORGANIZACION } from '../../datos/organizacion'
 import { hoyLocal } from '../../datos/panel'
 import { EsqueletoHorarios } from '../../componentes/Esqueleto'
+import { idiomaDeFechas } from '../../i18n/idiomas'
 
 /**
  * Cambiar el horario de una cita que ya existe.
@@ -116,7 +117,7 @@ export default function CambiarHorario() {
     )
   }
 
-  const fechaActual = new Intl.DateTimeFormat(i18n.language, {
+  const fechaActual = new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -197,7 +198,7 @@ export default function CambiarHorario() {
                     <span
                       className={`text-base font-semibold first-letter:uppercase ${lleno ? 'text-principal/50' : 'text-principal'}`}
                     >
-                      {new Intl.DateTimeFormat(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }).format(
+                      {new Intl.DateTimeFormat(idiomaDeFechas(i18n.language), { weekday: 'long', day: 'numeric', month: 'long' }).format(
                         aFechaLocal(dia.fecha),
                       )}
                     </span>

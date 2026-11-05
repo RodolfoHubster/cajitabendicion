@@ -1,0 +1,756 @@
+{
+  "avisoIdioma": {
+    "titulo": "中文版还在完善中",
+    "detalle": "这个翻译还在完善，可能会有错误。如果有看不懂的地方，可以在上面切换成英文或西班牙文。",
+    "ingles": "Chinese is still in development and may contain errors."
+  },
+  "escaneo": {
+    "turnos": {
+      "haceUnMomento": "刚刚",
+      "haceMin": "{{n}} 分钟前",
+      "haceHoras": "{{h}} 小时 {{m}} 分钟前"
+    }
+  },
+  "pase": {
+    "etiqueta": "长期通行证",
+    "titulo": "您的通行证",
+    "dias": "每周一和周四",
+    "cargando": "正在准备您的通行证…",
+    "noEncontrado": "找不到这个通行证。链接可能不完整。",
+    "revocado": "这个通行证已经失效",
+    "revocadoTexto": "如果您认为这是错误，请致电教会：{{telefono}}。",
+    "comoFunciona": "请在方便的周一或周四、任意时间前来。出示这个二维码，就能领取您的食品箱。",
+    "soloTuyo": "这个通行证只属于您，每天只能领一箱。如果转给别人，通行证会被取消。",
+    "sello": "二维码中间的 Cajita de Bendición 标志是您通行证的记号，志愿者就是靠它认出来的。"
+  },
+  "confirmacion": {
+    "cargando": "正在准备您的二维码…",
+    "noEncontrada": "找不到这个预约。链接可能不完整。",
+    "volverInicio": "返回首页",
+    "lista": "您的预约已完成",
+    "horarioCambiado": "好了，您的时间已更改。您的号码不变，但请重新保存图片：之前那张显示的是旧时间。",
+    "qrAlt": "您预约的二维码",
+    "siNoSeLee": "如果二维码扫不出来，请报这个号码：",
+    "aNombreDe": "预约人",
+    "unSoloUso": "这个二维码只能用一次，只能领一箱。如果您家里还有人需要，请他本人另外登记。",
+    "cambiarHorario": "更改我的时间",
+    "guardarImagen": "保存图片",
+    "descargada": "图片已下载。如果在相册里找不到，请长按上面的二维码，选择“保存图片”或“添加到照片”。",
+    "consejoCaptura": "您也可以截图保存。",
+    "cancelar": "取消我的预约",
+    "cancelarPregunta": "确定要取消预约吗？您的名额会留给别人。",
+    "cancelarSi": "是，取消我的预约",
+    "cancelarNo": "不，保留我的预约",
+    "cancelando": "正在取消…",
+    "canceladaTitulo": "您的预约已取消",
+    "canceladaTexto": "您的名额已经空出来了。如有需要，可以重新登记。",
+    "registrarOtra": "重新预约",
+    "yaExistia": "您已经有这个预约了，没有重复预约：还是同一个预约，同一个号码。",
+    "consejoBrillo": "发放当天请调高屏幕亮度，这样二维码一扫就能读出来。"
+  },
+  "cambiar": {
+    "titulo": "更改我的时间",
+    "cargando": "正在查找您的预约…",
+    "volver": "返回我的预约",
+    "tuCitaAhora": "您现在的预约",
+    "aviso": "您只能更改一次时间。您的号码 {{codigo}} 和二维码都保持不变。",
+    "elegirDia": "选择日期",
+    "elegirHora": "选择时间",
+    "actual": "您现在的时间",
+    "deAcuerdo": "我明白我只能更改一次时间。",
+    "confirmar": "更改我的时间",
+    "cambiando": "正在更改…",
+    "sinDias": "现在没有其他有空位的日期。请稍后再试。",
+    "noSePuede": "这个预约已经不能更改了。",
+    "yaCambiaste": "您已经改过一次时间了。如果真的需要再改，请致电教会：{{telefono}}。"
+  },
+  "registro": {
+    "cargando": "正在准备登记…",
+    "sinHorario": "请先选择预约的日期和时间。",
+    "horarioNoDisponible": "这个时间已经没有了，请选择其他时间。",
+    "nombre": "名字",
+    "telefono": "手机号码",
+    "correo": "电子邮箱",
+    "correoAyuda": "我们会把您的入场二维码发到这个邮箱。",
+    "confirmar": "确认我的预约",
+    "enviando": "正在为您保留名额…",
+    "errores": {
+      "BLOQUE_LLENO": "您填写表格时这个时间已经满了，请选择其他时间。",
+      "BLOQUE_CERRADO": "这个时间已经关闭。",
+      "BLOQUE_NO_EXISTE": "这个时间已经不存在了，请选择其他时间。",
+      "FECHA_PASADA": "这个日期已经过了。",
+      "YA_TIENE_CITA_ESTA_SEMANA": "本周已经有一个预约了。每周只能预约一次：周一或周四，不能两天都约。",
+      "LIMITE_DISPOSITIVO": "这台设备已经为当天登记过一个预约。每个人都需要用自己的手机或电脑登记。",
+      "NOMBRE_REQUERIDO": "请填写您的名字。",
+      "TELEFONO_REQUERIDO": "请填写您的电话。",
+      "EMAIL_REQUERIDO": "请填写您的电子邮箱。",
+      "EMAIL_INVALIDO": "这个邮箱好像写得不对，请检查一下。",
+      "SIN_CODIGOS_DISPONIBLES": "生成您的号码时出了问题，请再试一次。",
+      "ERROR_DESCONOCIDO": "我们没能为您保留名额，请稍后再试。",
+      "AUN_NO_ABRE": "这一天的登记还没有开放。",
+      "CODIGO_ANTICIPADO_INVALIDO": "您的订阅者代码已经无效，可能已更换；请查看 Facebook 上的帖子。",
+      "DIA_CERRADO": "这一天已经不再接受登记。",
+      "APELLIDOS_REQUERIDOS": "请填写您的姓。",
+      "NOMBRE_INVALIDO": "名字和姓里不能有数字。",
+      "TELEFONO_INVALIDO": "请检查您的电话：号码不完整或多了东西。",
+      "PAIS_INVALIDO": "请选择墨西哥或美国。",
+      "CODIGO_POSTAL_REQUERIDO": "请填写邮政编码。",
+      "CODIGO_POSTAL_INVALIDO": "邮政编码是 5 位数字。",
+      "CODIGO_POSTAL_NO_EXISTE": "在加利福尼亚州和下加利福尼亚州都找不到这个邮政编码。",
+      "COLONIA_REQUERIDA": "请选择您的社区（colonia）。",
+      "COLONIA_INVALIDA": "这个社区不属于这个邮政编码。",
+      "CALLE_REQUERIDA": "请填写街道。",
+      "CALLE_INVALIDA": "请检查街道名称。",
+      "NUMERO_REQUERIDO": "请填写门牌号。",
+      "NUMERO_INVALIDO": "请检查门牌号。",
+      "NUMERO_INTERIOR_INVALIDO": "请检查公寓号或室号。",
+      "CONSENTIMIENTO_REQUERIDO": "请确认您是自愿提供这些信息的。",
+      "FALTA_HORARIO": "请选择日期和时间。",
+      "YA_REGISTRADO_ESE_DIA": "这一天已经有一个以您名字登记的预约。如果您找不到二维码，发放当天请向工作人员求助，他们会按名字帮您查。",
+      "A_PIE_CERRADO": "这一天暂时没有步行排队。",
+      "SIN_CONEXION": "网络断了。请检查信号，然后再点一次“确认”。",
+      "ACOMPANANTE_SIN_CITA": "这一天找不到这个号码的汽车预约。请和开车的人核对号码。",
+      "CARRO_LLENO": "这辆车的同行人数已经满了。",
+      "FALTA_FECHA": "请选择日期。",
+      "LLAVE_VENCIDA": "时间过得太久了。请重新输入您的号码和电话。"
+    },
+    "apellidos": "姓",
+    "pais": "电话所属国家",
+    "paisesPrincipales": "最常用",
+    "paisesTodos": "所有国家",
+    "otrosHorarios": {
+      "buscando": "正在查找当天的其他时间…",
+      "titulo": "请选择同一天的其他时间：",
+      "seQueda": "您填写的内容都会保留，只改时间。",
+      "ninguno": "当天已经没有空的时间了。",
+      "otroDia": "查看其他日期"
+    },
+    "tuCitaGuardada": "这部手机已经保存了这个预约：",
+    "verTuCita": "查看 {{hora}} 的预约（{{nombre}}）",
+    "horaCambiada": "好了，您的时间现在是 {{hora}}。请点“确认”完成。",
+    "borrador": {
+      "recuperado": "我们找回了您之前填写的内容。",
+      "empezarDeNuevo": "清空，重新开始"
+    },
+    "erroresAPie": {
+      "BLOQUE_LLENO": "您填写信息时号码已经发完了。非常抱歉。",
+      "BLOQUE_CERRADO": "这一天的号码已经停止发放。",
+      "BLOQUE_NO_EXISTE": "这个步行排队已经不存在了。请重新查看步行排队页面。",
+      "AUN_NO_ABRE": "号码还没有开始发放。请在页面上写的时间再来。",
+      "DIA_CERRADO": "这一天已经不再发号码。"
+    },
+    "yaViniste": {
+      "titulo": "您以前来过吗？",
+      "ayuda": "用您的 CB 号码和电话，就不用再填一遍资料。",
+      "abrir": "使用我的号码",
+      "codigo": "您的 CB 号码",
+      "codigoAyuda": "号码在您的确认页面和预约邮件里。",
+      "telefono": "您的电话（和上次一样）",
+      "buscar": "继续",
+      "buscando": "正在查找…",
+      "cerrar": "我还是自己填写资料",
+      "listo": "使用您上次的资料，{{nombre}}",
+      "listoAyuda": "您的 CB 号码不变。只需确认预约。",
+      "noSoyYo": "不是我 / 使用其他资料",
+      "faltaCodigo": "请输入您号码中的数字。",
+      "NO_COINCIDE": "这个号码和这个电话对不上。请检查，或在下面填写您的资料。",
+      "DEMASIADOS_INTENTOS": "尝试次数太多。请等 {{minutos}} 分钟，或在下面填写您的资料。"
+    }
+  },
+  "pasos": {
+    "etiqueta": "登记进度",
+    "fecha": "日期",
+    "horario": "时间",
+    "datos": "您的资料"
+  },
+  "horarios": {
+    "duracion": "每个时段 15 分钟。",
+    "cargando": "正在查找时间…",
+    "error": "时间加载不出来，请稍后再试。",
+    "sinBloques": "这一天已经没有时间了。",
+    "fechaInvalida": "这个日期无效。",
+    "volverCalendario": "选择其他日期",
+    "lleno": "已满",
+    "quedan_other": "还剩 {{count}} 个名额",
+    "conCodigo": "您已用订阅者代码进入。请选择时间。",
+    "revisandoCodigo": "正在核对您的代码…",
+    "continuarCon": "继续选择 {{hora}}",
+    "eligeUno": "请点选列表中的一个时间"
+  },
+  "calendario": {
+    "cargando": "正在查找可预约的日期…",
+    "error": "可预约的日期加载不出来，请稍后再试。"
+  },
+  "pages": {
+    "calendario": "下次发放",
+    "horarios": "时间",
+    "registro": "登记",
+    "confirmacion": "确认"
+  },
+  "inicio": {
+    "titulo": "预约领取",
+    "subtitulo": "免费食品，每周一和周四",
+    "antesDeEmpezar": "开始之前",
+    "reglaRespaldo": "每位领取食品箱的 18 岁以上人士都需要自己登记，拿自己的号码。",
+    "comoVienes": "您怎么来？",
+    "enCarro": "开车",
+    "aPie": "步行",
+    "aPieAviso": "步行不用预约时间：发放当天在这里取号，然后等候叫号。",
+    "gratuito": "食品免费，不需要任何捐款。",
+    "yaTienesCita": "已经预约了吗？发放当天请带上二维码的图片或截图。",
+    "hacerCita": "预约",
+    "sacarTurno": "取号"
+  },
+  "navegacion": {
+    "inicio": "返回首页",
+    "cambiarFecha": "更改日期",
+    "cambiarHorario": "更改时间",
+    "accesoPersonal": "工作人员入口",
+    "verSitio": "查看公开网站"
+  },
+  "pie": {
+    "bienvenidos": "欢迎来到",
+    "comunidad": "基督里的群体",
+    "servicios": "教会聚会",
+    "horarioServicios": "周四 7:00 PM · 周日 6:00 PM",
+    "sitioIglesia": "教会网站",
+    "siguenos": "关注我们",
+    "apoya": "支持 Cajita de Bendición",
+    "redes": {
+      "facebookDespensa": "Cajita de Bendición 的 Facebook",
+      "facebookIglesia": "教会的 Facebook",
+      "tiktokCajita": "Cajita de Bendición 的 TikTok",
+      "instagramIglesia": "教会的 Instagram",
+      "tiktokIglesia": "教会的 TikTok"
+    }
+  },
+  "donar": {
+    "titulo": "想支持 Cajita de Bendición 吗？",
+    "tituloTrasRegistro": "如果方便，别忘了支持我们",
+    "aclaracion": "您的预约和捐款无关：食品是免费的。",
+    "texto": "如果您能够也愿意帮忙，任何一点支持都能让我们每周帮助更多家庭。",
+    "paypal": "用 PayPal 捐款",
+    "gofundme": "在 GoFundMe 支持",
+    "suscribirse": "在 Facebook 订阅"
+  },
+  "ubicacion": {
+    "titulo": "我们的地址",
+    "entregas": "食品发放：每周一和周四下午，需要预约。",
+    "googleMaps": "在 Google 地图中打开",
+    "appleMaps": "在 Apple 地图中打开",
+    "llamar": "打电话"
+  },
+  "marca": {
+    "ministerio": "{{iglesia}} 的事工"
+  },
+  "incidencias": {
+    "publico": {
+      "retraso": "{{fecha}} 的发放会晚 {{minutos}} 分钟。顺序不变，每人比原定时间晚 {{minutos}} 分钟。",
+      "movida": "{{fecha}} 的发放改到了 {{fechaNueva}}，时间不变。您的号码照样能用。",
+      "cancelada": "{{fecha}} 的发放取消了。如果您有预约，可以在日历里重新预约。"
+    },
+    "miCita": {
+      "retraso": "您那天的发放会晚 {{minutos}} 分钟：您新的大约时间是 {{hora}}。您的号码照样能用。",
+      "movida": "您的预约从 {{fecha}} 改到了 {{fechaNueva}}，时间不变。您的号码照样能用。",
+      "cancelada": "这一天的发放取消了。"
+    }
+  },
+  "guia": {
+    "abrir": "使用指南"
+  },
+  "validacion": {
+    "nombres": {
+      "VACIO": "请填写您的名字。",
+      "NUMEROS": "名字里不能有数字。",
+      "SIMBOLOS": "请只用字母。可以用空格、连字符 (-) 和撇号 (')。",
+      "CORTO": "请写完整的名字，不要只写一个字母。"
+    },
+    "apellidos": {
+      "VACIO": "请填写您的姓。",
+      "NUMEROS": "姓里不能有数字。",
+      "SIMBOLOS": "请只用字母。可以用空格、连字符 (-) 和撇号 (')。",
+      "CORTO": "请写完整的姓，不要只写一个字母。"
+    },
+    "correo": {
+      "VACIO": "请填写您的电子邮箱。",
+      "ESPACIOS": "邮箱里不能有空格。",
+      "SIN_ARROBA": "少了 @。例如：nombre@gmail.com",
+      "VARIAS_ARROBAS": "邮箱里只能有一个 @。",
+      "SIN_USUARIO": "少了 @ 前面的部分。",
+      "SIN_DOMINIO": "少了 @ 后面的部分，例如 gmail.com",
+      "SIN_PUNTO": "少了点后面的结尾，例如 .com",
+      "DOMINIO_INVALIDO": "请检查 @ 后面的部分，例如 gmail.com",
+      "sugerencia": "您是想写 {{correo}} 吗？",
+      "usarSugerencia": "是，改正"
+    },
+    "telefono": {
+      "VACIO": "请填写您的电话。",
+      "CARACTERES": "电话只能有数字。可以用空格、连字符，开头可以加 +。",
+      "LADA_DESCONOCIDA": "我们不认识这个国家区号。请在列表中选择您的国家。",
+      "CORTO": "少了数字：{{pais}} 的电话是 {{digitos}} 位，您写了 {{llevan}} 位。",
+      "LARGO": "多了数字：{{pais}} 的电话是 {{digitos}} 位，您写了 {{llevan}} 位。",
+      "EMPIEZA_CON_1": "少了一位：{{pais}} 的电话不算开头的 1 是 {{max}} 位。",
+      "entre": "{{min}} 到 {{max}}"
+    },
+    "sinCita": {
+      "VACIO": "请写这个人的名字。",
+      "NUMEROS": "名字里不能有数字。",
+      "SIMBOLOS": "请只用字母。可以用空格、连字符 (-) 和撇号 (')。",
+      "CORTO": "请写完整的名字，不要只写一个字母。"
+    }
+  },
+  "proxima": {
+    "etiqueta": "下次发放",
+    "horario": "{{inicio}} 到 {{fin}}",
+    "duracion": "每个时段 15 分钟。",
+    "lugares_other": "还有 {{count}} 个名额",
+    "lleno": "这次发放已经没有名额了。",
+    "abiertos": "登记已经开放。",
+    "abreEl": "登记开放时间：{{cuando}}。",
+    "faltan": "还有 {{tiempo}}",
+    "suscriptoresDesde": "Facebook 订阅者从 {{cuando}} 起可以登记。",
+    "suscriptoresAhora": "Facebook 订阅者现在可以用代码登记。",
+    "conCodigo": "Facebook 订阅者预约",
+    "registrarme": "预约",
+    "sinLugares": "没有名额",
+    "seActivara": "“预约”按钮会在开放时间自动出现。",
+    "sinFechas": "目前没有安排发放。请以后再来看看。",
+    "tiempo": {
+      "dias_other": "{{count}} 天",
+      "horas": "{{n}} 小时",
+      "minutos": "{{n}} 分钟",
+      "segundos": "{{n}} 秒"
+    }
+  },
+  "modalSuscriptor": {
+    "titulo": "订阅者提前登记",
+    "explicacion": "如果您在 Facebook 上订阅了 Cajita de Bendición，请输入订阅者专属帖子里的代码。",
+    "desde": "您可以从 {{cuando}} 起使用代码。",
+    "ahora": "您现在就可以用代码比大家提前登记。",
+    "sinAnticipado": "这次发放没有订阅者提前登记。",
+    "yaAbierto": "登记已经对所有人开放：不需要代码。",
+    "irRegistro": "去预约",
+    "codigo": "订阅者代码",
+    "entrar": "用我的代码进入",
+    "validando": "正在核对…",
+    "invalido": "这个代码无效，或者现在还不能用。",
+    "noSuscriptor": "还不是订阅者？",
+    "invitacion": "在 Facebook 上订阅 Cajita de Bendición，每次发放都能比大家提前登记。",
+    "suscribirme": "在 Facebook 订阅",
+    "cerrar": "关闭"
+  },
+  "citas": {
+    "errores": {
+      "CITA_NO_EXISTE": "找不到这个预约。",
+      "CITA_YA_CANCELADA": "这个预约之前已经取消了。",
+      "CITA_YA_ENTREGADA": "这个预约已经用过了：食品箱已经领了。",
+      "FECHA_PASADA": "这个日期已经过了。",
+      "MOTIVO_REQUERIDO": "请写明例外的原因。",
+      "PERSONA_NO_EXISTE": "没有人用这个号码。请检查（例如 CB-4871）。",
+      "NO_NECESITA_EXCEPCION": "这个人那一周没有预约，所以不需要例外：正常登记就行。",
+      "YA_TIENE_EXCEPCION_ESTA_SEMANA": "这个人那一周已经有一次例外了，只能有一次。",
+      "BLOQUE_LLENO": "这个时间已经满了，请选择其他时间。",
+      "BLOQUE_CERRADO": "这个时间已经关闭。",
+      "BLOQUE_NO_EXISTE": "这个时间已经不存在了。",
+      "DIA_CERRADO": "这一天已经关闭。",
+      "FUNCION_NO_INSTALADA": "这个功能暂时不能用。请稍后再试。",
+      "SIN_PERMISO": "您的账户没有这个权限。请重新登录。",
+      "SIN_CONEXION": "没有网络。请检查网络后再试。",
+      "ERROR_DESCONOCIDO": "没能完成。请再试一次。",
+      "NOMBRE_REQUERIDO": "请写这个人的名字。",
+      "NOMBRE_INVALIDO": "名字里不能有数字。",
+      "ENTRADA_NO_EXISTE": "找不到这条记录。",
+      "ENTRADA_YA_ANULADA": "这条记录之前已经作废了。",
+      "SIN_CODIGOS_DISPONIBLES": "号码生成不了。请再试一次。",
+      "MISMO_HORARIO": "这就是您现在的时间。请选择其他时间。",
+      "YA_CAMBIO_HORARIO": "您已经改过一次时间了。如果还需要改，请致电教会。",
+      "YA_TIENE_CITA_ESTA_SEMANA": "您那一周已经有预约了。每周只能约一次。",
+      "AUN_NO_ABRE": "这一天还没有开放。",
+      "PASE_NO_EXISTE": "这个人没有通行证。",
+      "PASE_YA_REVOCADO": "这个通行证之前已经收回了。",
+      "TELEFONO_INVALIDO": "电话无效。请检查区号和号码。",
+      "FECHA_FUTURA": "这个日期还没到。",
+      "ACOMPANANTE_SIN_CAMBIO": "您是搭别人的车来的：您的时间就是开车人的时间。如果他改了时间，您的也会跟着改。",
+      "A_PIE_SIN_CAMBIO": "步行排队不能改时间：当天重新取一个号。",
+      "NOTA_MUY_LARGA": "备注太长了：最多 200 个字。",
+      "FILA_INVALIDA": "请选择队伍：开车或步行。",
+      "NO_ES_DIA_DE_ENTREGA": "那一天没有发放（或已取消）。",
+      "PASE_REVOCADO": "那一天这个人已经没有通行证了。",
+      "PASE_YA_ENTREGADO": "那一天已经用这个通行证领过食品箱了：每天只能领一箱。"
+    }
+  },
+  "domicilio": {
+    "titulo": "您的住址",
+    "tituloPanel": "这个人的住址",
+    "zona": "我们接受加利福尼亚州（美国）和下加利福尼亚州（墨西哥）的住址。",
+    "pais": "住址所在国家",
+    "paises": {
+      "MX": "墨西哥",
+      "US": "美国"
+    },
+    "codigoPostal": {
+      "MX": "Código postal（邮政编码）",
+      "US": "ZIP code（邮政编码）"
+    },
+    "buscando": "正在查找邮政编码…",
+    "encontrado": "{{ciudad}}，{{estado}}",
+    "colonia": "Colonia（社区）",
+    "coloniaOpcional": "Colonia（社区，选填）",
+    "elegirColonia": "请选择您的社区",
+    "calle": {
+      "MX": "街道",
+      "US": "街道地址"
+    },
+    "numero": {
+      "MX": "门牌号"
+    },
+    "interior": {
+      "MX": "室号（选填）",
+      "US": "公寓号（选填）"
+    },
+    "sinDomicilio": "我没有固定住址",
+    "sinDomicilioAyuda": "例如，您住在车里，或暂时住在亲戚家。我们只需要您的邮政编码。",
+    "errores": {
+      "codigoPostal": {
+        "VACIO": "请填写邮政编码。",
+        "FORMATO": "邮政编码是 5 位数字。",
+        "NO_EXISTE": "在加利福尼亚州和下加利福尼亚州都找不到这个邮政编码。请检查一下。",
+        "BUSCANDO": "请稍等：我们正在核对邮政编码。"
+      },
+      "colonia": {
+        "VACIO": "请从列表中选择您的社区。",
+        "NO_COINCIDE": "这个社区不属于这个邮政编码。请从列表中选择。"
+      },
+      "calle": {
+        "VACIO": "请填写街道。",
+        "SIN_LETRAS": "请写街道名称。",
+        "SIN_NUMERO": "开头少了门牌号，例如 7855 Lansing Dr.",
+        "LARGO": "街道名称太长了。"
+      },
+      "numero": {
+        "VACIO": "请填写门牌号。",
+        "FORMATO": "请写门牌号，例如 4250 或 12-B。",
+        "FORMATO_MX": "请写门牌号，例如 1234 或 12-B。如果没有，请写 S/N。"
+      },
+      "interior": {
+        "FORMATO": "只能用字母和数字，例如 5 或 B-2。"
+      }
+    }
+  },
+  "privacidad": {
+    "titulo": "您的信息是保密的",
+    "texto": "我们只把它用于 Cajita de Bendición 的内部登记和安排发放。我们不会把它交给任何人，也不会交给政府部门。",
+    "casilla": "我确认我是自愿提供这些信息的。",
+    "casillaPanel": "这个人向我确认，是自愿提供这些信息的。",
+    "falta": "要登记，请勾选确认框。"
+  },
+  "boletin": {
+    "casilla": "我想通过电子邮件收到教会的通知和一般信息（选填）。",
+    "ayuda": "这和您的预约邮件是分开的，预约邮件照常会收到。您可以随时取消订阅。"
+  },
+  "reglas": {
+    "titulo": "确认预约前，请先阅读",
+    "casilla": "我已阅读并接受这些说明。",
+    "falta": "您需要阅读并接受这些说明才能继续。",
+    "respaldo1": "请在您的时间前 5 分钟到达。这是必须的。",
+    "respaldo2": "您的二维码只能领一箱，只能用一次。",
+    "respaldo3": "您只能更改一次时间。",
+    "tituloAPie": "取号前，请先阅读",
+    "respaldoAPie1": "每位 18 岁以上的人都需要自己的号码和二维码。",
+    "respaldoAPie2": "请在附近等候。叫到您的号码时，请上前出示二维码。"
+  },
+  "avisos": {
+    "cargando": "正在加载文字…"
+  },
+  "preguntas": {
+    "titulo": "常见问题",
+    "ayuda": "大家最常问的问题。点一个问题就能看到答案。",
+    "cargando": "正在加载问题…",
+    "sinPreguntas": "这里暂时还没有问题。",
+    "masDudas": "还有其他问题？请致电 {{telefono}}，或在发放当天询问工作人员。"
+  },
+  "quienesSomos": {
+    "titulo": "关于我们",
+    "invitacion": "教会、这个事工，以及这个网页的由来。",
+    "cargando": "正在加载…",
+    "sinTexto": "这里暂时还没有信息。",
+    "sitioIglesia": "教会网站",
+    "verPreguntas": "常见问题"
+  },
+  "tema": {
+    "aOscuro": "深色模式",
+    "aClaro": "浅色模式",
+    "cambiarAOscuro": "切换到深色模式",
+    "cambiarAClaro": "切换到浅色模式"
+  },
+  "filas": {
+    "nombre": {
+      "carro": "开车排队",
+      "a_pie": "步行排队",
+      "ambas": "两条队伍"
+    }
+  },
+  "misCitas": {
+    "titulo": "您的预约",
+    "tituloUna": "您的预约",
+    "ayuda": "用这部手机预约的。点按钮查看您的二维码。",
+    "hoy": "今天！",
+    "ver": "查看我的二维码",
+    "quitar": "从这部手机上移除",
+    "quitarPregunta": "要从这部手机上移除吗？预约不会取消：仍然是您的。",
+    "quitarSi": "是，从这里移除",
+    "quitarNo": "不，保留",
+    "ayudaUna": "用这部手机预约的。点按钮查看您的二维码。"
+  },
+  "letra": {
+    "titulo": "字体大小",
+    "normal": "正常字体",
+    "grande": "大字体",
+    "muy_grande": "特大字体"
+  },
+  "recordatorio": {
+    "agregar": "添加到我的日历",
+    "titulo": "Cajita de Bendición：您的预约",
+    "descripcion": "您的号码：{{codigo}}。请提前几分钟到，并带上您的二维码。\n查看您的二维码：{{enlace}}",
+    "aviso": "今天是您在 Cajita de Bendición 的预约。请带上您的二维码。"
+  },
+  "redDeSeguridad": {
+    "titulo": "这个页面出了点问题",
+    "texto": "这不是您的错。如果您已经预约了，预约仍然保存着。",
+    "recargar": "重新加载",
+    "inicio": "回到首页",
+    "ayuda": "如果一直这样，请致电教会：{{telefono}}。"
+  },
+  "escuchar": {
+    "boton": "收听我的预约",
+    "frase": "您的预约是 {{fecha}}，{{hora}}。您的号码是：{{codigo}} 请提前几分钟到。"
+  },
+  "entornoPruebas": {
+    "aviso": "测试数据库 · 这里的一切都不是真的",
+    "lento": "慢速模式：{{segundos}} 秒"
+  },
+  "aPie": {
+    "noHay": "现在没有步行排队。等有的时候，您可以直接在这里取号。",
+    "proxima": "下次步行排队",
+    "empiezaA": "我们 {{hora}} 开始发放",
+    "abreA": "号码从 {{cuando}} 开始发放。",
+    "seActualiza": "请保持这个页面打开：开始发号时按钮会自动出现。",
+    "volver": "返回步行排队",
+    "registroTitulo": "取号",
+    "confirmar": "取我的号"
+  },
+  "turno": {
+    "tuTurno": "您的号码",
+    "numero": "{{turno}} 号",
+    "listo": "您已经取到号了",
+    "van": "现在叫到 {{turno}} 号",
+    "antes_other": "您前面还有 {{count}} 人",
+    "eresElSiguiente": "下一个就是您！请过来。",
+    "esTuTurno": "轮到您了！请上前出示二维码。",
+    "teLlamaron": "已经叫过您的号，但您不在。请马上去找志愿者，出示您的号码或二维码。如果等太久，您的号会作废，需要重新取号。",
+    "recibida": "您已经领到食品箱了。谢谢您来！",
+    "otroDia": "发放当天，您可以在这里看到现在叫到几号。",
+    "seActualiza": "每隔几秒自动更新。",
+    "terminada": "今天的队伍已经结束。谢谢您来，期待下次发放再见。",
+    "anulado": "叫到您时您不在，所以您的号已作废。如果您还想领食品，请重新取号：要从队尾开始排。",
+    "repetido": "这个号已取消，因为您已经有另一个号了。",
+    "repetidoCon": "这个号已取消，因为您已经有 {{turno}} 号了。",
+    "repetidoAyuda": "请用您先取的那个号。如果找不到，请找志愿者。"
+  },
+  "acompanante": {
+    "titulo": "您怎么来？",
+    "queEs": "这是什么？",
+    "explicacion": "每个名额是一辆车。如果您搭已经预约的人的车来，请选“我搭别人的车来”：您有自己的号码和自己的食品箱，但不会再占一个名额。您的时间就是开车人的时间。",
+    "propio": "我开自己的车来",
+    "propioAyuda": "为您的车留一个名额。",
+    "acompanante": "我搭已经预约的人的车来",
+    "acompananteAyuda": "不会再占一个名额。",
+    "codigo": "开车人的号码",
+    "codigoAyuda": "在他的预约页面上，二维码下面（例如 CB-4871）。",
+    "faltaCodigo": "请输入开车人的号码，例如 CB-4871。",
+    "horaDeQuienManeja": "您的时间就是开车人的时间。",
+    "enlace": "您是搭已有预约的人的车来吗？请在这里登记",
+    "escogeHorario": "要开自己的车来，请先选择一个有名额的时间。",
+    "verHorarios": "查看时间"
+  },
+  "vip": {
+    "voluntario": "直接进入，不用排队",
+    "persona": "您可以直接进入，不用排队",
+    "etiqueta": "VIP 通行证"
+  },
+  "demo": {
+    "aviso": "视频示例：在这里做的一切都不会保存，生成的号码也不能用。",
+    "salir": "退出示例"
+  },
+  "turnoAPie": {
+    "titulo": "步行排队",
+    "subtitulo": "在这里取号。不需要提供任何资料。",
+    "boton": "取我的号",
+    "sacando": "正在为您取号…",
+    "empiezaA": "我们 {{hora}} 开始发放",
+    "revisando": "正在查看队伍…",
+    "noHay": "今天没有步行排队。",
+    "llena": "今天的号已经发完了。",
+    "esTuTurno": "轮到您了！",
+    "acercate": "请上前出示您的二维码。",
+    "verMiQr": "查看我的二维码",
+    "avisos": {
+      "sinDatos": "我们不问您的名字、年龄或电话。这些都不会被保存或分享。",
+      "soloHoy": "您的号只限今天使用，只能领一箱食品。",
+      "abierta": "请保持这个页面打开：您能看到现在叫到几号，还差 3 个和轮到您时，手机会响。",
+      "teLlaman": "如果叫到您时您不在，请尽快过来。如果等太久，您的号会作废，需要重新取号，从队尾开始排。",
+      "cadaQuien": "每个成年人都要自己取号。如果您没有手机，请找志愿者帮忙。"
+    },
+    "carro": {
+      "titulo": "您今天 {{hora}} 已经有开车的预约。",
+      "texto_other": "如果您改成步行，您今天的开车预约会被取消，而且不能再回到开车排队。",
+      "si": "是，改成步行",
+      "no": "不，我还是开车",
+      "duenio_other": "您是车主：您 {{count}} 位同行人的预约也会被取消。每个人都需要自己取号（用自己的手机，或请志愿者帮忙）。",
+      "seguro": "您确定要改成步行吗？",
+      "siTodos": "是，取消开车，改成步行"
+    },
+    "resultado": {
+      "YA_RECIBIO_EN_CARRO": "您今天已经开车领过食品了。谢谢您来！",
+      "AUN_NO_ABRE": "号码从 {{hora}} 开始发放。",
+      "NO_HAY_FILA": "今天没有步行排队。",
+      "CERRADA": "今天不再发号了。",
+      "TURNOS_ANULADOS": "今天您已经有两个号作废了，因为叫到您时您不在。如果需要帮助，请找志愿者。",
+      "TURNO_REPETIDO": "今天这部手机取了两个号，其中一个已经取消。请用剩下的那个；如果找不到，请找志愿者。"
+    },
+    "errores": {
+      "SIN_CONEXION": "没有网络。请检查信号，然后再点一次按钮。",
+      "FUNCION_NO_INSTALADA": "这个功能还没准备好。请告诉志愿者。",
+      "DISPOSITIVO_INVALIDO": "这部手机取不了号。请找志愿者帮忙。",
+      "ERROR_DESCONOCIDO": "没能给您取号。请再点一次按钮，或找志愿者帮忙。"
+    },
+    "terminada": "今天的队伍已经结束。谢谢您来！期待下次发放再见。",
+    "codigoEsTuyo": "这个二维码只属于您：不要给别人看。它能证明这个号是您的。",
+    "codigo": {
+      "etiqueta": "今天的代码",
+      "ayuda": "是 4 个数字，写在入口处。如果看不到，请问志愿者。",
+      "FALTA_CODIGO": "请输入今天的代码来取号。",
+      "CODIGO_INCORRECTO": "这不是今天的代码。请检查后再试。",
+      "DEMASIADOS_INTENTOS": "尝试次数太多。{{reloj}} 后可以再试。",
+      "esperaBoton": "请等 {{reloj}}"
+    },
+    "anotalo": "请记下您的号码（{{turno}}）或给这个页面拍照。如果页面关掉了，不要再取号：把您的号码告诉志愿者。",
+    "yaTenias": "已经取过号，但页面关掉了？不要再取：把您的号码告诉志愿者。",
+    "otroTurno": "重新取号",
+    "carroCodigo": {
+      "abrir": "您今天有开车的预约吗？",
+      "titulo": "从开车改成步行",
+      "ayuda": "如果开车的队伍太长，您可以改到步行排队。请输入您开车预约的号码。您的开车预约会被取消，而且不能再回到开车排队。",
+      "etiqueta": "您开车预约的号码",
+      "campoAyuda": "只输入数字（4 或 5 位）：“CB-”已经填好了。",
+      "boton": "改成步行",
+      "cancelar": "我没有开车的预约",
+      "CODIGO_CARRO_NO_EXISTE": "找不到今天用这个号码的开车预约。请检查数字。"
+    },
+    "verFila": "查看实时队伍"
+  },
+  "credencial": {
+    "etiqueta": "志愿者",
+    "titulo": "志愿者证",
+    "enseniala": "到达时出示",
+    "cargando": "正在准备志愿者证…",
+    "qrAlt": "{{nombre}} 的志愿者证二维码",
+    "comoFunciona": "到达时，请把这个二维码给负责接待志愿者的人看。这样就能记录您的服务时数。",
+    "soloTuya": "这是您专属的：不要给别人。如果弄丢了，请申请新的。",
+    "inactiva": "这张志愿者证已经失效。",
+    "inactivaTexto": "如果您认为这是错误，请致电教会：{{telefono}}。",
+    "noEncontrada": "找不到这张志愿者证。请让管理员重新发送链接。",
+    "sinConexion": "志愿者证加载不出来。请检查信号，然后重新打开链接。",
+    "horas": {
+      "titulo": "您的服务时数",
+      "llevas_other": "您在 {{count}} 天里服务了 {{duracion}}。",
+      "todavia": "您还没有完整的记录。每次服务结束后会计算时数。",
+      "ayuda": "只计算有签到和签退的记录。这里显示最近 10 次。",
+      "todaviaYSalida": "您还没有完整的记录。到达和离开时都扫码后，您的时数会显示在这里。"
+    },
+    "ensenialaYSalida": "到达和离开时都要出示",
+    "comoFuncionaYSalida": "到达时把这个二维码给管理员看，离开时再出示一次。这样就能记录您的服务时数。"
+  },
+  "voluntarios": {
+    "duracion": {
+      "min": "{{m}} 分钟",
+      "h": "{{h}} 小时",
+      "hMin": "{{h}} 小时 {{m}} 分钟"
+    },
+    "envio": {
+      "mensaje": "{{nombre}} 您好，这是您在 Cajita de Bendición（Iglesia Casa de Alabanza）的志愿者证：\n{{enlace}}\n\n请保存在手机里，到达和离开时都出示：这样就能记录您的服务时数。这是您专属的，请不要分享。谢谢您的服务！",
+      "mensajeSoloEntrada": "{{nombre}} 您好，这是您在 Cajita de Bendición（Iglesia Casa de Alabanza）的志愿者证：\n{{enlace}}\n\n请保存在手机里，到达时出示：这样就能记录您的服务时数。这是您专属的，请不要分享。谢谢您的服务！"
+    }
+  },
+  "preferente": {
+    "etiqueta": "优先",
+    "voluntario": "不用排队。发放前请核对是不是本人。",
+    "persona": "您不用排队：把这个二维码给志愿者看。"
+  },
+  "filaEnVivo": {
+    "titulo": "步行排队实时情况",
+    "subtitulo": "看看队伍的进度。不需要有号码。",
+    "cargando": "正在查看队伍…",
+    "noHay": "今天没有步行排队。",
+    "porAbrir": "还没有开始：{{hora}} 开始发号。",
+    "terminada_other": "今天的队伍已经结束：{{count}} 人领到了食品。谢谢！",
+    "asiVa": "队伍现在的情况",
+    "noEsTuyo": "这些号码是别人的，不是您的。",
+    "tuNumero": "您的号码是 {{turno}}。",
+    "recibio": "已领取",
+    "llamando": "正在叫号",
+    "sigue": "下一个",
+    "nadieEspera": "现在没有人在等。",
+    "esperando": "等候中",
+    "recibieron": "已领取",
+    "dados": "已发号",
+    "yaNoSeDan": "今天不再发新号了。",
+    "sinSenal": "没有信号：这是最后知道的情况。网络恢复后会自动更新。",
+    "miTurno": "查看我的号（{{turno}}）",
+    "sacar": "取我的号"
+  },
+  "video": {
+    "titulo": "什么是 Cajita de Bendición？",
+    "presentacion": "视频",
+    "idioma": "语言",
+    "hazTuCita": "预约",
+    "portada": {
+      "titulo": "Cajita de Bendición",
+      "texto": "每周一和周四免费发放食品。{{iglesia}} 的事工。"
+    },
+    "comoVienes": {
+      "titulo": "您怎么来？",
+      "texto": "开车来要先预约、选时间。步行来的话，发放当天用手机取号。",
+      "carro": "开车",
+      "aPie": "步行"
+    },
+    "cita": {
+      "titulo": "用手机预约",
+      "texto": "选日期和时间。不需要账户，也不需要密码。",
+      "lunes": "周一",
+      "jueves": "周四"
+    },
+    "codigo": {
+      "titulo": "保存您的二维码",
+      "texto": "我们会给您一个二维码和一个号码。请截图保存。"
+    },
+    "despensa": {
+      "titulo": "到了就能领食品",
+      "texto": "到达时出示二维码，就能领到食品箱。每位 18 岁以上的人都要自己预约。",
+      "unaCaja": "每位成人 1 箱"
+    },
+    "privado": {
+      "titulo": "免费又保密",
+      "texto": "不需要任何捐款。您的信息不会交给任何人，也不会交给政府部门。"
+    },
+    "final": {
+      "titulo": "预约",
+      "texto": "开车来就预约，步行来就取号。点按钮开始。"
+    },
+    "otraVez": "再看一次",
+    "anterior": "上一页",
+    "siguiente": "下一页",
+    "pausar": "暂停",
+    "seguir": "继续"
+  }
+}
