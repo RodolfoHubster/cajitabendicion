@@ -563,7 +563,17 @@
     "anulado": "Votre numéro a été annulé : on vous a appelé et vous n'étiez pas là. Si vous avez encore besoin de nourriture, prenez un nouveau numéro : vous attendrez depuis la fin de la file.",
     "repetido": "Ce numéro a été annulé parce que vous aviez déjà un autre numéro.",
     "repetidoCon": "Ce numéro a été annulé parce que vous aviez déjà le numéro {{turno}}.",
-    "repetidoAyuda": "Utilisez le numéro que vous avez pris en premier. Si vous ne l'avez pas, adressez-vous à un bénévole."
+    "repetidoAyuda": "Utilisez le numéro que vous avez pris en premier. Si vous ne l'avez pas, adressez-vous à un bénévole.",
+    "porEmpezar": "Nous n'avons pas encore commencé la distribution.",
+    "porEmpezarAyuda": "Vous le verrez ici quand nous commencerons. Votre téléphone sonnera quand il restera 3 personnes avant vous et quand ce sera votre tour."
+  },
+  "espera": {
+    "tuya": "Attente approximative : {{tiempo}}",
+    "siSacasAhora": "Si vous prenez un numéro maintenant, vous attendrez {{tiempo}}.",
+    "unos": "environ {{duracion}}",
+    "menosDe5": "moins de 5 min",
+    "aviso": "C'est une moyenne selon la vitesse de la file aujourd'hui, pas une heure exacte. Elle peut changer.",
+    "calculando": "L'attente approximative apparaîtra quand quelques colis auront été remis."
   },
   "acompanante": {
     "titulo": "Comment venez-vous ?",

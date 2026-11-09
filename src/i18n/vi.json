@@ -1014,7 +1014,7 @@
       },
       "turnos": {
         "titulo": "Hàng đi bộ phát theo số thứ tự",
-        "texto": "Phía trên máy ảnh bạn thấy số đang gọi và các số tiếp theo. Quét QR của họ; nếu họ không có QR nhưng biết số, bấm “Phát không cần QR”. Nếu họ không có mặt, bấm “Không có mặt”: hàng tiếp tục. Nếu họ đến trong vài phút, hãy phát; nếu đến quá trễ, máy quét sẽ hỏi và bạn bấm “Hủy số”: họ sẽ cần lấy số mới. Với người không có điện thoại, dùng “Cấp số mới” trong bảng. Khi xong, bấm “Kết thúc hàng hôm nay”."
+        "texto": "Khi bắt đầu, bấm “Bắt đầu phát”. Phía trên máy ảnh bạn thấy số đang gọi, với các nút: “Phát không cần QR”, “Không có mặt” và “Đọc to”. Có thắc mắc? Bấm “Trợ giúp”, cạnh “Hàng đi bộ”: ở đó có video cách phát số và cách xử lý từng trường hợp."
       },
       "filaAPie": {
         "titulo": "Sắp xếp hàng đi bộ",
@@ -1826,7 +1826,17 @@
     "anulado": "Số của bạn đã bị hủy vì đã gọi đến mà bạn không có mặt. Nếu bạn vẫn muốn nhận thực phẩm, hãy lấy số mới: bạn sẽ chờ từ cuối hàng.",
     "repetido": "Số này đã bị hủy vì bạn đã có một số khác.",
     "repetidoCon": "Số này đã bị hủy vì bạn đã có số {{turno}}.",
-    "repetidoAyuda": "Hãy dùng số bạn lấy trước. Nếu không còn, hãy nói với tình nguyện viên."
+    "repetidoAyuda": "Hãy dùng số bạn lấy trước. Nếu không còn, hãy nói với tình nguyện viên.",
+    "porEmpezar": "Chúng tôi chưa bắt đầu phát.",
+    "porEmpezarAyuda": "Khi bắt đầu, bạn sẽ thấy ở đây. Điện thoại sẽ reo khi còn 3 người trước bạn và khi đến lượt bạn."
+  },
+  "espera": {
+    "tuya": "Thời gian chờ ước tính: {{tiempo}}",
+    "siSacasAhora": "Nếu lấy số bây giờ, bạn sẽ chờ {{tiempo}}.",
+    "unos": "khoảng {{duracion}}",
+    "menosDe5": "dưới 5 phút",
+    "aviso": "Đây là mức trung bình theo tốc độ của hàng hôm nay, không phải giờ chính xác. Có thể thay đổi.",
+    "calculando": "Thời gian chờ ước tính sẽ hiện khi đã phát được vài thùng."
   },
   "elegirFila": {
     "pregunta": "Hôm nay bạn ở hàng nào?",
@@ -1901,7 +1911,246 @@
     },
     "anular": "Hủy",
     "codigoHasta": "Yêu cầu đến {{hora}}.",
-    "codigoYaNo": "Từ {{hora}} không cần mã của hôm nay nữa: ai cũng có thể lấy số bằng mã QR."
+    "codigoYaNo": "Từ {{hora}} không cần mã của hôm nay nữa: ai cũng có thể lấy số bằng mã QR.",
+    "empezar": {
+      "aunNo": "Bạn chưa bắt đầu phát: trên điện thoại, mọi người thấy «Chúng tôi chưa bắt đầu».",
+      "boton": "Bắt đầu phát",
+      "solo": "Nếu quên, việc phát sẽ tự bắt đầu với thùng đầu tiên bạn phát.",
+      "empezada": "Đã bắt đầu phát lúc {{hora}}.",
+      "deshacer": "Hoàn tác (chưa bắt đầu)"
+    }
+  },
+  "ayudaAPie": {
+    "abrir": "Trợ giúp",
+    "abrirLargo": "Trợ giúp hàng đi bộ: video và cách xử lý từng trường hợp",
+    "titulo": "Trợ giúp: hàng đi bộ",
+    "cerrar": "Quay lại máy quét",
+    "pestanas": {
+      "video": "Video",
+      "pasos": "Các bước",
+      "casos": "Tình huống",
+      "palabras": "Từ ngữ"
+    },
+    "verEnVideo": "Xem trong video ({{tiempo}})",
+    "video": {
+      "titulo": "Cách phát số trong hàng đi bộ",
+      "ayuda": "Dài khoảng 9 phút, bằng tiếng Tây Ban Nha. Bấm vào một phần để xem ngay phần đó; bạn có thể tạm dừng bất cứ lúc nào.",
+      "partes": "Các phần của video",
+      "sinVideo": "Không tải được video. Hãy kiểm tra sóng và thử lại."
+    },
+    "partes": {
+      "bienvenida": "Chào mừng",
+      "comoFunciona": "Hàng hoạt động thế nào",
+      "tresCosas": "Ba điều của mỗi số thứ tự",
+      "pantalla": "Màn hình của bạn",
+      "empezar": "Bắt đầu phát",
+      "entregar": "Phát một thùng",
+      "equivocas": "Nếu bạn làm nhầm",
+      "sinQr": "Họ không có mã QR",
+      "noEsta": "Gọi số mà người đó không có mặt",
+      "tarde": "Họ đến trễ",
+      "dosTurnos": "Họ lấy hai số",
+      "mismoNumero": "Hai người nói cùng một số",
+      "sinTelefono": "Người không có điện thoại",
+      "avisos": "Các thông báo khác",
+      "terminar": "Khi kết thúc",
+      "recordar": "Cần nhớ"
+    },
+    "pasos": {
+      "titulo": "Một ngày phát hàng, từng bước",
+      "lista": {
+        "elegir": {
+          "titulo": "Chọn “Hàng đi bộ”",
+          "texto": "Mở “Quét mã”. Lần đầu mỗi ngày, máy hỏi bạn ở hàng nào: bấm “Hàng đi bộ”. Màn hình có một vạch màu cam ở trên."
+        },
+        "empezar": {
+          "titulo": "Bấm “Bắt đầu phát”",
+          "texto": "Khi bạn sẵn sàng phát. Trước khi bạn bấm, trên điện thoại mọi người thấy “Chúng tôi chưa bắt đầu”. Nếu bạn quên, việc phát sẽ tự bắt đầu với thùng đầu tiên."
+        },
+        "llamar": {
+          "titulo": "Gọi số đang đến lượt",
+          "texto": "Số ở phía trên máy ảnh, chữ lớn. Hãy gọi to, hoặc bấm “Đọc to”."
+        },
+        "escanear": {
+          "titulo": "Quét mã QR của họ",
+          "texto": "Đặt mã vào trong khung vuông. Bạn không cần bấm gì cả."
+        },
+        "color": {
+          "titulo": "Để ý màu sắc",
+          "texto": "Xanh lá: phát cho họ một thùng. Đỏ: họ đã nhận rồi, đừng phát thêm. Cam: đọc màn hình trước khi phát."
+        },
+        "siguiente": {
+          "titulo": "Tiếp tục với người kế tiếp",
+          "texto": "Hàng tự chuyển sang số tiếp theo và máy ảnh đã sẵn sàng. Nếu gọi số mà người đó không có mặt, bấm “Không có mặt”."
+        },
+        "terminar": {
+          "titulo": "Cuối cùng, “Kết thúc hàng hôm nay”",
+          "texto": "Nút này ở cuối bảng. Ai còn đang chờ sẽ thấy trên điện thoại của họ."
+        }
+      }
+    },
+    "casos": {
+      "titulo": "Tôi làm gì nếu…?",
+      "ayuda": "Bấm vào câu hỏi để xem cách làm.",
+      "ves": "Bạn thấy gì",
+      "haz": "Bạn làm gì",
+      "dile": "Bạn nói với họ",
+      "lista": {
+        "sinQr": {
+          "pregunta": "Họ không có mã QR nhưng biết số của mình",
+          "haz1": "Nếu đó là số đang đến lượt, bấm “Phát không cần QR”.",
+          "haz2": "Nếu không, gõ số của họ vào “Tìm số thứ tự” bên dưới máy ảnh, rồi bấm chữ “i”.",
+          "haz3": "Hỏi mã CB của họ và so với mã trên màn hình của bạn. Nếu họ đã chụp ảnh màn hình, mã có trong ảnh.",
+          "haz4": "Nếu khớp, bấm “Ghi nhận đã nhận hàng”."
+        },
+        "noEsta": {
+          "pregunta": "Tôi gọi số mà người đó không có mặt",
+          "haz1": "Gọi lại một lần nữa.",
+          "haz2": "Nếu không ai đến, bấm “Không có mặt”. Hàng chuyển sang số tiếp theo.",
+          "haz3": "Số đó nằm ở bên dưới, trong danh sách những người không có mặt, kèm giờ bạn đã gọi."
+        },
+        "tarde": {
+          "pregunta": "Họ đến trễ: tôi đã gọi số đó rồi",
+          "ves": "Khi quét mã QR của họ, màn hình hiện màu cam giờ bạn đã gọi và cách đây bao lâu. Không tự phát.",
+          "haz1": "Nếu chỉ vài phút, bấm “Vẫn phát”.",
+          "haz2": "Nếu đã hơn 10 phút, nút màu cam gợi ý “Hủy số”. Máy sẽ hỏi trước, vì việc này không hoàn tác được.",
+          "dile": "“Vì bạn không có mặt khi chúng tôi gọi, số của bạn đã bị hủy. Hãy lấy số mới ở bảng lối vào và chờ từ cuối hàng.”"
+        },
+        "dosTurnos": {
+          "pregunta": "Họ đã lấy hai số",
+          "haz1": "Họ giữ số lấy trước, tức số ban đầu. Số còn lại bị hủy, và họ không thể lấy số khác từ điện thoại đó nữa.",
+          "haz2": "Tìm số thừa và bấm chữ “i”.",
+          "haz3": "Bấm “Đã lấy số khác: hủy số này”, gõ số họ giữ lại và xác nhận.",
+          "haz4": "Hủy nhầm số? Ở số đó, bấm “Hủy nhầm: đưa lại vào hàng”.",
+          "dile": "“Bạn giữ số đầu tiên của mình. Số kia không dùng được nữa.”"
+        },
+        "mismoNumero": {
+          "pregunta": "Hai người nói họ có cùng một số",
+          "haz1": "Tìm số đó và bấm chữ “i”: mã CB nằm ở đó.",
+          "haz2": "Hỏi mã của từng người. Số thứ tự thuộc về người biết mã.",
+          "haz3": "Đừng cho họ xem màn hình của bạn: mã là thứ chứng minh số đó của ai."
+        },
+        "sinTelefono": {
+          "pregunta": "Có người không có điện thoại",
+          "haz1": "Trong bảng, bấm “Cấp số mới”.",
+          "haz2": "Nếu muốn, gõ tên hoặc đặc điểm của họ (“Rosa, áo khoác đỏ”) rồi bấm “Cấp số”.",
+          "haz3": "Nói cho họ số và mã, và ghi ra giấy cho họ.",
+          "haz4": "Khi đến lượt, tìm theo số, hoặc bấm “ABC” và tìm theo đặc điểm."
+        },
+        "equivoque": {
+          "pregunta": "Tôi đã phát nhầm người",
+          "haz1": "Bấm “Hoàn tác lần phát này” trong phút đầu tiên.",
+          "haz2": "Chọn chuyện gì đã xảy ra và xác nhận. Mã của họ dùng lại được.",
+          "haz3": "Nếu đã quá một phút, hãy nhờ quản trị viên."
+        },
+        "porError": {
+          "pregunta": "Tôi bấm nhầm “Không có mặt”",
+          "haz1": "Kéo xuống danh sách những người không có mặt, trong bảng.",
+          "haz2": "Ở số đó, bấm “Cho vào hàng lại”. Số đó lại thành số đang đến lượt."
+        },
+        "antes": {
+          "pregunta": "Họ đến trước lượt của mình",
+          "ves": "Vẫn được phát, và màn hình báo màu cam rằng họ đã nhận trước lượt.",
+          "haz1": "Nếu họ chưa được nhận, bấm “Hoàn tác lần phát này” trong phút đầu tiên."
+        },
+        "yaRecibio": {
+          "pregunta": "Màn hình đỏ “Đã nhận rồi”",
+          "ves": "Mã đó đã được dùng hôm nay.",
+          "haz1": "Đừng phát thêm thùng: một số là một thùng."
+        },
+        "anulado": {
+          "pregunta": "Màn hình hiện “Số đã bị hủy”",
+          "ves": "Số đó đã bị hủy vì họ không có mặt khi được gọi. Không thể nhận bằng số đó nữa.",
+          "haz1": "Đừng phát bằng số đó.",
+          "dile": "“Hãy lấy số mới ở bảng lối vào và chờ từ cuối hàng.”"
+        },
+        "otraFila": {
+          "pregunta": "Màn hình hiện “Hàng khác”",
+          "ves": "Đó là mã của hàng xe. Mã chưa bị dùng.",
+          "haz1": "Hướng dẫn họ sang hàng xe: họ sẽ nhận thùng ở đó."
+        },
+        "cartel": {
+          "pregunta": "Màn hình nói đó là mã QR trên bảng ở lối vào",
+          "ves": "Bạn đã quét bảng, không phải mã QR của người đó.",
+          "haz1": "Hãy xin mã QR trên điện thoại của họ, hoặc tìm theo số."
+        },
+        "sinSenal": {
+          "pregunta": "Màn hình hiện “Mất sóng”",
+          "ves": "Không kiểm tra được mã. Mã có thể vẫn đúng.",
+          "haz1": "Đừng từ chối người đó.",
+          "haz2": "Kiểm tra dữ liệu di động và bấm “Kiểm tra lại”."
+        },
+        "camara": {
+          "pregunta": "Máy ảnh không đọc được hoặc bị đứng",
+          "haz1": "Bấm “Khởi động lại camera”, bên trong khung.",
+          "haz2": "Trong lúc đó, tìm theo số trong “Tìm số thứ tự”."
+        },
+        "noEmpieza": {
+          "pregunta": "Mọi người nói điện thoại hiện “Chúng tôi chưa bắt đầu”",
+          "haz1": "Bấm “Bắt đầu phát”, phía trên máy ảnh.",
+          "haz2": "Nếu bạn đã phát một thùng, việc phát đã tự bắt đầu: vài giây sau màn hình của họ sẽ đổi."
+        },
+        "terminar": {
+          "pregunta": "Đã hết thùng",
+          "haz1": "Kéo xuống cuối bảng và bấm “Kết thúc hàng hôm nay”.",
+          "haz2": "Xác nhận. Ai còn đang chờ sẽ thấy trên điện thoại của họ.",
+          "haz3": "Nếu bấm nhầm, bấm ngay “Mở lại hàng” ở đó."
+        }
+      }
+    },
+    "palabras": {
+      "titulo": "Từ ngữ của hàng đi bộ",
+      "lista": {
+        "turno": {
+          "palabra": "Số thứ tự",
+          "significa": "Chỗ của mỗi người trong hàng. Mỗi người lớn lấy số riêng. Một số là một thùng."
+        },
+        "queVa": {
+          "palabra": "Số đang gọi",
+          "significa": "Số đang đến lượt. Nằm phía trên máy ảnh, chữ lớn."
+        },
+        "qr": {
+          "palabra": "Mã QR",
+          "significa": "Ô vuông nhỏ bạn quét để phát. Mã của hàng đi bộ có hình người đi bộ ở giữa; mã của hàng xe có hình xe."
+        },
+        "cb": {
+          "palabra": "Mã CB",
+          "significa": "Bốn hoặc năm chữ số, như CB-48213. Chứng minh số thứ tự là của người đó. Bạn thấy mã khi bấm chữ “i” của một số."
+        },
+        "empezar": {
+          "palabra": "Bắt đầu phát",
+          "significa": "Báo cho mọi người biết đã bắt đầu: điện thoại của số 1 sẽ reo."
+        },
+        "noSePresento": {
+          "palabra": "Không có mặt",
+          "significa": "Bạn đã gọi mà họ không có ở đó. Hàng tiếp tục; nếu họ đến sau, bạn quyết định phát hay hủy số."
+        },
+        "regresar": {
+          "palabra": "Cho vào hàng lại",
+          "significa": "Đưa một số không có mặt trở lại hàng; ví dụ khi bạn bấm nhầm “Không có mặt”."
+        },
+        "anular": {
+          "palabra": "Hủy số",
+          "significa": "Cho người đến quá trễ. Số đó không dùng được nữa; họ có thể lấy số mới và chờ từ cuối hàng. Không hoàn tác được."
+        },
+        "cancelar": {
+          "palabra": "Hủy số trùng",
+          "significa": "Cho người đã lấy hai số: họ giữ một số, số kia bị hủy. Họ không thể lấy số khác từ điện thoại đó."
+        },
+        "turnoNuevo": {
+          "palabra": "Cấp số mới",
+          "significa": "Số cho người không có điện thoại. Bạn ghi số và mã của họ ra giấy."
+        },
+        "terminar": {
+          "palabra": "Kết thúc hàng",
+          "significa": "Vào cuối ngày. Không cấp thêm số, và ai đang chờ sẽ thấy trên điện thoại. Có thể mở lại."
+        },
+        "colores": {
+          "palabra": "Màu sắc",
+          "significa": "Xanh lá: phát. Đỏ: đừng phát. Cam: đọc màn hình trước khi phát."
+        }
+      }
+    }
   },
   "filaAPieAdmin": {
     "titulo": "Hàng đi bộ",

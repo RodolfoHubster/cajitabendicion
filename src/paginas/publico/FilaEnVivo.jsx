@@ -4,6 +4,7 @@ import { FaPersonWalking } from 'react-icons/fa6'
 import { LuCheck, LuCircleCheck, LuFlag, LuHourglass, LuMegaphone, LuTicket, LuUsers, LuWifiOff } from 'react-icons/lu'
 import { Link } from 'react-router-dom'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
+import EsperaAproximada from '../../componentes/EsperaAproximada'
 import Tarjeta from '../../componentes/Tarjeta'
 import useCadaRato from '../../componentes/useCadaRato'
 import { Hueso } from '../../componentes/Esqueleto'
@@ -27,6 +28,10 @@ const FICHA = {
  * estan llamando, cuantos esperan, cuantos ya recibieron. No hace falta tener
  * turno; sirve tambien en una tele en la entrada. Solo numeros: nunca nombres
  * ni codigos. Arriba de todo va el boton para sacar (o ver) SU turno.
+ *
+ * Seccion 57: hasta que empiezan a entregar dice "Todavia no empezamos" (y
+ * no "va el 1"); ya empezada, a quien no tiene turno le dice cuanto
+ * esperaria mas o menos si saca uno ahora.
  */
 export default function FilaEnVivo() {
   const { t } = useTranslation()
@@ -115,8 +120,13 @@ export default function FilaEnVivo() {
               {miTurno ? t('filaEnVivo.tuNumero', { turno: miTurno.turno }) : t('filaEnVivo.noEsTuyo')}
             </p>
 
-            {fila.actual == null && (
-              <p className="mt-3 text-lg font-bold text-principal">{t('filaEnVivo.nadieEspera')}</p>
+            {fila.empezada === false ? (
+              <div className="mt-3 rounded-xl bg-accion/15 p-3 text-center text-principal" role="status">
+                <p className="text-lg font-bold">{t('turno.porEmpezar')}</p>
+                <p className="text-base">{t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}</p>
+              </div>
+            ) : (
+              fila.actual == null && <p className="mt-3 text-lg font-bold text-principal">{t('filaEnVivo.nadieEspera')}</p>
             )}
 
             <ol className="mt-3 flex flex-wrap items-end justify-center gap-2">
@@ -149,6 +159,11 @@ export default function FilaEnVivo() {
                 </div>
               ))}
             </dl>
+
+            {/* Para quien todavia no tiene turno (o la tele de la entrada). */}
+            {!miTurno && !fila.cerrada && fila.empezada !== false && (
+              <EsperaAproximada antes={fila.en_espera} nuevo segundos={fila.segundos_por_turno} />
+            )}
 
             {fila.cerrada && <p className="mt-3 text-base font-semibold text-principal">{t('filaEnVivo.yaNoSeDan')}</p>}
           </section>

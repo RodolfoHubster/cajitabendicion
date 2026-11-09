@@ -1,5 +1,6 @@
 import { consultarDisponibilidad, formatearHora, horasEntre, restarHoras, segundosHasta, sumarDias } from './disponibilidad'
 import { clasificarError } from './errores'
+import { textoDuracion } from './voluntarios'
 import { supabase } from '../lib/supabase'
 
 /**
@@ -104,11 +105,15 @@ export function estadoFilaAPie(fila) {
   return 'abierta'
 }
 
-/** Su turno en vivo: { turno, estado, saltado, actual, antes, atendidos, en_espera, fecha, hora, cerrada, anulado }, o null. */
+/**
+ * Su turno en vivo: { turno, estado, saltado, actual, antes, atendidos,
+ * en_espera, fecha, hora, cerrada, anulado, empezada, segundos_por_turno },
+ * o null. Antes de empezar a entregar, actual es nulo (seccion 57).
+ */
 /**
  * La fila a pie de hoy, para cualquiera (seccion 51): { hora, abre_en,
- * abierta, cerrada, terminada, actual, ultimo, atendidos, en_espera, total },
- * o null si hoy no hay. Solo numeros.
+ * abierta, cerrada, terminada, actual, ultimo, atendidos, en_espera, total,
+ * empezada, segundos_por_turno }, o null si hoy no hay. Solo numeros.
  */
 export async function filaAPieEnVivo() {
   return primeraFila(await llamar('fila_a_pie_en_vivo', {}))
@@ -142,6 +147,7 @@ export async function turnoDeCita(token) {
  *   terminada   la fila de hoy ya cerro y no alcanzo a recibir
  *   anulado     llego tarde y la voluntaria anulo su turno (seccion 46)
  *   teLlamaron  la llamaron y no estaba: que se acerque ya
+ *   porEmpezar  todavia no empiezan a entregar (seccion 57): tiene `antes`
  *   tuTurno     es el turno que va
  *   esperando   faltan `antes` turnos (va en el `actual`)
  */
@@ -154,9 +160,31 @@ export function situacionDelTurno(datos) {
   if (datos.anulado) return { tipo: 'anulado' }
   if (datos.estado === 'cancelada') return { tipo: 'cancelada' }
   if (datos.cerrada) return { tipo: 'terminada' }
+  //  Sin empezar no va nadie: ni al del 1 se le dice "es tu turno". Sin el
+  //  dato (una base sin la seccion 57), como antes.
+  if (datos.empezada === false) return { tipo: 'porEmpezar', antes: datos.antes ?? 0 }
   if (datos.saltado) return { tipo: 'teLlamaron' }
   if (datos.actual === datos.turno) return { tipo: 'tuTurno' }
   return { tipo: 'esperando', antes: datos.antes ?? 0, actual: datos.actual ?? null }
+}
+
+/**
+ * La espera aproximada en minutos (seccion 57): cuantos tiene antes por el
+ * promedio entre una caja y la siguiente (segundos_por_turno de la base).
+ * Nulo si todavia no hay promedio (van menos de 5 cajas) o nadie antes.
+ */
+export function minutosDeEspera(antes, segundosPorTurno) {
+  if (!(antes > 0) || !(segundosPorTurno > 0)) return null
+  return Math.round((antes * segundosPorTurno) / 60)
+}
+
+/**
+ * La espera en palabras: "menos de 5 min" o "unos 25 min", de 5 en 5. Es un
+ * promedio: dicha al minuto pareceria exacta.
+ */
+export function textoEspera(t, minutos) {
+  if (minutos < 5) return t('espera.menosDe5')
+  return t('espera.unos', { duracion: textoDuracion(t, Math.round(minutos / 5) * 5) })
 }
 
 // ------------------------------------------------------------
@@ -217,6 +245,15 @@ export function codigoNuncaSePide(fecha, abreEn, hasta) {
  */
 export function terminarFilaAPie(terminada = true) {
   return llamar('terminar_fila_a_pie', { p_terminada: Boolean(terminada) })
+}
+
+/**
+ * "Empezar a entregar" en la fila a pie de hoy (seccion 57): hasta entonces
+ * quien espera ve "Todavia no empezamos". Con false se deshace (si se toco
+ * antes de tiempo). Si se olvida, empieza sola con la primera caja.
+ */
+export function empezarFilaAPie(empezada = true) {
+  return llamar('empezar_fila_a_pie', { p_empezada: Boolean(empezada) })
 }
 
 /**

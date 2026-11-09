@@ -44,6 +44,9 @@ import {
   siguienteFilaAPie,
   situacionDelTurno,
   terminarFilaAPie,
+  empezarFilaAPie,
+  minutosDeEspera,
+  textoEspera,
   entregarTurno,
   numeroDeTurno,
   turnoAdelantado,
@@ -222,6 +225,42 @@ describe('el turno de la persona', () => {
     expect(situacionDelTurno({ ...base, cerrada: true, estado: 'entregada' }).tipo).toBe('recibida')
   })
 
+  it('antes de empezar a entregar (sección 57): al del 1 no le dice "es tu turno", pero sí cuántos tiene antes', () => {
+    const sinEmpezar = { turno: 1, estado: 'reservada', saltado: false, actual: null, antes: 0, empezada: false }
+    expect(situacionDelTurno(sinEmpezar)).toEqual({ tipo: 'porEmpezar', antes: 0 })
+    expect(situacionDelTurno({ ...sinEmpezar, turno: 5, antes: 4 })).toEqual({ tipo: 'porEmpezar', antes: 4 })
+    //  Ya empezada, como siempre; y sin el dato (una base de antes), también.
+    expect(situacionDelTurno({ ...sinEmpezar, actual: 1, empezada: true }).tipo).toBe('tuTurno')
+    expect(situacionDelTurno({ ...sinEmpezar, actual: 1, empezada: undefined }).tipo).toBe('tuTurno')
+    //  La fila terminada o la caja ya recibida ganan.
+    expect(situacionDelTurno({ ...sinEmpezar, cerrada: true }).tipo).toBe('terminada')
+    expect(situacionDelTurno({ ...sinEmpezar, estado: 'entregada' }).tipo).toBe('recibida')
+  })
+
+  it('la espera aproximada: cuántos tiene antes por el promedio entre caja y caja', () => {
+    expect(minutosDeEspera(5, 90)).toBe(8)
+    expect(minutosDeEspera(10, 60)).toBe(10)
+    //  Sin promedio todavía (menos de 5 cajas), o sin nadie antes: nada.
+    expect(minutosDeEspera(5, null)).toBeNull()
+    expect(minutosDeEspera(0, 90)).toBeNull()
+  })
+
+  it('la espera en palabras: de 5 en 5 minutos, y "menos de 5" cuando es poco', () => {
+    const t = (clave, v = {}) =>
+      ({
+        'espera.menosDe5': 'menos de 5 min',
+        'espera.unos': `unos ${v.duracion}`,
+        'voluntarios.duracion.min': `${v.m} min`,
+        'voluntarios.duracion.h': `${v.h} h`,
+        'voluntarios.duracion.hMin': `${v.h} h ${v.m} min`,
+      })[clave]
+    expect(textoEspera(t, 0)).toBe('menos de 5 min')
+    expect(textoEspera(t, 3)).toBe('menos de 5 min')
+    expect(textoEspera(t, 23)).toBe('unos 25 min')
+    expect(textoEspera(t, 61)).toBe('unos 1 h')
+    expect(textoEspera(t, 76)).toBe('unos 1 h 15 min')
+  })
+
   it('entregar por número de turno, sin QR', async () => {
     supabase.rpc.mockResolvedValue({ data: [{ resultado: 'VALIDO', nombre: 'Turno 23', turno: 23 }], error: null })
     await expect(entregarTurno('23')).resolves.toMatchObject({ resultado: 'VALIDO', turno: 23 })
@@ -246,6 +285,16 @@ describe('el turno de la persona', () => {
     expect(supabase.rpc).toHaveBeenLastCalledWith('terminar_fila_a_pie', { p_terminada: false })
     supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: OTRA_FILA' } })
     await expect(terminarFilaAPie()).rejects.toThrow('OTRA_FILA')
+  })
+
+  it('empezar a entregar (sección 57), y deshacerlo', async () => {
+    supabase.rpc.mockResolvedValue({ data: true, error: null })
+    await expect(empezarFilaAPie()).resolves.toBe(true)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('empezar_fila_a_pie', { p_empezada: true })
+    await empezarFilaAPie(false)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('empezar_fila_a_pie', { p_empezada: false })
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'P0001: OTRA_FILA' } })
+    await expect(empezarFilaAPie()).rejects.toThrow('OTRA_FILA')
   })
 
   it('"ya recibió" gana a "te llamaron": si lo llamaron y después llegó, ya pasó', () => {

@@ -1019,7 +1019,7 @@
       },
       "turnos": {
         "titulo": "The walk-up line uses numbers",
-        "texto": "Above the camera you see the current number and the next ones. Scan their QR; if they don't have it but know their number, tap “Give out without QR”. If they're not here, tap “Did not show up”: the line moves on. If they arrive within a few minutes, give it out; if they took long, the scanner asks you and you tap “Void number”: they'll need a new one. For someone without a phone, use “Give a new number” in the panel. When you're done, tap “End today's line”."
+        "texto": "When you start, tap “Start handing out”. Above the camera you see the number now serving, with its buttons: “Give out without QR”, “Did not show up” and “Say it out loud”. Have a question? Tap “Help”, next to “Walk-up line”: there you will find the video on giving out numbers and what to do in each case."
       },
       "filaAPie": {
         "titulo": "Set up the walk-up line",
@@ -1835,7 +1835,17 @@
     "anulado": "Your number was voided because it was called and you weren't here. If you still want your groceries, get a new number: you'll wait from the end of the line.",
     "repetido": "This number was canceled because you already had another number.",
     "repetidoCon": "This number was canceled because you already had number {{turno}}.",
-    "repetidoAyuda": "Use the number you got first. If you do not have it, talk to a volunteer."
+    "repetidoAyuda": "Use the number you got first. If you do not have it, talk to a volunteer.",
+    "porEmpezar": "We have not started handing out food yet.",
+    "porEmpezarAyuda": "You will see it here when we start. Your phone rings when there are 3 people ahead of you and when it is your turn."
+  },
+  "espera": {
+    "tuya": "Approximate wait: {{tiempo}}",
+    "siSacasAhora": "If you take a number now, you would wait {{tiempo}}.",
+    "unos": "about {{duracion}}",
+    "menosDe5": "less than 5 min",
+    "aviso": "This is an average of how fast the line is moving today, not an exact time. It can change.",
+    "calculando": "The approximate wait shows up once a few boxes have been handed out."
   },
   "elegirFila": {
     "pregunta": "Which line are you in today?",
@@ -1911,7 +1921,246 @@
     },
     "anular": "Void",
     "codigoHasta": "Required until {{hora}}.",
-    "codigoYaNo": "Since {{hora}} today's code is no longer required: anyone can get a number with the QR."
+    "codigoYaNo": "Since {{hora}} today's code is no longer required: anyone can get a number with the QR.",
+    "empezar": {
+      "aunNo": "You have not started handing out yet: on their phones, people see “We have not started yet.”",
+      "boton": "Start handing out",
+      "solo": "If you forget, it starts on its own with the first box you hand out.",
+      "empezada": "Handing out started at {{hora}}.",
+      "deshacer": "Undo (not starting yet)"
+    }
+  },
+  "ayudaAPie": {
+    "abrir": "Help",
+    "abrirLargo": "Walk-up line help: video and what to do in each case",
+    "titulo": "Help: walk-up line",
+    "cerrar": "Back to the scanner",
+    "pestanas": {
+      "video": "Video",
+      "pasos": "Steps",
+      "casos": "Cases",
+      "palabras": "Words"
+    },
+    "verEnVideo": "See it in the video ({{tiempo}})",
+    "video": {
+      "titulo": "How to give out numbers in the walk-up line",
+      "ayuda": "About 9 minutes long, in Spanish. Tap a part to jump straight to it; you can pause it anytime.",
+      "partes": "Parts of the video",
+      "sinVideo": "The video couldn't load. Check your signal and try again."
+    },
+    "partes": {
+      "bienvenida": "Welcome",
+      "comoFunciona": "How the line works",
+      "tresCosas": "The three things every number has",
+      "pantalla": "Your screen",
+      "empezar": "Start handing out",
+      "entregar": "Giving out a box",
+      "equivocas": "If you make a mistake",
+      "sinQr": "They don't have their QR",
+      "noEsta": "You call them and they're not here",
+      "tarde": "They arrive late",
+      "dosTurnos": "They got two numbers",
+      "mismoNumero": "Two people say the same number",
+      "sinTelefono": "Someone without a phone",
+      "avisos": "Other messages",
+      "terminar": "When you finish",
+      "recordar": "To remember"
+    },
+    "pasos": {
+      "titulo": "A distribution day, step by step",
+      "lista": {
+        "elegir": {
+          "titulo": "Choose “Walk-up line”",
+          "texto": "Open “Scan”. The first time each day it asks which line you are in: tap “Walk-up line”. The screen has an orange stripe on top."
+        },
+        "empezar": {
+          "titulo": "Tap “Start handing out”",
+          "texto": "When you're ready to hand out. Until you tap it, people see “We haven't started yet” on their phones. If you forget, it starts by itself with the first box."
+        },
+        "llamar": {
+          "titulo": "Call the number now serving",
+          "texto": "It is above the camera, in large print. Say it loud, or tap “Say it out loud”."
+        },
+        "escanear": {
+          "titulo": "Scan their QR",
+          "texto": "Place it inside the square. You don't have to tap anything."
+        },
+        "color": {
+          "titulo": "Look at the color",
+          "texto": "Green: give them a box. Red: they already received, don't give another. Orange: read the screen before giving it out."
+        },
+        "siguiente": {
+          "titulo": "Go on with the next one",
+          "texto": "The line moves on by itself and the camera is ready. If you call a number and they're not here, tap “Did not show up”."
+        },
+        "terminar": {
+          "titulo": "At the end, “End today's line”",
+          "texto": "It is at the very bottom of the panel. Whoever is still waiting sees it on their phone."
+        }
+      }
+    },
+    "casos": {
+      "titulo": "What do I do if…?",
+      "ayuda": "Tap the question to see what to do.",
+      "ves": "What you see",
+      "haz": "What you do",
+      "dile": "What you tell them",
+      "lista": {
+        "sinQr": {
+          "pregunta": "They don't have their QR, but know their number",
+          "haz1": "If it is the number now serving, tap “Give out without QR”.",
+          "haz2": "If not, type their number in “Find a number”, below the camera, and tap the “i”.",
+          "haz3": "Ask for their CB code and compare it with the one on your screen. If they took a photo of their screen, it is there.",
+          "haz4": "If it matches, tap “Record delivery”."
+        },
+        "noEsta": {
+          "pregunta": "I call a number and they're not here",
+          "haz1": "Call it again.",
+          "haz2": "If nobody comes, tap “Did not show up”. The line moves on to the next one.",
+          "haz3": "That number stays below, in the list of those who didn't show up, with the time you called it."
+        },
+        "tarde": {
+          "pregunta": "They arrived late: I had already called them",
+          "ves": "When you scan their QR, it shows in orange what time you called them and how long ago. It isn't given out by itself.",
+          "haz1": "If it was a few minutes, tap “Give out anyway”.",
+          "haz2": "If more than 10 minutes went by, the orange button suggests “Void number”. It asks first, because it cannot be undone.",
+          "dile": "“Since you weren't here when we called you, your number was voided. Get a new one at the sign by the entrance and wait from the end of the line.”"
+        },
+        "dosTurnos": {
+          "pregunta": "They got two numbers",
+          "haz1": "They keep the first one they got, their original number. The other one is canceled, and they can no longer get another one from that phone.",
+          "haz2": "Find the extra number and tap the “i”.",
+          "haz3": "Tap “Got another number: cancel this one”, type which number they keep, and confirm.",
+          "haz4": "Canceled the wrong one? On that number, tap “Canceled by mistake: put it back in line”.",
+          "dile": "“You keep your first number. The other one no longer works.”"
+        },
+        "mismoNumero": {
+          "pregunta": "Two people say they have the same number",
+          "haz1": "Find that number and tap the “i”: their CB code is there.",
+          "haz2": "Ask each one for their code. The number belongs to whoever knows it.",
+          "haz3": "Don't show them your screen: the code is what proves whose number it is."
+        },
+        "sinTelefono": {
+          "pregunta": "Someone doesn't have a phone",
+          "haz1": "In the panel, tap “Give a new number”.",
+          "haz2": "If you like, type their name or a description (“Rosa, red jacket”) and tap “Give the number”.",
+          "haz3": "Tell them their number and code, and write them down on a piece of paper.",
+          "haz4": "When it is their turn, find them by number, or tap “ABC” and search by their description."
+        },
+        "equivoque": {
+          "pregunta": "I gave it to the wrong person",
+          "haz1": "Tap “Undo this delivery” within the first minute.",
+          "haz2": "Choose what happened and confirm. Their code works again.",
+          "haz3": "If the minute has passed, ask an administrator."
+        },
+        "porError": {
+          "pregunta": "I tapped “Did not show up” by mistake",
+          "haz1": "Go down to the list of those who didn't show up, in the panel.",
+          "haz2": "On that number, tap “Put back in line”. It becomes the number now serving again."
+        },
+        "antes": {
+          "pregunta": "They came before their number",
+          "ves": "It is given out, and the screen warns in orange that they went before their number.",
+          "haz1": "If they shouldn't go yet, tap “Undo this delivery” within the first minute."
+        },
+        "yaRecibio": {
+          "pregunta": "It showed red “Already received”",
+          "ves": "That code was already used today.",
+          "haz1": "Don't give them another box: one number is one box."
+        },
+        "anulado": {
+          "pregunta": "It showed “Number voided”",
+          "ves": "That number was voided because they weren't here when called. They can no longer receive with it.",
+          "haz1": "Don't give out with that number.",
+          "dile": "“Get a new number at the sign by the entrance and wait from the end of the line.”"
+        },
+        "otraFila": {
+          "pregunta": "It showed “Other line”",
+          "ves": "It is a code from the car line. It was not used.",
+          "haz1": "Send them to the car line: they get their box there."
+        },
+        "cartel": {
+          "pregunta": "It said it is the QR on the entrance sign",
+          "ves": "You scanned the sign, not the person's QR.",
+          "haz1": "Ask for the QR on their phone, or find them by number."
+        },
+        "sinSenal": {
+          "pregunta": "It showed “No signal”",
+          "ves": "The code couldn't be checked. The code may be fine.",
+          "haz1": "Don't turn the person away.",
+          "haz2": "Check your mobile data and tap “Check again”."
+        },
+        "camara": {
+          "pregunta": "The camera won't read or is stuck",
+          "haz1": "Tap “Restart camera”, inside the square.",
+          "haz2": "Meanwhile, find them by number in “Find a number”."
+        },
+        "noEmpieza": {
+          "pregunta": "People say their phone shows “We haven't started yet”",
+          "haz1": "Tap “Start handing out”, above the camera.",
+          "haz2": "If you already gave out a box, it started by itself: it changes for them in a few seconds."
+        },
+        "terminar": {
+          "pregunta": "We ran out of boxes",
+          "haz1": "Go to the bottom of the panel and tap “End today's line”.",
+          "haz2": "Confirm. Whoever is still waiting sees it on their phone.",
+          "haz3": "If it was a mistake, tap “Reopen the line” right there."
+        }
+      }
+    },
+    "palabras": {
+      "titulo": "Walk-up line words",
+      "lista": {
+        "turno": {
+          "palabra": "Number",
+          "significa": "Each person's place in line. Every adult gets their own. One number is one box."
+        },
+        "queVa": {
+          "palabra": "Now serving",
+          "significa": "The number whose turn it is. It is above the camera, in large print."
+        },
+        "qr": {
+          "palabra": "QR code",
+          "significa": "The little square you scan to give out. The walk-up one has a walking person in the middle; the car one, a car."
+        },
+        "cb": {
+          "palabra": "CB code",
+          "significa": "Four or five digits, like CB-48213. It proves the number belongs to that person. You see it when you tap a number's “i”."
+        },
+        "empezar": {
+          "palabra": "Start handing out",
+          "significa": "Lets everyone know it started: number 1's phone rings."
+        },
+        "noSePresento": {
+          "palabra": "Did not show up",
+          "significa": "You called them and they weren't here. The line moves on; if they come later, you decide whether to give out or void their number."
+        },
+        "regresar": {
+          "palabra": "Put back in line",
+          "significa": "Returns a number that did not show up to the line; for example, if you tapped “Did not show up” by mistake."
+        },
+        "anular": {
+          "palabra": "Void number",
+          "significa": "For someone who came very late. That number no longer works; they can get a new one and wait from the end. It cannot be undone."
+        },
+        "cancelar": {
+          "palabra": "Cancel a repeated number",
+          "significa": "For someone who got two numbers: they keep one and the other is canceled. They can no longer get another one from that phone."
+        },
+        "turnoNuevo": {
+          "palabra": "Give a new number",
+          "significa": "A number for someone without a phone. You give them their number and code on a piece of paper."
+        },
+        "terminar": {
+          "palabra": "End the line",
+          "significa": "At the end of the day. No more numbers are given, and whoever is waiting sees it on their phone. It can be reopened."
+        },
+        "colores": {
+          "palabra": "The colors",
+          "significa": "Green: give out. Red: don't give out. Orange: read the screen before giving out."
+        }
+      }
+    }
   },
   "filaAPieAdmin": {
     "titulo": "Walk-up line",

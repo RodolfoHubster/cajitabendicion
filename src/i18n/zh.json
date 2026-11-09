@@ -555,7 +555,17 @@
     "anulado": "叫到您时您不在，所以您的号已作废。如果您还想领食品，请重新取号：要从队尾开始排。",
     "repetido": "这个号已取消，因为您已经有另一个号了。",
     "repetidoCon": "这个号已取消，因为您已经有 {{turno}} 号了。",
-    "repetidoAyuda": "请用您先取的那个号。如果找不到，请找志愿者。"
+    "repetidoAyuda": "请用您先取的那个号。如果找不到，请找志愿者。",
+    "porEmpezar": "我们还没有开始发放。",
+    "porEmpezarAyuda": "开始以后，这里会显示。前面还剩 3 个人和轮到您的时候，手机会响。"
+  },
+  "espera": {
+    "tuya": "预计等待：{{tiempo}}",
+    "siSacasAhora": "如果现在取号，预计要等{{tiempo}}。",
+    "unos": "{{duracion}}左右",
+    "menosDe5": "不到 5 分钟",
+    "aviso": "这是按今天队伍的速度算出的平均值，不是准确时间，可能会变。",
+    "calculando": "发出几个食品箱以后，才会显示预计等待时间。"
   },
   "acompanante": {
     "titulo": "您怎么来？",

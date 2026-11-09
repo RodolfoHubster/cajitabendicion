@@ -27,6 +27,29 @@ el registro abre a la hora que diga el pastor, por lo general 9:00 AM).
 Sin datos no se puede impedir del todo que alguien saque dos turnos (con dos
 teléfonos, o borrando el navegador). La regla de fondo sigue: un QR, una caja.
 
+### La ayuda en el escáner (9 de noviembre de 2026)
+
+En el escáner, con «Fila a pie» elegida, junto a la fila sale el botón
+**«Ayuda»**. Abre, encima del escáner, cuatro pestañas: el **video** de cómo
+dar turnos (unos 9 minutos, por partes: se toca una y va directo), **un día
+de entrega paso a paso**, **«¿Qué hago si…?»** (sin QR, no está, llegó tarde,
+sacó dos turnos, mismo número, sin teléfono, los avisos de color…) y las
+**palabras** de la fila a pie. Cada caso lleva a su parte del video. La fila
+de carros no la tiene: ahí es escanear y ya.
+
+- Pantalla: `componentes/AyudaFilaAPie.jsx`; partes del video, pasos, casos y
+  palabras: `datos/ayudaFilaAPie.js` (textos en `ayudaAPie`, en español,
+  inglés y vietnamita).
+- El video: `public/medios/guia-fila-a-pie.mp4` y su portada
+  `guia-fila-a-pie.jpg`. Se hizo con las pantallas de verdad de la app de
+  pruebas, contestadas con una fila de ejemplo (nada tocó la base), y la voz
+  de computadora es-MX-DaliaNeural. El generador está fuera del repo, en
+  `CajitaBendicion/video-turnos-a-pie/` (`LEEME.md`). Si cambia la fila a
+  pie, se ajusta el guion, se vuelve a grabar y se cambian en
+  `datos/ayudaFilaAPie.js` los segundos en que empieza cada parte.
+- La guía del panel (versión 9) vuelve a enseñar el paso de los turnos como
+  novedad, ahora con «Empezar a entregar» y dónde está la ayuda.
+
 ---
 
 ## Antes (28 de septiembre): fila a pie con registro

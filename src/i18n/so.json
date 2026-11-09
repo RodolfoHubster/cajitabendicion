@@ -559,7 +559,17 @@
     "anulado": "Lambarkaaga waa la tirtiray: waa lagu yeeray mana joogin. Haddii aad wali cuntada u baahan tahay, qaado lambar cusub: safka dabadiisa ayaad ka sugi doontaa.",
     "repetido": "Lambarkan waa la joojiyay sababtoo ah horay ayaad lambar kale u lahayd.",
     "repetidoCon": "Lambarkan waa la joojiyay sababtoo ah horay ayaad u lahayd lambarka {{turno}}.",
-    "repetidoAyuda": "Isticmaal lambarka aad marka hore qaadatay. Haddii aadan haysan, la hadal tabaruce."
+    "repetidoAyuda": "Isticmaal lambarka aad marka hore qaadatay. Haddii aadan haysan, la hadal tabaruce.",
+    "porEmpezar": "Weli ma bilaabin qaybinta.",
+    "porEmpezarAyuda": "Halkan ayaad ku arki doontaa marka aan bilowno. Taleefankaagu wuu dhawaaqi doonaa marka 3 qof kaa horreeyaan iyo marka kaalintaadu timaado."
+  },
+  "espera": {
+    "tuya": "Sugitaanka qiyaasta ah: {{tiempo}}",
+    "siSacasAhora": "Haddii aad hadda lambar qaadato, waxaad sugi doontaa {{tiempo}}.",
+    "unos": "qiyaastii {{duracion}}",
+    "menosDe5": "wax ka yar 5 daqiiqo",
+    "aviso": "Waa celcelis ku saleysan sida safku maanta u socdo, ma aha waqti sax ah. Wuu isbeddeli karaa.",
+    "calculando": "Sugitaanka qiyaasta ah wuxuu soo muuqan doonaa marka dhowr sanduuq la bixiyo."
   },
   "acompanante": {
     "titulo": "Sidee u imanaysaa?",

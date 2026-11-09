@@ -1019,7 +1019,7 @@
       },
       "turnos": {
         "titulo": "La fila a pie va por turnos",
-        "texto": "Arriba de la cámara ves el turno que va y los que siguen. Escanea su QR; si no lo trae pero sabe su número, toca «Entregar sin QR». Si no está, toca «No se presentó»: la fila sigue. Si llega a los pocos minutos, se le entrega; si tardó mucho, el escáner te pregunta y tocas «Anular turno»: tendrá que sacar uno nuevo. A quien no tiene teléfono, dale «Turno nuevo» en el panel. Al acabar, toca «Terminar la fila de hoy»."
+        "texto": "Al empezar, toca «Empezar a entregar». Arriba de la cámara ves el turno que va, con sus botones: «Entregar sin QR», «No se presentó» y «Decirlo en voz alta». ¿Tienes una duda? Toca «Ayuda», junto a «Fila a pie»: ahí está el video de cómo dar turnos y qué hacer en cada caso."
       },
       "filaAPie": {
         "titulo": "Armar la fila a pie",
@@ -1835,7 +1835,17 @@
     "anulado": "Tu turno se anuló porque te llamaron y no estabas. Si todavía quieres tu despensa, saca un turno nuevo: esperarás desde el final de la fila.",
     "repetido": "Este turno se canceló porque ya tenías otro turno.",
     "repetidoCon": "Este turno se canceló porque ya tenías el turno {{turno}}.",
-    "repetidoAyuda": "Usa el turno que sacaste primero. Si no lo tienes, habla con una voluntaria."
+    "repetidoAyuda": "Usa el turno que sacaste primero. Si no lo tienes, habla con una voluntaria.",
+    "porEmpezar": "Todavía no empezamos a entregar.",
+    "porEmpezarAyuda": "Aquí vas a ver cuando empecemos. Tu teléfono suena cuando falten 3 antes que tú y cuando te toque."
+  },
+  "espera": {
+    "tuya": "Espera aproximada: {{tiempo}}",
+    "siSacasAhora": "Si sacas turno ahora, esperarías {{tiempo}}.",
+    "unos": "unos {{duracion}}",
+    "menosDe5": "menos de 5 min",
+    "aviso": "Es un promedio de cómo va la fila hoy, no una hora exacta. Puede cambiar.",
+    "calculando": "La espera aproximada aparece cuando ya se hayan entregado algunas cajas."
   },
   "elegirFila": {
     "pregunta": "¿En qué fila estás hoy?",
@@ -1911,7 +1921,246 @@
     },
     "anular": "Anular",
     "codigoHasta": "Se pide hasta las {{hora}}.",
-    "codigoYaNo": "Desde las {{hora}} ya no se pide el código del día: cualquiera saca turno con el QR."
+    "codigoYaNo": "Desde las {{hora}} ya no se pide el código del día: cualquiera saca turno con el QR.",
+    "empezar": {
+      "aunNo": "Todavía no empiezas a entregar: en su teléfono, la gente ve «Todavía no empezamos».",
+      "boton": "Empezar a entregar",
+      "solo": "Si se te olvida, la entrega empieza sola con la primera caja que entregues.",
+      "empezada": "La entrega empezó a las {{hora}}.",
+      "deshacer": "Deshacer (todavía no empiezo)"
+    }
+  },
+  "ayudaAPie": {
+    "abrir": "Ayuda",
+    "abrirLargo": "Ayuda de la fila a pie: video y qué hacer en cada caso",
+    "titulo": "Ayuda: fila a pie",
+    "cerrar": "Volver al escáner",
+    "pestanas": {
+      "video": "Video",
+      "pasos": "Pasos",
+      "casos": "Casos",
+      "palabras": "Palabras"
+    },
+    "verEnVideo": "Ver en el video ({{tiempo}})",
+    "video": {
+      "titulo": "Cómo dar turnos en la fila a pie",
+      "ayuda": "Dura unos 9 minutos. Toca una parte para ir directo a ella; puedes pausarlo cuando quieras.",
+      "partes": "Partes del video",
+      "sinVideo": "No se pudo cargar el video. Revisa tu señal y vuelve a intentar."
+    },
+    "partes": {
+      "bienvenida": "Bienvenida",
+      "comoFunciona": "Cómo funciona la fila",
+      "tresCosas": "Las tres cosas de cada turno",
+      "pantalla": "Tu pantalla",
+      "empezar": "Empezar a entregar",
+      "entregar": "Entregar una caja",
+      "equivocas": "Si te equivocas",
+      "sinQr": "No trae su QR",
+      "noEsta": "Lo llamas y no está",
+      "tarde": "Llega tarde",
+      "dosTurnos": "Sacó dos turnos",
+      "mismoNumero": "Dos dicen el mismo número",
+      "sinTelefono": "Alguien sin teléfono",
+      "avisos": "Otros avisos",
+      "terminar": "Al terminar",
+      "recordar": "Para recordar"
+    },
+    "pasos": {
+      "titulo": "Un día de entrega, paso a paso",
+      "lista": {
+        "elegir": {
+          "titulo": "Elige «Fila a pie»",
+          "texto": "Abre «Escanear». La primera vez del día te pregunta en qué fila estás: toca «Fila a pie». La pantalla tiene una raya naranja arriba."
+        },
+        "empezar": {
+          "titulo": "Toca «Empezar a entregar»",
+          "texto": "Cuando ya vayas a entregar. Mientras no lo toques, en su teléfono la gente ve «Todavía no empezamos». Si se te olvida, empieza sola con la primera caja."
+        },
+        "llamar": {
+          "titulo": "Llama el turno que va",
+          "texto": "Está arriba de la cámara, en grande. Dilo fuerte, o toca «Decirlo en voz alta»."
+        },
+        "escanear": {
+          "titulo": "Escanea su QR",
+          "texto": "Ponlo dentro del cuadro. No tienes que tocar nada."
+        },
+        "color": {
+          "titulo": "Fíjate en el color",
+          "texto": "Verde: dale una caja. Rojo: ya recibió, no le des otra. Naranja: lee lo que dice la pantalla antes de entregar."
+        },
+        "siguiente": {
+          "titulo": "Sigue con el siguiente",
+          "texto": "La fila avanza sola y la cámara queda lista. Si llamas un número y no está, toca «No se presentó»."
+        },
+        "terminar": {
+          "titulo": "Al final, «Terminar la fila de hoy»",
+          "texto": "Está hasta abajo del panel. Quien todavía espera lo ve en su teléfono."
+        }
+      }
+    },
+    "casos": {
+      "titulo": "¿Qué hago si…?",
+      "ayuda": "Toca la pregunta para ver qué hacer.",
+      "ves": "Lo que ves",
+      "haz": "Qué haces",
+      "dile": "Qué le dices",
+      "lista": {
+        "sinQr": {
+          "pregunta": "No trae su QR, pero sabe su número",
+          "haz1": "Si es el turno que va, toca «Entregar sin QR».",
+          "haz2": "Si no, escribe su número en «Buscar un turno», debajo de la cámara, y toca la «i».",
+          "haz3": "Pídele su código CB y compáralo con el de tu pantalla. Si le tomó foto a su pantalla, ahí lo tiene.",
+          "haz4": "Si coincide, toca «Registrar entrega»."
+        },
+        "noEsta": {
+          "pregunta": "Llamo un número y no está",
+          "haz1": "Llámalo otra vez.",
+          "haz2": "Si no aparece, toca «No se presentó». La fila sigue con el siguiente.",
+          "haz3": "Ese turno queda abajo, en la lista de los que no se presentaron, con la hora en que lo llamaste."
+        },
+        "tarde": {
+          "pregunta": "Llegó tarde: ya lo había llamado",
+          "ves": "Al escanear su QR sale en naranja a qué hora lo llamaste y hace cuánto. No se entrega solo.",
+          "haz1": "Si fueron unos minutos, toca «Entregar de todos modos».",
+          "haz2": "Si pasaron más de 10 minutos, el botón naranja te sugiere «Anular turno». Te pregunta antes, porque no se deshace.",
+          "dile": "«Como no estabas cuando te llamamos, tu turno se anuló. Saca uno nuevo en el cartel de la entrada y espera desde el final.»"
+        },
+        "dosTurnos": {
+          "pregunta": "Sacó dos turnos",
+          "haz1": "Se queda con el primero que sacó, su turno original. El otro se cancela, y desde ese teléfono ya no puede sacar otro.",
+          "haz2": "Busca el turno que sobra y toca la «i».",
+          "haz3": "Toca «Sacó otro turno: cancelar este», escribe con qué turno se queda y confirma.",
+          "haz4": "¿Cancelaste el que no era? En ese turno toca «Se canceló por error: regresarlo a la fila».",
+          "dile": "«Te quedas con tu primer turno. El otro ya no sirve.»"
+        },
+        "mismoNumero": {
+          "pregunta": "Dos personas dicen que tienen el mismo número",
+          "haz1": "Busca ese número y toca la «i»: ahí está su código CB.",
+          "haz2": "Pídele a cada una su código. El turno es de quien lo sabe.",
+          "haz3": "No les enseñes tu pantalla: el código es lo que prueba de quién es el turno."
+        },
+        "sinTelefono": {
+          "pregunta": "Alguien no tiene teléfono",
+          "haz1": "En el panel, toca «Dar turno nuevo».",
+          "haz2": "Si quieres, escribe su nombre o una seña («Rosa, chamarra roja») y toca «Dar el turno».",
+          "haz3": "Dile su número y su código, y apúntaselos en un papel.",
+          "haz4": "Cuando le toque, búscalo por su número, o toca «ABC» y búscalo por su seña."
+        },
+        "equivoque": {
+          "pregunta": "Le entregué a quien no era",
+          "haz1": "Toca «Deshacer esta entrega» en el primer minuto.",
+          "haz2": "Escoge qué pasó y confirma. Su código vuelve a servir.",
+          "haz3": "Si ya pasó el minuto, pídeselo a un administrador."
+        },
+        "porError": {
+          "pregunta": "Toqué «No se presentó» por error",
+          "haz1": "Baja a la lista de los que no se presentaron, en el panel.",
+          "haz2": "En ese turno toca «Regresar a la fila». Vuelve a ser el turno que va."
+        },
+        "antes": {
+          "pregunta": "Llegó antes de su turno",
+          "ves": "Se le entrega, y la pantalla avisa en naranja que pasó antes de su turno.",
+          "haz1": "Si no debía pasar todavía, toca «Deshacer esta entrega» en el primer minuto."
+        },
+        "yaRecibio": {
+          "pregunta": "Salió en rojo «Ya recibió»",
+          "ves": "Ese código ya se usó hoy.",
+          "haz1": "No le des otra caja: un turno es una caja."
+        },
+        "anulado": {
+          "pregunta": "Salió «Turno anulado»",
+          "ves": "Ese turno se anuló porque no estaba cuando lo llamaron. Ya no puede recibir con él.",
+          "haz1": "No le entregues con ese turno.",
+          "dile": "«Saca un turno nuevo en el cartel de la entrada y espera desde el final.»"
+        },
+        "otraFila": {
+          "pregunta": "Salió «Otra fila»",
+          "ves": "Es un código de la fila de carros. No se gastó.",
+          "haz1": "Mándalo a la fila de carros: ahí le entregan su caja."
+        },
+        "cartel": {
+          "pregunta": "Salió que es el QR del cartel de la entrada",
+          "ves": "Escaneaste el cartel, no el QR de la persona.",
+          "haz1": "Pídele el QR que tiene en su teléfono, o búscalo por su número."
+        },
+        "sinSenal": {
+          "pregunta": "Salió «Sin señal»",
+          "ves": "No se pudo revisar el código. El código puede estar bien.",
+          "haz1": "No rechaces a la persona.",
+          "haz2": "Revisa tus datos móviles y toca «Volver a revisar»."
+        },
+        "camara": {
+          "pregunta": "La cámara no lee o se trabó",
+          "haz1": "Toca «Reiniciar cámara», dentro del cuadro.",
+          "haz2": "Mientras, búscalo por su número en «Buscar un turno»."
+        },
+        "noEmpieza": {
+          "pregunta": "La gente dice que su teléfono dice «Todavía no empezamos»",
+          "haz1": "Toca «Empezar a entregar», arriba de la cámara.",
+          "haz2": "Si ya entregaste una caja, ya empezó sola: en unos segundos les cambia."
+        },
+        "terminar": {
+          "pregunta": "Se acabaron las cajas",
+          "haz1": "Baja hasta el final del panel y toca «Terminar la fila de hoy».",
+          "haz2": "Confirma. Quien todavía espera lo ve en su teléfono.",
+          "haz3": "Si fue un error, ahí mismo toca «Volver a abrir la fila»."
+        }
+      }
+    },
+    "palabras": {
+      "titulo": "Palabras de la fila a pie",
+      "lista": {
+        "turno": {
+          "palabra": "Turno",
+          "significa": "El número de cada persona en la fila. Cada adulto saca el suyo. Un turno es una caja."
+        },
+        "queVa": {
+          "palabra": "Turno que va",
+          "significa": "El que toca ahora. Está arriba de la cámara, en grande."
+        },
+        "qr": {
+          "palabra": "Código QR",
+          "significa": "El cuadrito que escaneas para entregar. El de la fila a pie trae una persona caminando en medio; el de carros, un carro."
+        },
+        "cb": {
+          "palabra": "Código CB",
+          "significa": "Cuatro o cinco números, como CB-48213. Prueba que el turno es de esa persona. Lo ves al tocar la «i» de un turno."
+        },
+        "empezar": {
+          "palabra": "Empezar a entregar",
+          "significa": "Avisa a todos que ya empezó la entrega: al turno 1 le suena su teléfono."
+        },
+        "noSePresento": {
+          "palabra": "No se presentó",
+          "significa": "Lo llamaste y no estaba. La fila sigue; si llega después, decides si le entregas o anulas su turno."
+        },
+        "regresar": {
+          "palabra": "Regresar a la fila",
+          "significa": "Devuelve a la fila un turno que no se presentó; por ejemplo, si tocaste «No se presentó» por error."
+        },
+        "anular": {
+          "palabra": "Anular turno",
+          "significa": "Para quien llegó muy tarde. Ese turno ya no sirve; puede sacar uno nuevo y esperar desde el final. No se deshace."
+        },
+        "cancelar": {
+          "palabra": "Cancelar un turno repetido",
+          "significa": "Para quien sacó dos turnos: se queda con uno y el otro se cancela. Desde ese teléfono ya no puede sacar otro."
+        },
+        "turnoNuevo": {
+          "palabra": "Dar turno nuevo",
+          "significa": "Un turno para quien no tiene teléfono. Le das su número y su código en un papel."
+        },
+        "terminar": {
+          "palabra": "Terminar la fila",
+          "significa": "Al final del día. Ya no se dan turnos, y quien espera lo ve en su teléfono. Se puede volver a abrir."
+        },
+        "colores": {
+          "palabra": "Los colores",
+          "significa": "Verde: entrega. Rojo: no entregues. Naranja: lee la pantalla antes de entregar."
+        }
+      }
+    }
   },
   "filaAPieAdmin": {
     "titulo": "Fila a pie",

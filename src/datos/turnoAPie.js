@@ -145,6 +145,7 @@ export function avisoQueToca(anterior, actual) {
   if (!anterior || !actual) return null
   if (actual.tipo === 'tuTurno' && anterior.tipo !== 'tuTurno') return 'turno'
   const cerca = (situacion) => situacion?.tipo === 'esperando' && situacion.antes <= FALTAN_PARA_AVISAR
-  if (cerca(actual) && !cerca(anterior) && anterior.tipo === 'esperando') return 'cerca'
+  //  Tambien al empezar la entrega, si ya estaba entre los primeros (seccion 57).
+  if (cerca(actual) && !cerca(anterior) && ['esperando', 'porEmpezar'].includes(anterior.tipo)) return 'cerca'
   return null
 }

@@ -20,6 +20,8 @@ import { supabase } from '../lib/supabase'
 //  presento" ya no pierde el turno.
 //  16 de octubre de 2026 (version 7): llegar tarde ya no vale para siempre
 //  (anular turno) y la busqueda de turnos en vivo debajo de la camara.
+//  9 de noviembre de 2026 (version 9): "Empezar a entregar" y la ayuda de la
+//  fila a pie en el escaner (el video y que hacer en cada caso).
 export const PASOS_GUIA = [
   { clave: 'bienvenida', desde: 1 },
   { clave: 'menu', desde: 5, conMenu: true },
@@ -30,7 +32,7 @@ export const PASOS_GUIA = [
   //  28 de septiembre de 2026: la fila a pie por turnos.
   { clave: 'elegirFila', desde: 2, seccion: 'escanear' },
   { clave: 'dosQr', desde: 2, seccion: 'escanear' },
-  { clave: 'turnos', desde: 7, seccion: 'escanear' },
+  { clave: 'turnos', desde: 9, seccion: 'escanear' },
   { clave: 'sinCita', desde: 1, seccion: 'escanear', permiso: 'anotar_sin_cita' },
   { clave: 'citasHoy', desde: 1, seccion: 'citasHoy' },
   { clave: 'registrar', desde: 5, seccion: 'registrar' },

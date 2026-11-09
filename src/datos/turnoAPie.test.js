@@ -164,4 +164,11 @@ describe('cuándo sonar y vibrar', () => {
     expect(avisoQueToca(null, { tipo: 'tuTurno' })).toBeNull()
     expect(avisoQueToca(null, esperando(1))).toBeNull()
   })
+
+  it('al empezar la entrega (sección 57): suena si ya estaba entre los primeros, y al del 1 su turno', () => {
+    const porEmpezar = (antes) => ({ tipo: 'porEmpezar', antes })
+    expect(avisoQueToca(porEmpezar(2), esperando(2))).toBe('cerca')
+    expect(avisoQueToca(porEmpezar(0), { tipo: 'tuTurno' })).toBe('turno')
+    expect(avisoQueToca(porEmpezar(6), esperando(6))).toBeNull()
+  })
 })

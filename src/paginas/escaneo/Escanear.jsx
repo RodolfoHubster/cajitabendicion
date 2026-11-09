@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
-import { LuArrowLeftRight, LuKeyRound, LuLayers, LuLogIn, LuRefreshCw, LuShieldCheck } from 'react-icons/lu'
+import { LuArrowLeftRight, LuCircleHelp, LuKeyRound, LuLayers, LuLogIn, LuRefreshCw, LuShieldCheck } from 'react-icons/lu'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import AyudaFilaAPie from '../../componentes/AyudaFilaAPie'
 import Boton from '../../componentes/Boton'
 import BuscarTurno from '../../componentes/BuscarTurno'
 import CajasDeHoy from '../../componentes/CajasDeHoy'
@@ -35,7 +36,15 @@ import {
   verCita,
   verPase,
 } from '../../datos/escaneo'
-import { anularTurno, elegirFila, entregarTurno, miFilaDeHoy, saltarTurno, turnoAdelantado } from '../../datos/filaAPie'
+import {
+  anularTurno,
+  elegirFila,
+  empezarFilaAPie,
+  entregarTurno,
+  miFilaDeHoy,
+  saltarTurno,
+  turnoAdelantado,
+} from '../../datos/filaAPie'
 import { esDeOtraFila, filaDe, miFila } from '../../datos/filas'
 import { hoyLocal } from '../../datos/panel'
 import { PUEDE_PASAR, avisoDelResultado, avisoLeido, prepararSonido, sonarAunEnSilencio } from '../../datos/sonido'
@@ -112,6 +121,8 @@ export default function Escanear() {
   const [eligiendo, setEligiendo] = useState(false)
   const [errorFila, setErrorFila] = useState(null)
   const [preguntaCambio, setPreguntaCambio] = useState(false)
+  //  A pie: la ayuda (el video y que hacer en cada caso), encima del escaner.
+  const [ayuda, setAyuda] = useState(false)
   const fila = filaHoy ?? asignada
   const cargandoFila = filaHoy === undefined && !sinEleccion
   const debeElegir = filaHoy === null && !sinEleccion
@@ -228,6 +239,21 @@ export default function Escanear() {
     setError(null)
     try {
       await saltarTurno(turno)
+      setVersionTurnos((n) => n + 1)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setOcupado(false)
+    }
+  }
+
+  //  "Empezar a entregar" en la fila a pie (seccion 57): quien espera lo ve
+  //  en su telefono. Con false se deshace, si se toco antes de tiempo.
+  async function empezarEntrega(empezada = true) {
+    setOcupado(true)
+    setError(null)
+    try {
+      await empezarFilaAPie(empezada)
       setVersionTurnos((n) => n + 1)
     } catch (e) {
       setError(e.message)
@@ -521,6 +547,7 @@ export default function Escanear() {
         {/* A la vista siempre: si alguien se para en la fila equivocada, lo ve aqui. */}
         {listo && (
           <FilaActual
+            alAyuda={fila === 'a_pie' ? () => setAyuda(true) : null}
             alCambiar={sinEleccion ? null : () => setPreguntaCambio(true)}
             fila={fila}
           />
@@ -568,7 +595,13 @@ export default function Escanear() {
         {/* A pie, el turno que va queda siempre encima de la camara, con sus
             botones: se grita, se escanea o se entrega sin QR sin bajar al panel. */}
         {listo && fila === 'a_pie' && vista !== 'manual' && (
-          <TurnoQueVa alEntregar={entregarPorTurno} alSaltar={saltarDesdeTira} datos={datosTurnos} ocupado={ocupado} />
+          <TurnoQueVa
+            alEmpezar={empezarEntrega}
+            alEntregar={entregarPorTurno}
+            alSaltar={saltarDesdeTira}
+            datos={datosTurnos}
+            ocupado={ocupado}
+          />
         )}
 
         {listo && fila === 'a_pie' && error && (vista === 'camara' || vista === 'resultado') && avisoError}
@@ -980,6 +1013,8 @@ export default function Escanear() {
           </Tarjeta>
         )}
       </div>
+
+      {ayuda && <AyudaFilaAPie alCerrar={() => setAyuda(false)} />}
     </div>
   )
 }
@@ -1050,8 +1085,11 @@ function AvisoEspecial({ previa, alReintentar, alEntrar }) {
   )
 }
 
-/** "Escaneas en: Fila de carros", con su icono, y el boton para cambiarse. */
-function FilaActual({ fila, alCambiar }) {
+/**
+ * "Escaneas en: Fila de carros", con su icono, y el boton para cambiarse. A
+ * pie, tambien "Ayuda": el video y que hacer en cada caso.
+ */
+function FilaActual({ fila, alCambiar, alAyuda }) {
   const { t } = useTranslation()
   const Icono = ICONO_FILA[fila] ?? LuLayers
 
@@ -1073,6 +1111,17 @@ function FilaActual({ fila, alCambiar }) {
         >
           <LuArrowLeftRight aria-hidden="true" className="h-4 w-4" />
           {t('elegirFila.cambiar')}
+        </button>
+      )}
+      {alAyuda && (
+        <button
+          aria-label={t('ayudaAPie.abrirLargo')}
+          className="ml-auto inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-accion bg-superficie px-3 text-base font-bold text-principal transition hover:bg-accion/10"
+          onClick={alAyuda}
+          type="button"
+        >
+          <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+          {t('ayudaAPie.abrir')}
         </button>
       )}
     </div>

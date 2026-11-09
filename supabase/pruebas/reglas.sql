@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-11-05-ya-viniste-antes.sql.
+--  Requiere todas las migraciones, hasta 2026-11-05-empezar-y-espera.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -2820,11 +2820,30 @@ begin
       select c.turno::text || ' ' || (c.turno_saltado_en is null)::text into v_texto from citas c where c.id = v_cita;
       perform pg_temp.comprobar('Fila a pie: al pasar a otra fila a pie toma el turno que sigue allá', v_texto = '1 true', v_texto);
 
-      --  Lo que ve la persona.
+      --  Lo que ve la persona. Antes de empezar a entregar no va ningún
+      --  turno (sección 57): salía "va el 1" y al del 1 le sonaba.
+      select * into v_fila from turno_de_cita(v_token_pie);
+      perform pg_temp.comprobar('Empezar a entregar: antes de empezar no va ningún turno, pero sabe cuántos tiene antes',
+        v_fila.turno = 2 and v_fila.actual is null and v_fila.antes = 1 and not v_fila.empezada,
+        format('turno %s, va %s, antes %s, empezada %s', v_fila.turno, v_fila.actual, v_fila.antes, v_fila.empezada));
+      perform pg_temp.comprobar('Empezar a entregar: la fila en vivo tampoco dice que va el 1',
+        (select f.actual is null and not f.empezada and f.en_espera = 3 from fila_a_pie_en_vivo() f));
+      perform pg_temp.comprobar('Empezar a entregar: la voluntaria sí ve a quién llamar primero, y que no ha empezado',
+        (fila_de_turnos(v_hoy)->'actual'->>'turno')::int = 1 and not (fila_de_turnos(v_hoy)->>'empezada')::boolean);
+      perform pg_temp.comprobar('Empezar a entregar: la voluntaria toca el botón', empezar_fila_a_pie());
       select * into v_fila from turno_de_cita(v_token_pie);
       perform pg_temp.comprobar('Fila a pie: la persona ve qué turno va y cuántos tiene antes',
-        v_fila.turno = 2 and v_fila.actual = 1 and v_fila.antes = 1 and v_fila.en_espera = 3 and not v_fila.saltado,
+        v_fila.turno = 2 and v_fila.actual = 1 and v_fila.antes = 1 and v_fila.en_espera = 3 and not v_fila.saltado
+        and v_fila.empezada,
         format('turno %s, va %s, antes %s, esperando %s', v_fila.turno, v_fila.actual, v_fila.antes, v_fila.en_espera));
+      perform pg_temp.comprobar('Empezar a entregar: la voluntaria ve a qué hora empezó, y que fue con el botón',
+        (fila_de_turnos(v_hoy)->>'empezada')::boolean and fila_de_turnos(v_hoy)->>'empezo_en' ~ '^\d\d:\d\d:\d\d$'
+        and (fila_de_turnos(v_hoy)->>'empezada_a_mano')::boolean,
+        fila_de_turnos(v_hoy)->>'empezo_en');
+      perform pg_temp.comprobar('Empezar a entregar: se deshace si se tocó antes de tiempo', not empezar_fila_a_pie(false));
+      perform pg_temp.comprobar('Empezar a entregar: deshecho, otra vez no va nadie',
+        (select t.actual is null and not t.empezada from turno_de_cita(v_token_pie) t));
+      perform empezar_fila_a_pie();
       select count(*) into v_numero from turno_de_cita('no-existe');
       perform pg_temp.comprobar('Fila a pie: un código que no existe no dice nada', v_numero = 0, v_numero::text);
       select count(*) into v_numero from turno_de_cita((select c.token_qr from citas c join personas p on p.id = c.persona_id
@@ -3390,6 +3409,7 @@ begin
 
       --  Terminar la fila: quien todavía espera lo ve.
       perform pg_temp.esperar_error('Terminar la fila: sin sesión no se puede', 'select terminar_fila_a_pie()', 'SIN_SESION');
+      perform pg_temp.esperar_error('Empezar a entregar: sin sesión no se puede', 'select empezar_fila_a_pie()', 'SIN_SESION');
       perform set_config('request.jwt.claim.sub', v_admin::text, true);
       perform elegir_fila('a_pie');
       perform pg_temp.comprobar('Terminar la fila: la voluntaria de la fila a pie la termina', terminar_fila_a_pie());
@@ -3446,6 +3466,8 @@ begin
         'select * from entregar_turno(1)', 'OTRA_FILA');
       perform pg_temp.esperar_error('Terminar la fila: quien escanea en carros no la termina',
         'select terminar_fila_a_pie()', 'OTRA_FILA');
+      perform pg_temp.esperar_error('Empezar a entregar: quien escanea en carros no la empieza',
+        'select empezar_fila_a_pie()', 'OTRA_FILA');
       select count(*) into v_numero from lista_para_escaneo() l where l.fecha <> v_hoy;
       perform pg_temp.comprobar('Lista del escáner: solo la gente de hoy', v_numero = 0, v_numero::text);
       select count(*) into v_numero from lista_para_escaneo() l where l.estado = 'cancelada';
@@ -4038,6 +4060,60 @@ begin
       and has_function_privilege('anon', 'abrir_mis_datos(text, text)', 'execute'));
   exception when others then
     perform pg_temp.comprobar('Ya viniste antes: las pruebas corrieron completas', false, sqlerrm);
+  end;
+
+  -- ==========================================================
+  --  57. La fila a pie: empezar a entregar y la espera aproximada
+  -- ==========================================================
+  declare
+    v_r_dia   date := v_lunes + 119;
+    v_r_b     uuid;
+    v_r_p     uuid;
+    v_r_citas uuid[] := '{}';
+    v_r_t0    timestamptz := now() - interval '2 hours';
+    v_r_i     int;
+  begin
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado, a_pie_abre_en)
+    values (v_r_dia, now() - interval '1 day', 'RITMO57', now() - interval '1 day');
+    insert into bloques (fecha, hora, capacidad, fila) values (v_r_dia, '14:00', 50, 'a_pie') returning id into v_r_b;
+    for v_r_i in 1..12 loop
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono)
+      values (format('CB-RT%s', lpad(v_r_i::text, 2, '0')), format('Ritmo Prueba %s', v_r_i), 'Ritmo', format('Prueba %s', v_r_i),
+              format('+16195551%s', lpad(v_r_i::text, 3, '0')))
+      returning id into v_r_p;
+      v_r_citas := v_r_citas || (reservar_cita(v_r_p, v_r_b)).id;
+    end loop;
+
+    perform pg_temp.comprobar('Empezar a entregar: con turnos dados pero nada entregado, la fila no ha empezado',
+      fila_empezo_en(v_r_b) is null);
+
+    --  Cuatro cajas: a los 0, 60, 150 y 240 segundos.
+    update citas set estado = 'entregada', usado_en = v_r_t0 + make_interval(secs => x.s)
+      from (select unnest(v_r_citas[1:4]) as id, unnest(array[0, 60, 150, 240]) as s) x
+     where citas.id = x.id;
+    perform pg_temp.comprobar('Empezar a entregar: sin tocar el botón, empieza sola con la primera caja',
+      fila_empezo_en(v_r_b) = v_r_t0, fila_empezo_en(v_r_b)::text);
+    perform pg_temp.comprobar('Espera aproximada: con menos de 5 cajas todavía no se calcula',
+      ritmo_de_la_fila(v_r_b) is null, ritmo_de_la_fila(v_r_b)::text);
+
+    update citas set estado = 'entregada', usado_en = v_r_t0 + interval '300 seconds' where id = v_r_citas[5];
+    perform pg_temp.comprobar('Espera aproximada: el promedio entre una caja y la siguiente (300 s entre 4 = 75 s)',
+      ritmo_de_la_fila(v_r_b) = 75, ritmo_de_la_fila(v_r_b)::text);
+
+    --  Dos cajas, una pausa larga, y luego diez cajas cada minuto.
+    update citas set estado = 'entregada', usado_en = v_r_t0 + make_interval(secs => 2000 + 60 * (x.n - 3))
+      from (select v_r_citas[n] as id, n from generate_series(3, 12) as n) x
+     where citas.id = x.id;
+    perform pg_temp.comprobar('Espera aproximada: cuentan las últimas 10 cajas, y una pausa de antes ya no pesa',
+      ritmo_de_la_fila(v_r_b) = 60, ritmo_de_la_fila(v_r_b)::text);
+
+    perform pg_temp.comprobar('Empezar a entregar: el navegador sin cuenta no la empieza, ni ve las cuentas por dentro',
+      not has_function_privilege('anon', 'empezar_fila_a_pie(boolean)', 'execute')
+      and has_function_privilege('authenticated', 'empezar_fila_a_pie(boolean)', 'execute')
+      and not has_function_privilege('anon', 'ritmo_de_la_fila(uuid)', 'execute')
+      and not has_function_privilege('authenticated', 'fila_empezo_en(uuid)', 'execute'));
+  exception when others then
+    perform pg_temp.comprobar('Empezar a entregar: las pruebas corrieron completas', false, sqlerrm);
   end;
 
   -- ==========================================================

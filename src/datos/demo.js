@@ -259,6 +259,11 @@ export function respuestaDemo(
           fecha: cita.fecha,
           hora: cita.hora,
           cerrada: false,
+          //  Seccion 57: ya empezaron a entregar, y la espera aproximada como
+          //  la de una fila de verdad (una caja cada minuto y medio), no al
+          //  paso acelerado del video.
+          empezada: true,
+          segundos_por_turno: 90,
         },
       ])
     }

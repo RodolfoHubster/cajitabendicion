@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LuBellRing, LuCircleCheck, LuCopyX, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
+import { LuBellRing, LuCircleCheck, LuClock, LuCopyX, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
+import EsperaAproximada from './EsperaAproximada'
 import useCadaRato from './useCadaRato'
 import usePantallaEncendida from './usePantallaEncendida'
+import { formatearHora } from '../datos/disponibilidad'
 import { CADA_MS_PERSONA, situacionDelTurno, turnoDeCita } from '../datos/filaAPie'
 import { avisoCerca, avisoEsTuTurno } from '../datos/sonido'
 import { avisoQueToca } from '../datos/turnoAPie'
@@ -12,7 +14,9 @@ import { avisoQueToca } from '../datos/turnoAPie'
  *
  * El dia de la entrega se vuelve a preguntar cada pocos segundos: "Van en
  * el 12, faltan 3 antes de ti", "¡Es tu turno!". Otro dia solo se ve su
- * numero. Solo numeros: nunca quien esta antes o despues.
+ * numero. Solo numeros: nunca quien esta antes o despues. Antes de que
+ * empiecen a entregar dice "Todavia no empezamos" (seccion 57) y, ya
+ * empezada, cuanto falta mas o menos (la espera aproximada).
  *
  * turnoInicial: el que ya se sabe (de consultar_cita), para no esperar la
  * primera respuesta. alCambiar(datos): para que la pagina sepa cuando ya
@@ -79,6 +83,28 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
             <LuUsers aria-hidden="true" className="h-5 w-5 text-accion" />
             {situacion.antes === 0 ? t('turno.eresElSiguiente') : t('turno.antes', { count: situacion.antes })}
           </p>
+          <EsperaAproximada antes={situacion.antes} segundos={datos?.segundos_por_turno} />
+        </div>
+      )}
+
+      {/* Todavia no empiezan a entregar (seccion 57): antes decia "va el 1"
+          y al del 1 le sonaba "es tu turno". */}
+      {esHoy && situacion?.tipo === 'porEmpezar' && (
+        <div className="mt-3 space-y-1">
+          <p className="flex items-center justify-center gap-2 text-xl font-bold text-principal">
+            <LuClock aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+            {t('turno.porEmpezar')}
+          </p>
+          {datos?.hora && (
+            <p className="text-lg text-principal">{t('turnoAPie.empiezaA', { hora: formatearHora(datos.hora) })}</p>
+          )}
+          {situacion.antes > 0 && (
+            <p className="flex items-center justify-center gap-2 text-lg text-principal">
+              <LuUsers aria-hidden="true" className="h-5 w-5 text-accion" />
+              {t('turno.antes', { count: situacion.antes })}
+            </p>
+          )}
+          <p className="text-base text-principal/80">{t('turno.porEmpezarAyuda')}</p>
         </div>
       )}
 

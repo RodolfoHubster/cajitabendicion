@@ -559,7 +559,17 @@
     "anulado": "Nimewo ou anile paske yo te rele w epi ou pa t la. Si ou toujou vle manje a, pran yon lòt nimewo: w ap tann depi nan dènye liy lan.",
     "repetido": "Yo anile nimewo sa a paske ou te deja gen yon lòt nimewo.",
     "repetidoCon": "Yo anile nimewo sa a paske ou te deja gen nimewo {{turno}}.",
-    "repetidoAyuda": "Sèvi ak nimewo ou te pran an premye. Si ou pa genyen l, pale ak yon volontè."
+    "repetidoAyuda": "Sèvi ak nimewo ou te pran an premye. Si ou pa genyen l, pale ak yon volontè.",
+    "porEmpezar": "Nou poko kòmanse distribye.",
+    "porEmpezarAyuda": "W ap wè li isit la lè nou kòmanse. Telefòn ou ap sonnen lè gen 3 moun ki rete devan ou ak lè se tou pa w."
+  },
+  "espera": {
+    "tuya": "Tan pou tann apeprè: {{tiempo}}",
+    "siSacasAhora": "Si ou pran yon nimewo kounye a, w ap tann {{tiempo}}.",
+    "unos": "anviwon {{duracion}}",
+    "menosDe5": "mwens pase 5 min",
+    "aviso": "Se yon mwayèn dapre jan liy lan ap mache jodi a, se pa yon lè egzak. Li ka chanje.",
+    "calculando": "Tan pou tann apeprè a ap parèt lè yo fin bay kèk bwat."
   },
   "acompanante": {
     "titulo": "Kijan w ap vini?",

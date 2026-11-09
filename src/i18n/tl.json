@@ -559,7 +559,17 @@
     "anulado": "Nawalan ng bisa ang numero mo dahil tinawag ka at wala ka. Kung gusto mo pa rin ng groceries, kumuha ng bagong numero: maghihintay ka mula sa dulo ng pila.",
     "repetido": "Kinansela ang numerong ito dahil may iba ka nang numero.",
     "repetidoCon": "Kinansela ang numerong ito dahil mayroon ka nang numero {{turno}}.",
-    "repetidoAyuda": "Gamitin ang numerong nauna mong kinuha. Kung wala sa iyo, kausapin ang isang volunteer."
+    "repetidoAyuda": "Gamitin ang numerong nauna mong kinuha. Kung wala sa iyo, kausapin ang isang volunteer.",
+    "porEmpezar": "Hindi pa kami nagsisimulang mamigay.",
+    "porEmpezarAyuda": "Makikita mo rito kapag nagsimula na kami. Tutunog ang telepono mo kapag 3 na lang ang nauuna sa iyo at kapag ikaw na."
+  },
+  "espera": {
+    "tuya": "Tinatayang paghihintay: {{tiempo}}",
+    "siSacasAhora": "Kung kukuha ka ng numero ngayon, maghihintay ka nang {{tiempo}}.",
+    "unos": "mga {{duracion}}",
+    "menosDe5": "wala pang 5 min",
+    "aviso": "Average ito ng bilis ng pila ngayon, hindi eksaktong oras. Puwede itong magbago.",
+    "calculando": "Lalabas ang tinatayang paghihintay kapag may ilang kahon nang naipamigay."
   },
   "acompanante": {
     "titulo": "Paano ka darating?",
