@@ -5,6 +5,7 @@ import { LuArrowLeftRight, LuCircleHelp, LuKeyRound, LuLayers, LuLogIn, LuRefres
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import AyudaFilaAPie from '../../componentes/AyudaFilaAPie'
 import Boton from '../../componentes/Boton'
+import BuscarCita from '../../componentes/BuscarCita'
 import BuscarTurno from '../../componentes/BuscarTurno'
 import CajasDeHoy from '../../componentes/CajasDeHoy'
 import Campo from '../../componentes/Campo'
@@ -13,18 +14,15 @@ import ElegirFila from '../../componentes/ElegirFila'
 import EntradaSinCita from '../../componentes/EntradaSinCita'
 import LectorQR from '../../componentes/LectorQR'
 import LlegoTarde from '../../componentes/LlegoTarde'
-import ListaDelDia from '../../componentes/ListaDelDia'
 import PanelTurnos from '../../componentes/PanelTurnos'
 import SelloPreferente from '../../componentes/SelloPreferente'
 import SelloVip from '../../componentes/SelloVip'
 import { Hueso } from '../../componentes/Esqueleto'
 import Tarjeta from '../../componentes/Tarjeta'
 import TurnoQueVa from '../../componentes/TurnoQueVa'
-import { textoParaBuscar } from '../../datos/codigoCorto'
 import { aFechaLocal, formatearHora } from '../../datos/disponibilidad'
 import {
   MS_DESHACER_PROPIA,
-  buscarParaEscaneo,
   entregaDirecta,
   esRecienEntregado,
   previaPorError,
@@ -107,9 +105,6 @@ export default function Escanear() {
   const [resultado, setResultado] = useState(null)
   const [ocupado, setOcupado] = useState(false)
   const [error, setError] = useState(null)
-
-  const [busqueda, setBusqueda] = useState('')
-  const [encontrados, setEncontrados] = useState(null)
 
   // La fila que le dieron en Equipo ('ambas' hasta saberla) y la que eligio
   // hoy al abrir el escaner (undefined: preguntando; null: todavia no elige).
@@ -404,8 +399,6 @@ export default function Escanear() {
   function reiniciar() {
     setPrevia(null)
     setResultado(null)
-    setEncontrados(null)
-    setBusqueda('')
     cerrarAutorizacion()
     setVista('camara')
   }
@@ -474,18 +467,6 @@ export default function Escanear() {
     }
   }
 
-  async function buscar(evento) {
-    evento.preventDefault()
-    setError(null)
-
-    try {
-      // "cb 4871", "4871" o "CB487l" se buscan como CB-4871.
-      setEncontrados(await buscarParaEscaneo(textoParaBuscar(busqueda)))
-    } catch (e) {
-      setError(e.message)
-    }
-  }
-
   const avisoError = error && (
     <p className="mt-3 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
       {t(`escaneo.errores.${error}`, { defaultValue: t('escaneo.errores.ERROR_DESCONOCIDO') })}
@@ -494,8 +475,10 @@ export default function Escanear() {
 
   const otraFila = fila === 'a_pie' ? 'carro' : 'a_pie'
 
-  //  Debajo de la camara, siempre: a pie, buscar un turno en vivo; en carros,
-  //  el boton a la busqueda por nombre o codigo.
+  //  Debajo de la camara, siempre, sin cerrarla: a pie, buscar un turno en
+  //  vivo; en carros (10 de noviembre de 2026), buscar por nombre o codigo
+  //  y la lista de hoy, igual de a la mano. Antes, en carros, buscar cerraba
+  //  la camara y para el siguiente coche habia que tocar "Escanear otro".
   const busquedaBajoCamara =
     fila === 'a_pie' ? (
       <BuscarTurno
@@ -505,19 +488,11 @@ export default function Escanear() {
         alEntregar={entregarPorTurno}
         alRegresar={regresarTurno}
         ocupado={ocupado}
+        puedeDeshacer={puedeDeshacer}
         version={versionTurnos}
       />
     ) : (
-      <Boton
-        className="mt-3"
-        onClick={() => {
-          reiniciar()
-          setVista('manual')
-        }}
-        variant="secondary"
-      >
-        {t('escaneo.buscarManual')}
-      </Boton>
+      <BuscarCita alEntregar={entregarDeLista} alVer={elegirDeLista} ocupado={ocupado} version={versionTurnos} />
     )
 
   return (
@@ -594,7 +569,7 @@ export default function Escanear() {
 
         {/* A pie, el turno que va queda siempre encima de la camara, con sus
             botones: se grita, se escanea o se entrega sin QR sin bajar al panel. */}
-        {listo && fila === 'a_pie' && vista !== 'manual' && (
+        {listo && fila === 'a_pie' && (
           <TurnoQueVa
             alEmpezar={empezarEntrega}
             alEntregar={entregarPorTurno}
@@ -690,7 +665,7 @@ export default function Escanear() {
                     variant="secondary"
                   >
                     <LuShieldCheck aria-hidden="true" className="h-5 w-5" />
-                    {esAdmin ? t('escaneo.autorizar.botonAdmin') : t('escaneo.autorizar.boton')}
+                    <span className="min-w-0">{esAdmin ? t('escaneo.autorizar.botonAdmin') : t('escaneo.autorizar.boton')}</span>
                   </Boton>
                 )}
 
@@ -727,7 +702,7 @@ export default function Escanear() {
                       type="submit"
                     >
                       <LuKeyRound aria-hidden="true" className="h-5 w-5" />
-                      {ocupado ? t('escaneo.registrando') : t('escaneo.autorizar.confirmar')}
+                      <span className="min-w-0">{ocupado ? t('escaneo.registrando') : t('escaneo.autorizar.confirmar')}</span>
                     </Boton>
 
                     <button
@@ -777,7 +752,7 @@ export default function Escanear() {
                 {!previa.pase && filaDe(previa) === 'a_pie' && (
                   <p className="mb-2 inline-flex items-center gap-2 rounded-lg bg-accion/20 px-2 py-1 text-base font-bold text-principal">
                     <FaPersonWalking aria-hidden="true" className="h-4 w-4" />
-                    {t('filas.nombre.a_pie')}
+                    <span className="min-w-0">{t('filas.nombre.a_pie')}</span>
                     {previa.turno ? ` · ${t('turno.numero', { turno: previa.turno })}` : ''}
                   </p>
                 )}
@@ -886,93 +861,6 @@ export default function Escanear() {
             </Boton>
           </>
         )}
-
-        {/* Carros: la gente de hoy ahi mismo, y se busca mientras se escribe.
-            A pie: solo con su codigo (es lo que prueba de quien es el turno). */}
-        {vista === 'manual' && (
-          <>
-            <form className="space-y-3" onSubmit={buscar}>
-              <Campo
-                autoComplete="off"
-                autoFocus
-                etiqueta={fila === 'a_pie' ? t('escaneo.aPie.etiqueta') : t('escaneo.buscarEtiqueta')}
-                id="busqueda"
-                onChange={(e) => {
-                  setBusqueda(e.target.value)
-                  setEncontrados(null)
-                }}
-                placeholder={fila === 'a_pie' ? 'CB-4871' : t('escaneo.lista.ejemplo')}
-                value={busqueda}
-              />
-              {fila === 'a_pie' && <p className="text-base text-principal/80">{t('escaneo.aPie.ayuda')}</p>}
-              {(fila === 'a_pie' || busqueda.trim() !== '') && (
-                <Boton type="submit" variant="secondary">
-                  {fila === 'a_pie' ? t('escaneo.buscar') : t('escaneo.lista.buscarOtras')}
-                </Boton>
-              )}
-            </form>
-
-            {avisoError}
-
-            {fila !== 'a_pie' && encontrados === null && (
-              <ListaDelDia alEntregar={entregarDeLista} alVer={elegirDeLista} ocupado={ocupado} texto={busqueda} />
-            )}
-
-            {encontrados && encontrados.length === 0 && (
-              <p className="mt-4 text-base">{t('escaneo.sinResultados')}</p>
-            )}
-
-            {encontrados && encontrados.length > 0 && (
-              <ul className="mt-4 space-y-3">
-                {encontrados.map((persona) => {
-                  const deOtroDia = persona.fecha !== hoy
-
-                  return (
-                    <li
-                      className={`rounded-xl border p-3 ${
-                        deOtroDia ? 'border-accion/60 bg-accion/5' : 'border-principal/20'
-                      }`}
-                      key={`${persona.codigo_corto}-${persona.fecha}`}
-                    >
-                      {/* No hubo ese codigo exacto: este se le parece (un numero
-                          distinto o dos al reves). Se confirma con el nombre. */}
-                      {persona.parecido && (
-                        <p className="mb-1 inline-block rounded-lg bg-accion/20 px-2 py-0.5 text-base font-bold text-principal">
-                          {t('escaneo.parecido')}
-                        </p>
-                      )}
-                      <p className="text-lg font-semibold text-principal">{persona.nombre}</p>
-                      <p className="text-base text-principal/70">
-                        {persona.codigo_corto} · {formatearHora(persona.hora)}
-                      </p>
-                      <p className="mt-1 text-base text-principal/80">
-                        {deOtroDia
-                          ? `${t('escaneo.resultado.OTRA_FECHA')}: ${fechaLarga(persona.fecha)}`
-                          : t(`escaneo.estadoPrevio.${persona.estado}`, { defaultValue: persona.estado })}
-                      </p>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                        <Boton onClick={() => elegirDeLista(persona)} variant="secondary">
-                          {t('escaneo.verCita')}
-                        </Boton>
-                        {/* De hoy y sin recibir: se entrega aqui mismo. Si es de
-                            la otra fila, la base lo detiene y no se quema. */}
-                        {!deOtroDia && ['reservada', 'llego'].includes(persona.estado) && (
-                          <Boton disabled={ocupado} onClick={() => entregarDeLista(persona)}>
-                            {ocupado ? t('escaneo.registrando') : t('escaneo.registrarEntrega')}
-                          </Boton>
-                        )}
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-
-            <Boton className="mt-4" onClick={reiniciar} variant="secondary">
-              {t('escaneo.escanearOtro')}
-            </Boton>
-          </>
-        )}
       </Tarjeta>
 
       {/* En la fila tambien pasa gente sin cita. En computadora va a un lado.
@@ -1052,12 +940,12 @@ function AvisoEspecial({ previa, alReintentar, alEntrar }) {
         {r === 'SIN_SESION' ? (
           <Boton className="mt-3" onClick={alEntrar} variant="secondary">
             <LuLogIn aria-hidden="true" className="h-5 w-5" />
-            {t('escaneo.volverAEntrar')}
+            <span className="min-w-0">{t('escaneo.volverAEntrar')}</span>
           </Boton>
         ) : (
           <Boton className="mt-3" onClick={alReintentar} variant="secondary">
             <LuRefreshCw aria-hidden="true" className="h-5 w-5" />
-            {t('escaneo.volverARevisar')}
+            <span className="min-w-0">{t('escaneo.volverARevisar')}</span>
           </Boton>
         )}
       </div>
@@ -1101,7 +989,7 @@ function FilaActual({ fila, alCambiar, alAyuda }) {
         }`}
       >
         <Icono aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-        {t('escaneo.estasEn', { fila: t(`filas.nombre.${fila}`) })}
+        <span className="min-w-0">{t('escaneo.estasEn', { fila: t(`filas.nombre.${fila}`) })}</span>
       </p>
       {alCambiar && (
         <button
@@ -1110,7 +998,7 @@ function FilaActual({ fila, alCambiar, alAyuda }) {
           type="button"
         >
           <LuArrowLeftRight aria-hidden="true" className="h-4 w-4" />
-          {t('elegirFila.cambiar')}
+          <span className="min-w-0">{t('elegirFila.cambiar')}</span>
         </button>
       )}
       {alAyuda && (
@@ -1121,7 +1009,7 @@ function FilaActual({ fila, alCambiar, alAyuda }) {
           type="button"
         >
           <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-          {t('ayudaAPie.abrir')}
+          <span className="min-w-0">{t('ayudaAPie.abrir')}</span>
         </button>
       )}
     </div>

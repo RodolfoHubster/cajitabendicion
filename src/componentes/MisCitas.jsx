@@ -39,7 +39,7 @@ export default function MisCitas({ className = '' }) {
     <section aria-labelledby="mis-citas" className={`rounded-2xl border-2 border-accion bg-accion/10 p-4 ${className}`}>
       <h2 className="flex items-center gap-2 text-xl font-bold" id="mis-citas">
         <LuTicket aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-        {lista.length === 1 ? t('misCitas.tituloUna') : t('misCitas.titulo')}
+        <span className="min-w-0">{lista.length === 1 ? t('misCitas.tituloUna') : t('misCitas.titulo')}</span>
       </h2>
       <p className="mt-1 text-base text-principal/75">
         {lista.length === 1 ? t('misCitas.ayudaUna') : t('misCitas.ayuda')}

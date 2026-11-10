@@ -163,6 +163,15 @@ describe('todo desde el escáner (sección 46)', () => {
     expect(estadoDeTurno(LISTA[4])).toBe('anulado')
   })
 
+  it('sección 59: el que la persona cambió por uno nuevo, y el que canceló', () => {
+    expect(estadoDeTurno({ turno: 8, estado: 'cancelada', cancelado_en: 'x', cambiado_a: 31 })).toBe('cambiado')
+    //  Anulado y luego cambiado: lo que importa es a cuál se cambió.
+    expect(estadoDeTurno({ turno: 8, estado: 'cancelada', anulado_en: 'x', cambiado_a: 31 })).toBe('cambiado')
+    expect(estadoDeTurno({ turno: 8, estado: 'cancelada', cancelado_en: 'x' })).toBe('cancelado')
+    expect(estadoDeTurno({ turno: 8, estado: 'cancelada', anulado_en: 'x', cancelado_en: 'x' })).toBe('anulado')
+    expect(estadoDeTurno({ turno: 8, estado: 'cancelada', repetido_en: 'x', cancelado_en: 'x' })).toBe('repetido')
+  })
+
   it('a qué hora y hace cuánto (hora de San Diego, como la manda la base)', () => {
     vi.useFakeTimers()
     //  3:45 PM en San Diego (UTC-7 en octubre).

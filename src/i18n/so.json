@@ -605,9 +605,6 @@
     "revisando": "Waxaan hubinaynaa safka…",
     "noHay": "Maanta ma jiro saf lugta ah.",
     "llena": "Maanta lambarro dambe ma jiraan.",
-    "esTuTurno": "Waa kaalintaada!",
-    "acercate": "Kaalay oo tus koodkaaga QR.",
-    "verMiQr": "Eeg koodkayga",
     "avisos": {
       "sinDatos": "Kuma weydiinno magacaaga, da'daada ama taleefankaaga. Waxba lama kaydiyo, cidna lama wadaago.",
       "soloHoy": "Lambarkaagu waa maanta oo keliya, hal qayb cunto ah.",
@@ -638,7 +635,8 @@
       "SIN_CONEXION": "Xiriir ma jiro. Hubi signalka oo mar kale riix badhanka.",
       "FUNCION_NO_INSTALADA": "Shaqadan weli ma diyaarsana. U sheeg tabaruce.",
       "DISPOSITIVO_INVALIDO": "Taleefankan lambar lagama bixin karo. Tabaruce caawimaad weydii.",
-      "ERROR_DESCONOCIDO": "Lambarka lama bixin karin. Mar kale riix badhanka ama tabaruce caawimaad weydii."
+      "ERROR_DESCONOCIDO": "Lambarka lama bixin karin. Mar kale riix badhanka ama tabaruce caawimaad weydii.",
+      "BLOQUE_LLENO": "Maanta lambarradu way dhammaadeen."
     },
     "terminada": "Safka maanta waa dhammaaday. Waad ku mahadsan tahay imaanshahaaga! Waxaan kugu sugaynaa qaybinta xigta.",
     "codigoEsTuyo": "Koodkani adiga oo keliya ayuu kuu yahay: cidna ha tusin. Waxaa lagu hubinayaa in lambarku kaaga yahay.",
@@ -663,7 +661,37 @@
       "cancelar": "Ma lahayn ballan baabuur",
       "CODIGO_CARRO_NO_EXISTE": "Maanta ma jirto ballan baabuur oo leh koodkaas. Hubi lambarrada."
     },
-    "verFila": "Safka hadda"
+    "verFila": "Safka hadda",
+    "aunNo": {
+      "titulo": "Weli MA haysatid lambar",
+      "texto": "Furitaanka boggan kuma siinayo lambar. Riix badhanka oranjiga ah «Qaado lambarkayga».",
+      "conCodigo": "Furitaanka boggan kuma siinayo lambar. Qor koodhka maanta oo riix badhanka oranjiga ah «Qaado lambarkayga»."
+    },
+    "cambiar": {
+      "boton": "Ma gaari karo: qaado lambar cusub",
+      "pregunta": "Ma qaadanaysaa lambar cusub?",
+      "explicacion": "Lambarkaaga {{turno}} waa la joojinayaa, waxaadna ka sugaysaa dhammaadka safka. Haddii aad u dhow tahay, hadda u tag mutadawacaha: lambarkaagu weli wuu shaqaynayaa.",
+      "si": "Haa, i sii lambar cusub",
+      "no": "Maya, waan hayn doonaa {{turno}}",
+      "resultado": {
+        "AUN_VALE": "Lambarkaagu weli wuu shaqaynayaa: weli laguma yeerin. Halkan ku sug.",
+        "YA_RECIBIO": "Horay ayaad sanduuqaaga ugu qaadatay lambarkan. Waad ku mahadsan tahay imaatinka!",
+        "CERRADA": "Maanta lambarro cusub lama bixinayo. Haddii lambarkaagu weli shaqaynayo, u tag mutadawacaha.",
+        "NO_EXISTE": "Ma helin lambarkaaga maanta. La hadal mutadawac."
+      }
+    },
+    "cancelar": {
+      "boton": "Jooji lambarkayga",
+      "pregunta": "Ma hubtaa inaad joojinayso lambarkaaga {{turno}}?",
+      "explicacion": "Mar dambe ma isticmaali kartid lambarkan ama koodhkiisa. Haddii aad fikirka beddesho, waa inaad qaadato lambar cusub oo aad ka sugto dhammaadka safka.",
+      "si": "Haa, jooji lambarkayga",
+      "no": "Maya, hay lambarkayga",
+      "cancelando": "Waa la joojinayaa…"
+    },
+    "cancelado": {
+      "titulo": "Lambarkaaga {{turno}} waa la joojiyay.",
+      "texto": "Haddii aad weli rabto cuntadaada, qaado lambar cusub: waxaad ka sugi doontaa dhammaadka safka."
+    }
   },
   "credencial": {
     "etiqueta": "TABARUCE",

@@ -139,13 +139,13 @@ function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
       {estado === 'programada' && (
         <p className="flex items-start gap-2 text-base font-semibold">
           <LuLock aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-accion" />
-          {t('diasAdmin.seAbren', { cuando: formatearFechaHora(dia.abre_en, i18n.language) })}
+          <span className="min-w-0">{t('diasAdmin.seAbren', { cuando: formatearFechaHora(dia.abre_en, i18n.language) })}</span>
         </p>
       )}
       {estado === 'abierta' && (
         <p className="flex items-center gap-2 text-base font-semibold text-puede-pasar">
           <LuCircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-          {t('diasAdmin.registrosAbiertos')}
+          <span className="min-w-0">{t('diasAdmin.registrosAbiertos')}</span>
         </p>
       )}
       {estado === 'cerrada' && (
@@ -170,7 +170,7 @@ function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
               <CodigoCopiable autoCopiar={codigoRecien} codigo={dia.codigo_anticipado}>
                 <button className={BOTON} disabled={ocupado} onClick={regenerar} type="button">
                   <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
-                  {t('diasAdmin.regenerar')}
+                  <span className="min-w-0">{t('diasAdmin.regenerar')}</span>
                 </button>
               </CodigoCopiable>
               <p className="text-base text-principal/70">
@@ -546,7 +546,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
             >
               <p className="flex items-start gap-2 text-base font-semibold text-principal" id="pregunta-eliminar-fecha">
                 <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ya-recibio" />
-                {t('diasAdmin.confirmarEliminarFecha', { fecha: titulo })}
+                <span className="min-w-0">{t('diasAdmin.confirmarEliminarFecha', { fecha: titulo })}</span>
               </p>
 
               <div className="mt-3 grid gap-2 sm:grid-cols-2">

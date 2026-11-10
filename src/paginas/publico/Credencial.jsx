@@ -108,7 +108,7 @@ export default function Credencial() {
       <Tarjeta>
         <p className="flex items-center gap-2 text-lg font-bold text-ya-recibio">
           <LuCircleX aria-hidden="true" className="h-6 w-6" />
-          {t('credencial.inactiva')}
+          <span className="min-w-0">{t('credencial.inactiva')}</span>
         </p>
         <p className="mt-2 text-base text-principal/80">{t('credencial.inactivaTexto', { telefono: ORGANIZACION.telefono })}</p>
         <div className="mt-4 text-center">
@@ -123,7 +123,7 @@ export default function Credencial() {
       <div className="bg-puede-pasar/15 px-5 py-4">
         <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
           <LuHandHeart aria-hidden="true" className="h-6 w-6" />
-          {t('credencial.etiqueta')}
+          <span className="min-w-0">{t('credencial.etiqueta')}</span>
         </p>
         <h1 className="mt-1 text-2xl font-bold">{datos.nombre}</h1>
         <p className="text-base text-principal/80">{t('credencial.titulo')}</p>
@@ -173,7 +173,7 @@ export default function Credencial() {
           type="button"
         >
           <LuDownload aria-hidden="true" className="h-5 w-5" />
-          {t('confirmacion.guardarImagen')}
+          <span className="min-w-0">{t('confirmacion.guardarImagen')}</span>
         </button>
 
         {guardado === 'descargada' && (

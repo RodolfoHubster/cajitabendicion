@@ -7,8 +7,11 @@ import { ORGANIZACION } from '../datos/organizacion'
 import { useAnchoPagina } from '../rutas/anchoPagina'
 import { LogoIglesia } from './Logo'
 
+//  flex-1 desde 0 y sin min-w-0: la marca se aprieta hasta su palabra mas
+//  larga ("Cajita de / Bendicion" en dos renglones) y solo si ni asi cabe
+//  junto a los botones (zoom del telefono), los botones bajan de renglon.
 const CLASE_MARCA =
-  'flex min-h-14 min-w-0 items-center gap-2 rounded-xl sm:gap-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60'
+  'flex min-h-14 flex-1 basis-0 items-center gap-2 rounded-xl sm:gap-3 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60'
 const CLASE_AYUDA =
   'flex min-h-12 w-12 items-center justify-center rounded-xl border border-white/30 bg-white/5 text-white transition hover:border-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/60 sm:min-h-14 sm:w-14'
 
@@ -47,7 +50,7 @@ export default function Encabezado() {
       <div aria-hidden="true" className="h-1 bg-accion" />
 
       <div
-        className={`mx-auto flex w-full ${ancho} items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3`}
+        className={`mx-auto flex w-full ${ancho} flex-wrap items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3`}
       >
         {/* El combo de marca: el logo de la iglesia y, junto, su ministerio.
             En el panel no es enlace: no saca de el. */}

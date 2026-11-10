@@ -170,7 +170,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, sol
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-base font-bold text-puede-pasar">
               <LuHandHeart aria-hidden="true" className="h-5 w-5" />
-              {t('credencial.etiqueta')}
+              <span className="min-w-0">{t('credencial.etiqueta')}</span>
             </p>
             <h2 className="truncate text-xl font-bold text-principal" id="ventana-credencial-titulo">
               {voluntario.nombre}
@@ -227,13 +227,13 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, sol
                     target="_blank"
                   >
                     <LuMessageCircle aria-hidden="true" className="h-5 w-5" />
-                    {t('voluntarios.envio.porWhatsApp', { telefono: telefonoBonito(voluntario.telefono) })}
+                    <span className="min-w-0">{t('voluntarios.envio.porWhatsApp', { telefono: telefonoBonito(voluntario.telefono) })}</span>
                   </a>
                 )}
                 {sms && (
                   <a className={BOTON} href={sms} onClick={() => setPreguntando('sms')}>
                     <LuMessageSquareText aria-hidden="true" className="h-5 w-5" />
-                    {t('voluntarios.envio.porSms')}
+                    <span className="min-w-0">{t('voluntarios.envio.porSms')}</span>
                   </a>
                 )}
                 {correo && (
@@ -273,7 +273,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, sol
                         type="button"
                       >
                         <LuCopy aria-hidden="true" className="h-4 w-4" />
-                        {mensajeCopiado ? t('personas.copiado') : t('voluntarios.envio.copiarMensaje')}
+                        <span className="min-w-0">{mensajeCopiado ? t('personas.copiado') : t('voluntarios.envio.copiarMensaje')}</span>
                       </button>
                     </div>
                   </div>
@@ -321,11 +321,11 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, sol
               <div className="grid gap-2">
                 <button className={BOTON} onClick={guardar} type="button">
                   <LuDownload aria-hidden="true" className="h-5 w-5" />
-                  {t('confirmacion.guardarImagen')}
+                  <span className="min-w-0">{t('confirmacion.guardarImagen')}</span>
                 </button>
                 <button className={BOTON} onClick={copiar} type="button">
                   <LuCopy aria-hidden="true" className="h-5 w-5" />
-                  {copiado ? t('personas.copiado') : t('credencial.copiar')}
+                  <span className="min-w-0">{copiado ? t('personas.copiado') : t('credencial.copiar')}</span>
                 </button>
               </div>
 
@@ -337,7 +337,7 @@ export default function VentanaCredencial({ voluntario, alCerrar, alEnviada, sol
 
               <p className="flex items-start gap-2 rounded-xl bg-principal/5 p-3 text-base text-principal">
                 <LuShieldAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-                {t('credencial.cuidado')}
+                <span className="min-w-0">{t('credencial.cuidado')}</span>
               </p>
             </>
           )}

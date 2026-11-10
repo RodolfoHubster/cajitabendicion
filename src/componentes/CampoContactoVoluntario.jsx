@@ -29,7 +29,7 @@ export default function CampoContactoVoluntario({ id, valor, alCambiar }) {
         {separado.telefono && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-puede-pasar/15 px-3 py-1 text-base font-semibold text-puede-pasar">
             <LuMessageCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
-            {t('voluntarios.contacto.whatsapp', { telefono: telefonoBonito(separado.telefono) })}
+            <span className="min-w-0">{t('voluntarios.contacto.whatsapp', { telefono: telefonoBonito(separado.telefono) })}</span>
             {separado.pais && (
               <span className="font-normal">
                 {t(`voluntarios.contacto.pais.${separado.pais}`, { defaultValue: '' })}
@@ -40,13 +40,13 @@ export default function CampoContactoVoluntario({ id, valor, alCambiar }) {
         {correoBien && (
           <span className="inline-flex min-w-0 items-center gap-1.5 break-all rounded-full bg-principal/10 px-3 py-1 text-base font-semibold text-principal">
             <LuMail aria-hidden="true" className="h-4 w-4 shrink-0" />
-            {t('voluntarios.contacto.correo', { correo: separado.correo })}
+            <span className="min-w-0">{t('voluntarios.contacto.correo', { correo: separado.correo })}</span>
           </span>
         )}
         {separado.error && (
           <span className="inline-flex items-center gap-1.5 text-base font-semibold text-ya-recibio">
             <LuTriangleAlert aria-hidden="true" className="h-4 w-4 shrink-0" />
-            {t(`voluntarios.errores.${separado.error}`)}
+            <span className="min-w-0">{t(`voluntarios.errores.${separado.error}`)}</span>
           </span>
         )}
       </div>

@@ -126,7 +126,7 @@ export default function IncidenciaDelDia({ dia, alCambiar }) {
         type="button"
       >
         <LuTriangleAlert aria-hidden="true" className="h-5 w-5 text-accion" />
-        {t('incidencias.boton')}
+        <span className="min-w-0">{t('incidencias.boton')}</span>
       </button>
     )
   }
@@ -147,7 +147,7 @@ export default function IncidenciaDelDia({ dia, alCambiar }) {
       {listo && (
         <p className="flex items-start gap-2 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar" role="status">
           <LuCircleCheck aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-          {listo}
+          <span className="min-w-0">{listo}</span>
         </p>
       )}
 
@@ -386,7 +386,7 @@ function AvisarPorWhatsApp({ fecha, incidencia }) {
         type="button"
       >
         <FaWhatsapp aria-hidden="true" className="h-5 w-5" />
-        {t('incidencias.avisar.ver')}
+        <span className="min-w-0">{t('incidencias.avisar.ver')}</span>
       </button>
     )
   }

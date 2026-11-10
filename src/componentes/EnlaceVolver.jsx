@@ -16,7 +16,7 @@ export default function EnlaceVolver({ a, children }) {
       to={a}
     >
       <LuArrowLeft aria-hidden="true" className="h-5 w-5 shrink-0" />
-      {children}
+      <span className="min-w-0">{children}</span>
     </Link>
   )
 }

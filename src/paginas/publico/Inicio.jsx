@@ -101,8 +101,8 @@ export default function Inicio() {
                 <FaCarSide aria-hidden="true" className="h-9 w-9" />
               </span>
               <span className="text-lg font-bold leading-tight">{t('inicio.enCarro')}</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-sobre-accion/10 px-3 py-0.5 text-chica font-bold">
-                {t('inicio.hacerCita')}
+              <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-sobre-accion/10 px-3 py-0.5 text-chica font-bold">
+                <span className="min-w-0">{t('inicio.hacerCita')}</span>
                 <LuArrowRight
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
@@ -123,8 +123,8 @@ export default function Inicio() {
                 <FaPersonWalking aria-hidden="true" className="h-9 w-9" />
               </span>
               <span className="text-lg font-bold leading-tight">{t('inicio.aPie')}</span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-0.5 text-chica font-bold">
-                {t('inicio.sacarTurno')}
+              <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-white/15 px-3 py-0.5 text-chica font-bold">
+                <span className="min-w-0">{t('inicio.sacarTurno')}</span>
                 <LuArrowRight
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
@@ -139,7 +139,7 @@ export default function Inicio() {
 
           <p className="mt-1 inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2.5 text-left text-base font-semibold text-white ring-1 ring-white/15">
             <LuHeartHandshake aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-            {t('inicio.gratuito')}
+            <span className="min-w-0">{t('inicio.gratuito')}</span>
           </p>
         </div>
       </section>
@@ -168,11 +168,11 @@ export default function Inicio() {
           className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-superficie p-5 text-left shadow-tarjeta ring-1 ring-principal/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-elevada hover:ring-accion/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/50"
           to="/quienes-somos"
         >
-          <span className="flex items-center gap-3">
+          <span className="flex min-w-0 items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accion/15 text-accion transition-transform duration-300 group-hover:scale-110">
               <LuHeart aria-hidden="true" className="h-6 w-6" />
             </span>
-            <span>
+            <span className="min-w-0">
               <span className="block text-lg font-bold text-principal">{t('quienesSomos.titulo')}</span>
               <span className="block text-base text-principal/70">{t('quienesSomos.invitacion')}</span>
             </span>

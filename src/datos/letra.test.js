@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import en from '../i18n/en.json'
 import es from '../i18n/es.json'
 import vi from '../i18n/vi.json'
-import { LLAVE_LETRA, PIXELES_LETRA, TAMANOS_LETRA, aplicarLetra, guardarLetra, leerLetra } from './letra'
+import { LLAVE_LETRA, PORCENTAJE_LETRA, TAMANOS_LETRA, aplicarLetra, guardarLetra, leerLetra } from './letra'
 
 function almacen(inicial = {}) {
   const datos = { ...inicial }
@@ -67,7 +67,8 @@ describe('el tamaño de la letra', () => {
   it('grande y muy grande agrandan TODO (la letra de <html>); normal lo deja al navegador', () => {
     const doc = documento()
     aplicarLetra('muy_grande', doc)
-    expect(doc.documentElement.style.fontSize).toBe('20px')
+    //  En porcentaje de la letra del telefono: si ya la agrando ahi, no se achica.
+    expect(doc.documentElement.style.fontSize).toBe('125%')
     expect(doc.documentElement.dataset.letra).toBe('muy_grande')
 
     aplicarLetra('normal', doc)
@@ -75,9 +76,9 @@ describe('el tamaño de la letra', () => {
   })
 
   it('cada tamaño es más grande que el anterior', () => {
-    const pixeles = TAMANOS_LETRA.map((tamano) => PIXELES_LETRA[tamano])
-    expect([...pixeles].sort((a, b) => a - b)).toEqual(pixeles)
-    expect(pixeles[0]).toBe(16)
+    const tamanos = TAMANOS_LETRA.map((tamano) => PORCENTAJE_LETRA[tamano])
+    expect([...tamanos].sort((a, b) => a - b)).toEqual(tamanos)
+    expect(tamanos[0]).toBe(100)
   })
 
   it('cada tamaño tiene su nombre en los tres idiomas', () => {
@@ -91,10 +92,10 @@ describe('el tamaño de la letra', () => {
 //  index.html pone la letra antes de que cargue React. Si la llave o los
 //  tamaños cambian aquí y no allá, la página abre chica y luego brinca.
 describe('index.html y letra.js dicen lo mismo', () => {
-  it('la misma llave y los mismos pixeles', () => {
+  it('la misma llave y los mismos tamaños', () => {
     const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8')
     expect(html).toContain(`localStorage.getItem('${LLAVE_LETRA}')`)
-    expect(html).toContain(`grande: '${PIXELES_LETRA.grande}px'`)
-    expect(html).toContain(`muy_grande: '${PIXELES_LETRA.muy_grande}px'`)
+    expect(html).toContain(`grande: '${PORCENTAJE_LETRA.grande}%'`)
+    expect(html).toContain(`muy_grande: '${PORCENTAJE_LETRA.muy_grande}%'`)
   })
 })

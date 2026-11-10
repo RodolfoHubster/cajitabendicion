@@ -104,7 +104,7 @@ export default function PasarListaVoluntarios({ voluntarios, hoy, alCambiar, alV
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h2 className="flex items-center gap-2 text-xl font-bold">
           <LuClipboardCheck aria-hidden="true" className="h-6 w-6 text-accion" />
-          {t('voluntarios.pasarLista.titulo')}
+          <span className="min-w-0">{t('voluntarios.pasarLista.titulo')}</span>
         </h2>
         <button
           className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-principal/25 bg-superficie px-3 text-base font-semibold text-principal hover:border-principal"
@@ -112,7 +112,7 @@ export default function PasarListaVoluntarios({ voluntarios, hoy, alCambiar, alV
           type="button"
         >
           <LuScanLine aria-hidden="true" className="h-5 w-5" />
-          {t('voluntarios.pasarLista.volver')}
+          <span className="min-w-0">{t('voluntarios.pasarLista.volver')}</span>
         </button>
       </div>
       <p className="mt-1 text-base text-principal/80">{t('voluntarios.pasarLista.ayuda')}</p>
@@ -175,7 +175,7 @@ export default function PasarListaVoluntarios({ voluntarios, hoy, alCambiar, alV
                 type="button"
               >
                 <LuUserRoundPlus aria-hidden="true" className="h-5 w-5" />
-                {t('voluntarios.pasarLista.registrarYAnotar', { nombre: busqueda.trim() })}
+                <span className="min-w-0">{t('voluntarios.pasarLista.registrarYAnotar', { nombre: busqueda.trim() })}</span>
               </button>
             </div>
           ) : (

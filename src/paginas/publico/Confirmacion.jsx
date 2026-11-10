@@ -236,7 +236,7 @@ export default function Confirmacion() {
       <Tarjeta>
         <p className="flex items-center gap-2 text-lg font-bold text-ya-recibio">
           <LuCircleX aria-hidden="true" className="h-6 w-6" />
-          {t('confirmacion.canceladaTitulo')}
+          <span className="min-w-0">{t('confirmacion.canceladaTitulo')}</span>
         </p>
         <p className="mt-1 text-2xl font-bold first-letter:uppercase">
           {fechaLarga}, {formatearHora(cita.hora)}
@@ -271,7 +271,7 @@ export default function Confirmacion() {
         <div className="bg-puede-pasar/10 px-5 py-4">
           <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
             <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
-            {aPie ? t('turno.listo') : t('confirmacion.lista')}
+            <span className="min-w-0">{aPie ? t('turno.listo') : t('confirmacion.lista')}</span>
           </p>
           {/* first-letter y no capitalize: capitalize pondria "14 De Septiembre" */}
           <h1 className="mt-1 text-2xl font-bold first-letter:uppercase">{fechaLarga}</h1>
@@ -360,7 +360,7 @@ export default function Confirmacion() {
               type="button"
             >
               <LuVolume2 aria-hidden="true" className="h-6 w-6 text-accion" />
-              {t('escuchar.boton')}
+              <span className="min-w-0">{t('escuchar.boton')}</span>
             </button>
           )}
 
@@ -372,7 +372,7 @@ export default function Confirmacion() {
             type="button"
           >
             <LuDownload aria-hidden="true" className="h-5 w-5" />
-            {t('confirmacion.guardarImagen')}
+            <span className="min-w-0">{t('confirmacion.guardarImagen')}</span>
           </button>
 
           {guardado === 'descargada' && (
@@ -389,7 +389,7 @@ export default function Confirmacion() {
           {cancelable && (
             <Boton className="mt-3" onClick={agregarCalendario} variant="secondary">
               <LuCalendarPlus aria-hidden="true" className="h-5 w-5" />
-              {t('recordatorio.agregar')}
+              <span className="min-w-0">{t('recordatorio.agregar')}</span>
             </Boton>
           )}
 
@@ -397,7 +397,7 @@ export default function Confirmacion() {
               es la razon numero uno de que el QR no se lea. */}
           <p className="mt-3 flex items-start gap-2 rounded-xl bg-accion/10 p-3 text-base text-principal">
             <LuSun aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-            {t('confirmacion.consejoBrillo')}
+            <span className="min-w-0">{t('confirmacion.consejoBrillo')}</span>
           </p>
 
           <div className="mt-2 text-center">
@@ -411,7 +411,7 @@ export default function Confirmacion() {
                   {!aPie && (
                     <Boton onClick={() => navegar(`/cambiar/${token}`)} variant="secondary">
                       <LuCalendarClock aria-hidden="true" className="h-5 w-5" />
-                      {t('confirmacion.cambiarHorario')}
+                      <span className="min-w-0">{t('confirmacion.cambiarHorario')}</span>
                     </Boton>
                   )}
                   <button

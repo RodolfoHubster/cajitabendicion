@@ -40,7 +40,7 @@ export default function Preguntas() {
 
       <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold">
         <LuCircleHelp aria-hidden="true" className="h-6 w-6 text-accion" />
-        {t('preguntas.titulo')}
+        <span className="min-w-0">{t('preguntas.titulo')}</span>
       </h1>
       <p className="mb-4 text-base text-principal/70">{t('preguntas.ayuda')}</p>
 

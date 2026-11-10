@@ -35,7 +35,9 @@ export default function CamposDomicilio({ valor, alCambiar, busqueda, errorDe, t
       </legend>
       <p className="text-base text-principal/70">{t('domicilio.zona')}</p>
 
-      <div aria-label={t('domicilio.pais')} className="grid grid-cols-2 gap-2" role="radiogroup">
+      {/* Lado a lado; con la letra muy grande o la pantalla muy angosta, uno
+          debajo del otro ("Estados Unidos" ya no se parte a media palabra). */}
+      <div aria-label={t('domicilio.pais')} className="grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2" role="radiogroup">
         {PAISES_DOMICILIO.map((codigo) => (
           <button
             aria-checked={pais === codigo}
@@ -75,7 +77,7 @@ export default function CamposDomicilio({ valor, alCambiar, busqueda, errorDe, t
         {lugar && (
           <p className="mt-1 flex items-center gap-2 text-base font-semibold text-puede-pasar" role="status">
             <LuCircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('domicilio.encontrado', { ciudad: lugar.ciudad, estado: lugar.estado })}
+            <span className="min-w-0">{t('domicilio.encontrado', { ciudad: lugar.ciudad, estado: lugar.estado })}</span>
           </p>
         )}
       </div>

@@ -18,7 +18,7 @@ export default function AvisoDemo() {
     <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-marca px-3 py-2 text-center text-base text-white" role="note">
       <span className="inline-flex items-center gap-2 font-semibold">
         <LuClapperboard aria-hidden="true" className="h-5 w-5 shrink-0" />
-        {t('demo.aviso')}
+        <span className="min-w-0">{t('demo.aviso')}</span>
       </span>
       {/* Recarga completa: asi se olvida el ejemplo en esta pestana. */}
       <a className="font-bold underline underline-offset-4" href="/?demo=0">

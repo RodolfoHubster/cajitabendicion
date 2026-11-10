@@ -63,7 +63,7 @@ export default function YaVinisteAntes({ alAbrir }) {
     <div className="mb-4 rounded-2xl border-2 border-accion bg-accion/10 p-4">
       <p className="flex items-center gap-2 text-lg font-bold text-principal">
         <LuUserCheck aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-        {t('registro.yaViniste.titulo')}
+        <span className="min-w-0">{t('registro.yaViniste.titulo')}</span>
       </p>
       <p className="mt-1 text-base text-principal">{t('registro.yaViniste.ayuda')}</p>
 

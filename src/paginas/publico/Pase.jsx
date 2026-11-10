@@ -126,7 +126,7 @@ export default function Pase() {
       <Tarjeta>
         <p className="flex items-center gap-2 text-lg font-bold text-ya-recibio">
           <LuCircleX aria-hidden="true" className="h-6 w-6" />
-          {t('pase.revocado')}
+          <span className="min-w-0">{t('pase.revocado')}</span>
         </p>
         <p className="mt-2 text-base text-principal/80">
           {t('pase.revocadoTexto', { telefono: ORGANIZACION.telefono })}
@@ -186,7 +186,7 @@ export default function Pase() {
           type="button"
         >
           <LuDownload aria-hidden="true" className="h-5 w-5" />
-          {t('confirmacion.guardarImagen')}
+          <span className="min-w-0">{t('confirmacion.guardarImagen')}</span>
         </button>
 
         {guardado === 'descargada' && (

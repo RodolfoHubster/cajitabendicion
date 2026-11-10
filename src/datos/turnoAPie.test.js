@@ -6,6 +6,7 @@ vi.mock('./registro', () => ({ obtenerDispositivo: () => 'tel-de-prueba' }))
 import { supabase } from '../lib/supabase'
 import {
   avisoQueToca,
+  cambiarMiTurno,
   darTurnoSinTelefono,
   dispositivoParaTurno,
   filaAPieHoy,
@@ -28,6 +29,29 @@ function almacen() {
 
 beforeEach(() => {
   supabase.rpc.mockReset()
+})
+
+describe('cambiar mi turno (sección 59)', () => {
+  it('con su QR, sin pedir otra vez el código del día', async () => {
+    supabase.rpc.mockResolvedValue({
+      data: [{ resultado: 'NUEVO', token_qr: 'nuevo', codigo: 'CB-2', turno: 40, turno_anterior: 31 }],
+      error: null,
+    })
+    const r = await cambiarMiTurno('viejo')
+    expect(supabase.rpc).toHaveBeenCalledWith('cambiar_mi_turno', { p_token: 'viejo' })
+    expect(r).toMatchObject({ resultado: 'NUEVO', turno: 40 })
+    expect(traeTurno(r)).toBe(true)
+  })
+
+  it('lo que no es un turno nuevo no se guarda como turno', async () => {
+    supabase.rpc.mockResolvedValue({ data: [{ resultado: 'AUN_VALE', turno_anterior: 31 }], error: null })
+    expect(traeTurno(await cambiarMiTurno('viejo'))).toBe(false)
+  })
+
+  it('si ya no hay lugar, lo dice así', async () => {
+    supabase.rpc.mockResolvedValue({ data: null, error: { message: 'BLOQUE_LLENO', code: 'P0001' } })
+    await expect(cambiarMiTurno('viejo')).rejects.toThrow('BLOQUE_LLENO')
+  })
 })
 
 describe('sacar el turno', () => {

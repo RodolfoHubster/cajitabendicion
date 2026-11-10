@@ -29,7 +29,7 @@ export default function TarjetaDonar({ titulo }) {
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-superficie text-accion shadow-sm">
           <LuHeart aria-hidden="true" className="h-6 w-6" />
         </span>
-        <div>
+        <div className="min-w-0">
           <h2 className="font-titulo text-xl font-bold text-principal">{titulo ?? t('donar.titulo')}</h2>
           <p className="mt-1 text-base font-semibold text-principal">{t('donar.aclaracion')}</p>
           <p className="mt-1 text-base text-principal/80">{t('donar.texto')}</p>
@@ -49,7 +49,7 @@ export default function TarjetaDonar({ titulo }) {
             {...EXTERNO}
           >
             <Icono aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {texto}
+            <span className="min-w-0">{texto}</span>
           </a>
         ))}
       </div>

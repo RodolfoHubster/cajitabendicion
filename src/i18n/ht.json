@@ -605,9 +605,6 @@
     "revisando": "N ap tcheke liy lan…",
     "noHay": "Jodi a pa gen liy apye.",
     "llena": "Pa gen nimewo ankò pou jodi a.",
-    "esTuTurno": "Se tou pa w!",
-    "acercate": "Pwoche epi montre kòd QR ou.",
-    "verMiQr": "Gade kòd mwen",
     "avisos": {
       "sinDatos": "Nou pa mande non ou, laj ou ni telefòn ou. Anyen nan sa pa anrejistre ni pataje.",
       "soloHoy": "Nimewo ou se pou jodi a sèlman epi pou yon bwat manje.",
@@ -638,7 +635,8 @@
       "SIN_CONEXION": "Pa gen koneksyon. Tcheke siyal ou epi peze bouton an ankò.",
       "FUNCION_NO_INSTALADA": "Opsyon sa a poko pare. Tanpri di yon volontè sa.",
       "DISPOSITIVO_INVALIDO": "Nou pa t ka ba ou nimewo ak telefòn sa a. Tanpri mande yon volontè èd.",
-      "ERROR_DESCONOCIDO": "Nou pa t ka ba ou nimewo. Peze bouton an ankò oswa mande yon volontè èd."
+      "ERROR_DESCONOCIDO": "Nou pa t ka ba ou nimewo. Peze bouton an ankò oswa mande yon volontè èd.",
+      "BLOQUE_LLENO": "Pa gen nimewo ankò jodi a."
     },
     "terminada": "Liy jodi a fini. Mèsi paske ou vini! N ap tann ou nan pwochen distribisyon an.",
     "codigoEsTuyo": "Kòd sa a se pou ou sèlman: pa montre l pèsonn. Se avè l yo verifye nimewo a se pou ou.",
@@ -663,7 +661,37 @@
       "cancelar": "Mwen pa t gen randevou an machin",
       "CODIGO_CARRO_NO_EXISTE": "Nou pa jwenn randevou an machin pou jodi a ak kòd sa a. Tcheke chif yo."
     },
-    "verFila": "Gade liy lan an dirèk"
+    "verFila": "Gade liy lan an dirèk",
+    "aunNo": {
+      "titulo": "Ou POKO gen nimewo",
+      "texto": "Lè w louvri paj sa a, sa pa ba w yon nimewo. Peze bouton zoranj «Pran nimewo mwen».",
+      "conCodigo": "Lè w louvri paj sa a, sa pa ba w yon nimewo. Ekri kòd jodi a epi peze bouton zoranj «Pran nimewo mwen»."
+    },
+    "cambiar": {
+      "boton": "Mwen pa ka rive a tan: pran yon nouvo nimewo",
+      "pregunta": "Pran yon nouvo nimewo?",
+      "explicacion": "Nimewo {{turno}} ou a ap anile epi w ap tann depi nan fen liy lan. Si w toupre, pito w al jwenn volontè a kounye a: nimewo ou toujou bon.",
+      "si": "Wi, ban m yon nouvo nimewo",
+      "no": "Non, m ap kenbe nimewo {{turno}} an",
+      "resultado": {
+        "AUN_VALE": "Nimewo ou toujou bon: yo poko rele w. Tann la a.",
+        "YA_RECIBIO": "Ou deja resevwa bwat ou ak nimewo sa a. Mèsi paske w vini!",
+        "CERRADA": "Yo pa bay nouvo nimewo ankò jodi a. Si nimewo ou toujou bon, al jwenn volontè a.",
+        "NO_EXISTE": "Nou pa jwenn nimewo ou pou jodi a. Pale ak yon volontè."
+      }
+    },
+    "cancelar": {
+      "boton": "Anile nimewo mwen",
+      "pregunta": "Èske w sèten ou vle anile nimewo {{turno}} ou a?",
+      "explicacion": "Ou p ap ka sèvi ak nimewo sa a ni kòd li ankò. Si w chanje lide, w ap oblije pran yon nouvo nimewo epi tann depi nan fen liy lan.",
+      "si": "Wi, anile nimewo mwen",
+      "no": "Non, kenbe nimewo mwen",
+      "cancelando": "N ap anile…"
+    },
+    "cancelado": {
+      "titulo": "Nimewo {{turno}} ou a anile.",
+      "texto": "Si w toujou vle manje a, pran yon nouvo nimewo: w ap tann depi nan fen liy lan."
+    }
   },
   "credencial": {
     "etiqueta": "VOLONTÈ",

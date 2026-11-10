@@ -1,9 +1,23 @@
 /** @type {import('tailwindcss').Config} */
+import defaultTheme from 'tailwindcss/defaultTheme.js'
 
 //  Los colores salen de variables de CSS (src/index.css) para que el modo
 //  oscuro sea cambiar las variables, no reescribir cada pantalla. El
 //  `<alpha-value>` deja seguir usando `text-principal/70`, `bg-principal/5`.
 const color = (variable) => `rgb(var(${variable}) / <alpha-value>)`
+
+//  Rellenos (p-4, px-3...) y separaciones (gap-3...) con tope: nunca mas de
+//  lo que miden en una pantalla de 320 px (1rem = 5% del ancho). Con la letra
+//  normal en cualquier telefono de 320 px o mas se ven exactamente igual que
+//  siempre. Con la letra grande del telefono (1rem llega a 32 px), dejan de
+//  comerse el renglon: cajas dentro de cajas dejaban el texto en una tira de
+//  una palabra por renglon (10 de noviembre de 2026).
+const conTope = Object.fromEntries(
+  Object.entries(defaultTheme.spacing).map(([clave, valor]) => {
+    const rem = /^([\d.]+)rem$/.exec(valor)
+    return [clave, rem ? `min(${valor}, ${Number((Number(rem[1]) * 5).toFixed(4))}vw)` : valor]
+  }),
+)
 
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
@@ -11,6 +25,18 @@ export default {
   // pie o, la primera vez, la preferencia del telefono.
   darkMode: ['selector', '[data-tema="oscuro"]'],
   theme: {
+    padding: conTope,
+    gap: conTope,
+    //  En em y no en px (16 px = 1 em, los mismos cortes de siempre): si la
+    //  persona agrando la letra en su telefono o tableta, las dos columnas se
+    //  vuelven una antes de apretarse.
+    screens: {
+      sm: '40em',
+      md: '48em',
+      lg: '64em',
+      xl: '80em',
+      '2xl': '96em',
+    },
     extend: {
       colors: {
         // Letra, bordes y matices. En oscuro se vuelve un azul muy claro.
@@ -70,6 +96,17 @@ export default {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(9rem)' },
         },
+        //  "Es tu turno" (seccion 59): el marco verde alrededor de la pantalla.
+        parpadeo: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.2' },
+        },
+        //  "Sacar mi turno": un halo naranja que se abre, para que se toque.
+        llamar: {
+          '0%': { boxShadow: '0 0 0 0 rgb(245 160 60 / 0.7)' },
+          '70%': { boxShadow: '0 0 0 18px rgb(245 160 60 / 0)' },
+          '100%': { boxShadow: '0 0 0 0 rgb(245 160 60 / 0)' },
+        },
         //  El mismo, en la ventanita de la esquina (QR mas chico).
         'escanear-chico': {
           '0%, 100%': { transform: 'translateY(0)' },
@@ -83,6 +120,8 @@ export default {
         latido: 'latido 1.6s ease-in-out infinite',
         escanear: 'escanear 2.4s ease-in-out infinite',
         'escanear-chico': 'escanear-chico 2.4s ease-in-out infinite',
+        parpadeo: 'parpadeo 1.2s ease-in-out infinite',
+        llamar: 'llamar 1.8s ease-out infinite',
       },
     },
   },

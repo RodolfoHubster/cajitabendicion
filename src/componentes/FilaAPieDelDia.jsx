@@ -72,7 +72,7 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
     <section className="rounded-xl border-2 border-accion/50 bg-superficie p-4">
       <h4 className="mb-1 flex items-center gap-2 text-lg font-bold text-principal">
         <FaPersonWalking aria-hidden="true" className="h-5 w-5 text-accion" />
-        {t('filaAPieAdmin.titulo')}
+        <span className="min-w-0">{t('filaAPieAdmin.titulo')}</span>
       </h4>
       <p className="mb-3 text-base text-principal/70">{t('filaAPieAdmin.ayuda')}</p>
 
@@ -87,12 +87,12 @@ export default function FilaAPieDelDia({ dia, ejecutar, ocupado, mensaje }) {
           ) : yaAbrio ? (
             <>
               <LuCircleCheck aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-              {t('filaAPieAdmin.registroAbierto')}
+              <span className="min-w-0">{t('filaAPieAdmin.registroAbierto')}</span>
             </>
           ) : (
             <>
               <LuLock aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-accion" />
-              {t('filaAPieAdmin.abre', { cuando: formatearFechaHora(dia.a_pie_abre_en, i18n.language) })}
+              <span className="min-w-0">{t('filaAPieAdmin.abre', { cuando: formatearFechaHora(dia.a_pie_abre_en, i18n.language) })}</span>
             </>
           )}
           <span className="font-normal text-principal/70">

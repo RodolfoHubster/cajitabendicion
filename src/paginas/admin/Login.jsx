@@ -114,12 +114,12 @@ export default function Login() {
         type="button"
       >
         <FcGoogle aria-hidden="true" className="h-6 w-6 shrink-0" />
-        {t('admin.google')}
+        <span className="min-w-0">{t('admin.google')}</span>
       </button>
 
       <div className="my-5 flex items-center gap-3 text-base text-principal/70">
         <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />
-        {t('admin.oCorreo')}
+        <span className="min-w-0">{t('admin.oCorreo')}</span>
         <span aria-hidden="true" className="h-px flex-1 bg-principal/15" />
       </div>
 
@@ -140,7 +140,7 @@ export default function Login() {
             autoCapitalize="none"
             autoComplete="current-password"
             autoCorrect="off"
-            className="pr-32"
+            className="pr-[min(8rem,45vw)]"
             etiqueta={t('admin.contrasena')}
             id="contrasena"
             onChange={(e) => setContrasena(e.target.value)}

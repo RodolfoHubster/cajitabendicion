@@ -42,7 +42,7 @@ export default function CajasDeHoy({ fila, version }) {
       <div aria-live="polite">
         <p className="flex items-center gap-2 text-base font-semibold text-principal">
           <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-          {t('escaneo.cajas.hoy')}
+          <span className="min-w-0">{t('escaneo.cajas.hoy')}</span>
         </p>
         <p className="font-titulo text-4xl font-bold leading-tight text-principal">{cuentas ? cuentas.cajas : '—'}</p>
         {cuentas && (
@@ -58,7 +58,7 @@ export default function CajasDeHoy({ fila, version }) {
         type="button"
       >
         <LuVolume2 aria-hidden="true" className="h-5 w-5 shrink-0" />
-        {t('escaneo.sonido.probar')}
+        <span className="min-w-0">{t('escaneo.sonido.probar')}</span>
       </button>
     </div>
   )

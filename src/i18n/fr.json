@@ -609,9 +609,6 @@
     "revisando": "Nous vérifions la file…",
     "noHay": "Il n'y a pas de file à pied aujourd'hui.",
     "llena": "Il n'y a plus de numéros aujourd'hui.",
-    "esTuTurno": "C'est votre tour !",
-    "acercate": "Approchez-vous et montrez votre code QR.",
-    "verMiQr": "Voir mon code",
     "avisos": {
       "sinDatos": "Nous ne vous demandons ni nom, ni âge, ni téléphone. Rien n'est enregistré ni partagé avec personne.",
       "soloHoy": "Votre numéro vaut pour aujourd'hui seulement, pour une seule distribution.",
@@ -644,7 +641,8 @@
       "SIN_CONEXION": "Pas de connexion. Vérifiez votre signal et appuyez de nouveau sur le bouton.",
       "FUNCION_NO_INSTALADA": "Cette fonction n'est pas encore prête. Prévenez un bénévole.",
       "DISPOSITIVO_INVALIDO": "Ce téléphone n'a pas pu obtenir de numéro. Demandez de l'aide à un bénévole.",
-      "ERROR_DESCONOCIDO": "Le numéro n'a pas pu être attribué. Appuyez de nouveau sur le bouton ou demandez de l'aide à un bénévole."
+      "ERROR_DESCONOCIDO": "Le numéro n'a pas pu être attribué. Appuyez de nouveau sur le bouton ou demandez de l'aide à un bénévole.",
+      "BLOQUE_LLENO": "Il n'y a plus de numéros aujourd'hui."
     },
     "terminada": "La file d'aujourd'hui est terminée. Merci d'être venu ! Nous vous attendons à la prochaine distribution.",
     "codigoEsTuyo": "Ce code est à vous seul : ne le montrez à personne. Il sert à vérifier que le numéro est bien le vôtre.",
@@ -669,7 +667,37 @@
       "cancelar": "Je n'avais pas de rendez-vous en voiture",
       "CODIGO_CARRO_NO_EXISTE": "Il n'y a pas de rendez-vous en voiture avec ce code aujourd'hui. Vérifiez les chiffres."
     },
-    "verFila": "La file en direct"
+    "verFila": "La file en direct",
+    "aunNo": {
+      "titulo": "Vous n'avez PAS encore de numéro",
+      "texto": "Ouvrir cette page ne vous donne pas de numéro. Appuyez sur le bouton orange «Prendre mon numéro».",
+      "conCodigo": "Ouvrir cette page ne vous donne pas de numéro. Écrivez le code du jour et appuyez sur le bouton orange «Prendre mon numéro»."
+    },
+    "cambiar": {
+      "boton": "Je n'arriverai pas à temps : prendre un nouveau numéro",
+      "pregunta": "Prendre un nouveau numéro ?",
+      "explicacion": "Votre numéro {{turno}} est annulé et vous attendez depuis la fin de la file. Si vous êtes tout près, allez plutôt voir le bénévole maintenant : votre numéro est encore valable.",
+      "si": "Oui, donnez-moi un nouveau numéro",
+      "no": "Non, je garde le numéro {{turno}}",
+      "resultado": {
+        "AUN_VALE": "Votre numéro est encore valable : on ne vous a pas encore appelé. Attendez ici.",
+        "YA_RECIBIO": "Vous avez déjà reçu votre boîte avec ce numéro. Merci d'être venu !",
+        "CERRADA": "On ne donne plus de nouveaux numéros aujourd'hui. Si votre numéro est encore valable, allez voir le bénévole.",
+        "NO_EXISTE": "Nous ne trouvons pas votre numéro d'aujourd'hui. Parlez à un bénévole."
+      }
+    },
+    "cancelar": {
+      "boton": "Annuler mon numéro",
+      "pregunta": "Voulez-vous vraiment annuler votre numéro {{turno}} ?",
+      "explicacion": "Vous ne pourrez plus utiliser ce numéro ni son code. Si vous changez d'avis, il faudra prendre un nouveau numéro et attendre depuis la fin de la file.",
+      "si": "Oui, annuler mon numéro",
+      "no": "Non, garder mon numéro",
+      "cancelando": "Annulation…"
+    },
+    "cancelado": {
+      "titulo": "Votre numéro {{turno}} a été annulé.",
+      "texto": "Si vous voulez toujours vos provisions, prenez un nouveau numéro : vous attendrez depuis la fin de la file."
+    }
   },
   "credencial": {
     "etiqueta": "BÉNÉVOLE",

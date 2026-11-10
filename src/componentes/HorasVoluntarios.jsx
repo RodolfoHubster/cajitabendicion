@@ -161,7 +161,7 @@ function DetalleVoluntario({ voluntarioId, desde, hasta, alCambiar }) {
       {/* Para la escuela (servicio comunitario): una hoja con el total y la firma. */}
       <Link className={BOTON} to={`/admin/voluntarios/constancia/${voluntarioId}?desde=${desde}&hasta=${hasta}`}>
         <LuFileText aria-hidden="true" className="h-5 w-5 text-accion" />
-        {t('voluntarios.horas.constancia')}
+        <span className="min-w-0">{t('voluntarios.horas.constancia')}</span>
       </Link>
       <ul className="space-y-2">
         {(lista ?? []).map((a) => (
@@ -379,7 +379,7 @@ export default function HorasVoluntarios({ voluntarios, alCambiar, horaSalida = 
                 {filas.length > 0 && (
                   <button className={BOTON} onClick={descargar} type="button">
                     <LuDownload aria-hidden="true" className="h-5 w-5 text-accion" />
-                    {t('voluntarios.horas.descargar')}
+                    <span className="min-w-0">{t('voluntarios.horas.descargar')}</span>
                   </button>
                 )}
               </div>
@@ -444,7 +444,7 @@ export default function HorasVoluntarios({ voluntarios, alCambiar, horaSalida = 
               type="button"
             >
               <LuCalendarPlus aria-hidden="true" className="h-6 w-6 text-accion" />
-              {t('voluntarios.dia.abrir')}
+              <span className="min-w-0">{t('voluntarios.dia.abrir')}</span>
             </button>
             <p className="text-base text-principal/80">{t('voluntarios.dia.abrirAyuda')}</p>
           </div>
@@ -488,7 +488,7 @@ export default function HorasVoluntarios({ voluntarios, alCambiar, horaSalida = 
         ) : (
           <button className={BOTON} onClick={() => setAgregando(true)} type="button">
             <LuPlus aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t('voluntarios.horas.agregarBoton')}
+            <span className="min-w-0">{t('voluntarios.horas.agregarBoton')}</span>
           </button>
         )}
       </Tarjeta>

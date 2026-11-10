@@ -110,7 +110,7 @@ export default function CambiarHorario() {
         <h1 className="mb-2 text-2xl font-bold">{t('cambiar.titulo')}</h1>
         <p className="flex items-start gap-2 rounded-xl bg-principal/5 p-4 text-base">
           <LuCircleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-          {sePuede ? t('cambiar.yaCambiaste', { telefono: ORGANIZACION.telefono }) : t('cambiar.noSePuede')}
+          <span className="min-w-0">{sePuede ? t('cambiar.yaCambiaste', { telefono: ORGANIZACION.telefono }) : t('cambiar.noSePuede')}</span>
         </p>
         {volver}
       </Tarjeta>
@@ -160,7 +160,7 @@ export default function CambiarHorario() {
 
       <p className="mt-4 flex items-start gap-2 rounded-xl bg-accion/15 p-3 text-base">
         <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-        {t('cambiar.aviso', { codigo: cita.codigo_corto })}
+        <span className="min-w-0">{t('cambiar.aviso', { codigo: cita.codigo_corto })}</span>
       </p>
 
       {dias.length === 0 ? (

@@ -38,7 +38,7 @@ export default function AjustesVoluntarios({ ajustes, alGuardar, alCerrar }) {
     <form className="space-y-3 rounded-xl border-2 border-principal/20 bg-principal/5 p-3" onSubmit={guardar}>
       <h3 className="flex items-center gap-2 text-lg font-bold text-principal">
         <LuSlidersHorizontal aria-hidden="true" className="h-5 w-5 text-accion" />
-        {t('voluntarios.ajustes.titulo')}
+        <span className="min-w-0">{t('voluntarios.ajustes.titulo')}</span>
       </h3>
       <fieldset className="space-y-2">
         <legend className="sr-only">{t('voluntarios.ajustes.titulo')}</legend>

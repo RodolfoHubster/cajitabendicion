@@ -40,7 +40,7 @@ export default function SelectorLetra({ variante = 'claro', className = '' }) {
       <span className={`text-base font-semibold ${estilo.titulo}`} id="titulo-letra">
         {t('letra.titulo')}
       </span>
-      <div aria-labelledby="titulo-letra" className={`inline-flex gap-1 rounded-full p-1 ${estilo.caja}`} role="radiogroup">
+      <div aria-labelledby="titulo-letra" className={`inline-flex max-w-full flex-wrap justify-center gap-1 rounded-full p-1 ${estilo.caja}`} role="radiogroup">
         {TAMANOS_LETRA.map((opcion) => (
           <button
             aria-checked={opcion === tamano}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuCopyX, LuInfo, LuPackageCheck, LuQrCode, LuRotateCcw, LuSearch, LuX } from 'react-icons/lu'
 import Boton from './Boton'
+import DeshacerEntrega from './DeshacerEntrega'
 import { EsqueletoLista } from './Esqueleto'
 import LlegoTarde from './LlegoTarde'
 import { dibujarQR } from '../datos/cita'
@@ -26,6 +27,8 @@ const COLOR_ESTADO = {
   recibio: 'text-ya-recibio font-semibold',
   anulado: 'text-principal/70',
   repetido: 'text-principal/70',
+  cambiado: 'text-principal/70',
+  cancelado: 'text-principal/70',
 }
 
 const BORDE_ESTADO = {
@@ -35,6 +38,8 @@ const BORDE_ESTADO = {
   recibio: 'border-ya-recibio/40 bg-ya-recibio/5',
   anulado: 'border-principal/15 bg-principal/5',
   repetido: 'border-principal/15 bg-principal/5',
+  cambiado: 'border-principal/15 bg-principal/5',
+  cancelado: 'border-principal/15 bg-principal/5',
 }
 
 //  "Turno 2 · María, chamarra roja" -> "María, chamarra roja"; "Turno 2" -> "".
@@ -54,12 +59,26 @@ const senaDe = (nombre) => String(nombre ?? '').replace(/^Turno \d+\s*(·\s*)?/,
  *                    misma persona saco otro turno (o regresarlo, si se
  *                    cancelo el equivocado).
  *
+ * Seccion 59: tambien los que la persona cancelo o cambio por uno nuevo
+ * (y cual). Y si se marco "recibio" por error (se dejo pasar a alguien con
+ * el numero de otra persona que todavia no llegaba), en su detalle se
+ * deshace la entrega, con la palomita "Deshacer entregas" (puedeDeshacer).
+ *
  * alCambio: para que la fila de la voluntaria se vuelva a pedir.
  *
  * El codigo solo se ve en el detalle: es lo que prueba de quien es el turno,
  * y la persona de enfrente alcanza a ver la pantalla.
  */
-export default function BuscarTurno({ actual = null, version = 0, ocupado = false, alEntregar, alAnular, alRegresar, alCambio }) {
+export default function BuscarTurno({
+  actual = null,
+  version = 0,
+  ocupado = false,
+  puedeDeshacer = false,
+  alEntregar,
+  alAnular,
+  alRegresar,
+  alCambio,
+}) {
   const { t } = useTranslation()
   const [texto, setTexto] = useState('')
   const [conLetras, setConLetras] = useState(false)
@@ -115,17 +134,17 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
     <div className="mt-4 rounded-2xl border-2 border-principal/20 p-3">
       <label className="flex items-center gap-2 text-lg font-bold text-principal" htmlFor="buscar-turno">
         <LuSearch aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-        {t('escaneo.turnos.etiqueta')}
+        <span className="min-w-0">{t('escaneo.turnos.etiqueta')}</span>
       </label>
       <p className="text-base text-principal/80" id={ayudaId}>
         {t('escaneo.turnos.ayuda')}
       </p>
 
-      <div className="mt-2 flex gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         <input
           aria-describedby={ayudaId}
           autoComplete="off"
-          className="min-h-14 w-0 min-w-0 flex-1 rounded-xl border-2 border-principal/30 bg-superficie px-3 font-titulo text-2xl font-bold text-principal placeholder:text-principal/40 focus:border-principal"
+          className="min-h-14 w-0 min-w-[min(6rem,100%)] flex-1 rounded-xl border-2 border-principal/30 bg-superficie px-3 font-titulo text-2xl font-bold text-principal placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:text-principal/60 focus:border-principal"
           enterKeyHint="search"
           id="buscar-turno"
           inputMode={conLetras ? 'text' : 'numeric'}
@@ -184,9 +203,14 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
             const estado = estadoDeTurno(fila, actual)
             const directo = estado === 'esperando' || estado === 'va'
             const sena = senaDe(fila.nombre)
-            const marca = { saltado: fila.saltado_en, recibio: fila.entregado_en, anulado: fila.anulado_en, repetido: fila.repetido_en }[
-              estado
-            ]
+            const marca = {
+              saltado: fila.saltado_en,
+              recibio: fila.entregado_en,
+              anulado: fila.anulado_en,
+              repetido: fila.repetido_en,
+              cambiado: fila.cancelado_en,
+              cancelado: fila.cancelado_en,
+            }[estado]
             const verDetalle = () => setAbierto((antes) => (antes === fila.turno ? null : fila.turno))
 
             return (
@@ -198,7 +222,7 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
                     onClick={directo ? () => hecho(alEntregar)(fila.turno) : verDetalle}
                     type="button"
                   >
-                    <span className="w-16 shrink-0 text-center font-titulo text-4xl font-bold leading-none text-principal">
+                    <span className="w-[min(4rem,16vw)] shrink-0 text-center font-titulo text-4xl font-bold leading-none text-principal">
                       {fila.turno}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -207,12 +231,13 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
                         {t(`escaneo.turnos.estado.${estado}`, {
                           hora: horaDeMarca(marca),
                           hace: marca ? haceCuanto(t, marca) : '',
+                          nuevo: fila.cambiado_a ?? '',
                         })}
                       </span>
                       {directo && (
                         <span className="mt-0.5 flex items-center gap-1 text-chica font-semibold text-principal/80">
                           <LuPackageCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-                          {t('escaneo.turnos.tocaParaEntregar')}
+                          <span className="min-w-0">{t('escaneo.turnos.tocaParaEntregar')}</span>
                         </span>
                       )}
                     </span>
@@ -220,7 +245,7 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
                   <button
                     aria-expanded={abierto === fila.turno}
                     aria-label={t('escaneo.turnos.verDetalle', { turno: fila.turno })}
-                    className="flex w-14 shrink-0 items-center justify-center border-l border-principal/15 text-principal hover:bg-principal/5"
+                    className="flex w-[min(3.5rem,14vw)] shrink-0 items-center justify-center border-l border-principal/15 text-principal hover:bg-principal/5"
                     onClick={verDetalle}
                     type="button"
                   >
@@ -240,6 +265,7 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
                     estado={estado}
                     fila={fila}
                     ocupado={ocupado}
+                    puedeDeshacer={puedeDeshacer}
                   />
                 )}
               </li>
@@ -252,7 +278,7 @@ export default function BuscarTurno({ actual = null, version = 0, ocupado = fals
 }
 
 /** El detalle de un turno: sus datos, su QR y lo que se puede hacer con el. */
-function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar, alCambio }) {
+function DetalleTurno({ fila, estado, ocupado, puedeDeshacer, alEntregar, alAnular, alRegresar, alCambio }) {
   const { t } = useTranslation()
   const [qr, setQr] = useState(null)
   const [errorQr, setErrorQr] = useState(null)
@@ -300,6 +326,9 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
     fila.anulado_en && ['anulado', horaDeMarca(fila.anulado_en)],
     fila.repetido_en && ['cancelado', horaDeMarca(fila.repetido_en)],
     fila.repetido_en && fila.se_queda && ['seQueda', <span className="font-titulo text-xl font-bold" key="q">{fila.se_queda}</span>],
+    //  Seccion 59: lo cancelo la persona, o lo cambio por uno nuevo.
+    fila.cancelado_en && !fila.anulado_en && !fila.repetido_en && ['cancelado', horaDeMarca(fila.cancelado_en)],
+    fila.cambiado_a && ['cambiadoA', <span className="font-titulo text-xl font-bold" key="n">{fila.cambiado_a}</span>],
   ].filter(Boolean)
 
   return (
@@ -324,10 +353,27 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
         />
       )}
 
+      {/* Se marco "recibio" y no era (10 de noviembre de 2026: se dejo
+          pasar a gente con el numero de otros que todavia no llegaban).
+          Se deshace aqui y su turno vuelve a la fila; queda quien y por que. */}
+      {estado === 'recibio' &&
+        (puedeDeshacer ? (
+          <DeshacerEntrega
+            alDeshacer={() => {
+              setAviso(t('escaneo.turnos.deshecho', { turno: fila.turno }))
+              alCambio()
+            }}
+            codigo={fila.codigo_corto}
+            nombre={t('turno.numero', { turno: fila.turno })}
+          />
+        ) : (
+          <p className="rounded-xl bg-principal/5 p-3 text-base text-principal">{t('escaneo.turnos.deshacerSinPermiso')}</p>
+        ))}
+
       {(estado === 'esperando' || estado === 'va') && (
         <Boton disabled={ocupado} onClick={() => alEntregar(fila.turno)}>
           <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-          {t('escaneo.registrarEntrega')}
+          <span className="min-w-0">{t('escaneo.registrarEntrega')}</span>
         </Boton>
       )}
 
@@ -340,7 +386,7 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
             type="button"
           >
             <LuRotateCcw aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t('filaTurnos.regresar')}
+            <span className="min-w-0">{t('filaTurnos.regresar')}</span>
           </button>
         )}
         {vivo && (
@@ -351,7 +397,7 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
             type="button"
           >
             <LuQrCode aria-hidden="true" className="h-5 w-5 text-accion" />
-            {qr ? t('escaneo.turnos.ocultarQr') : t('escaneo.turnos.verQr')}
+            <span className="min-w-0">{qr ? t('escaneo.turnos.ocultarQr') : t('escaneo.turnos.verQr')}</span>
           </button>
         )}
       </div>
@@ -368,7 +414,7 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
           type="button"
         >
           <LuCopyX aria-hidden="true" className="h-5 w-5" />
-          {t('escaneo.turnos.repetido.boton')}
+          <span className="min-w-0">{t('escaneo.turnos.repetido.boton')}</span>
         </button>
       )}
       {vivo && repetido !== null && (
@@ -420,7 +466,7 @@ function DetalleTurno({ fila, estado, ocupado, alEntregar, alAnular, alRegresar,
           type="button"
         >
           <LuRotateCcw aria-hidden="true" className="h-5 w-5 text-accion" />
-          {t('escaneo.turnos.repetido.regresar')}
+          <span className="min-w-0">{t('escaneo.turnos.repetido.regresar')}</span>
         </button>
       )}
       {aviso && (

@@ -186,7 +186,7 @@ function NuevoDia({ alCrear, alCancelar }) {
                   value={valor}
                 />
                 <Icono aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-                {t(`diasAdmin.filas.${valor}`)}
+                <span className="min-w-0">{t(`diasAdmin.filas.${valor}`)}</span>
               </label>
             ))}
           </div>
@@ -196,7 +196,7 @@ function NuevoDia({ alCrear, alCancelar }) {
           <section className="space-y-4 rounded-xl border-2 border-principal/25 p-4">
             <h3 className="flex items-center gap-2 text-lg font-bold text-principal">
               <FaCarSide aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('filas.nombre.carro')}
+              <span className="min-w-0">{t('filas.nombre.carro')}</span>
             </h3>
 
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -277,7 +277,7 @@ function NuevoDia({ alCrear, alCancelar }) {
           <section className="space-y-3 rounded-xl border-2 border-accion/50 p-4">
             <h3 className="flex items-center gap-2 text-lg font-bold text-principal">
               <FaPersonWalking aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('filaAPieAdmin.titulo')}
+              <span className="min-w-0">{t('filaAPieAdmin.titulo')}</span>
             </h3>
             <CamposFilaAPie alCambiar={setAPie} conCodigo fecha={fecha} id="nueva" valor={aPie} />
           </section>
@@ -371,7 +371,7 @@ export default function HorariosAdmin() {
               }}
             >
               <LuPlus aria-hidden="true" className="h-5 w-5" />
-              {t('diasAdmin.nueva')}
+              <span className="min-w-0">{t('diasAdmin.nueva')}</span>
             </Boton>
           )}
         </div>

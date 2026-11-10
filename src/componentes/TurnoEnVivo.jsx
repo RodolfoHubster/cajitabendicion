@@ -21,14 +21,24 @@ import { avisoQueToca } from '../datos/turnoAPie'
  * turnoInicial: el que ya se sabe (de consultar_cita), para no esperar la
  * primera respuesta. alCambiar(datos): para que la pagina sepa cuando ya
  * recibio. accionPerdido: lo que se ofrece si su turno se anulo porque
- * llego tarde (en /turno, "Sacar un turno nuevo"; seccion 46). enMedio: lo
+ * llego tarde (en /turno, "Sacar un turno nuevo"; seccion 46).
+ * accionLlamado: lo que se ofrece si lo llamaron y no estaba (en /turno,
+ * cambiarlo por uno al final; seccion 59). enMedio: lo
  * que va entre el numero y como va la fila (en /turno, su QR y su codigo:
  * asi el numero, el QR y el codigo caben en una sola captura).
  *
  * Cuando faltan 3 y cuando le toca, el telefono suena y vibra (vibrar, solo
  * en Android). Mientras espera, la pantalla no se apaga sola.
  */
-export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambiar, accionPerdido = null, enMedio = null }) {
+export default function TurnoEnVivo({
+  token,
+  turnoInicial = null,
+  esHoy,
+  alCambiar,
+  accionPerdido = null,
+  accionLlamado = null,
+  enMedio = null,
+}) {
   const { t } = useTranslation()
   const [datos, setDatos] = useState(null)
   const anterior = useRef(null)
@@ -61,10 +71,28 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
   const turno = datos?.turno ?? turnoInicial
   usePantallaEncendida(Boolean(esHoy) && !terminado && !filaTerminada && situacion?.tipo !== 'teLlamaron')
 
+  const leToca = esHoy && situacion?.tipo === 'tuTurno'
+
   return (
-    <div className="rounded-2xl border-4 border-accion bg-accion/10 p-4 text-center" aria-live="polite">
+    //  Le toca: todo en verde, y el aviso ARRIBA de su QR, para que se lea
+    //  sin tapar el codigo que la voluntaria tiene que escanear.
+    <div
+      aria-live="polite"
+      className={`rounded-2xl border-4 p-4 text-center ${leToca ? 'border-puede-pasar bg-puede-pasar/10' : 'border-accion bg-accion/10'}`}
+    >
       <p className="text-lg font-bold uppercase tracking-wide text-principal/80">{t('turno.tuTurno')}</p>
       <p className="font-titulo text-7xl font-bold leading-none text-principal">{turno ?? '—'}</p>
+
+      {leToca && (
+        <p
+          className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-xl bg-puede-pasar px-3 py-3 text-xl font-bold text-white"
+          role="alert"
+        >
+          <LuBellRing aria-hidden="true" className="h-6 w-6 shrink-0" />
+          <span className="min-w-[min(10rem,100%)] flex-1 basis-0">{t('turno.esTuTurno')}</span>
+        </p>
+      )}
+
       {enMedio}
 
       {!esHoy && datos && !terminado && (
@@ -75,13 +103,15 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
         <div className="mt-3 space-y-1">
           {situacion.actual != null && (
             <p className="flex items-center justify-center gap-2 text-xl font-bold text-principal">
-              <LuMegaphone aria-hidden="true" className="h-6 w-6 text-accion" />
-              {t('turno.van', { turno: situacion.actual })}
+              <LuMegaphone aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+              <span className="min-w-0">{t('turno.van', { turno: situacion.actual })}</span>
             </p>
           )}
           <p className="flex items-center justify-center gap-2 text-lg text-principal">
-            <LuUsers aria-hidden="true" className="h-5 w-5 text-accion" />
-            {situacion.antes === 0 ? t('turno.eresElSiguiente') : t('turno.antes', { count: situacion.antes })}
+            <LuUsers aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+            <span className="min-w-0">
+              {situacion.antes === 0 ? t('turno.eresElSiguiente') : t('turno.antes', { count: situacion.antes })}
+            </span>
           </p>
           <EsperaAproximada antes={situacion.antes} segundos={datos?.segundos_por_turno} />
         </div>
@@ -93,31 +123,25 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
         <div className="mt-3 space-y-1">
           <p className="flex items-center justify-center gap-2 text-xl font-bold text-principal">
             <LuClock aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-            {t('turno.porEmpezar')}
+            <span className="min-w-0">{t('turno.porEmpezar')}</span>
           </p>
           {datos?.hora && (
             <p className="text-lg text-principal">{t('turnoAPie.empiezaA', { hora: formatearHora(datos.hora) })}</p>
           )}
           {situacion.antes > 0 && (
             <p className="flex items-center justify-center gap-2 text-lg text-principal">
-              <LuUsers aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('turno.antes', { count: situacion.antes })}
+              <LuUsers aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+              <span className="min-w-0">{t('turno.antes', { count: situacion.antes })}</span>
             </p>
           )}
           <p className="text-base text-principal/80">{t('turno.porEmpezarAyuda')}</p>
         </div>
       )}
 
-      {esHoy && situacion?.tipo === 'tuTurno' && (
-        <p className="mt-3 flex items-center justify-center gap-2 rounded-xl border-2 border-puede-pasar bg-puede-pasar/15 px-3 py-3 text-xl font-bold text-puede-pasar" role="alert">
-          <LuBellRing aria-hidden="true" className="h-6 w-6" />
-          {t('turno.esTuTurno')}
-        </p>
-      )}
-
       {situacion?.tipo === 'teLlamaron' && (
         <div className="mt-3 rounded-xl bg-accion px-3 py-3 text-sobre-accion" role="alert">
           <p className="text-lg font-bold">{t('turno.teLlamaron')}</p>
+          {accionLlamado}
         </div>
       )}
 
@@ -134,7 +158,9 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
         <div className="mt-3 space-y-1 rounded-xl border-2 border-ya-recibio bg-ya-recibio/10 px-3 py-3 text-principal" role="alert">
           <p className="flex items-center justify-center gap-2 text-lg font-bold">
             <LuCopyX aria-hidden="true" className="h-6 w-6 shrink-0" />
-            {situacion.seQueda ? t('turno.repetidoCon', { turno: situacion.seQueda }) : t('turno.repetido')}
+            <span className="min-w-0">
+              {situacion.seQueda ? t('turno.repetidoCon', { turno: situacion.seQueda }) : t('turno.repetido')}
+            </span>
           </p>
           <p className="text-base">{t('turno.repetidoAyuda')}</p>
         </div>
@@ -143,14 +169,14 @@ export default function TurnoEnVivo({ token, turnoInicial = null, esHoy, alCambi
       {situacion?.tipo === 'terminada' && (
         <p className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-principal/10 px-3 py-3 text-lg font-bold text-principal" role="status">
           <LuFlag aria-hidden="true" className="h-6 w-6 shrink-0" />
-          {t('turno.terminada')}
+          <span className="min-w-0">{t('turno.terminada')}</span>
         </p>
       )}
 
       {situacion?.tipo === 'recibida' && (
         <p className="mt-3 flex items-center justify-center gap-2 text-lg font-bold text-puede-pasar">
-          <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
-          {t('turno.recibida')}
+          <LuCircleCheck aria-hidden="true" className="h-6 w-6 shrink-0" />
+          <span className="min-w-0">{t('turno.recibida')}</span>
         </p>
       )}
 

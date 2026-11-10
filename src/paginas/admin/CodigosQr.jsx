@@ -108,7 +108,7 @@ export default function CodigosQr() {
 
           <Boton disabled={creando} type="submit">
             <LuPlus aria-hidden="true" className="h-5 w-5" />
-            {creando ? t('codigosQr.creando') : t('codigosQr.crear')}
+            <span className="min-w-0">{creando ? t('codigosQr.creando') : t('codigosQr.crear')}</span>
           </Boton>
         </form>
       </Tarjeta>
@@ -116,7 +116,7 @@ export default function CodigosQr() {
       {qrs.length === 0 ? (
         <p className="flex items-center gap-2 px-1 text-base text-principal/70">
           <LuQrCode aria-hidden="true" className="h-5 w-5" />
-          {t('codigosQr.ninguno')}
+          <span className="min-w-0">{t('codigosQr.ninguno')}</span>
         </p>
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -182,11 +182,11 @@ function TarjetaQr({ qr, alQuitar }) {
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Boton className="min-h-12 px-2" disabled={!imagen} onClick={descargar}>
           <LuDownload aria-hidden="true" className="h-5 w-5" />
-          {t('codigosQr.descargar')}
+          <span className="min-w-0">{t('codigosQr.descargar')}</span>
         </Boton>
         <Boton className="min-h-12 px-2" disabled={!imagen} onClick={copiar} variant="secondary">
           <LuCopy aria-hidden="true" className="h-5 w-5" />
-          {t('codigosQr.copiar')}
+          <span className="min-w-0">{t('codigosQr.copiar')}</span>
         </Boton>
       </div>
 
@@ -213,7 +213,7 @@ function TarjetaQr({ qr, alQuitar }) {
           type="button"
         >
           <LuTrash2 aria-hidden="true" className="h-4 w-4" />
-          {t('codigosQr.quitar')}
+          <span className="min-w-0">{t('codigosQr.quitar')}</span>
         </button>
       )}
     </li>

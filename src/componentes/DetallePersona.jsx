@@ -229,7 +229,7 @@ export default function DetallePersona({ codigo, alCerrar }) {
                             type="button"
                           >
                             <LuQrCode aria-hidden="true" className="h-5 w-5" />
-                            {t('verQr.verEste')}
+                            <span className="min-w-0">{t('verQr.verEste')}</span>
                           </button>
                         )}
                         <span

@@ -231,6 +231,16 @@ export function respuestaDemo(
       ])
     }
 
+    //  Lo llamaron y no estaba (seccion 59): uno nuevo, nueve lugares atras.
+    case 'cambiar_mi_turno': {
+      const cita = citas[parametros.p_token]
+      if (!cita?.turno) return ok([{ resultado: 'NO_EXISTE' }])
+      const token = `demo-${Math.floor(azar() * 1e12).toString(36)}`
+      const nueva = { ...cita, turno: cita.turno + 9, estado: 'reservada', creada: ahora }
+      guardarCitas(almacen, { ...citas, [parametros.p_token]: { ...cita, estado: 'cancelada' }, [token]: nueva })
+      return ok([{ resultado: 'NUEVO', token_qr: token, codigo: CODIGO_DEMO, turno: nueva.turno, turno_anterior: cita.turno }])
+    }
+
     //  Hoy hay fila a pie, ya abierta y sin codigo del dia.
     case 'fila_a_pie_hoy':
       return ok([{ hora: '14:00:00', abre_en: null, abierta: true, cerrada: false, pide_codigo: false }])

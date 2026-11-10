@@ -2,9 +2,10 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import { LuDownload } from 'react-icons/lu'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import Boton from '../../componentes/Boton'
 import ElegirDiaEntrega from '../../componentes/ElegirDiaEntrega'
+import ListaPersonas from '../../componentes/ListaPersonas'
 import Paginacion from '../../componentes/Paginacion'
 import SelectorFila from '../../componentes/SelectorFila'
 import Tarjeta from '../../componentes/Tarjeta'
@@ -58,6 +59,8 @@ const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking }
 export default function Reportes() {
   const { t, i18n } = useTranslation()
   const navegar = useNavigate()
+  //  La lista con datos personales solo la baja un administrador (seccion 58).
+  const { rol } = useOutletContext() ?? {}
   const hoy = hoyLocal()
 
   //  Hasta que se escoja otro periodo, el ultimo dia de entrega.
@@ -181,7 +184,7 @@ export default function Reportes() {
             variant="secondary"
           >
             <LuDownload aria-hidden="true" className="h-5 w-5" />
-            {t('reportes.descargar')}
+            <span className="min-w-0">{t('reportes.descargar')}</span>
           </Boton>
         </div>
 
@@ -243,6 +246,8 @@ export default function Reportes() {
           </p>
         )}
       </Tarjeta>
+
+      {rol === 'admin' && <ListaPersonas deshabilitada={Boolean(errorRango)} desde={desde} hasta={hasta} />}
 
       {cargando && (
         <Tarjeta>
@@ -438,7 +443,7 @@ function DetalleDelDia({ fecha, titulo = null }) {
             <div className="rounded-xl bg-superficie p-3 ring-1 ring-principal/10" key={fila}>
               <h3 className="mb-2 flex items-center gap-2 text-base font-bold text-principal">
                 <Icono aria-hidden="true" className="h-4 w-4 text-accion" />
-                {t(`filas.nombre.${fila}`)}
+                <span className="min-w-0">{t(`filas.nombre.${fila}`)}</span>
               </h3>
               <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 text-base">
                 {(fila === 'a_pie' ? CUENTAS_A_PIE : CUENTAS_DETALLE).map((cuenta) => (

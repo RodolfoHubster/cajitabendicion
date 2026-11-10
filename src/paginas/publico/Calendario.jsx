@@ -110,7 +110,7 @@ export default function Calendario() {
           target="_blank"
         >
           <FaFacebook aria-hidden="true" className="h-5 w-5 shrink-0" />
-          {t('modalSuscriptor.suscribirme')}
+          <span className="min-w-0">{t('modalSuscriptor.suscribirme')}</span>
         </a>
       </Tarjeta>
     )
@@ -169,13 +169,13 @@ export default function Calendario() {
         {abierta ? (
           <p className="mt-4 flex items-center gap-2 rounded-xl bg-puede-pasar/10 p-3 text-base font-semibold text-puede-pasar">
             <LuCircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('proxima.abiertos')}
+            <span className="min-w-0">{t('proxima.abiertos')}</span>
           </p>
         ) : (
           <div className="mt-4 rounded-xl bg-principal/5 p-4">
             <p className="flex items-start gap-2 text-base font-semibold">
               <LuLock aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-accion" />
-              {t('proxima.abreEl', { cuando: formatearFechaHora(dia.abreEn, i18n.language) })}
+              <span className="min-w-0">{t('proxima.abreEl', { cuando: formatearFechaHora(dia.abreEn, i18n.language) })}</span>
             </p>
             <p className="mt-1 font-titulo text-2xl font-bold text-principal">
               {t('proxima.faltan', { tiempo: tiempoRestante(t, faltaPublico) })}
@@ -200,7 +200,7 @@ export default function Calendario() {
             type="button"
           >
             <FaFacebook aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('proxima.conCodigo')}
+            <span className="min-w-0">{t('proxima.conCodigo')}</span>
           </button>
 
           {puedeRegistrarse ? (
@@ -212,7 +212,7 @@ export default function Calendario() {
               type="button"
             >
               <LuLock aria-hidden="true" className="h-5 w-5 shrink-0" />
-              {hayLugar ? t('proxima.registrarme') : t('proxima.sinLugares')}
+              <span className="min-w-0">{hayLugar ? t('proxima.registrarme') : t('proxima.sinLugares')}</span>
             </button>
           )}
         </div>

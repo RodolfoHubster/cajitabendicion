@@ -28,7 +28,7 @@ export default function EsperaAproximada({ antes, segundos, nuevo = false }) {
     <div className="mt-3 rounded-xl bg-superficie px-3 py-2 text-center text-principal">
       <p className="flex items-center justify-center gap-2 text-lg font-bold">
         <LuTimer aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-        {nuevo ? t('espera.siSacasAhora', { tiempo }) : t('espera.tuya', { tiempo })}
+        <span className="min-w-0">{nuevo ? t('espera.siSacasAhora', { tiempo }) : t('espera.tuya', { tiempo })}</span>
       </p>
       <p className="text-base text-principal/80">{t('espera.aviso')}</p>
     </div>

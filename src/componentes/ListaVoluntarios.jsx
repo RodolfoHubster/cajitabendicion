@@ -168,7 +168,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
       <Tarjeta>
         <h2 className="flex items-center gap-2 text-xl font-bold">
           <LuUserPlus aria-hidden="true" className="h-6 w-6 text-accion" />
-          {t('voluntarios.registrar.titulo')}
+          <span className="min-w-0">{t('voluntarios.registrar.titulo')}</span>
         </h2>
         <p className="mb-3 text-base text-principal/70">{t('voluntarios.registrar.ayuda')}</p>
         <form className="space-y-3" onSubmit={registrar}>
@@ -184,7 +184,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
           {repetido && (
             <p className="flex items-start gap-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
               <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-              {t('voluntarios.registrar.repetido', { nombre: repetido.nombre })}
+              <span className="min-w-0">{t('voluntarios.registrar.repetido', { nombre: repetido.nombre })}</span>
             </p>
           )}
           <CampoContactoVoluntario alCambiar={setContacto} id="voluntario-contacto" valor={contacto} />
@@ -222,7 +222,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-accion bg-accion/10 p-3">
             <p className="flex items-center gap-2 text-base font-semibold text-principal">
               <LuSend aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-              {t('voluntarios.lista.faltan', { count: cuentas.pendiente })}
+              <span className="min-w-0">{t('voluntarios.lista.faltan', { count: cuentas.pendiente })}</span>
             </p>
             <button className={BOTON} onClick={() => setFiltro('pendiente')} type="button">
               {t('voluntarios.lista.verFaltan')}
@@ -288,7 +288,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                 type="button"
               >
                 <LuPrinter aria-hidden="true" className="h-5 w-5 text-accion" />
-                {t('voluntarios.lista.imprimir', { count: paraImprimir.length })}
+                <span className="min-w-0">{t('voluntarios.lista.imprimir', { count: paraImprimir.length })}</span>
               </button>
             </div>
           </div>
@@ -319,7 +319,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                     {repetidoAlEditar && (
                       <p className="flex items-start gap-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
                         <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-                        {t('voluntarios.registrar.repetido', { nombre: repetidoAlEditar.nombre })}
+                        <span className="min-w-0">{t('voluntarios.registrar.repetido', { nombre: repetidoAlEditar.nombre })}</span>
                       </p>
                     )}
                     <CampoContactoVoluntario
@@ -366,13 +366,13 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                         {v.telefono && (
                           <p className="flex items-center gap-1.5 text-base text-principal/80">
                             <LuMessageCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
-                            {telefonoBonito(v.telefono)}
+                            <span className="min-w-0">{telefonoBonito(v.telefono)}</span>
                           </p>
                         )}
                         {v.correo && (
                           <p className="flex min-w-0 items-center gap-1.5 break-all text-base text-principal/80">
                             <LuMail aria-hidden="true" className="h-4 w-4 shrink-0" />
-                            {v.correo}
+                            <span className="min-w-0">{v.correo}</span>
                           </p>
                         )}
                         {v.contacto_viejo && (
@@ -381,7 +381,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                         {v.nota && (
                           <p className="flex items-start gap-1.5 text-base italic text-principal/80">
                             <LuStickyNote aria-hidden="true" className="mt-1 h-4 w-4 shrink-0" />
-                            {v.nota}
+                            <span className="min-w-0">{v.nota}</span>
                           </p>
                         )}
                         {v.visitas !== undefined && v.visitas !== null && (
@@ -412,7 +412,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                           (v.enviada_en ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-principal/10 px-3 py-1 text-base text-principal">
                               <LuCircleCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-puede-pasar" />
-                              {t(`voluntarios.lista.enviada.${v.enviada_medio}`, { dia: diaCorto(v.enviada_en, i18n.language) })}
+                              <span className="min-w-0">{t(`voluntarios.lista.enviada.${v.enviada_medio}`, { dia: diaCorto(v.enviada_en, i18n.language) })}</span>
                             </span>
                           ) : (
                             <span className="rounded-full bg-accion/25 px-3 py-1 text-base font-semibold text-principal">
@@ -424,7 +424,7 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                     <div className="mt-2 flex flex-wrap gap-2">
                       <button className={BOTON} onClick={() => setCredencial(v)} type="button">
                         <LuSend aria-hidden="true" className="h-5 w-5 text-accion" />
-                        {v.enviada_en ? t('voluntarios.lista.credencial') : t('voluntarios.lista.mandar')}
+                        <span className="min-w-0">{v.enviada_en ? t('voluntarios.lista.credencial') : t('voluntarios.lista.mandar')}</span>
                       </button>
                       <button
                         className={BOTON}
@@ -432,14 +432,14 @@ export default function ListaVoluntarios({ voluntarios, alCambiar, esAdmin, solo
                         type="button"
                       >
                         <LuPencil aria-hidden="true" className="h-4 w-4" />
-                        {t('voluntarios.lista.editar')}
+                        <span className="min-w-0">{t('voluntarios.lista.editar')}</span>
                       </button>
                       {esAdmin &&
                         (v.activo ? (
                           <>
                             <button className={BOTON} onClick={() => setPreguntando({ voluntario: v, accion: 'qr' })} type="button">
                               <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
-                              {t('voluntarios.lista.nuevoQr')}
+                              <span className="min-w-0">{t('voluntarios.lista.nuevoQr')}</span>
                             </button>
                             <button
                               className={`${BOTON} text-ya-recibio`}

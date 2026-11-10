@@ -7985,7 +7985,10 @@ grant  execute on function anular_turno(int) to authenticated;
 --  compararlo con el que dice la persona), la sena, el estado y las horas.
 --  Tambien los anulados, marcados. Solo quien escanea en la fila a pie.
 --  Sin telefono, correo ni direccion. Seccion 53: tambien los cancelados
---  por repetidos (repetido_en, se_queda).
+--  por repetidos (repetido_en, se_queda). Seccion 59: todos los
+--  cancelados (cancelado_en), tambien los que la persona cancelo o cambio
+--  por uno nuevo (cambiado_a): antes no salian y la busqueda decia que ese
+--  turno no existia.
 drop function if exists turnos_a_pie_de_hoy();
 
 create or replace function turnos_a_pie_de_hoy()
@@ -8001,7 +8004,11 @@ returns table (
   --  Si se lo dio una voluntaria (sin telefono): su correo.
   dado_por     text,
   repetido_en  timestamp,
-  se_queda     int
+  se_queda     int,
+  --  Seccion 59: a que hora se cancelo (por lo que sea) y, si la persona
+  --  saco uno nuevo, cual.
+  cancelado_en timestamp,
+  cambiado_a   int
 )
 language plpgsql
 stable
@@ -8027,7 +8034,9 @@ begin
          c.turno_anulado_en at time zone 'America/Los_Angeles',
          u.email::text,
          c.turno_repetido_en at time zone 'America/Los_Angeles',
-         c.turno_se_queda
+         c.turno_se_queda,
+         case when c.estado = 'cancelada' then c.cancelada_en at time zone 'America/Los_Angeles' end,
+         c.turno_cambiado_a
     from citas c
     join personas p on p.id = c.persona_id
     join bloques  b on b.id = c.bloque_id
@@ -8035,7 +8044,6 @@ begin
    where b.fecha = current_date
      and b.fila = 'a_pie'
      and c.turno is not null
-     and (c.estado <> 'cancelada' or c.turno_anulado_en is not null or c.turno_repetido_en is not null)
    order by c.turno;
 end;
 $$;
@@ -10668,3 +10676,339 @@ $$;
 
 revoke execute on function empezar_fila_a_pie(boolean) from public, anon;
 grant  execute on function empezar_fila_a_pie(boolean) to authenticated;
+
+-- ============================================================
+--  58. LA LISTA DE QUIENES RECIBIERON (EXCEL, PDF Y CSV)
+-- ============================================================
+--  Pedido del 9 de noviembre de 2026: el pastor necesita demostrarle al
+--  banco de alimentos y a quienes apoyan que la comida si se entrega: la
+--  lista de quienes recibieron (lo que se escaneo), dia por dia, con sus
+--  datos. Sale de Reportes, de las fechas que se escojan.
+--
+--  * Solo administradores: trae nombre, telefono, correo y domicilio.
+--    Aunque un voluntario tenga "Ver reportes", esta lista no la baja.
+--  * Dos versiones. El aviso de privacidad promete "no la compartimos con
+--    nadie": la completa es para uso interno; la de compartir (p_version
+--    = 'compartir') sale de aqui SIN telefono, correo ni calle, para que
+--    no dependa de que la pantalla los quite.
+--  * Queda anotado quien la bajo, cuando, de que fechas, que incluia y
+--    que version (descargas_lista).
+--  * Recibieron: las citas entregadas (por el dia en que se entregaron) y
+--    los pases permanentes. Aparte, si se piden: los que tenian cita en
+--    carro y no vinieron (solo dias que ya pasaron) y la fila a pie (casi
+--    siempre "Turno 12" y su codigo: ahi no se dan datos). "Entro sin
+--    cita" no va: no hay persona registrada.
+
+create table if not exists descargas_lista (
+  id            uuid primary key default gen_random_uuid(),
+  usuario_id    uuid not null,
+  descargada_en timestamptz not null default now(),
+  desde         date not null,
+  hasta         date not null,
+  incluye       text[] not null,
+  version       text not null check (version in ('completa', 'compartir')),
+  renglones     int not null
+);
+
+alter table descargas_lista enable row level security;
+
+create or replace function lista_de_personas(
+  p_desde        date,
+  p_hasta        date,
+  p_recibieron   boolean default true,
+  p_no_vinieron  boolean default false,
+  p_a_pie        boolean default false,
+  p_version      text    default 'completa'
+)
+returns table (
+  fecha            date,
+  fila             text,
+  situacion        text,
+  tipo             text,
+  codigo_corto     text,
+  nombres          text,
+  apellidos        text,
+  nombre           text,
+  telefono         text,
+  email            text,
+  calle            text,
+  numero_exterior  text,
+  numero_interior  text,
+  colonia          text,
+  direccion        text,
+  ciudad           text,
+  municipio        text,
+  estado_domicilio text,
+  codigo_postal    text,
+  pais             text,
+  hora_cita        time,
+  recibio_en       timestamp,
+  turno            int,
+  en_carro_de      text
+)
+language plpgsql
+volatile
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+#variable_conflict use_column
+declare
+  v_completa boolean;
+  v_n        int;
+begin
+  perform exigir_rol(array['admin']);
+
+  if p_desde is null or p_hasta is null or p_desde > p_hasta then
+    raise exception 'RANGO_INVALIDO';
+  end if;
+
+  if p_hasta - p_desde > 366 then
+    raise exception 'RANGO_MUY_LARGO';
+  end if;
+
+  if p_version is null or p_version not in ('completa', 'compartir') then
+    raise exception 'VERSION_INVALIDA';
+  end if;
+
+  v_completa := p_version = 'completa';
+
+  --  Con la zona de San Diego puesta, usado_en::date es la fecha de San Diego.
+  return query
+  with filas as (
+    --  Recibieron con su cita (el acompanante tambien: su propio QR, su caja).
+    select c.usado_en::date as dia, b.fila as fila_, 'recibio'::text as sit,
+           case when c.acompana_a is not null then 'acompanante' else 'cita' end as tip,
+           c.persona_id, b.hora, c.usado_en as cuando, c.turno as turno_, c.acompana_a
+      from citas c
+      join bloques b on b.id = c.bloque_id
+     where coalesce(p_recibieron, true)
+       and c.estado = 'entregada'
+       and c.usado_en::date between p_desde and p_hasta
+       and (b.fila = 'carro' or coalesce(p_a_pie, false))
+    union all
+    --  Recibieron con su pase permanente.
+    select e.fecha, e.fila, 'recibio', 'pase', pa.persona_id, null::time, e.entregada_en, null::int, null::uuid
+      from entregas_pase e
+      join pases pa on pa.id = e.pase_id
+     where coalesce(p_recibieron, true)
+       and e.fecha between p_desde and p_hasta
+       and (e.fila = 'carro' or coalesce(p_a_pie, false))
+    union all
+    --  Tenian cita en carro y no vinieron (de dias que ya pasaron).
+    select b.fecha, b.fila, 'no_vino',
+           case when c.acompana_a is not null then 'acompanante' else 'cita' end,
+           c.persona_id, b.hora, null::timestamptz, c.turno, c.acompana_a
+      from citas c
+      join bloques b on b.id = c.bloque_id
+     where coalesce(p_no_vinieron, false)
+       and b.fila = 'carro'
+       and b.fecha between p_desde and p_hasta
+       and b.fecha < current_date
+       and c.estado in ('no_asistio', 'reservada', 'llego')
+  )
+  select f.dia,
+         f.fila_,
+         f.sit,
+         f.tip,
+         pe.codigo_corto,
+         pe.nombres,
+         pe.apellidos,
+         pe.nombre,
+         case when v_completa then pe.telefono end,
+         case when v_completa then pe.email end,
+         case when v_completa then pe.calle end,
+         case when v_completa then pe.numero_exterior end,
+         case when v_completa then pe.numero_interior end,
+         case when v_completa then pe.colonia end,
+         case when v_completa then pe.direccion end,
+         pe.ciudad,
+         pe.municipio,
+         pe.estado,
+         pe.codigo_postal,
+         pe.pais,
+         f.hora,
+         f.cuando::timestamp,
+         f.turno_,
+         (select pd.codigo_corto from citas cd join personas pd on pd.id = cd.persona_id where cd.id = f.acompana_a)
+    from filas f
+    join personas pe on pe.id = f.persona_id
+   order by f.dia, f.sit, f.fila_,
+            lower(coalesce(nullif(trim(pe.apellidos), ''), pe.nombre)),
+            lower(coalesce(pe.nombres, '')),
+            f.turno_;
+
+  get diagnostics v_n = row_count;
+
+  insert into descargas_lista (usuario_id, desde, hasta, incluye, version, renglones)
+  values (
+    auth.uid(), p_desde, p_hasta,
+    array_remove(array[
+      case when coalesce(p_recibieron, true) then 'recibieron' end,
+      case when coalesce(p_no_vinieron, false) then 'no_vinieron' end,
+      case when coalesce(p_a_pie, false) then 'a_pie' end
+    ], null),
+    p_version, v_n
+  );
+end;
+$$;
+
+revoke execute on function lista_de_personas(date, date, boolean, boolean, boolean, text) from public, anon;
+grant  execute on function lista_de_personas(date, date, boolean, boolean, boolean, text) to authenticated;
+
+-- ============================================================
+--  59. LA FILA A PIE: LA PERSONA CAMBIA O CANCELA SU TURNO
+-- ============================================================
+--  Pedido del 10 de noviembre de 2026:
+--
+--  * Lo llamaron y no estaba, o la voluntaria le anulo el turno: desde su
+--    telefono saca uno nuevo, al final de la fila, de un solo toque. Antes
+--    eran dos: "Sacar un turno nuevo" lo regresaba al inicio y ahi otra
+--    vez "Sacar mi turno" (y, si ese dia se pedia, otra vez el codigo del
+--    dia; ya lo habia escrito para su primer turno). Si su turno todavia
+--    valia (lo llamaron pero no se ha anulado), el viejo se cancela en el
+--    mismo paso: nunca quedan dos turnos vivos. La pagina pregunta antes.
+--  * Cancelar su propio turno, como la cita en carro: cancelar_mi_cita()
+--    (el token es la prueba de que el turno es suyo). No hace falta otra.
+--  * En el escaner, la busqueda de turnos ensena tambien los cancelados y
+--    a cual se cambio cada uno (turnos_a_pie_de_hoy, seccion 46), en vez
+--    de decir "no hay un turno de hoy con eso".
+--
+--  Lo de siempre se respeta: un turno vivo por telefono, y si a ese
+--  telefono ya se le anularon dos turnos hoy, ya no saca otro (seccion 46).
+
+alter table citas add column if not exists turno_cambiado_en timestamptz;
+alter table citas add column if not exists turno_cambiado_a  int;
+
+--  Responde con un resultado, como sacar_turno_a_pie():
+--    NUEVO            su turno nuevo, al final (el viejo se cancelo si valia)
+--    YA_TENIA         ya tiene otro turno hoy (el doble toque): ese mismo
+--    AUN_VALE         todavia no lo llaman: su turno vale, no se cambia
+--    YA_RECIBIO       ya recibio con ese turno
+--    CANCELADA        el turno se cancelo (lo cancelo la persona, o el dia)
+--    TURNO_REPETIDO   se cancelo porque tenia otro turno (seccion 53)
+--    TURNOS_ANULADOS  a ese telefono ya se le anularon dos turnos hoy
+--    CERRADA          ya no se dan turnos hoy, o la fila termino
+--    NO_EXISTE        no es un turno a pie de hoy
+create or replace function cambiar_mi_turno(p_token text)
+returns table (
+  resultado      text,
+  token_qr       text,
+  codigo         text,
+  turno          int,
+  turno_anterior int
+)
+language plpgsql
+security definer
+set search_path = public, extensions, pg_temp
+set timezone    = 'America/Los_Angeles'
+as $$
+#variable_conflict use_column
+declare
+  v_vieja    citas;
+  v_bloque   bloques;
+  v_disp     text;
+  v_otra     citas;
+  v_nueva    citas;
+  v_cerrado  boolean;
+  v_anulados int;
+begin
+  select c.* into v_vieja
+    from citas c
+    join bloques b on b.id = c.bloque_id
+   where c.token_qr = p_token
+     and c.turno is not null
+     and b.fila = 'a_pie'
+     and b.fecha = current_date;
+
+  if v_vieja.id is null then
+    return query select 'NO_EXISTE'::text, null::text, null::text, null::int, null::int;
+    return;
+  end if;
+
+  --  El candado de sacar_turno_a_pie(): dos toques seguidos no sacan dos
+  --  turnos. Sin telefono (se lo dio una voluntaria), el de su cita.
+  v_disp := coalesce(v_vieja.dispositivo_id, 'cita:' || v_vieja.id::text);
+  perform pg_advisory_xact_lock(hashtext('turno-a-pie:' || v_disp || ':' || current_date::text));
+
+  --  Y el de registrar_entrega(): si justo lo estan escaneando, uno espera
+  --  al otro. Se vuelve a leer ya con el candado.
+  select c.* into v_vieja from citas c where c.id = v_vieja.id for update;
+  select b.* into v_bloque from bloques b where b.id = v_vieja.bloque_id;
+
+  --  El doble toque: el primero ya le dio su turno nuevo.
+  select c.* into v_otra
+    from citas c
+   where c.bloque_id = v_bloque.id
+     and c.dispositivo_id = v_disp
+     and c.id <> v_vieja.id
+     and c.estado in ('reservada', 'llego', 'entregada')
+   order by c.creada_en desc
+   limit 1;
+
+  if v_otra.id is not null then
+    return query select 'YA_TENIA'::text, v_otra.token_qr, p.codigo_corto, v_otra.turno, v_vieja.turno
+                   from personas p where p.id = v_otra.persona_id;
+    return;
+  end if;
+
+  if v_vieja.estado = 'entregada' then
+    return query select 'YA_RECIBIO'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  if v_vieja.turno_repetido_en is not null then
+    return query select 'TURNO_REPETIDO'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  if v_vieja.estado = 'cancelada' and v_vieja.turno_anulado_en is null then
+    return query select 'CANCELADA'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  --  Todavia no lo llaman: su turno vale. Cambiarlo seria perder su lugar.
+  if v_vieja.estado in ('reservada', 'llego') and v_vieja.turno_saltado_en is null then
+    return query select 'AUN_VALE'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  select d.cerrado into v_cerrado from dias_entrega d where d.fecha = current_date;
+  if coalesce(v_cerrado, false) or v_bloque.cerrado or v_bloque.terminada_en is not null then
+    return query select 'CERRADA'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  --  La regla de la seccion 46: el primer turno anulado se perdona, el segundo no.
+  select count(*)::int into v_anulados
+    from citas c
+   where c.bloque_id = v_bloque.id
+     and c.dispositivo_id = v_disp
+     and c.turno_anulado_en is not null;
+
+  if v_anulados >= 2 then
+    return query select 'TURNOS_ANULADOS'::text, null::text, null::text, null::int, v_vieja.turno;
+    return;
+  end if;
+
+  --  El viejo se cancela en el mismo paso (si el turno nuevo no se puede
+  --  dar, se deshace todo y el viejo sigue como estaba).
+  update citas c
+     set estado             = 'cancelada',
+         cancelada_en       = coalesce(c.cancelada_en, now()),
+         motivo_cancelacion = coalesce(c.motivo_cancelacion, 'La persona sacó un turno nuevo al final de la fila'),
+         turno_cambiado_en  = now()
+   where c.id = v_vieja.id;
+
+  --  El mismo candado y el mismo cupo de siempre; el numero lo pone dar_turno().
+  v_nueva := crear_turno_anonimo(v_bloque.id, v_disp, null);
+
+  update citas c set turno_cambiado_a = v_nueva.turno where c.id = v_vieja.id;
+
+  return query select 'NUEVO'::text, v_nueva.token_qr, p.codigo_corto, v_nueva.turno, v_vieja.turno
+                 from personas p where p.id = v_nueva.persona_id;
+end;
+$$;
+
+revoke execute on function cambiar_mi_turno(text) from public;
+grant  execute on function cambiar_mi_turno(text) to anon, authenticated;

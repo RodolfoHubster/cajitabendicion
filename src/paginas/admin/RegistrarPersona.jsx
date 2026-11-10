@@ -246,14 +246,14 @@ export default function RegistrarPersona({ modo = 'cita', alTerminar } = {}) {
           <>
             <p className="flex items-center gap-2 text-lg font-bold text-principal">
               <LuInfo aria-hidden="true" className="h-6 w-6 text-accion" />
-              {t('registrarPanel.yaTenia')}
+              <span className="min-w-0">{t('registrarPanel.yaTenia')}</span>
             </p>
             <p className="mt-1 text-base text-principal/80">{t('registrarPanel.yaTeniaAyuda')}</p>
           </>
         ) : (
           <p className="flex items-center gap-2 text-lg font-bold text-puede-pasar">
             <LuCircleCheck aria-hidden="true" className="h-6 w-6" />
-            {t('registrarPanel.listo')}
+            <span className="min-w-0">{t('registrarPanel.listo')}</span>
           </p>
         )}
         <p className="mt-2 text-2xl font-bold first-letter:uppercase">

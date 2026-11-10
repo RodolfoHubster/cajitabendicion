@@ -42,7 +42,7 @@ export default function DeshacerEntrega({ codigo, nombre, alDeshacer, alCancelar
         type="button"
       >
         <LuUndo2 aria-hidden="true" className="h-5 w-5" />
-        {t('deshacer.abrir')}
+        <span className="min-w-0">{t('deshacer.abrir')}</span>
       </button>
     )
   }

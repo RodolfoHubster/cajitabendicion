@@ -94,7 +94,7 @@ export default function ConstanciaHoras() {
             type="button"
           >
             <LuPrinter aria-hidden="true" className="h-5 w-5" />
-            {t('constancia.imprimir')}
+            <span className="min-w-0">{t('constancia.imprimir')}</span>
           </button>
           <p className="max-w-md text-base text-principal/80">{t('constancia.ayuda')}</p>
         </div>

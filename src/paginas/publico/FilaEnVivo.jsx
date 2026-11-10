@@ -82,7 +82,7 @@ export default function FilaEnVivo() {
         {fila && fila.terminada && (
           <p className="flex items-center gap-2 rounded-xl bg-principal/10 p-4 text-lg font-bold text-principal" role="status">
             <LuFlag aria-hidden="true" className="h-6 w-6 shrink-0" />
-            {t('filaEnVivo.terminada', { count: fila.atendidos })}
+            <span className="min-w-0">{t('filaEnVivo.terminada', { count: fila.atendidos })}</span>
           </p>
         )}
 
@@ -98,14 +98,14 @@ export default function FilaEnVivo() {
         {miTurno ? (
           <Link className={`${ENLACE} mt-4`} to="/turno">
             <LuTicket aria-hidden="true" className="h-7 w-7" />
-            {t('filaEnVivo.miTurno', { turno: miTurno.turno })}
+            <span className="min-w-0">{t('filaEnVivo.miTurno', { turno: miTurno.turno })}</span>
           </Link>
         ) : (
           enCurso &&
           !fila.cerrada && (
             <Link className={ENLACE} to="/turno">
               <LuTicket aria-hidden="true" className="h-7 w-7" />
-              {t('filaEnVivo.sacar')}
+              <span className="min-w-0">{t('filaEnVivo.sacar')}</span>
             </Link>
           )
         )}
@@ -114,7 +114,7 @@ export default function FilaEnVivo() {
           <section aria-live="polite" className="mt-5 rounded-2xl border-2 border-principal/15 bg-principal/5 p-3">
             <h2 className="flex items-center gap-2 text-lg font-bold text-principal">
               <LuUsers aria-hidden="true" className="h-5 w-5 shrink-0" />
-              {t('filaEnVivo.asiVa')}
+              <span className="min-w-0">{t('filaEnVivo.asiVa')}</span>
             </h2>
             <p className="text-base text-principal/80">
               {miTurno ? t('filaEnVivo.tuNumero', { turno: miTurno.turno }) : t('filaEnVivo.noEsTuyo')}
@@ -153,7 +153,7 @@ export default function FilaEnVivo() {
                 <div className="rounded-xl bg-superficie p-2" key={clave}>
                   <dt className="flex items-center justify-center gap-1 text-base text-principal/80">
                     <Icono aria-hidden="true" className="h-4 w-4 shrink-0" />
-                    {t(`filaEnVivo.${clave}`)}
+                    <span className="min-w-0">{t(`filaEnVivo.${clave}`)}</span>
                   </dt>
                   <dd className="font-titulo text-2xl font-bold text-principal">{numero}</dd>
                 </div>
@@ -172,7 +172,7 @@ export default function FilaEnVivo() {
         {sinSenal && fila && (
           <p className="mt-3 flex items-center gap-2 rounded-xl bg-accion/15 p-3 text-base text-principal" role="status">
             <LuWifiOff aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('filaEnVivo.sinSenal')}
+            <span className="min-w-0">{t('filaEnVivo.sinSenal')}</span>
           </p>
         )}
 

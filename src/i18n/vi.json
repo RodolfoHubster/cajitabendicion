@@ -64,9 +64,6 @@
     "cuadro": "Đặt mã QR vào trong khung",
     "leido": "Đã đọc mã",
     "buscando": "Đang tìm người…",
-    "buscarManual": "Tìm theo tên hoặc mã",
-    "buscarEtiqueta": "Tên hoặc mã",
-    "buscar": "Tìm",
     "sinResultados": "Không tìm thấy lịch hẹn phù hợp. Tìm theo tên chỉ áp dụng cho hôm nay; nhập đủ mã (ví dụ CB-4871) sẽ tìm cả các ngày khác.",
     "volverCamara": "Quay lại camera",
     "escanearOtro": "Quét mã khác",
@@ -171,12 +168,6 @@
       "paso": "Đã qua trước lượt: có số {{turno}}, đang gọi số {{actual}}. Nếu không nên cho qua, hãy hoàn tác bằng nút bên dưới."
     },
     "revisaNombre": "Hỏi tên của họ: phải giống tên trên màn hình. Nếu không giống, hãy hủy lần phát và báo cho người điều phối.",
-    "aPie": {
-      "etiqueta": "Mã số thứ tự của họ",
-      "ayuda": "Chỉ các chữ số (4 hoặc 5): “CB-” đã có sẵn. Nếu hai người nói cùng một số, số đó thuộc về người biết mã.",
-      "turno": "Số {{turno}}",
-      "noEsta": "Hôm nay không có số hàng đi bộ nào với mã này. Hãy kiểm tra lại các chữ số."
-    },
     "lista": {
       "cargando": "Đang tải danh sách hôm nay…",
       "ejemplo": "Tên hoặc CB-4871",
@@ -244,7 +235,9 @@
         "saltado": "Đã gọi lúc {{hora}} nhưng không có mặt · {{hace}}",
         "recibio": "Đã nhận lúc {{hora}}",
         "anulado": "Đã hủy lúc {{hora}}",
-        "repetido": "Đã hủy lúc {{hora}}: đã có số khác"
+        "repetido": "Đã hủy lúc {{hora}}: đã có số khác",
+        "cambiado": "Đã lấy số mới {{nuevo}} lúc {{hora}}",
+        "cancelado": "Đã hủy lúc {{hora}}"
       },
       "repetido": {
         "boton": "Đã lấy số khác: hủy số này",
@@ -257,7 +250,10 @@
         "regresado": "Xong: số {{turno}} đã trở lại hàng."
       },
       "seQueda": "Giữ số",
-      "cancelado": "Đã hủy"
+      "cancelado": "Đã hủy",
+      "cambiadoA": "Số mới của họ",
+      "deshecho": "Xong: đã hoàn tác việc giao cho số {{turno}}. Số của họ có giá trị trở lại: giao thùng khi họ đến. Nếu hàng hiển thị đó là số đang gọi mà họ không có ở đây, hãy bấm «Không có mặt».",
+      "deshacerSinPermiso": "Đánh dấu nhầm? Quản trị viên, hoặc người có quyền hoàn tác việc giao, có thể hoàn tác ở đây."
     },
     "preferente": {
       "nota": "Để nhận ra: {{nota}}",
@@ -271,6 +267,12 @@
       "hoy": "Số thùng đã phát hôm nay",
       "enTuFila": "Ở hàng của bạn: {{n}}",
       "faltan": "Còn chờ đến: {{n}}"
+    },
+    "buscarCita": {
+      "etiqueta": "Tìm theo tên hoặc mã",
+      "ayuda": "Gõ tên hoặc các số trong mã của họ: những người của hôm nay hiện ra khi bạn gõ, và máy ảnh vẫn sẵn sàng.",
+      "verLista": "Xem cả danh sách hôm nay",
+      "ocultarLista": "Ẩn danh sách hôm nay"
     }
   },
   "pase": {
@@ -1422,6 +1424,106 @@
       "cambios": "Chuyển từ hàng xe sang hàng đi bộ: {{cambios}}"
     }
   },
+  "listaPersonas": {
+    "titulo": "Danh sách người đã nhận",
+    "ayuda": "Theo các ngày bạn chọn ở trên: mỗi người với tên, điện thoại, email và địa chỉ, mỗi ngày một trang, xếp theo họ. Để cho ngân hàng thực phẩm và những người ủng hộ thấy thực phẩm thật sự được phát.",
+    "incluye": {
+      "titulo": "Gồm những ai?",
+      "recibieron": "Đã nhận",
+      "recibieronAyuda": "Đã được quét mã và nhận thùng ở hàng xe (có hẹn hoặc có thẻ).",
+      "noVinieron": "Không đến",
+      "noVinieronAyuda": "Có hẹn ở hàng xe nhưng không đến.",
+      "aPie": "Hàng đi bộ",
+      "aPieAyuda": "Thường chỉ có số thứ tự và mã: ở đó không cho thông tin cá nhân."
+    },
+    "version": {
+      "titulo": "Bản nào?",
+      "completa": "Bản đầy đủ, dùng nội bộ",
+      "completaAyuda": "Có điện thoại, email và địa chỉ. Không đưa ra ngoài nhà thờ.",
+      "compartir": "Bản để chia sẻ",
+      "compartirAyuda": "Tên, thành phố, mã bưu chính và giờ đã nhận. Không có điện thoại, email hay địa chỉ: cho ngân hàng thực phẩm hoặc người ủng hộ."
+    },
+    "privacidad": "Khi đăng ký, mọi người được hứa rằng thông tin của họ không được chia sẻ với ai. Ra ngoài nhà thờ, chỉ đưa bản “Để chia sẻ”. Mỗi lần tải về đều được ghi lại: ai, khi nào và những ngày nào.",
+    "formatos": {
+      "excel": "Tải Excel",
+      "pdf": "Tải PDF",
+      "csv": "Tải CSV"
+    },
+    "preparando": "Đang chuẩn bị…",
+    "escogeAlgo": "Hãy đánh dấu “Đã nhận” hoặc “Không đến”.",
+    "listo_other": "Xong: đã tải danh sách với {{count}} người. Số ngày phát: {{dias}}.",
+    "vacio": "Không có ai trong những ngày đó với lựa chọn của bạn.",
+    "errores": {
+      "SIN_PERMISO": "Chỉ quản trị viên mới tải được danh sách này.",
+      "SIN_SESION": "Phiên đăng nhập đã hết. Hãy đăng nhập lại.",
+      "RANGO_INVALIDO": "Kiểm tra lại ngày: ngày đầu phải trước ngày sau.",
+      "RANGO_MUY_LARGO": "Hãy chọn một năm hoặc ít hơn.",
+      "SIN_CONEXION": "Không có kết nối. Kiểm tra sóng và thử lại.",
+      "FUNCION_NO_INSTALADA": "Tùy chọn này chưa được bật. Hãy báo cho người bảo trì hệ thống.",
+      "ERROR_DESCONOCIDO": "Không chuẩn bị được danh sách. Hãy thử lại."
+    },
+    "situacion": {
+      "recibio": "Đã nhận",
+      "no_vino": "Không đến"
+    },
+    "tipo": {
+      "cita": "Có hẹn",
+      "acompanante": "Đi cùng xe với {{codigo}}",
+      "pase": "Thẻ cố định",
+      "turno": "Số {{turno}}"
+    },
+    "columnas": {
+      "numero": "#",
+      "fechaValor": "Ngày",
+      "fechaTexto": "Ngày",
+      "apellidos": "Họ",
+      "nombres": "Tên",
+      "codigo": "Mã",
+      "telefono": "Điện thoại",
+      "correo": "Email",
+      "calle": "Đường",
+      "numeroExterior": "Số nhà",
+      "numeroInterior": "Căn hộ",
+      "colonia": "Khu phố",
+      "direccion": "Địa chỉ",
+      "domicilio": "Địa chỉ",
+      "ciudad": "Thành phố",
+      "municipio": "Quận",
+      "estado": "Tiểu bang",
+      "codigoPostal": "Mã bưu chính",
+      "pais": "Quốc gia",
+      "horaCita": "Giờ hẹn",
+      "recibio": "Nhận lúc",
+      "tipo": "Loại",
+      "fila": "Hàng",
+      "situacion": "Tình trạng"
+    },
+    "archivo": {
+      "iglesia": "Iglesia Casa de Alabanza · Cajita de Bendición",
+      "titulo": "Danh sách người đã nhận",
+      "rango": "Từ {{desde}} đến {{hasta}}",
+      "generado": "Tạo lúc {{cuando}}",
+      "notaCompleta": "Bảo mật: có thông tin cá nhân. Chỉ dùng nội bộ của Iglesia Casa de Alabanza; không chia sẻ ra ngoài nhà thờ.",
+      "notaCompartir": "Bản để chia sẻ: không có điện thoại, email hay địa chỉ.",
+      "resumen": "Tóm tắt",
+      "todas": "Tất cả các ngày",
+      "porDia": "Theo ngày phát",
+      "porLugar": "Nơi ở của người đã nhận (theo mã bưu chính)",
+      "sinDato": "(không có)",
+      "total": "Tổng",
+      "personas_other": "{{count}} người",
+      "interior": "căn {{numero}}",
+      "pagina": "Trang {{n}} / {{total}}",
+      "ayudaExcel": "Ở mỗi trang, các mũi tên nhỏ trên tiêu đề dùng để sắp xếp hoặc lọc (theo ngày, họ, thành phố, mã bưu chính…). Trang “Tất cả các ngày” gộp mọi ngày: từ đó có thể tạo PivotTable bằng Insert › PivotTable.",
+      "totales": {
+        "fecha": "Ngày phát",
+        "carro": "Đã nhận ở hàng xe",
+        "aPie": "Đã nhận ở hàng đi bộ",
+        "recibieron": "Tổng số đã nhận",
+        "noVinieron": "Không đến"
+      }
+    }
+  },
   "domicilio": {
     "titulo": "Địa chỉ nhà của bạn",
     "tituloPanel": "Địa chỉ nhà của người đó",
@@ -2326,9 +2428,6 @@
     "revisando": "Đang kiểm tra hàng…",
     "noHay": "Hôm nay không có hàng đi bộ.",
     "llena": "Hôm nay đã hết số.",
-    "esTuTurno": "Đến lượt bạn!",
-    "acercate": "Hãy đến gần và đưa mã QR.",
-    "verMiQr": "Xem mã của tôi",
     "avisos": {
       "sinDatos": "Chúng tôi không hỏi tên, tuổi hay số điện thoại. Không có gì được lưu hay chia sẻ.",
       "soloHoy": "Số của bạn chỉ dùng hôm nay và cho một thùng.",
@@ -2357,7 +2456,8 @@
       "SIN_CONEXION": "Không có kết nối. Kiểm tra sóng và bấm lại.",
       "FUNCION_NO_INSTALADA": "Tùy chọn này chưa sẵn sàng. Hãy báo tình nguyện viên.",
       "DISPOSITIVO_INVALIDO": "Không thể cấp số từ điện thoại này. Hãy nhờ tình nguyện viên.",
-      "ERROR_DESCONOCIDO": "Không thể cấp số. Bấm lại hoặc nhờ tình nguyện viên."
+      "ERROR_DESCONOCIDO": "Không thể cấp số. Bấm lại hoặc nhờ tình nguyện viên.",
+      "BLOQUE_LLENO": "Hôm nay đã hết số."
     },
     "terminada": "Hàng hôm nay đã kết thúc. Cảm ơn bạn đã đến! Hẹn gặp bạn ở lần phát tiếp theo.",
     "codigoEsTuyo": "Mã này chỉ của riêng bạn: đừng cho ai xem. Mã này chứng minh số thứ tự là của bạn.",
@@ -2382,7 +2482,37 @@
       "cancelar": "Tôi không có lịch hẹn đi xe",
       "CODIGO_CARRO_NO_EXISTE": "Không tìm thấy lịch hẹn đi xe hôm nay với mã đó. Hãy kiểm tra lại các chữ số."
     },
-    "verFila": "Xem hàng chờ trực tiếp"
+    "verFila": "Xem hàng chờ trực tiếp",
+    "aunNo": {
+      "titulo": "Bạn CHƯA có số",
+      "texto": "Mở trang này không cho bạn số. Hãy bấm nút màu cam «Lấy số của tôi».",
+      "conCodigo": "Mở trang này không cho bạn số. Hãy nhập mã của ngày hôm nay và bấm nút màu cam «Lấy số của tôi»."
+    },
+    "cambiar": {
+      "boton": "Tôi không đến kịp: lấy số mới",
+      "pregunta": "Lấy số mới?",
+      "explicacion": "Số {{turno}} của bạn sẽ bị hủy và bạn chờ từ cuối hàng. Nếu bạn ở gần, hãy đến chỗ tình nguyện viên ngay: số của bạn vẫn còn giá trị.",
+      "si": "Vâng, cho tôi số mới",
+      "no": "Không, tôi giữ số {{turno}}",
+      "resultado": {
+        "AUN_VALE": "Số của bạn vẫn còn giá trị: chưa gọi đến bạn. Hãy chờ ở đây.",
+        "YA_RECIBIO": "Bạn đã nhận thùng với số này. Cảm ơn bạn đã đến!",
+        "CERRADA": "Hôm nay không phát số mới nữa. Nếu số của bạn vẫn còn giá trị, hãy đến chỗ tình nguyện viên.",
+        "NO_EXISTE": "Chúng tôi không tìm thấy số của bạn hôm nay. Hãy nói chuyện với tình nguyện viên."
+      }
+    },
+    "cancelar": {
+      "boton": "Hủy số của tôi",
+      "pregunta": "Bạn có chắc muốn hủy số {{turno}} không?",
+      "explicacion": "Bạn sẽ không thể dùng số này hoặc mã của nó nữa. Nếu đổi ý, bạn phải lấy số mới và chờ từ cuối hàng.",
+      "si": "Vâng, hủy số của tôi",
+      "no": "Không, giữ số của tôi",
+      "cancelando": "Đang hủy…"
+    },
+    "cancelado": {
+      "titulo": "Số {{turno}} của bạn đã bị hủy.",
+      "texto": "Nếu bạn vẫn muốn nhận thực phẩm, hãy lấy số mới: bạn sẽ chờ từ cuối hàng."
+    }
   },
   "codigoDelDia": {
     "casilla": "Yêu cầu mã của hôm nay",

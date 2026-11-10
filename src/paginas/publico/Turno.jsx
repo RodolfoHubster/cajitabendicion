@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
-import { LuBellRing, LuCheck, LuHandHeart, LuShieldCheck, LuTicket, LuTriangleAlert, LuUsers } from 'react-icons/lu'
+import {
+  LuArrowBigDown,
+  LuBellRing,
+  LuCheck,
+  LuHandHeart,
+  LuShieldCheck,
+  LuTicket,
+  LuTicketX,
+  LuTriangleAlert,
+  LuUsers,
+} from 'react-icons/lu'
 import { Link } from 'react-router-dom'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
 import Boton from '../../componentes/Boton'
@@ -12,6 +22,7 @@ import Tarjeta from '../../componentes/Tarjeta'
 import TurnoEnVivo from '../../componentes/TurnoEnVivo'
 import { avisosPublicos, textoDeAviso } from '../../datos/avisos'
 import { dibujarQR } from '../../datos/cita'
+import { cancelarMiCita } from '../../datos/citas'
 import { formatearHora, segundosHasta } from '../../datos/disponibilidad'
 import {
   consultarFilasAPie,
@@ -24,6 +35,7 @@ import { hoyLocal } from '../../datos/panel'
 import { prepararSonido } from '../../datos/sonido'
 import {
   RESULTADOS_DE_CODIGO,
+  cambiarMiTurno,
   filaAPieHoy,
   guardarMiTurno,
   leerMiTurno,
@@ -47,6 +59,17 @@ const horaDe = (marca) => (marca ? formatearHora(String(marca).slice(11, 19)) : 
 /** Si no llega cuanto esperar, el freno de la base: 5 minutos. */
 const FRENO_SEGUNDOS = 300
 
+/** Su turno todavia vale: se puede cancelar desde aqui (seccion 59). */
+const TURNO_VIVO = ['esperando', 'porEmpezar', 'tuTurno', 'teLlamaron']
+
+/** Lo que dice la base al cambiar de turno cuando no da uno nuevo. */
+const textoDelCambio = (t, codigo) =>
+  t(`turnoAPie.cambiar.resultado.${codigo}`, {
+    defaultValue: t(`turnoAPie.resultado.${codigo}`, {
+      defaultValue: t(`turnoAPie.errores.${codigo}`, { defaultValue: t('turnoAPie.errores.ERROR_DESCONOCIDO') }),
+    }),
+  })
+
 /**
  * El turno a pie SIN DATOS, desde el QR general de la entrada (seccion 42
  * de la base). Un boton grande: "Sacar mi turno". No se pide nombre, edad
@@ -59,6 +82,18 @@ const FRENO_SEGUNDOS = 300
  *
  * Antes de que abra (o si hoy no hay fila), cuando se abren los turnos y
  * cuanto falta: el boton aparece solo a esa hora, sin recargar.
+ *
+ * Pedido del 10 de noviembre de 2026 (seccion 59):
+ *   * Mucha gente abre el QR de la entrada y cree que ya tiene turno: arriba
+ *     del boton dice que todavia no, y el boton "llama" (sin moverse si el
+ *     telefono pidio menos movimiento).
+ *   * Cuando le toca, la pantalla ya no se tapa de verde (habia que tocar
+ *     "Ver mi codigo" para que lo escanearan): un marco verde que parpadea,
+ *     y su QR a la vista.
+ *   * Lo llamaron y no estaba, o se lo anularon: un turno nuevo al final
+ *     de un solo toque (antes eran dos). Si su turno todavia valia, se
+ *     pregunta antes, porque el viejo se cancela.
+ *   * Cancelar su turno, como la cita en carro: se pregunta antes.
  */
 export default function Turno() {
   const { t, i18n } = useTranslation()
@@ -68,7 +103,15 @@ export default function Turno() {
   const [miTurno, setMiTurno] = useState(() => leerMiTurno(hoy))
   const [qr, setQr] = useState(null)
   const [situacion, setSituacion] = useState(null)
-  const [avisoVisto, setAvisoVisto] = useState(false)
+  //  Lo que se le esta preguntando: 'cancelar', 'cambiar' o nada.
+  const [pregunta, setPregunta] = useState(null)
+  const [cambiando, setCambiando] = useState(false)
+  //  Lo que contesto la base al cambiar de turno, si no dio uno nuevo.
+  const [avisoCambio, setAvisoCambio] = useState(null)
+  const [cancelando, setCancelando] = useState(false)
+  const [errorCancelar, setErrorCancelar] = useState(null)
+  //  Lo acaba de cancelar desde aqui (su pagina tarda unos segundos en saberlo).
+  const [cancelado, setCancelado] = useState(false)
 
   //  La fila de hoy: si hay, si ya abrio, a que hora y si pide el codigo del dia.
   const [fila, setFila] = useState(undefined)
@@ -234,11 +277,11 @@ export default function Turno() {
   }
 
   const encabezado = (
-    <div className="mb-4 flex items-center gap-3">
+    <div className="mb-4 flex flex-wrap items-center gap-3">
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accion/20">
         <FaPersonWalking aria-hidden="true" className="h-7 w-7 text-principal" />
       </span>
-      <div>
+      <div className="min-w-[min(10rem,100%)] flex-1 basis-0">
         <h1 className="text-2xl font-bold">{t('turnoAPie.titulo')}</h1>
         <p className="text-base text-principal/70">{t('turnoAPie.subtitulo')}</p>
       </div>
@@ -250,7 +293,7 @@ export default function Turno() {
       {reglas.map((regla) => (
         <li className="flex items-start gap-3 rounded-xl bg-principal/5 p-3 text-base text-principal" key={regla.id}>
           <LuCheck aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-          {textoDeAviso(regla, i18n.language)}
+          <span className="min-w-0">{textoDeAviso(regla, i18n.language)}</span>
         </li>
       ))}
     </ul>
@@ -261,38 +304,104 @@ export default function Turno() {
         return (
           <li className="flex items-start gap-3 rounded-xl bg-principal/5 p-3 text-base text-principal" key={clave}>
             <Icono aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-            {t(`turnoAPie.avisos.${clave}`)}
+            <span className="min-w-0">{t(`turnoAPie.avisos.${clave}`)}</span>
           </li>
         )
       })}
     </ul>
   )
 
-  //  Su turno se anulo (llego tarde): se olvida y saca uno nuevo, al final.
+  //  Se olvida su turno y vuelve al boton "Sacar mi turno" (lo cancelo).
   function sacarOtro() {
     olvidarMiTurno()
     setMiTurno(null)
     setQr(null)
     setSituacion(null)
-    setAvisoVisto(false)
+    setPregunta(null)
+    setAvisoCambio(null)
+    setCancelado(false)
     setRespuesta(null)
   }
 
+  //  Lo llamaron y no estaba, o se lo anularon: un turno nuevo al final, de
+  //  un solo toque (seccion 59). Si el suyo todavia valia, se cancela en el
+  //  mismo paso; la pagina ya le pregunto antes.
+  async function cambiarTurno() {
+    //  Dentro del toque: asi el telefono deja sonar cuando le toque.
+    prepararSonido()
+    setCambiando(true)
+    setAvisoCambio(null)
+    try {
+      const r = await cambiarMiTurno(miTurno.token)
+      if (traeTurno(r)) {
+        const nuevo = { fecha: hoy, token: r.token_qr, turno: r.turno, codigo: r.codigo }
+        guardarMiTurno(nuevo)
+        setMiTurno(nuevo)
+        setQr(null)
+        setSituacion(null)
+        setPregunta(null)
+        window.scrollTo?.({ top: 0, behavior: 'smooth' })
+      } else if (r?.resultado === 'CANCELADA') {
+        //  Ya estaba cancelado: desde el inicio, como siempre.
+        sacarOtro()
+      } else {
+        setPregunta(null)
+        setAvisoCambio(r?.resultado ?? 'ERROR_DESCONOCIDO')
+      }
+    } catch (e) {
+      setAvisoCambio(e.message)
+    } finally {
+      setCambiando(false)
+    }
+  }
+
+  //  Cancelar su propio turno, como la cita en carro (seccion 59).
+  async function cancelarTurno() {
+    setCancelando(true)
+    setErrorCancelar(null)
+    try {
+      await cancelarMiCita(miTurno.token)
+      setCancelado(true)
+      setPregunta(null)
+    } catch (e) {
+      if (e.message === 'CITA_YA_CANCELADA') {
+        setCancelado(true)
+        setPregunta(null)
+      } else {
+        setErrorCancelar(e.message)
+      }
+    } finally {
+      setCancelando(false)
+    }
+  }
+
+  const tipo = situacion?.tipo
+  const esTuTurno = tipo === 'tuTurno'
+
+  //  Le acaba de tocar: su QR al centro de la pantalla, listo para escanear.
+  useEffect(() => {
+    if (!esTuTurno) return
+    document.getElementById('mi-qr')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
+  }, [esTuTurno])
+
   // ---------------- Ya tiene su turno ----------------
   if (miTurno) {
-    const esTuTurno = situacion?.tipo === 'tuTurno'
-    //  Anulado (seccion 46) o cancelado por repetido (seccion 53): ni su
-    //  numero ni su QR sirven ya; no se ensenan.
-    const anulado = situacion?.tipo === 'anulado' || situacion?.tipo === 'repetido'
+    //  Anulado (seccion 46), cancelado por repetido (seccion 53) o cancelado
+    //  (seccion 59): ni su numero ni su QR sirven ya; no se ensenan.
+    const yaNoVale = ['anulado', 'repetido', 'cancelada'].includes(tipo) || cancelado
+    const vivo = TURNO_VIVO.includes(tipo) && !cancelado
 
     //  El numero arriba, el QR en medio y el codigo abajo: todo en una
     //  sola captura de pantalla (26 de octubre de 2026). Lo demas, despues.
-    const credencial = !anulado && (
+    const credencial = !yaNoVale && (
       <div className="mt-3 space-y-2">
         {qr ? (
           <img
             alt={t('confirmacion.qrAlt')}
-            className="aparecer mx-auto w-full max-w-[14rem] rounded-xl border-4 border-accion bg-white p-2 shadow-sm"
+            className={`aparecer mx-auto w-full max-w-[14rem] scroll-my-24 rounded-xl border-4 bg-white p-2 shadow-sm ${
+              esTuTurno ? 'border-puede-pasar' : 'border-accion'
+            }`}
+            id="mi-qr"
             src={qr}
           />
         ) : (
@@ -300,37 +409,88 @@ export default function Turno() {
         )}
         <div className="rounded-xl border-2 border-dashed border-principal/25 bg-superficie px-3 py-2">
           <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-          <p className="font-titulo text-3xl font-bold tracking-wide text-principal">{miTurno.codigo}</p>
+          <p className="font-titulo text-2xl font-bold tracking-wide text-principal min-[22rem]:text-3xl">{miTurno.codigo}</p>
         </div>
+      </div>
+    )
+
+    const avisoDelCambio = avisoCambio && (
+      <p className="rounded-xl bg-superficie p-3 text-base font-semibold text-principal" role="alert">
+        {textoDelCambio(t, avisoCambio)}
+      </p>
+    )
+
+    //  Anulado: el turno ya no vale; uno nuevo sin preguntar.
+    const accionPerdido = (
+      <div className="space-y-2">
+        <button
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 py-2 text-lg font-bold text-sobre-accion shadow-sm disabled:opacity-60"
+          disabled={cambiando}
+          onClick={cambiarTurno}
+          type="button"
+        >
+          <LuTicket aria-hidden="true" className="h-6 w-6 shrink-0" />
+          <span className="min-w-0">{cambiando ? t('turnoAPie.sacando') : t('turnoAPie.otroTurno')}</span>
+        </button>
+        {avisoDelCambio}
+      </div>
+    )
+
+    //  Lo llamaron y no estaba: su turno todavia vale. Si ya no alcanza, uno
+    //  nuevo al final, preguntando antes (el suyo se cancela).
+    const accionLlamado = (
+      <div className="mt-3 space-y-2">
+        {pregunta === 'cambiar' ? (
+          <Confirmar
+            id="pregunta-cambiar-turno"
+            no={t('turnoAPie.cambiar.no', { turno: miTurno.turno })}
+            ocupado={cambiando}
+            si={cambiando ? t('turnoAPie.sacando') : t('turnoAPie.cambiar.si')}
+            texto={t('turnoAPie.cambiar.explicacion', { turno: miTurno.turno })}
+            titulo={t('turnoAPie.cambiar.pregunta')}
+            tono="accion"
+            alNo={() => setPregunta(null)}
+            alSi={cambiarTurno}
+          />
+        ) : (
+          <button
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-4 py-2 text-base font-bold text-principal"
+            onClick={() => {
+              setAvisoCambio(null)
+              setPregunta('cambiar')
+            }}
+            type="button"
+          >
+            <LuTicket aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
+            <span className="min-w-0">{t('turnoAPie.cambiar.boton')}</span>
+          </button>
+        )}
+        {avisoDelCambio}
       </div>
     )
 
     return (
       <div className="space-y-4">
         <Tarjeta className="!p-3 sm:!p-5">
-          <TurnoEnVivo
-            enMedio={credencial}
-            accionPerdido={
-              <button
-                className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 text-lg font-bold text-sobre-accion shadow-sm"
-                onClick={sacarOtro}
-                type="button"
-              >
-                <LuTicket aria-hidden="true" className="h-6 w-6" />
-                {t('turnoAPie.otroTurno')}
-              </button>
-            }
-            alCambiar={(datos) => setSituacion(situacionDelTurno(datos))}
-            esHoy
-            token={miTurno.token}
-            turnoInicial={miTurno.turno}
-          />
-
+          {cancelado || tipo === 'cancelada' ? (
+            <TurnoCancelado alSacarOtro={sacarOtro} turno={miTurno.turno} />
+          ) : (
+            <TurnoEnVivo
+              accionLlamado={accionLlamado}
+              accionPerdido={accionPerdido}
+              alCambiar={(datos) => setSituacion(situacionDelTurno(datos))}
+              enMedio={credencial}
+              esHoy
+              key={miTurno.token}
+              token={miTurno.token}
+              turnoInicial={miTurno.turno}
+            />
+          )}
         </Tarjeta>
 
         {/* Mucha gente abre el QR en una ventana privada y, si se le cierra,
             pierde la pagina. Con su numero, la voluntaria le entrega igual. */}
-        {!anulado && (
+        {!yaNoVale && (
           <Tarjeta>
             <p className="rounded-xl border-2 border-accion bg-accion/10 p-3 text-base font-semibold text-principal">
               {t('turnoAPie.anotalo', { turno: miTurno.turno })}
@@ -341,12 +501,46 @@ export default function Turno() {
 
         {/* Con su turno tambien puede ver como va toda la fila (27 de octubre de 2026). */}
         <Link
-          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-4 text-lg font-semibold text-principal shadow-sm transition hover:border-principal"
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 bg-superficie px-4 py-2 text-center text-lg font-semibold text-principal shadow-sm transition hover:border-principal"
           to="/fila"
         >
-          <LuUsers aria-hidden="true" className="h-6 w-6 text-accion" />
-          {t('turnoAPie.verFila')}
+          <LuUsers aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+          <span className="min-w-0">{t('turnoAPie.verFila')}</span>
         </Link>
+
+        {/* Cancelar su turno, como la cita en carro: se pregunta antes. */}
+        {vivo &&
+          (pregunta === 'cancelar' ? (
+            <Confirmar
+              error={
+                errorCancelar &&
+                t(`citas.errores.${errorCancelar}`, { defaultValue: t('citas.errores.ERROR_DESCONOCIDO') })
+              }
+              id="pregunta-cancelar-turno"
+              no={t('turnoAPie.cancelar.no')}
+              ocupado={cancelando}
+              si={cancelando ? t('turnoAPie.cancelar.cancelando') : t('turnoAPie.cancelar.si')}
+              texto={t('turnoAPie.cancelar.explicacion')}
+              titulo={t('turnoAPie.cancelar.pregunta', { turno: miTurno.turno })}
+              tono="peligro"
+              alNo={() => {
+                setPregunta(null)
+                setErrorCancelar(null)
+              }}
+              alSi={cancelarTurno}
+            />
+          ) : (
+            <button
+              className="min-h-12 w-full text-base font-semibold text-ya-recibio underline underline-offset-4"
+              onClick={() => {
+                setErrorCancelar(null)
+                setPregunta('cancelar')
+              }}
+              type="button"
+            >
+              {t('turnoAPie.cancelar.boton')}
+            </button>
+          ))}
 
         {/* Abajo, para no bajar el numero y el QR de la pantalla. */}
         <div className="text-center">
@@ -355,25 +549,15 @@ export default function Turno() {
 
         <Tarjeta>{avisos}</Tarjeta>
 
-        {/* Le toca: la pantalla completa en verde, para que se vea desde lejos. */}
-        {esTuTurno && !avisoVisto && (
+        {/* Le toca: un marco verde que parpadea alrededor de la pantalla, sin
+            tapar nada (antes la pantalla entera se ponia verde y habia que
+            tocar "Ver mi codigo" para que lo escanearan). Con "menos
+            movimiento" en el telefono, el marco se queda fijo. */}
+        {esTuTurno && (
           <div
-            aria-live="assertive"
-            className="aparecer fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-[#1F7A47] p-6 text-center text-white"
-            role="alert"
-          >
-            <LuBellRing aria-hidden="true" className="h-16 w-16 animate-bounce" />
-            <p className="font-titulo text-4xl font-bold">{t('turnoAPie.esTuTurno')}</p>
-            <p className="font-titulo text-8xl font-bold leading-none">{miTurno.turno}</p>
-            <p className="max-w-xs text-xl">{t('turnoAPie.acercate')}</p>
-            <button
-              className="mt-2 inline-flex min-h-14 items-center justify-center rounded-xl bg-white px-8 text-lg font-bold text-[#1F7A47]"
-              onClick={() => setAvisoVisto(true)}
-              type="button"
-            >
-              {t('turnoAPie.verMiQr')}
-            </button>
-          </div>
+            aria-hidden="true"
+            className="pointer-events-none fixed inset-0 z-50 animate-parpadeo border-[10px] border-puede-pasar"
+          />
         )}
       </div>
     )
@@ -443,6 +627,21 @@ export default function Turno() {
               sacar(false)
             }}
           >
+            {/* Mucha gente abre el QR de la entrada y cree que con eso ya
+                tiene turno (10 de noviembre de 2026): se le dice antes del
+                boton, con una flecha que lo senala. */}
+            <div
+              className="mb-3 flex flex-col items-center rounded-2xl border-2 border-dashed border-accion bg-accion/10 px-3 pb-1 pt-3 text-center text-principal"
+              role="status"
+            >
+              <p className="flex flex-wrap items-center justify-center gap-x-2 text-xl font-bold">
+                <LuTriangleAlert aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+                <span className="min-w-0 max-w-full">{t('turnoAPie.aunNo.titulo')}</span>
+              </p>
+              <p className="mt-1 text-base">{conCodigo ? t('turnoAPie.aunNo.conCodigo') : t('turnoAPie.aunNo.texto')}</p>
+              <LuArrowBigDown aria-hidden="true" className="mt-1 h-9 w-9 animate-bounce text-accion" />
+            </div>
+
             {conCodigo && (
               <div className="mb-3 rounded-2xl border-2 border-principal/20 p-4">
                 <label className="block text-lg font-bold text-principal" htmlFor="codigo-del-dia">
@@ -478,13 +677,17 @@ export default function Turno() {
               </div>
             )}
 
+            {/* El boton "llama": un halo naranja que se abre (quieto si el
+                telefono pidio menos movimiento). */}
             <button
-              className="flex min-h-28 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-accion px-4 py-5 text-sobre-accion shadow-md transition hover:brightness-95 disabled:opacity-60"
+              className={`flex min-h-28 w-full flex-col items-center justify-center gap-1 rounded-2xl bg-accion px-4 py-5 text-sobre-accion shadow-md transition hover:brightness-95 disabled:opacity-60 ${
+                ocupado || frenado || faltaEscribir ? '' : 'animate-llamar'
+              }`}
               disabled={ocupado || frenado || faltaEscribir}
               type="submit"
             >
-              <LuTicket aria-hidden="true" className="h-9 w-9" />
-              <span className="font-titulo text-3xl font-bold">
+              <LuTicket aria-hidden="true" className="h-9 w-9 shrink-0" />
+              <span className="max-w-full font-titulo text-2xl font-bold min-[22rem]:text-3xl">
                 {frenado
                   ? t('turnoAPie.codigo.esperaBoton', { reloj: relojDeEspera(segundosFreno) })
                   : ocupado
@@ -504,7 +707,7 @@ export default function Turno() {
               <div className="aparecer mt-4 space-y-3 rounded-2xl border-2 border-principal/20 p-4">
                 <p className="flex items-center gap-2 text-lg font-bold text-principal">
                   <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-                  {t('turnoAPie.carroCodigo.titulo')}
+                  <span className="min-w-0">{t('turnoAPie.carroCodigo.titulo')}</span>
                 </p>
                 <p className="text-base text-principal">{t('turnoAPie.carroCodigo.ayuda')}</p>
                 <CampoCodigo
@@ -526,7 +729,7 @@ export default function Turno() {
                 )}
                 <Boton disabled={ocupado || frenado || faltaEscribir || codigoCarro.length < 4} type="submit">
                   <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0" />
-                  {t('turnoAPie.carroCodigo.boton')}
+                  <span className="min-w-0">{t('turnoAPie.carroCodigo.boton')}</span>
                 </Boton>
                 <button
                   className="inline-flex min-h-12 w-full items-center justify-center text-base font-semibold text-principal underline underline-offset-4"
@@ -547,7 +750,7 @@ export default function Turno() {
                 type="button"
               >
                 <FaCarSide aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-                {t('turnoAPie.carroCodigo.abrir')}
+                <span className="min-w-0">{t('turnoAPie.carroCodigo.abrir')}</span>
               </button>
             )}
 
@@ -561,7 +764,7 @@ export default function Turno() {
           <div className="aparecer space-y-3 rounded-2xl border-2 border-accion bg-accion/10 p-4">
             <p className="flex items-start gap-2 text-lg font-bold text-principal">
               <LuTriangleAlert aria-hidden="true" className="mt-1 h-6 w-6 shrink-0 text-accion" />
-              {t('turnoAPie.carro.titulo', { hora: formatearHora(respuesta.hora_carro) })}
+              <span className="min-w-0">{t('turnoAPie.carro.titulo', { hora: formatearHora(respuesta.hora_carro) })}</span>
             </p>
             <p className="text-base text-principal">{t('turnoAPie.carro.texto', { count: respuesta.citas_carro })}</p>
             {/* Es el dueno del carro: el carro sale de la fila con todo y sus acompanantes. */}
@@ -608,15 +811,84 @@ export default function Turno() {
 
         {/* Sin turno tambien se puede ver como va la fila (seccion 51). */}
         <Link
-          className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 px-4 text-lg font-semibold text-principal transition hover:border-principal"
+          className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border-2 border-principal/30 px-4 py-2 text-center text-lg font-semibold text-principal transition hover:border-principal"
           to="/fila"
         >
-          <LuUsers aria-hidden="true" className="h-6 w-6 text-accion" />
-          {t('turnoAPie.verFila')}
+          <LuUsers aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+          <span className="min-w-0">{t('turnoAPie.verFila')}</span>
         </Link>
       </Tarjeta>
 
       <Tarjeta>{avisos}</Tarjeta>
+    </div>
+  )
+}
+
+/**
+ * La pregunta antes de algo que no tiene regreso (cancelar su turno, o
+ * cambiarlo por uno al final): que pasa, dicho en claro, y dos botones.
+ * tono: 'peligro' (rojo) o 'accion' (naranja).
+ */
+function Confirmar({ id, titulo, texto, si, no, tono, ocupado, error = null, alSi, alNo }) {
+  const colorSi = tono === 'peligro' ? 'bg-peligro text-white hover:brightness-110' : 'bg-accion text-sobre-accion hover:brightness-95'
+  return (
+    <div
+      aria-labelledby={id}
+      className={`aparecer rounded-xl border-2 p-4 text-left ${
+        tono === 'peligro' ? 'border-ya-recibio/40 bg-ya-recibio/5' : 'border-accion bg-superficie'
+      }`}
+      role="alertdialog"
+    >
+      <p className="text-lg font-bold text-principal" id={id}>
+        {titulo}
+      </p>
+      <p className="mt-1 text-base text-principal">{texto}</p>
+      {error && (
+        <p className="mt-2 rounded-xl bg-ya-recibio/10 p-3 text-base text-ya-recibio" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <button
+          className={`inline-flex min-h-14 items-center justify-center rounded-xl px-4 py-2 text-center text-base font-bold transition disabled:cursor-not-allowed disabled:opacity-60 ${colorSi}`}
+          disabled={ocupado}
+          onClick={alSi}
+          type="button"
+        >
+          {si}
+        </button>
+        <button
+          className="inline-flex min-h-14 items-center justify-center rounded-xl border border-principal/25 bg-superficie px-4 py-2 text-center text-base font-bold text-principal transition hover:border-principal"
+          onClick={alNo}
+          type="button"
+        >
+          {no}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/** Su turno se cancelo (lo cancelo la persona, o se cancelo la entrega). */
+function TurnoCancelado({ turno, alSacarOtro }) {
+  const { t } = useTranslation()
+  return (
+    <div className="rounded-2xl border-4 border-principal/20 bg-principal/5 p-4 text-center text-principal" role="status">
+      <p className="text-lg font-bold uppercase tracking-wide text-principal/70">{t('turno.tuTurno')}</p>
+      <p className="font-titulo text-7xl font-bold leading-none text-principal line-through decoration-ya-recibio decoration-4">{turno}</p>
+      <p className="mt-3 flex items-center justify-center gap-2 text-xl font-bold">
+        <LuTicketX aria-hidden="true" className="h-6 w-6 shrink-0 text-ya-recibio" />
+        <span className="min-w-0">{t('turnoAPie.cancelado.titulo', { turno })}</span>
+      </p>
+      <p className="mt-1 text-base">{t('turnoAPie.cancelado.texto')}</p>
+      <button
+        className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accion px-4 py-2 text-lg font-bold text-sobre-accion shadow-sm"
+        onClick={alSacarOtro}
+        type="button"
+      >
+        <LuTicket aria-hidden="true" className="h-6 w-6 shrink-0" />
+        <span className="min-w-0">{t('turnoAPie.otroTurno')}</span>
+      </button>
     </div>
   )
 }

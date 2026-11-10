@@ -18,11 +18,11 @@ export default function Pasos({ actual }) {
         const activo = numero === actual
 
         return (
-          <li className="flex flex-1 items-center gap-2" key={nombre}>
+          <li className="flex min-w-0 flex-1 items-center gap-2" key={nombre}>
             <span
               aria-current={activo ? 'step' : undefined}
               className={[
-                'flex-1 border-b-2 pb-1 text-base',
+                'min-w-0 flex-1 border-b-2 pb-1 text-base',
                 activo && 'border-accion font-semibold text-principal',
                 hecho && 'border-principal/40 text-principal/70',
                 !activo && !hecho && 'border-principal/15 text-principal/70',

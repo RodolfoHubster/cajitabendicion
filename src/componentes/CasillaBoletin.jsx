@@ -20,9 +20,9 @@ export default function CasillaBoletin({ acepto, alCambiar }) {
           onChange={(e) => alCambiar(e.target.checked)}
           type="checkbox"
         />
-        <span className="flex items-start gap-2 text-base font-semibold text-principal">
+        <span className="flex min-w-0 items-start gap-2 text-base font-semibold text-principal">
           <LuMail aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-          {t('boletin.casilla')}
+          <span className="min-w-0">{t('boletin.casilla')}</span>
         </span>
       </label>
       <p className="mt-2 text-base text-principal/80" id="boletin-ayuda">

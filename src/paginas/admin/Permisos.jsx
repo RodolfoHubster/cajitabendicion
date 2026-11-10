@@ -161,7 +161,7 @@ export default function Permisos() {
         <Tarjeta>
           <h2 className="mb-1 flex items-center gap-2 text-xl font-bold">
             <LuLock aria-hidden="true" className="h-6 w-6 shrink-0 text-ya-recibio" />
-            {t('permisos.nunca.titulo')}
+            <span className="min-w-0">{t('permisos.nunca.titulo')}</span>
           </h2>
           <p className="mb-3 text-base text-principal/70">{t('permisos.nunca.ayuda')}</p>
 

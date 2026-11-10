@@ -605,9 +605,6 @@
     "revisando": "Tinitingnan ang pila…",
     "noHay": "Walang pila ng naglalakad ngayon.",
     "llena": "Wala nang numero ngayong araw.",
-    "esTuTurno": "Ikaw na!",
-    "acercate": "Lumapit at ipakita ang QR code mo.",
-    "verMiQr": "Tingnan ang code ko",
     "avisos": {
       "sinDatos": "Hindi namin hinihingi ang pangalan, edad o telepono mo. Walang nase-save o naibabahagi.",
       "soloHoy": "Para sa araw na ito lang ang numero mo at para sa isang kahon.",
@@ -638,7 +635,8 @@
       "SIN_CONEXION": "Walang koneksyon. Tingnan ang signal mo at pindutin ulit ang button.",
       "FUNCION_NO_INSTALADA": "Hindi pa handa ang opsyong ito. Sabihan ang isang volunteer.",
       "DISPOSITIVO_INVALIDO": "Hindi ka namin mabigyan ng numero mula sa teleponong ito. Humingi ng tulong sa isang volunteer.",
-      "ERROR_DESCONOCIDO": "Hindi ka namin mabigyan ng numero. Pindutin ulit ang button o humingi ng tulong sa isang volunteer."
+      "ERROR_DESCONOCIDO": "Hindi ka namin mabigyan ng numero. Pindutin ulit ang button o humingi ng tulong sa isang volunteer.",
+      "BLOQUE_LLENO": "Wala nang numero ngayong araw."
     },
     "terminada": "Tapos na ang pila ngayong araw. Salamat sa pagpunta! Hinihintay ka namin sa susunod na pamimigay.",
     "codigoEsTuyo": "Iyo lang ang code na ito: huwag ipakita kaninuman. Dito napapatunayan na iyo ang numero.",
@@ -663,7 +661,37 @@
       "cancelar": "Wala akong appointment ng kotse",
       "CODIGO_CARRO_NO_EXISTE": "Wala kaming makitang appointment ng kotse ngayon na may ganyang code. Tingnan ang mga numero."
     },
-    "verFila": "Tingnan ang pila nang live"
+    "verFila": "Tingnan ang pila nang live",
+    "aunNo": {
+      "titulo": "WALA ka pang numero",
+      "texto": "Hindi ka nabibigyan ng numero sa pagbukas lang ng pahinang ito. Pindutin ang orange na button na «Kunin ang numero ko».",
+      "conCodigo": "Hindi ka nabibigyan ng numero sa pagbukas lang ng pahinang ito. Isulat ang code ngayong araw at pindutin ang orange na button na «Kunin ang numero ko»."
+    },
+    "cambiar": {
+      "boton": "Hindi na ako aabot: kumuha ng bagong numero",
+      "pregunta": "Kukuha ng bagong numero?",
+      "explicacion": "Makakansela ang numero mong {{turno}} at maghihintay ka mula sa dulo ng pila. Kung malapit ka lang, mas mabuting lumapit ka na sa volunteer: may bisa pa ang numero mo.",
+      "si": "Oo, bigyan ako ng bagong numero",
+      "no": "Hindi, itatago ko ang {{turno}}",
+      "resultado": {
+        "AUN_VALE": "May bisa pa ang numero mo: hindi ka pa tinatawag. Maghintay ka rito.",
+        "YA_RECIBIO": "Natanggap mo na ang kahon mo gamit ang numerong ito. Salamat sa pagpunta!",
+        "CERRADA": "Wala nang ibinibigay na bagong numero ngayon. Kung may bisa pa ang numero mo, lumapit ka sa volunteer.",
+        "NO_EXISTE": "Hindi namin makita ang numero mo ngayong araw. Kausapin ang isang volunteer."
+      }
+    },
+    "cancelar": {
+      "boton": "Kanselahin ang numero ko",
+      "pregunta": "Sigurado ka bang gusto mong kanselahin ang numero mong {{turno}}?",
+      "explicacion": "Hindi mo na magagamit ang numerong ito o ang code nito. Kung magbago ang isip mo, kailangan mong kumuha ng bagong numero at maghintay mula sa dulo ng pila.",
+      "si": "Oo, kanselahin ang numero ko",
+      "no": "Hindi, itago ang numero ko",
+      "cancelando": "Kinakansela…"
+    },
+    "cancelado": {
+      "titulo": "Nakansela ang numero mong {{turno}}.",
+      "texto": "Kung gusto mo pa ring makuha ang pagkain mo, kumuha ng bagong numero: maghihintay ka mula sa dulo ng pila."
+    }
   },
   "credencial": {
     "etiqueta": "VOLUNTEER",

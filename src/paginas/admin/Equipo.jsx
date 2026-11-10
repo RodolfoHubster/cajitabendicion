@@ -109,7 +109,7 @@ function DarAcceso({ alGuardar }) {
     <Tarjeta>
       <h2 className="mb-3 flex items-center gap-2 text-xl font-bold">
         <LuUserPlus aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-        {t('equipo.darAcceso')}
+        <span className="min-w-0">{t('equipo.darAcceso')}</span>
       </h2>
 
       <form className="space-y-4" noValidate onSubmit={enviar}>
@@ -454,7 +454,7 @@ function MiCodigo({ tieneCodigo, alGuardar }) {
     <Tarjeta>
       <h2 className="mb-1 flex items-center gap-2 text-xl font-bold">
         <LuShieldCheck aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-        {t('equipo.miCodigo')}
+        <span className="min-w-0">{t('equipo.miCodigo')}</span>
       </h2>
       <p className="text-base text-principal/70">{t('equipo.miCodigoAyuda')}</p>
       <p className="mt-2 rounded-xl bg-principal/5 p-3 text-base font-semibold text-principal">

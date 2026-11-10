@@ -1,3 +1,5 @@
+import { Children } from 'react'
+
 /**
  * El boton principal usa texto azul sobre naranja, no blanco.
  *
@@ -7,7 +9,7 @@
  */
 export default function Boton({ children, className = '', variant = 'primary', ...props }) {
   const base =
-    'inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-4 text-base font-bold transition focus-visible:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60'
+    'inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-center text-base font-bold transition focus-visible:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60'
 
   const variants = {
     primary:
@@ -18,7 +20,11 @@ export default function Boton({ children, className = '', variant = 'primary', .
 
   return (
     <button className={`${base} ${variants[variant] ?? variants.primary} ${className}`} {...props}>
-      {children}
+      {/* El texto en su propia caja: con la letra grande del telefono baja de
+          renglon junto al icono en vez de salirse del boton. */}
+      {Children.map(children, (hijo) =>
+        typeof hijo === 'string' || typeof hijo === 'number' ? <span className="min-w-0">{hijo}</span> : hijo,
+      )}
     </button>
   )
 }

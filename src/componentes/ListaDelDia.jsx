@@ -79,7 +79,7 @@ export default function ListaDelDia({ texto, version = 0, ocupado, alVer, alEntr
     <div className="mt-4">
       <p className="flex flex-wrap items-center gap-x-2 text-base font-semibold text-principal">
         <FaCarSide aria-hidden="true" className="h-4 w-4 text-accion" />
-        {t('escaneo.lista.cuenta', { total: cuenta.total, faltan: cuenta.faltan })}
+        <span className="min-w-0">{t('escaneo.lista.cuenta', { total: cuenta.total, faltan: cuenta.faltan })}</span>
       </p>
       {error === 'SIN_CONEXION' && (
         <p className="mt-1 text-chica text-principal/70" role="status">
@@ -108,11 +108,11 @@ export default function ListaDelDia({ texto, version = 0, ocupado, alVer, alEntr
             >
               <button
                 aria-expanded={estaAbierto}
-                className="flex min-h-14 w-full items-center gap-3 px-3 py-2 text-left"
+                className="flex min-h-14 w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-left"
                 onClick={() => setAbierto(estaAbierto ? null : clave)}
                 type="button"
               >
-                <span className="min-w-0 flex-1">
+                <span className="min-w-[min(8rem,100%)] flex-1 basis-0">
                   <span className="block truncate text-lg font-semibold text-principal">{persona.nombre}</span>
                   <span className="block text-base text-principal/70">
                     {persona.codigo_corto} · {formatearHora(persona.hora)}

@@ -117,6 +117,16 @@ describe('una cita de ejemplo, de principio a fin', () => {
     expect(respuestaDemo('turno_de_cita', { p_token: turno.token_qr }, despues).data[0]).toMatchObject({ actual: 13, antes: 0 })
   })
 
+  it('cambiar el turno (sección 59): uno nuevo más atrás, y el viejo cancelado', () => {
+    const opciones = { hoy: HOY, almacen: almacen(), ahora: 1_000_000 }
+    const [viejo] = respuestaDemo('sacar_turno_a_pie', { p_dispositivo: 'x' }, opciones).data
+    const [nuevo] = respuestaDemo('cambiar_mi_turno', { p_token: viejo.token_qr }, opciones).data
+    expect(nuevo).toMatchObject({ resultado: 'NUEVO', turno: 22, turno_anterior: 13, codigo: CODIGO_DEMO })
+    expect(nuevo.token_qr).not.toBe(viejo.token_qr)
+    expect(respuestaDemo('consultar_cita', { p_token: viejo.token_qr }, opciones).data[0].estado).toBe('cancelada')
+    expect(respuestaDemo('cambiar_mi_turno', { p_token: 'no-existe' }, opciones).data[0].resultado).toBe('NO_EXISTE')
+  })
+
   it('la fila a pie de hoy está abierta y no pide código', () => {
     expect(respuestaDemo('fila_a_pie_hoy', {}, { almacen: almacen() }).data[0]).toMatchObject({ abierta: true, cerrada: false, pide_codigo: false })
   })

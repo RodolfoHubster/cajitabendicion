@@ -108,7 +108,7 @@ export default function AyudaFilaAPie({ alCerrar }) {
         <div className="flex items-center justify-between gap-3 border-b border-principal/10 px-4 pt-3 sm:px-5">
           <h2 className="flex items-center gap-2 text-xl font-bold text-principal" id="ayuda-a-pie-titulo">
             <LuCircleHelp aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-            {t('ayudaAPie.titulo')}
+            <span className="min-w-0">{t('ayudaAPie.titulo')}</span>
           </h2>
           <button
             aria-label={t('ayudaAPie.cerrar')}
@@ -143,7 +143,7 @@ export default function AyudaFilaAPie({ alCerrar }) {
                 type="button"
               >
                 <Icono aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
-                {t(`ayudaAPie.pestanas.${clave}`)}
+                <span className="min-w-0">{t(`ayudaAPie.pestanas.${clave}`)}</span>
               </button>
             )
           })}
@@ -189,7 +189,7 @@ function VerEnVideo({ parte, alVer }) {
       type="button"
     >
       <LuPlay aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-      {t('ayudaAPie.verEnVideo', { tiempo: reloj(inicio) })}
+      <span className="min-w-0">{t('ayudaAPie.verEnVideo', { tiempo: reloj(inicio) })}</span>
     </button>
   )
 }
@@ -329,7 +329,7 @@ function PestanaCasos({ alVer }) {
                     <div className="rounded-xl border-2 border-accion bg-accion/10 p-3">
                       <p className="flex items-center gap-2 text-chica font-bold uppercase tracking-wide text-principal/80">
                         <LuMessageCircle aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-                        {t('ayudaAPie.casos.dile')}
+                        <span className="min-w-0">{t('ayudaAPie.casos.dile')}</span>
                       </p>
                       <p className="mt-1 text-base font-semibold text-principal">{t(`${base}.dile`)}</p>
                     </div>

@@ -179,7 +179,7 @@ export default function VentanaPase({ token, alCerrar }) {
                   type="button"
                 >
                   <LuDownload aria-hidden="true" className="h-5 w-5" />
-                  {t('confirmacion.guardarImagen')}
+                  <span className="min-w-0">{t('confirmacion.guardarImagen')}</span>
                 </button>
                 <button
                   className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-principal px-4 text-base font-semibold text-principal transition hover:bg-principal/10"
@@ -187,7 +187,7 @@ export default function VentanaPase({ token, alCerrar }) {
                   type="button"
                 >
                   <LuCopy aria-hidden="true" className="h-5 w-5" />
-                  {copiado ? t('personas.copiado') : t('personas.copiar')}
+                  <span className="min-w-0">{copiado ? t('personas.copiado') : t('personas.copiar')}</span>
                 </button>
               </div>
 
@@ -200,7 +200,7 @@ export default function VentanaPase({ token, alCerrar }) {
               {/* El enlace es como su llave: quien lo tenga ve el QR. */}
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-principal/5 p-3 text-base text-principal">
                 <LuShieldAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-                {t('ventanaPase.cuidado')}
+                <span className="min-w-0">{t('ventanaPase.cuidado')}</span>
               </p>
             </>
           )}

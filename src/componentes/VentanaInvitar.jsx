@@ -101,7 +101,7 @@ export default function VentanaInvitar({ fecha, filas, alCerrar }) {
         <div className="space-y-4 px-5 py-4">
           <p className="flex items-start gap-2 rounded-xl bg-principal/5 p-3 text-base text-principal">
             <LuInfo aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-            {t('invitar.comoFunciona')}
+            <span className="min-w-0">{t('invitar.comoFunciona')}</span>
           </p>
 
           {(sinTelefono > 0 || repetidos > 0) && (
@@ -136,7 +136,7 @@ export default function VentanaInvitar({ fecha, filas, alCerrar }) {
                     type="button"
                   >
                     <LuCircleCheck aria-hidden="true" className="h-5 w-5" />
-                    {t('invitar.yaLoEnvie')}
+                    <span className="min-w-0">{t('invitar.yaLoEnvie')}</span>
                   </button>
                   <a
                     className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border border-principal px-4 text-base font-semibold text-principal"
@@ -145,7 +145,7 @@ export default function VentanaInvitar({ fecha, filas, alCerrar }) {
                     target="_blank"
                   >
                     <FaWhatsapp aria-hidden="true" className="h-5 w-5" />
-                    {t('invitar.abrirOtraVez')}
+                    <span className="min-w-0">{t('invitar.abrirOtraVez')}</span>
                   </a>
                 </div>
               ) : (
@@ -157,7 +157,7 @@ export default function VentanaInvitar({ fecha, filas, alCerrar }) {
                   target="_blank"
                 >
                   <FaWhatsapp aria-hidden="true" className="h-6 w-6" />
-                  {t('invitar.abrir')}
+                  <span className="min-w-0">{t('invitar.abrir')}</span>
                 </a>
               )}
 
@@ -167,7 +167,7 @@ export default function VentanaInvitar({ fecha, filas, alCerrar }) {
                 type="button"
               >
                 <LuSkipForward aria-hidden="true" className="h-5 w-5" />
-                {t('invitar.saltar')}
+                <span className="min-w-0">{t('invitar.saltar')}</span>
               </button>
             </div>
           )}

@@ -52,9 +52,10 @@
         try {
           letra = localStorage.getItem('cajita-letra')
         } catch (e) {}
-        var pixeles = { grande: '18px', muy_grande: '20px' }[letra]
-        if (pixeles) {
-          document.documentElement.style.fontSize = pixeles
+        //  En porcentaje de la letra del telefono (la puede haber agrandado ahi).
+        var tamano = { grande: '112.5%', muy_grande: '125%' }[letra]
+        if (tamano) {
+          document.documentElement.style.fontSize = tamano
           document.documentElement.dataset.letra = letra
         }
       })()

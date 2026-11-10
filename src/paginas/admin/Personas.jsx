@@ -178,7 +178,7 @@ export default function Personas() {
               type="button"
             >
               <LuQrCode aria-hidden="true" className="h-5 w-5" />
-              {t('personas.verPase')}
+              <span className="min-w-0">{t('personas.verPase')}</span>
             </button>
           )}
         </div>
@@ -239,7 +239,7 @@ export default function Personas() {
                           grupo.paseActivo && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-accion/20 px-2 text-chica font-bold text-principal">
                               <LuStar aria-hidden="true" className="h-4 w-4" />
-                              {t('personas.conPase')}
+                              <span className="min-w-0">{t('personas.conPase')}</span>
                             </span>
                           )
                         )}
@@ -284,7 +284,7 @@ export default function Personas() {
                         {grupo.mismoNombre && (
                           <p className="mt-2 flex items-start gap-2 rounded-xl bg-accion/15 p-2 text-chica text-principal">
                             <LuTriangleAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accion" />
-                            {t('personas.mismoNombre')}
+                            <span className="min-w-0">{t('personas.mismoNombre')}</span>
                           </p>
                         )}
 
@@ -364,7 +364,7 @@ export default function Personas() {
                                 type="button"
                               >
                                 <LuCrown aria-hidden="true" className="h-5 w-5 text-[#B8860B]" />
-                                {t('personas.hacerVip')}
+                                <span className="min-w-0">{t('personas.hacerVip')}</span>
                               </button>
                             )}
                             {puedeDarPase && !grupo.paseActivo && (
@@ -374,7 +374,7 @@ export default function Personas() {
                                 type="button"
                               >
                                 <LuStar aria-hidden="true" className="h-5 w-5" />
-                                {t('personas.darPase')}
+                                <span className="min-w-0">{t('personas.darPase')}</span>
                               </button>
                             )}
                             {esAdmin && grupo.vip && (

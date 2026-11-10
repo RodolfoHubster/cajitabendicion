@@ -309,7 +309,7 @@ export default function Pases() {
     <Tarjeta>
       <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold">
         <LuStar aria-hidden="true" className="h-6 w-6 text-accion" />
-        {t('pases.titulo')}
+        <span className="min-w-0">{t('pases.titulo')}</span>
       </h1>
       <p className="mb-4 text-base text-principal/70">{t('pases.ayuda')}</p>
 
@@ -347,7 +347,7 @@ export default function Pases() {
           <div className="aparecer rounded-xl bg-principal/5 p-3">
             <p className="mb-3 flex items-center gap-2 text-base font-semibold text-principal">
               <LuUserPlus aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('pases.registrarAqui')}
+              <span className="min-w-0">{t('pases.registrarAqui')}</span>
             </p>
             <RegistrarPersona alTerminar={alRegistrarConPase} modo="pase" />
           </div>
@@ -388,7 +388,7 @@ export default function Pases() {
 
             <Boton className="sm:w-auto sm:px-6" disabled={ocupado} type="submit">
               <LuPlus aria-hidden="true" className="h-5 w-5" />
-              {ocupado ? t('pases.guardando') : t('pases.darBoton')}
+              <span className="min-w-0">{ocupado ? t('pases.guardando') : t('pases.darBoton')}</span>
             </Boton>
           </form>
         )}
@@ -399,7 +399,7 @@ export default function Pases() {
       <section className="mb-6 space-y-3 rounded-2xl border-2 border-principal/30 p-4">
         <h2 className="flex items-center gap-2 text-lg font-bold text-principal">
           <FaWheelchair aria-hidden="true" className="h-5 w-5" />
-          {t('pases.preferente.titulo')}
+          <span className="min-w-0">{t('pases.preferente.titulo')}</span>
         </h2>
         <p className="text-base text-principal/80">{t('pases.preferente.ayuda')}</p>
 
@@ -413,7 +413,7 @@ export default function Pases() {
             type="button"
           >
             <LuPlus aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t('pases.preferente.abrir')}
+            <span className="min-w-0">{t('pases.preferente.abrir')}</span>
           </button>
         ) : (
           <form className="aparecer space-y-3" noValidate onSubmit={darPreferente}>
@@ -455,7 +455,7 @@ export default function Pases() {
             <div className="flex flex-wrap gap-2">
               <Boton className="sm:w-auto sm:px-6" disabled={ocupado} type="submit">
                 <FaWheelchair aria-hidden="true" className="h-5 w-5" />
-                {ocupado ? t('pases.guardando') : t('pases.preferente.boton')}
+                <span className="min-w-0">{ocupado ? t('pases.guardando') : t('pases.preferente.boton')}</span>
               </Boton>
               <Boton className="sm:w-auto sm:px-6" onClick={() => setPreferente(null)} type="button" variant="secondary">
                 {t('pases.no')}
@@ -568,7 +568,7 @@ export default function Pases() {
                       {pase.preferente && (
                         <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-principal px-2 text-chica font-bold text-principal">
                           <FaWheelchair aria-hidden="true" className="h-3.5 w-3.5" />
-                          {t('preferente.etiqueta')}
+                          <span className="min-w-0">{t('preferente.etiqueta')}</span>
                         </span>
                       )}
                       {pase.nota && (
@@ -577,7 +577,7 @@ export default function Pases() {
                       {pase.activo && pase.ultima_entrega === hoy && (
                         <span className="mt-0.5 flex w-fit items-center gap-1 rounded-full bg-puede-pasar/15 px-2 text-chica font-semibold text-puede-pasar">
                           <LuPackageCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                          {t('pases.entrega.hoy')}
+                          <span className="min-w-0">{t('pases.entrega.hoy')}</span>
                         </span>
                       )}
                       {!pase.activo && (
@@ -735,7 +735,7 @@ export default function Pases() {
         >
           <p className="flex items-center gap-2 text-base font-semibold text-principal" id="entrega-pase">
             <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-            {t('pases.entrega.titulo', { nombre: entregaDe.nombre, codigo: entregaDe.codigo })}
+            <span className="min-w-0">{t('pases.entrega.titulo', { nombre: entregaDe.nombre, codigo: entregaDe.codigo })}</span>
           </p>
           <p className="text-base text-principal/80">{t('pases.entrega.ayuda')}</p>
           {dias && dias.length === 0 ? (
@@ -808,7 +808,7 @@ export default function Pases() {
         >
           <p className="flex items-center gap-2 text-base font-semibold text-principal" id="nota-pase">
             <FaWheelchair aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('pases.preferente.notaDe', { codigo: notaDe.codigo })}
+            <span className="min-w-0">{t('pases.preferente.notaDe', { codigo: notaDe.codigo })}</span>
           </p>
           <Campo
             etiqueta={t('pases.preferente.nota')}

@@ -153,7 +153,7 @@ export default function Avisos() {
                   type="button"
                 >
                   <Icono aria-hidden="true" className="h-5 w-5 text-accion" />
-                  {t(`avisos.pestana.${clave}`)}
+                  <span className="min-w-0">{t(`avisos.pestana.${clave}`)}</span>
                 </button>
               ))}
             </div>
@@ -171,7 +171,7 @@ export default function Avisos() {
           target="_blank"
         >
           <LuExternalLink aria-hidden="true" className="h-4 w-4" />
-          {t('avisos.verComoLaGente')}
+          <span className="min-w-0">{t('avisos.verComoLaGente')}</span>
         </a>
       </p>
 
@@ -191,7 +191,7 @@ export default function Avisos() {
               type="button"
             >
               <Icono aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t(`filas.nombre.${valor}`)}
+              <span className="min-w-0">{t(`filas.nombre.${valor}`)}</span>
             </button>
           ))}
         </div>
@@ -231,7 +231,7 @@ function Marco({ seccion, children }) {
       <div className="rounded-2xl border border-accion/40 bg-accion/10 p-2.5 sm:p-4">
         <p className="mb-3 flex items-center gap-2 text-base font-bold text-principal">
           <LuTriangleAlert aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-          {seccion === 'registro_a_pie' ? t('reglas.tituloAPie') : t('reglas.titulo')}
+          <span className="min-w-0">{seccion === 'registro_a_pie' ? t('reglas.tituloAPie') : t('reglas.titulo')}</span>
         </p>
         {children}
         {/* La casilla que la gente tiene que marcar, de muestra. A pie no
@@ -239,7 +239,7 @@ function Marco({ seccion, children }) {
         {seccion === 'registro' ? (
           <p className="mt-3 flex items-center gap-3 text-base font-semibold text-principal/70">
             <span aria-hidden="true" className="h-6 w-6 shrink-0 rounded border-2 border-principal/40" />
-            {t('reglas.casilla')}
+            <span className="min-w-0">{t('reglas.casilla')}</span>
           </p>
         ) : (
           <p className="mt-3 text-base text-principal/70">{t('reglas.dondeAPie')}</p>
@@ -377,7 +377,7 @@ function EditorSeccion({ seccion, lista, correr, alReordenar }) {
           type="button"
         >
           <LuPlus aria-hidden="true" className="h-5 w-5" />
-          {t(`avisos.agregarEn.${seccion}`)}
+          <span className="min-w-0">{t(`avisos.agregarEn.${seccion}`)}</span>
         </button>
       )}
     </Marco>
@@ -424,7 +424,7 @@ function Renglon({ aviso, seccion, conPalomita, arrastrando, manija, alEditar, c
             {!aviso.activo && <span className="font-semibold">{t('avisos.oculta')}</span>}
             <span className="inline-flex items-center gap-1">
               <LuLanguages aria-hidden="true" className="h-3.5 w-3.5" />
-              {traducido || t('avisos.soloEspanol')}
+              <span className="min-w-0">{traducido || t('avisos.soloEspanol')}</span>
             </span>
           </span>
         </span>
@@ -559,7 +559,7 @@ function EditorAviso({ inicial, alGuardar, alCancelar }) {
         type="button"
       >
         <LuLanguages aria-hidden="true" className="h-4 w-4" />
-        {t('avisos.traducciones')}
+        <span className="min-w-0">{t('avisos.traducciones')}</span>
       </button>
 
       {conTraducciones && (

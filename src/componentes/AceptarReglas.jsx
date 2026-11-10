@@ -26,7 +26,7 @@ export default function AceptarReglas({ acepto, alCambiar, error, aPie = false }
     >
       <p className="flex items-center gap-2 text-base font-bold text-principal">
         <LuTriangleAlert aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-        {aPie ? t('reglas.tituloAPie') : t('reglas.titulo')}
+        <span className="min-w-0">{aPie ? t('reglas.tituloAPie') : t('reglas.titulo')}</span>
       </p>
 
       <div className="mt-3">

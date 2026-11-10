@@ -12,7 +12,8 @@ import { supabase } from '../lib/supabase'
  * este telefono para que, al volver a abrir la pagina, salga el suyo.
  */
 
-export const CODIGOS_TURNO = ['DISPOSITIVO_INVALIDO', 'FILA_A_PIE_NO_EXISTE', 'DIA_CERRADO', 'OTRA_FILA']
+//  BLOQUE_LLENO: ya no hay turnos hoy (la fila tiene tope y se lleno).
+export const CODIGOS_TURNO = ['DISPOSITIVO_INVALIDO', 'FILA_A_PIE_NO_EXISTE', 'DIA_CERRADO', 'OTRA_FILA', 'BLOQUE_LLENO']
 
 let dispositivoDeRespaldo = null
 
@@ -60,6 +61,19 @@ export function sacarTurnoAPie({ cambiarCarro = false, codigo = '', codigoCarro 
   const carro = String(codigoCarro ?? '').replace(/\D/g, '')
   if (carro) parametros.p_codigo_carro = `CB-${carro}`
   return llamar('sacar_turno_a_pie', parametros)
+}
+
+/**
+ * Lo llamaron y no estaba, o se lo anularon (seccion 59): un turno nuevo al
+ * final de la fila, de un solo toque y sin volver a pedir el codigo del dia.
+ * Si su turno todavia valia, la base lo cancela en el mismo paso (nunca
+ * quedan dos vivos). Devuelve { resultado, token_qr, codigo, turno,
+ * turno_anterior }: NUEVO, YA_TENIA (el doble toque: el mismo nuevo),
+ * AUN_VALE (no lo han llamado), YA_RECIBIO, CANCELADA, TURNO_REPETIDO,
+ * TURNOS_ANULADOS, CERRADA o NO_EXISTE.
+ */
+export function cambiarMiTurno(token) {
+  return llamar('cambiar_mi_turno', { p_token: token })
 }
 
 /**

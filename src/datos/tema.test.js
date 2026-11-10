@@ -164,8 +164,9 @@ describe('los colores respetan el modo oscuro', () => {
     'componentes/VentanaPase.jsx': 1,
     'paginas/publico/Confirmacion.jsx': 1,
     'paginas/publico/Pase.jsx': 1,
-    //  El QR del turno, y el boton sobre el verde fijo de "¡es tu turno!".
-    'paginas/publico/Turno.jsx': 2,
+    //  El QR del turno ("¡es tu turno!" ya no tapa la pantalla de verde:
+    //  seccion 59).
+    'paginas/publico/Turno.jsx': 1,
     'paginas/publico/Inicio.jsx': 1,
     //  El QR de un turno, en su detalle del escaner (seccion 46).
     'componentes/BuscarTurno.jsx': 1,

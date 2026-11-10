@@ -330,13 +330,13 @@ export default function ListaCitas({ citas, fecha, hoy, alCambiar }) {
                                 {cita.en_carro_de && (
                                   <span className="flex items-center gap-1.5 text-base text-principal/80">
                                     <FaUserGroup aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-                                    {t('panel.enCarroDe', { nombre: cita.en_carro_de_nombre, codigo: cita.en_carro_de })}
+                                    <span className="min-w-0">{t('panel.enCarroDe', { nombre: cita.en_carro_de_nombre, codigo: cita.en_carro_de })}</span>
                                   </span>
                                 )}
                                 {cita.acompanantes > 0 && (
                                   <span className="flex items-center gap-1.5 text-base font-semibold text-principal">
                                     <FaUserGroup aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-                                    {t('panel.traeAcompanantes', { count: cita.acompanantes })}
+                                    <span className="min-w-0">{t('panel.traeAcompanantes', { count: cita.acompanantes })}</span>
                                   </span>
                                 )}
                                 {esCancelada && cita.cancelada_en && (

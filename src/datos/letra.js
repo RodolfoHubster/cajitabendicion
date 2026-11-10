@@ -13,8 +13,13 @@
 export const LLAVE_LETRA = 'cajita-letra'
 export const TAMANOS_LETRA = ['normal', 'grande', 'muy_grande']
 
-/** Pixeles de la letra base. 16 es lo del navegador; 18 y 20 son +12% y +25%. */
-export const PIXELES_LETRA = { normal: 16, grande: 18, muy_grande: 20 }
+/**
+ * La letra base, en porcentaje de la del navegador: 100 es lo del telefono;
+ * grande y muy grande, +12.5% y +25%. En porcentaje y no en pixeles: si la
+ * persona ya agrando la letra en su telefono (24 px en vez de 16), "A+" la
+ * agranda mas en vez de bajarla a 18 px.
+ */
+export const PORCENTAJE_LETRA = { normal: 100, grande: 112.5, muy_grande: 125 }
 
 export function leerLetra(almacen = globalThis.localStorage) {
   try {
@@ -46,5 +51,5 @@ export function aplicarLetra(tamano, documento = globalThis.document) {
 
   const valido = TAMANOS_LETRA.includes(tamano) ? tamano : 'normal'
   raiz.dataset.letra = valido
-  raiz.style.fontSize = valido === 'normal' ? '' : `${PIXELES_LETRA[valido]}px`
+  raiz.style.fontSize = valido === 'normal' ? '' : `${PORCENTAJE_LETRA[valido]}%`
 }

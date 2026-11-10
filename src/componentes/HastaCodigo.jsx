@@ -57,7 +57,7 @@ export default function HastaCodigo({ id, conHora, hasta, sugerida = '', fecha, 
       {nunca && (
         <p className="mt-1 flex items-center gap-1.5 text-chica font-semibold text-ya-recibio" role="alert">
           <LuInfo aria-hidden="true" className="h-4 w-4 shrink-0" />
-          {t('codigoDelDia.hasta.antesDeAbrir')}
+          <span className="min-w-0">{t('codigoDelDia.hasta.antesDeAbrir')}</span>
         </p>
       )}
     </fieldset>

@@ -16,7 +16,7 @@ export default function Ubicacion() {
     <Tarjeta>
       <h2 className="flex items-center gap-2 text-xl font-bold">
         <LuMapPin aria-hidden="true" className="h-6 w-6 text-accion" />
-        {t('ubicacion.titulo')}
+        <span className="min-w-0">{t('ubicacion.titulo')}</span>
       </h2>
 
       <p className="mt-3 text-base font-semibold">{ORGANIZACION.iglesia}</p>
@@ -45,7 +45,7 @@ export default function Ubicacion() {
         href={ORGANIZACION.telefonoEnlace}
       >
         <LuPhone aria-hidden="true" className="h-5 w-5 text-accion" />
-        {t('ubicacion.llamar')} · {ORGANIZACION.telefono}
+        <span className="min-w-0">{t('ubicacion.llamar')} · {ORGANIZACION.telefono}</span>
       </a>
     </Tarjeta>
   )

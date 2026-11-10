@@ -124,7 +124,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
             type="button"
           >
             <FaWhatsapp aria-hidden="true" className="h-6 w-6 text-[#1F7A47]" />
-            {t('invitar.boton', { count: aInvitar })}
+            <span className="min-w-0">{t('invitar.boton', { count: aInvitar })}</span>
           </button>
         )}
 
@@ -269,7 +269,7 @@ export default function ListaSinCita({ fecha, recarga, alCambiar, vistaFila = 'j
                                           {ya && (
                                             <span className="inline-flex items-center gap-1 rounded-lg bg-puede-pasar/15 px-2 text-chica font-semibold text-puede-pasar">
                                               <LuCircleCheck aria-hidden="true" className="h-4 w-4" />
-                                              {t('sinCita.invitar.invitado')}
+                                              <span className="min-w-0">{t('sinCita.invitar.invitado')}</span>
                                             </span>
                                           )}
                                         </>

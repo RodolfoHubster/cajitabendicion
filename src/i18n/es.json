@@ -59,9 +59,6 @@
     "cuadro": "Pon el QR dentro del cuadro",
     "leido": "Código leído",
     "buscando": "Buscando a la persona…",
-    "buscarManual": "Buscar por nombre o código",
-    "buscarEtiqueta": "Nombre o código",
-    "buscar": "Buscar",
     "sinResultados": "No encontramos citas que coincidan. Por nombre solo se buscan las de hoy; con el código completo (por ejemplo CB-4871) también las de otros días.",
     "volverCamara": "Volver a la cámara",
     "escanearOtro": "Escanear otro",
@@ -166,12 +163,6 @@
       "paso": "Pasó antes de su turno: tiene el {{turno}} y va el {{actual}}. Si no debía pasar, deshaz la entrega con el botón de abajo."
     },
     "revisaNombre": "Pregunta su nombre: debe ser el de la pantalla. Si no coincide, deshaz la entrega y avisa a quien coordina.",
-    "aPie": {
-      "etiqueta": "Código de su turno",
-      "ayuda": "Solo los números (4 o 5): el «CB-» ya está puesto. Si dos dicen el mismo número de turno, el turno es de quien sabe el código.",
-      "turno": "Turno {{turno}}",
-      "noEsta": "No hay un turno a pie de hoy con ese código. Revisa los números."
-    },
     "lista": {
       "cargando": "Cargando la gente de hoy…",
       "ejemplo": "Nombre o CB-4871",
@@ -239,7 +230,9 @@
         "saltado": "Lo llamaron a las {{hora}} y no estaba · {{hace}}",
         "recibio": "Ya recibió a las {{hora}}",
         "anulado": "Turno anulado a las {{hora}}",
-        "repetido": "Cancelado a las {{hora}}: ya tenía otro turno"
+        "repetido": "Cancelado a las {{hora}}: ya tenía otro turno",
+        "cambiado": "Sacó el turno nuevo {{nuevo}} a las {{hora}}",
+        "cancelado": "Cancelado a las {{hora}}"
       },
       "repetido": {
         "boton": "Sacó otro turno: cancelar este",
@@ -252,7 +245,10 @@
         "regresado": "Listo: el turno {{turno}} regresó a la fila."
       },
       "seQueda": "Se queda con el turno",
-      "cancelado": "Se canceló"
+      "cancelado": "Se canceló",
+      "cambiadoA": "Su turno nuevo",
+      "deshecho": "Listo: se deshizo la entrega del turno {{turno}}. Su turno vuelve a valer: entrégale cuando llegue. Si la fila lo marca como el que va y no está, toca «No se presentó».",
+      "deshacerSinPermiso": "¿Se marcó por error? Lo puede deshacer aquí un administrador, o quien tenga el permiso de deshacer entregas."
     },
     "preferente": {
       "nota": "Para reconocerla: {{nota}}",
@@ -266,6 +262,12 @@
       "hoy": "Cajas entregadas hoy",
       "enTuFila": "En tu fila: {{n}}",
       "faltan": "Faltan por llegar: {{n}}"
+    },
+    "buscarCita": {
+      "etiqueta": "Buscar por nombre o código",
+      "ayuda": "Escribe su nombre o los números de su código: sale la gente de hoy mientras escribes, y la cámara sigue lista.",
+      "verLista": "Ver toda la lista de hoy",
+      "ocultarLista": "Ocultar la lista de hoy"
     }
   },
   "pase": {
@@ -1430,6 +1432,108 @@
       "cambios": "Se cambiaron de carro a pie: {{cambios}}"
     }
   },
+  "listaPersonas": {
+    "titulo": "Lista de quienes recibieron",
+    "ayuda": "De las fechas que escogiste arriba: cada persona con su nombre, teléfono, correo y domicilio, una hoja por día y por apellido. Para demostrarle al banco de alimentos y a quienes apoyan que la comida sí se entrega.",
+    "incluye": {
+      "titulo": "¿Quiénes van?",
+      "recibieron": "Recibieron",
+      "recibieronAyuda": "Se escanearon y recibieron su caja en carro (con cita o con pase).",
+      "noVinieron": "No vinieron",
+      "noVinieronAyuda": "Tenían cita en carro y no llegaron.",
+      "aPie": "Fila a pie",
+      "aPieAyuda": "Casi siempre solo el turno y su código: ahí no se dan datos."
+    },
+    "version": {
+      "titulo": "¿Qué versión?",
+      "completa": "Completa, de uso interno",
+      "completaAyuda": "Con teléfono, correo y domicilio. No se entrega fuera de la iglesia.",
+      "compartir": "Para compartir",
+      "compartirAyuda": "Nombre, ciudad, código postal y a qué hora recibió. Sin teléfono, correo ni domicilio: para el banco de alimentos o quienes apoyan."
+    },
+    "privacidad": "Al registrarse, a la gente se le promete que sus datos no se comparten con nadie. Fuera de la iglesia, entrega solo la versión «Para compartir». Cada descarga queda anotada: quién, cuándo y de qué fechas.",
+    "formatos": {
+      "excel": "Descargar Excel",
+      "pdf": "Descargar PDF",
+      "csv": "Descargar CSV"
+    },
+    "preparando": "Preparando…",
+    "escogeAlgo": "Palomea «Recibieron» o «No vinieron».",
+    "listo_one": "Listo: la lista se bajó con {{count}} persona. Días de entrega: {{dias}}.",
+    "listo_other": "Listo: la lista se bajó con {{count}} personas. Días de entrega: {{dias}}.",
+    "vacio": "No hay nadie en esas fechas con lo que palomeaste.",
+    "errores": {
+      "SIN_PERMISO": "Solo un administrador puede bajar esta lista.",
+      "SIN_SESION": "Se cerró tu sesión. Vuelve a entrar.",
+      "RANGO_INVALIDO": "Revisa las fechas: la primera va antes que la segunda.",
+      "RANGO_MUY_LARGO": "Escoge un año o menos.",
+      "SIN_CONEXION": "No hay conexión. Revisa tu señal y vuelve a intentar.",
+      "FUNCION_NO_INSTALADA": "Esta opción todavía no está activada. Avísale a quien le da mantenimiento al sistema.",
+      "ERROR_DESCONOCIDO": "No se pudo preparar la lista. Vuelve a intentar."
+    },
+    "situacion": {
+      "recibio": "Recibió",
+      "no_vino": "No vino"
+    },
+    "tipo": {
+      "cita": "Cita",
+      "acompanante": "Acompañante de {{codigo}}",
+      "pase": "Pase permanente",
+      "turno": "Turno {{turno}}"
+    },
+    "columnas": {
+      "numero": "#",
+      "fechaValor": "Fecha",
+      "fechaTexto": "Fecha",
+      "apellidos": "Apellidos",
+      "nombres": "Nombre(s)",
+      "codigo": "Código",
+      "telefono": "Teléfono",
+      "correo": "Correo",
+      "calle": "Calle",
+      "numeroExterior": "Núm. ext.",
+      "numeroInterior": "Núm. int.",
+      "colonia": "Colonia",
+      "direccion": "Dirección",
+      "domicilio": "Domicilio",
+      "ciudad": "Ciudad",
+      "municipio": "Municipio",
+      "estado": "Estado",
+      "codigoPostal": "Código postal",
+      "pais": "País",
+      "horaCita": "Hora de cita",
+      "recibio": "Recibió a las",
+      "tipo": "Tipo",
+      "fila": "Fila",
+      "situacion": "Situación"
+    },
+    "archivo": {
+      "iglesia": "Iglesia Casa de Alabanza · Cajita de Bendición",
+      "titulo": "Lista de quienes recibieron",
+      "rango": "Del {{desde}} al {{hasta}}",
+      "generado": "Generado el {{cuando}}",
+      "notaCompleta": "Confidencial: contiene datos personales. Uso interno de Iglesia Casa de Alabanza; no se comparte fuera de la iglesia.",
+      "notaCompartir": "Versión para compartir: sin teléfono, correo ni domicilio.",
+      "resumen": "Resumen",
+      "todas": "Todas las fechas",
+      "porDia": "Por día de entrega",
+      "porLugar": "Dónde viven quienes recibieron (por código postal)",
+      "sinDato": "(sin dato)",
+      "total": "Total",
+      "personas_one": "{{count}} persona",
+      "personas_other": "{{count}} personas",
+      "interior": "int. {{numero}}",
+      "pagina": "Página {{n}} de {{total}}",
+      "ayudaExcel": "En cada hoja, las flechitas de los títulos ordenan o filtran (por fecha, apellido, ciudad, código postal…). La hoja «Todas las fechas» junta todos los días: de ahí sale una tabla dinámica con Insertar › Tabla dinámica.",
+      "totales": {
+        "fecha": "Día de entrega",
+        "carro": "Recibieron en carro",
+        "aPie": "Recibieron a pie",
+        "recibieron": "Total que recibieron",
+        "noVinieron": "No vinieron"
+      }
+    }
+  },
   "domicilio": {
     "titulo": "Tu domicilio",
     "tituloPanel": "Domicilio de la persona",
@@ -2347,9 +2451,6 @@
     "revisando": "Revisando la fila…",
     "noHay": "Hoy no hay fila a pie.",
     "llena": "Ya no hay turnos por hoy.",
-    "esTuTurno": "¡Es tu turno!",
-    "acercate": "Acércate y muestra tu código QR.",
-    "verMiQr": "Ver mi código",
     "avisos": {
       "sinDatos": "No te pedimos nombre, edad ni teléfono. Nada de esto se guarda ni se comparte.",
       "soloHoy": "Tu turno es solo para hoy y es para una despensa.",
@@ -2380,7 +2481,8 @@
       "SIN_CONEXION": "No hay conexión. Revisa tu señal y vuelve a tocar el botón.",
       "FUNCION_NO_INSTALADA": "Esta opción todavía no está lista. Avísale a una voluntaria.",
       "DISPOSITIVO_INVALIDO": "No pudimos darte turno desde este teléfono. Pide ayuda a una voluntaria.",
-      "ERROR_DESCONOCIDO": "No pudimos darte turno. Vuelve a tocar el botón o pide ayuda a una voluntaria."
+      "ERROR_DESCONOCIDO": "No pudimos darte turno. Vuelve a tocar el botón o pide ayuda a una voluntaria.",
+      "BLOQUE_LLENO": "Ya no hay turnos por hoy."
     },
     "terminada": "La fila de hoy ya terminó. ¡Gracias por venir! Te esperamos en la próxima entrega.",
     "codigoEsTuyo": "Este código es solo tuyo: no se lo enseñes a nadie. Con él se comprueba que el turno es tuyo.",
@@ -2405,7 +2507,37 @@
       "cancelar": "No tenía cita en carro",
       "CODIGO_CARRO_NO_EXISTE": "No encontramos una cita en carro para hoy con ese código. Revisa los números."
     },
-    "verFila": "Ver la fila en vivo"
+    "verFila": "Ver la fila en vivo",
+    "aunNo": {
+      "titulo": "Todavía NO tienes turno",
+      "texto": "Abrir esta página no te da turno. Toca el botón naranja «Sacar mi turno».",
+      "conCodigo": "Abrir esta página no te da turno. Escribe el código del día y toca el botón naranja «Sacar mi turno»."
+    },
+    "cambiar": {
+      "boton": "Ya no alcanzo: sacar un turno nuevo",
+      "pregunta": "¿Sacar un turno nuevo?",
+      "explicacion": "Tu turno {{turno}} se cancela y esperas desde el final de la fila. Si estás cerca, mejor acércate ya con la voluntaria: tu turno todavía vale.",
+      "si": "Sí, darme un turno nuevo",
+      "no": "No, me quedo con el {{turno}}",
+      "resultado": {
+        "AUN_VALE": "Tu turno todavía vale: aún no te llaman. Espera aquí.",
+        "YA_RECIBIO": "Ya recibiste tu caja con este turno. ¡Gracias por venir!",
+        "CERRADA": "Ya no se dan turnos nuevos hoy. Si tu turno todavía vale, acércate con la voluntaria.",
+        "NO_EXISTE": "No encontramos tu turno de hoy. Habla con una voluntaria."
+      }
+    },
+    "cancelar": {
+      "boton": "Cancelar mi turno",
+      "pregunta": "¿Seguro que quieres cancelar tu turno {{turno}}?",
+      "explicacion": "Ya no podrás usar este número ni su código. Si cambias de opinión, tendrás que sacar un turno nuevo y esperar desde el final de la fila.",
+      "si": "Sí, cancelar mi turno",
+      "no": "No, conservar mi turno",
+      "cancelando": "Cancelando…"
+    },
+    "cancelado": {
+      "titulo": "Tu turno {{turno}} se canceló.",
+      "texto": "Si todavía quieres tu despensa, saca un turno nuevo: esperarás desde el final de la fila."
+    }
   },
   "codigoDelDia": {
     "casilla": "Pedir código del día",

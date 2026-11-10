@@ -63,6 +63,42 @@
     font-family: 'Roboto Slab Variable', Georgia, serif;
   }
 
+  /* Con la letra grande del telefono, o con su zoom (la pantalla queda de
+     200 a 280 px de ancho), una palabra que no cabe en el renglon se parte
+     en vez de salirse de la pantalla. */
+  body {
+    overflow-wrap: break-word;
+  }
+
+  /* Un fieldset no se encoge por debajo de lo que trae adentro, como un div
+     normal: con letra grande, el domicilio del registro se salia de la
+     pantalla. */
+  fieldset {
+    min-width: 0;
+  }
+
+  /* Las rejillas, en el telefono, son de una sola columna: que esa columna
+     nunca sea mas ancha que la pantalla. Sin esto un campo o una palabra
+     larga la ensanchaba y la pagina se salia de lado. Las columnas que se
+     ponen a proposito (grid-cols-2, sm:grid-cols-2...) mandan igual. */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Un campo de texto no empuja a lo demas fuera de la pantalla. */
+  input,
+  select,
+  textarea {
+    min-width: 0;
+  }
+
+  /* Una casilla o una opcion y su texto: el texto baja de renglon en vez
+     de salirse de la pantalla. */
+  label.flex > span,
+  label.inline-flex > span {
+    min-width: 0;
+  }
+
   /* Al cambiar de modo, un fundido corto en vez de un parpadeo. Solo en
      colores: nada se mueve. */
   :root.cambiando-tema *,

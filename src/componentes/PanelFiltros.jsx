@@ -23,7 +23,7 @@ export default function PanelFiltros({ id, busqueda, columnas = '', ocultos = 0,
         type="button"
       >
         <LuSlidersHorizontal aria-hidden="true" className="h-5 w-5" />
-        {abierto ? t('filtros.ocultarFiltros') : t('filtros.masFiltros')}
+        <span className="min-w-0">{abierto ? t('filtros.ocultarFiltros') : t('filtros.masFiltros')}</span>
         {ocultos > 0 && (
           <span className="rounded-full bg-marca px-2 text-base font-bold text-white">{ocultos}</span>
         )}
@@ -40,7 +40,7 @@ export default function PanelFiltros({ id, busqueda, columnas = '', ocultos = 0,
           type="button"
         >
           <LuX aria-hidden="true" className="h-5 w-5" />
-          {t('filtros.limpiar')}
+          <span className="min-w-0">{t('filtros.limpiar')}</span>
         </button>
       )}
     </div>

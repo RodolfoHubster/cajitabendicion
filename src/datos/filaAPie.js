@@ -331,7 +331,11 @@ export function haceCuanto(t, marca) {
 export function estadoDeTurno(fila, actual = null) {
   //  Seccion 53: se cancelo porque la persona ya tenia otro turno.
   if (fila.repetido_en) return 'repetido'
-  if (fila.anulado_en || fila.estado === 'cancelada') return 'anulado'
+  //  Seccion 59: la persona lo cambio por uno nuevo al final (cambiado_a).
+  if (fila.cambiado_a) return 'cambiado'
+  if (fila.anulado_en) return 'anulado'
+  //  Seccion 59: lo cancelo la persona (o se cancelo la entrega del dia).
+  if (fila.estado === 'cancelada') return 'cancelado'
   if (fila.estado === 'entregada') return 'recibio'
   if (fila.saltado_en) return 'saltado'
   if (actual != null && fila.turno === actual) return 'va'

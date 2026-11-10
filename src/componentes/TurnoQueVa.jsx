@@ -39,7 +39,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
         type="button"
       >
         <LuPlay aria-hidden="true" className="h-5 w-5 shrink-0" />
-        {t('filaTurnos.empezar.boton')}
+        <span className="min-w-0">{t('filaTurnos.empezar.boton')}</span>
       </button>
       <p className="mt-2 text-chica text-principal/80">{t('filaTurnos.empezar.solo')}</p>
     </div>
@@ -53,7 +53,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
         type="button"
       >
         <LuUndo2 aria-hidden="true" className="h-4 w-4" />
-        {t('filaTurnos.empezar.deshacer')}
+        <span className="min-w-0">{t('filaTurnos.empezar.deshacer')}</span>
       </button>
     </p>
   ) : null
@@ -79,10 +79,10 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
     <>
       {empezar}
       <div aria-live="polite" className="mb-3 rounded-2xl border-2 border-accion bg-accion/10 p-3 text-principal">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="text-base font-bold uppercase leading-tight">{t('filaTurnos.va')}</span>
           <span className="font-titulo text-5xl font-bold leading-none">{actual.turno}</span>
-          <span className="min-w-0 flex-1 leading-tight">
+          <span className="min-w-[min(7rem,100%)] flex-1 basis-0 leading-tight">
             <span className="block truncate text-base font-semibold">{actual.nombre}</span>
             {siguen.length > 0 && (
               <span className="block text-chica text-principal/80">
@@ -92,7 +92,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2">
           <button
             className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-marca px-2 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-60"
             disabled={ocupado}
@@ -100,7 +100,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
             type="button"
           >
             <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('filaTurnos.sinQr.boton')}
+            <span className="min-w-0">{t('filaTurnos.sinQr.boton')}</span>
           </button>
           <button
             className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-2 text-base font-bold text-principal transition hover:border-principal disabled:opacity-60"
@@ -109,7 +109,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
             type="button"
           >
             <LuUserX aria-hidden="true" className="h-5 w-5 shrink-0 text-ya-recibio" />
-            {t('filaTurnos.noSePresento')}
+            <span className="min-w-0">{t('filaTurnos.noSePresento')}</span>
           </button>
         </div>
 
@@ -120,7 +120,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
             type="button"
           >
             <LuVolume2 aria-hidden="true" className="h-5 w-5 text-accion" />
-            {t('filaTurnos.decir')}
+            <span className="min-w-0">{t('filaTurnos.decir')}</span>
           </button>
         )}
       </div>

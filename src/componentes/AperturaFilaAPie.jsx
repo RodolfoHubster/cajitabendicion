@@ -45,7 +45,7 @@ export default function AperturaFilaAPie({ fila, esHoy = false, alAbrir }) {
 
       <p className="mt-2 flex items-start gap-2 text-base">
         <LuClock aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
-        {t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}
+        <span className="min-w-0">{t('turnoAPie.empiezaA', { hora: formatearHora(fila.hora) })}</span>
       </p>
 
       <div className="mt-3 rounded-xl bg-principal/5 p-4">

@@ -71,7 +71,7 @@ export default function AnotarDiaVoluntarios({ voluntarios, horaSalida, alCambia
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h2 className="flex items-center gap-2 text-xl font-bold">
           <LuCalendarPlus aria-hidden="true" className="h-6 w-6 text-accion" />
-          {t('voluntarios.dia.titulo')}
+          <span className="min-w-0">{t('voluntarios.dia.titulo')}</span>
         </h2>
       </div>
       <p className="text-base text-principal/80">{t('voluntarios.dia.ayuda')}</p>

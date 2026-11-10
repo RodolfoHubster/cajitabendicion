@@ -29,7 +29,7 @@ export function ConfirmarAnular({ turno, ocupado = false, alSi, alNo }) {
           type="button"
         >
           <LuBan aria-hidden="true" className="h-5 w-5 shrink-0" />
-          {t('escaneo.anular.si')}
+          <span className="min-w-0">{t('escaneo.anular.si')}</span>
         </button>
         <Boton disabled={ocupado} onClick={alNo} variant="secondary">
           {t('escaneo.anular.no')}
@@ -53,13 +53,13 @@ export default function LlegoTarde({ turno, saltadoEn, ocupado = false, alEntreg
   const entregar = (
     <Boton disabled={ocupado} onClick={alEntregar} variant={muyTarde ? 'secondary' : 'primary'}>
       <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-      {t('escaneo.tarde.entregar')}
+      <span className="min-w-0">{t('escaneo.tarde.entregar')}</span>
     </Boton>
   )
   const anular = (
     <Boton disabled={ocupado} onClick={() => setConfirmando(true)} variant={muyTarde ? 'primary' : 'secondary'}>
       <LuBan aria-hidden="true" className="h-5 w-5 shrink-0" />
-      {t('escaneo.tarde.anular')}
+      <span className="min-w-0">{t('escaneo.tarde.anular')}</span>
     </Boton>
   )
 
@@ -67,7 +67,7 @@ export default function LlegoTarde({ turno, saltadoEn, ocupado = false, alEntreg
     <div className="rounded-xl border-2 border-accion bg-accion/15 p-3 text-principal" role="status">
       <p className="flex items-start gap-2 text-lg font-bold">
         <LuTriangleAlert aria-hidden="true" className="mt-1 h-5 w-5 shrink-0 text-accion" />
-        {t('escaneo.tarde.titulo', { turno, hora: horaDeMarca(saltadoEn), hace: haceCuanto(t, saltadoEn) })}
+        <span className="min-w-0">{t('escaneo.tarde.titulo', { turno, hora: horaDeMarca(saltadoEn), hace: haceCuanto(t, saltadoEn) })}</span>
       </p>
       <p className="mt-1 text-base">{t('escaneo.tarde.ayuda')}</p>
 

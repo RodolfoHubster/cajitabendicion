@@ -82,7 +82,7 @@ export default function ModalSuscriptor({ dia, abierta, alCerrar }) {
         <div className="flex items-start justify-between gap-3">
           <h2 className="flex items-center gap-2 font-titulo text-xl font-bold" id="modal-suscriptor-titulo">
             <FaFacebook aria-hidden="true" className="h-6 w-6 shrink-0 text-[#1560D4] dark:text-[#8AB4FF]" />
-            {t('modalSuscriptor.titulo')}
+            <span className="min-w-0">{t('modalSuscriptor.titulo')}</span>
           </h2>
           <button
             aria-label={t('modalSuscriptor.cerrar')}
@@ -142,7 +142,7 @@ export default function ModalSuscriptor({ dia, abierta, alCerrar }) {
             target="_blank"
           >
             <FaFacebook aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('modalSuscriptor.suscribirme')}
+            <span className="min-w-0">{t('modalSuscriptor.suscribirme')}</span>
           </a>
         </div>
       </div>

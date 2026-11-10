@@ -116,7 +116,7 @@ export default function CamposFilaAPie({ id, fecha, valor, alCambiar, conCodigo 
         {valor.otraHora && revision !== 'DESPUES_DE_INICIO' && (
           <p className="mt-1 flex items-center gap-1.5 text-chica text-principal/80" role="status">
             <LuInfo aria-hidden="true" className="h-4 w-4 shrink-0 text-accion" />
-            {revision === 'MAS_TEMPRANO' ? t('filaAPieAdmin.masTemprano') : t('filaAPieAdmin.recomendado')}
+            <span className="min-w-0">{revision === 'MAS_TEMPRANO' ? t('filaAPieAdmin.masTemprano') : t('filaAPieAdmin.recomendado')}</span>
           </p>
         )}
         {revision === 'DESPUES_DE_INICIO' && (

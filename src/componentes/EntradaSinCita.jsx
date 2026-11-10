@@ -150,7 +150,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
           type="submit"
         >
           <LuPlus aria-hidden="true" className="h-5 w-5" />
-          {ocupado && !comprobante ? t('sinCita.registrando') : t('sinCita.boton')}
+          <span className="min-w-0">{ocupado && !comprobante ? t('sinCita.registrando') : t('sinCita.boton')}</span>
         </button>
       </form>
 
@@ -209,7 +209,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
               {comprobante.invitado ? (
                 <p className="flex items-center gap-2 text-base font-semibold text-puede-pasar" role="status">
                   <LuCircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />
-                  {t('sinCita.invitar.abierto')}
+                  <span className="min-w-0">{t('sinCita.invitar.abierto')}</span>
                 </p>
               ) : (
                 <>
@@ -222,7 +222,7 @@ export default function EntradaSinCita({ alCambiar, className = '' }) {
                     target="_blank"
                   >
                     <FaWhatsapp aria-hidden="true" className="h-6 w-6" />
-                    {t('sinCita.invitar.boton')}
+                    <span className="min-w-0">{t('sinCita.invitar.boton')}</span>
                   </a>
                   <p className="mt-1 text-chica text-principal/70">{t('sinCita.invitar.siNoQuiere')}</p>
                 </>

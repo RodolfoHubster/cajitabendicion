@@ -204,7 +204,7 @@ export default function PresentacionCajita({ accion = null, encabezado = null, c
               type="button"
             >
               <LuRotateCcw aria-hidden="true" className="h-5 w-5" />
-              {t('video.otraVez')}
+              <span className="min-w-0">{t('video.otraVez')}</span>
             </button>
           </>
         ) : (

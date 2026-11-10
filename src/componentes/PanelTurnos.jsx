@@ -30,7 +30,7 @@ const BOTON =
   'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-3 text-base font-bold text-principal transition hover:border-principal disabled:opacity-60'
 
 const BOTON_CHICO =
-  'inline-flex min-h-12 items-center gap-1 px-2 text-base font-semibold text-principal underline underline-offset-4 disabled:opacity-60'
+  'inline-flex min-h-12 max-w-full items-center gap-1 px-2 text-left text-base font-semibold text-principal underline underline-offset-4 disabled:opacity-60'
 
 /**
  * La fila a pie en vivo, en el telefono de la voluntaria, debajo de la
@@ -186,7 +186,7 @@ export default function PanelTurnos({
   const encabezado = (
     <h2 className="flex items-center gap-2 text-lg font-bold text-principal">
       <FaPersonWalking aria-hidden="true" className="h-5 w-5 text-accion" />
-      {t('filaTurnos.titulo')}
+      <span className="min-w-0">{t('filaTurnos.titulo')}</span>
     </h2>
   )
 
@@ -223,11 +223,11 @@ export default function PanelTurnos({
         <div className="mt-3 rounded-xl border-2 border-principal/30 bg-principal/5 p-3" role="status">
           <p className="flex items-center gap-2 text-lg font-bold text-principal">
             <LuFlag aria-hidden="true" className="h-5 w-5 shrink-0" />
-            {t('filaTurnos.terminar.terminada')}
+            <span className="min-w-0">{t('filaTurnos.terminar.terminada')}</span>
           </p>
           <button className={BOTON_CHICO} disabled={ocupado} onClick={() => terminar(false)} type="button">
             <LuUndo2 aria-hidden="true" className="h-4 w-4" />
-            {t('filaTurnos.terminar.deshacer')}
+            <span className="min-w-0">{t('filaTurnos.terminar.deshacer')}</span>
           </button>
         </div>
       )}
@@ -239,7 +239,7 @@ export default function PanelTurnos({
           <p className="flex flex-wrap items-center justify-between gap-2 font-semibold">
             <span className="inline-flex items-center gap-2">
               <LuKeyRound aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('filaTurnos.codigoDia')}
+              <span className="min-w-0">{t('filaTurnos.codigoDia')}</span>
             </span>
             <span className="font-titulo text-3xl font-bold tracking-[0.3em]">{datos.codigo_dia}</span>
           </p>
@@ -250,7 +250,7 @@ export default function PanelTurnos({
       {!datos.codigo_dia && datos.codigo_hasta && !datos.terminada && (
         <p className="mt-3 flex items-center gap-2 rounded-xl bg-principal/5 px-3 py-2 text-base text-principal">
           <LuKeyRound aria-hidden="true" className="h-5 w-5 shrink-0 text-principal/70" />
-          {t('filaTurnos.codigoYaNo', { hora: formatearHora(datos.codigo_hasta) })}
+          <span className="min-w-0">{t('filaTurnos.codigoYaNo', { hora: formatearHora(datos.codigo_hasta) })}</span>
         </p>
       )}
 
@@ -296,10 +296,10 @@ export default function PanelTurnos({
                 placeholder={t('filaTurnos.sinTelefono.senaEjemplo')}
                 value={sena}
               />
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="mt-2 grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2">
                 <button className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-marca px-3 text-base font-bold text-white disabled:opacity-60" disabled={ocupado} type="submit">
                   <LuUserPlus aria-hidden="true" className="h-5 w-5" />
-                  {t('filaTurnos.sinTelefono.dar')}
+                  <span className="min-w-0">{t('filaTurnos.sinTelefono.dar')}</span>
                 </button>
                 <button className={BOTON} onClick={() => setDandoTurno(false)} type="button">
                   {t('filaTurnos.sinTelefono.cancelar')}
@@ -309,13 +309,13 @@ export default function PanelTurnos({
           ) : (
             <button className={`${BOTON} min-h-14`} disabled={ocupado} onClick={() => setDandoTurno(true)} type="button">
               <LuUserPlus aria-hidden="true" className="h-5 w-5 text-accion" />
-              {t('filaTurnos.sinTelefono.boton')}
+              <span className="min-w-0">{t('filaTurnos.sinTelefono.boton')}</span>
             </button>
           )}
 
           {/* Perdio su pagina pero sabe su numero: se entrega sin escanear. */}
           {!dandoTurno && (
-            <form className="flex gap-2" onSubmit={entregarPorNumero}>
+            <form className="flex flex-wrap gap-2" onSubmit={entregarPorNumero}>
               <label className="sr-only" htmlFor="turno-sin-qr">
                 {t('filaTurnos.sinQr.numero')}
               </label>
@@ -330,9 +330,9 @@ export default function PanelTurnos({
                 placeholder="#"
                 value={numeroSinQr}
               />
-              <button className={`${BOTON} min-h-14 flex-1`} disabled={ocupado || !numeroDeTurno(numeroSinQr)} type="submit">
+              <button className={`${BOTON} min-h-14 min-w-[min(8rem,100%)] flex-1 basis-0`} disabled={ocupado || !numeroDeTurno(numeroSinQr)} type="submit">
                 <LuPackageCheck aria-hidden="true" className="h-5 w-5 text-accion" />
-                {t('filaTurnos.sinQr.entregarNumero')}
+                <span className="min-w-0">{t('filaTurnos.sinQr.entregarNumero')}</span>
               </button>
             </form>
           )}
@@ -344,11 +344,21 @@ export default function PanelTurnos({
         {[
           ['atendidos', datos.atendidos],
           ['esperando', datos.en_espera],
-          ['cupo', esSinLimite(datos.capacidad) ? t('filaTurnos.sinLimite') : `${datos.total}/${datos.capacidad}`],
+          [
+            'cupo',
+            esSinLimite(datos.capacidad) ? (
+              t('filaTurnos.sinLimite')
+            ) : (
+              <>
+                {datos.total}
+                <span className="inline-block text-base font-semibold text-principal/80">/{datos.capacidad}</span>
+              </>
+            ),
+          ],
         ].map(([clave, valor]) => (
-          <div className="rounded-xl bg-principal/5 p-2" key={clave}>
+          <div className="min-w-0 rounded-xl bg-principal/5 p-2" key={clave}>
             <dt className="text-chica text-principal/70">{t(`filaTurnos.cuentas.${clave}`)}</dt>
-            <dd className="text-2xl font-bold text-principal">{valor}</dd>
+            <dd className="text-2xl font-bold text-principal [overflow-wrap:normal]">{valor}</dd>
           </div>
         ))}
       </dl>
@@ -358,9 +368,9 @@ export default function PanelTurnos({
           <h3 className="text-base font-bold text-principal">{t('filaTurnos.siguen')}</h3>
           <ol className="mt-1 divide-y divide-principal/10 rounded-xl border border-principal/15">
             {siguientes.map((persona) => (
-              <li className="flex items-center gap-3 px-3 py-1.5" key={persona.turno}>
+              <li className="flex flex-wrap items-center gap-x-3 px-3 py-1.5" key={persona.turno}>
                 <span className="w-12 shrink-0 font-titulo text-2xl font-bold text-principal">{persona.turno}</span>
-                <span className="min-w-0 flex-1">
+                <span className="min-w-[min(6rem,100%)] flex-1 basis-0">
                   <span className="block truncate text-base font-semibold text-principal">{persona.nombre}</span>
                   {persona.codigo_corto && (
                     <span className="block text-chica text-principal/70">{persona.codigo_corto}</span>
@@ -414,7 +424,7 @@ export default function PanelTurnos({
                         type="button"
                       >
                         <LuBan aria-hidden="true" className="h-4 w-4" />
-                        {t('filaTurnos.anular')}
+                        <span className="min-w-0">{t('filaTurnos.anular')}</span>
                       </button>
                     )}
                   </span>
@@ -441,7 +451,7 @@ export default function PanelTurnos({
         <div className="mt-3 rounded-xl bg-principal/5 p-3">
           <button className={BOTON_CHICO} onClick={alBuscar} type="button">
             <LuSearch aria-hidden="true" className="h-4 w-4" />
-            {t('filaTurnos.comprobar')}
+            <span className="min-w-0">{t('filaTurnos.comprobar')}</span>
           </button>
           <p className="text-chica text-principal/70">{t('filaTurnos.comprobarAyuda')}</p>
         </div>
@@ -518,7 +528,7 @@ export default function PanelTurnos({
             type="button"
           >
             <LuFlag aria-hidden="true" className="h-4 w-4" />
-            {t('filaTurnos.terminar.boton')}
+            <span className="min-w-0">{t('filaTurnos.terminar.boton')}</span>
           </button>
         ))}
     </div>

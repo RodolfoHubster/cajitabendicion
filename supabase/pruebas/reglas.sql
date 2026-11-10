@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-11-05-empezar-y-espera.sql.
+--  Requiere todas las migraciones, hasta 2026-11-10-cambiar-mi-turno.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -3175,8 +3175,8 @@ begin
       perform pg_temp.esperar_error('Anular: un turno que hoy no existe', 'select anular_turno(99999)', 'TURNO_NO_EXISTE');
       select count(*) into v_numero2 from turnos_a_pie_de_hoy() t where t.turno = v_numero and t.anulado_en is not null;
       perform pg_temp.comprobar('Lista a pie: los anulados salen, marcados', v_numero2 = 1, v_numero2::text);
-      select count(*) into v_numero2 from turnos_a_pie_de_hoy() t where t.estado = 'cancelada' and t.anulado_en is null;
-      perform pg_temp.comprobar('Lista a pie: sin los que se cancelaron por otra razón', v_numero2 = 0, v_numero2::text);
+      select count(*) into v_numero2 from turnos_a_pie_de_hoy() t where t.estado = 'cancelada' and t.cancelado_en is null;
+      perform pg_temp.comprobar('Lista a pie: todo turno cancelado trae a qué hora se canceló (sección 59)', v_numero2 = 0, v_numero2::text);
 
       perform set_config('request.jwt.claim.sub', '', true);
       select * into v_fila from turno_de_cita(v_token);
@@ -3638,6 +3638,140 @@ begin
         and (select d.a_pie_abre_en from dias_entrega d where d.fecha = v_jueves) is null);
       perform pg_temp.esperar_error('Fila a pie: no se quita lo que no hay',
         format('select quitar_fila_a_pie(%L::date)', v_jueves), 'FILA_A_PIE_NO_EXISTE');
+
+      -- ---------- La persona cambia o cancela su turno (sección 59) ----------
+      declare
+        v_r     record;
+        v_tok   text;
+        v_num   int;
+        v_tok2  text;
+        v_num2  int;
+        v_tok3  text;
+        v_num3  int;
+        v_tokc  text;
+        v_numc  int;
+      begin
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from sacar_turno_a_pie('tel-cambia');
+        v_tok := v_r.token_qr;
+        v_num := v_r.turno;
+
+        select * into v_r from cambiar_mi_turno(v_tok);
+        perform pg_temp.comprobar('Cambiar mi turno: si todavía no lo llaman, su turno vale y no se cambia',
+          v_r.resultado = 'AUN_VALE' and v_r.token_qr is null, v_r.resultado);
+
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform saltar_turno(v_num);
+        perform set_config('request.jwt.claim.sub', '', true);
+
+        --  Aunque ese día se pida el código del día: ya lo escribió para su primer turno.
+        update dias_entrega set a_pie_codigo = '4321', a_pie_codigo_hasta = null where fecha = v_hoy;
+        select * into v_r from cambiar_mi_turno(v_tok);
+        perform pg_temp.comprobar('Cambiar mi turno: lo llamaron y no estaba: un solo toque le da uno nuevo al final, sin pedirle otra vez el código del día',
+          v_r.resultado = 'NUEVO' and v_r.turno > v_num and v_r.turno_anterior = v_num and v_r.codigo like 'CB-%'
+          and v_r.token_qr is not null and v_r.token_qr <> v_tok,
+          format('%s %s (antes %s)', v_r.resultado, v_r.turno, v_num));
+        v_tok2 := v_r.token_qr;
+        v_num2 := v_r.turno;
+        perform pg_temp.comprobar('Cambiar mi turno: el viejo se cancela en el mismo paso y dice a cuál se cambió (no queda como "anulado")',
+          (select c.estado = 'cancelada' and c.turno_cambiado_en is not null and c.turno_cambiado_a = v_num2
+                  and c.turno_anulado_en is null
+             from citas c where c.token_qr = v_tok));
+
+        select * into v_r from cambiar_mi_turno(v_tok);
+        perform pg_temp.comprobar('Cambiar mi turno: el doble toque no saca dos: le devuelve el mismo turno nuevo',
+          v_r.resultado = 'YA_TENIA' and v_r.turno = v_num2 and v_r.token_qr = v_tok2, format('%s %s', v_r.resultado, v_r.turno));
+        select * into v_r from sacar_turno_a_pie('tel-cambia', false, '4321');
+        perform pg_temp.comprobar('Cambiar mi turno: y si escanea el QR de la entrada, le sale el nuevo',
+          v_r.resultado = 'YA_TENIA' and v_r.turno = v_num2, format('%s %s', v_r.resultado, v_r.turno));
+        update dias_entrega set a_pie_codigo = null where fecha = v_hoy;
+
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        select resultado into v_texto from registrar_entrega(v_tok);
+        perform pg_temp.comprobar('Cambiar mi turno: el QR viejo ya no entrega', v_texto = 'CANCELADA', v_texto);
+        select * into v_r from turnos_a_pie_de_hoy() t where t.turno = v_num;
+        perform pg_temp.comprobar('Cambiar mi turno: en el escáner, el viejo sale cancelado y dice el turno nuevo',
+          v_r.estado = 'cancelada' and v_r.cambiado_a = v_num2 and v_r.cancelado_en is not null and v_r.anulado_en is null,
+          coalesce(v_r.estado, 'no salió'));
+
+        --  Anulado: el turno ya no vale, se le da otro sin preguntar.
+        perform saltar_turno(v_num2);
+        perform anular_turno(v_num2);
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from cambiar_mi_turno(v_tok2);
+        perform pg_temp.comprobar('Cambiar mi turno: con su turno anulado, un solo toque le da uno nuevo',
+          v_r.resultado = 'NUEVO' and v_r.turno > v_num2, format('%s %s', v_r.resultado, v_r.turno));
+        v_tok3 := v_r.token_qr;
+        v_num3 := v_r.turno;
+        perform pg_temp.comprobar('Cambiar mi turno: el anulado sigue contando como anulado',
+          (select c.turno_anulado_en is not null and c.turno_cambiado_a = v_num3 from citas c where c.token_qr = v_tok2));
+
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform saltar_turno(v_num3);
+        perform anular_turno(v_num3);
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from cambiar_mi_turno(v_tok3);
+        perform pg_temp.comprobar('Cambiar mi turno: si también ese se anula, ese día ya no saca otro (sección 46)',
+          v_r.resultado = 'TURNOS_ANULADOS' and v_r.token_qr is null, v_r.resultado);
+
+        --  Ya recibió: no hay turno que cambiar.
+        select * into v_r from sacar_turno_a_pie('tel-cambia-recibio');
+        v_tokc := v_r.token_qr;
+        v_numc := v_r.turno;
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform saltar_turno(v_numc);
+        perform registrar_entrega(v_tokc);
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from cambiar_mi_turno(v_tokc);
+        perform pg_temp.comprobar('Cambiar mi turno: si ya recibió, no', v_r.resultado = 'YA_RECIBIO' and v_r.token_qr is null, v_r.resultado);
+
+        --  Cancelar su propio turno: la misma de la cita en carro.
+        select * into v_r from sacar_turno_a_pie('tel-cancela');
+        v_tokc := v_r.token_qr;
+        v_numc := v_r.turno;
+        perform pg_temp.comprobar('Cancelar mi turno: la persona lo cancela desde su teléfono', cancelar_mi_cita(v_tokc) = 'CANCELADA');
+        select * into v_r from turno_de_cita(v_tokc);
+        perform pg_temp.comprobar('Cancelar mi turno: su página lo sabe', v_r.estado = 'cancelada' and not v_r.anulado, v_r.estado);
+        perform pg_temp.esperar_error('Cancelar mi turno: no se cancela dos veces',
+          format('select cancelar_mi_cita(%L)', v_tokc), 'CITA_YA_CANCELADA');
+        select * into v_r from cambiar_mi_turno(v_tokc);
+        perform pg_temp.comprobar('Cancelar mi turno: ya cancelado, no se "cambia" (saca uno nuevo desde el inicio)',
+          v_r.resultado = 'CANCELADA', v_r.resultado);
+        select * into v_r from sacar_turno_a_pie('tel-cancela');
+        perform pg_temp.comprobar('Cancelar mi turno: si cambia de opinión, saca uno nuevo al final',
+          v_r.resultado = 'NUEVO' and v_r.turno > v_numc, format('%s %s', v_r.resultado, v_r.turno));
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        select resultado into v_texto from registrar_entrega(v_tokc);
+        perform pg_temp.comprobar('Cancelar mi turno: su QR ya no entrega', v_texto = 'CANCELADA', v_texto);
+        perform pg_temp.comprobar('Cancelar mi turno: en el escáner sale cancelado, con la hora',
+          exists (select 1 from turnos_a_pie_de_hoy() t
+                   where t.turno = v_numc and t.estado = 'cancelada' and t.cancelado_en is not null and t.cambiado_a is null));
+
+        --  Con los turnos cerrados ya no se dan nuevos; su turno de antes sigue valiendo.
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from sacar_turno_a_pie('tel-cambia-cerrada');
+        v_tokc := v_r.token_qr;
+        v_numc := v_r.turno;
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform saltar_turno(v_numc);
+        update bloques set cerrado = true where id = v_b_pie;
+        perform set_config('request.jwt.claim.sub', '', true);
+        select * into v_r from cambiar_mi_turno(v_tokc);
+        perform pg_temp.comprobar('Cambiar mi turno: con los turnos cerrados no se da otro, y el suyo sigue valiendo',
+          v_r.resultado = 'CERRADA'
+          and (select c.estado = 'reservada' and c.turno_cambiado_en is null from citas c where c.token_qr = v_tokc),
+          v_r.resultado);
+        update bloques set cerrado = false where id = v_b_pie;
+
+        select * into v_r from cambiar_mi_turno('no-es-un-token');
+        perform pg_temp.comprobar('Cambiar mi turno: un QR que no es de un turno a pie de hoy', v_r.resultado = 'NO_EXISTE', v_r.resultado);
+        perform pg_temp.comprobar('Cambiar mi turno: desde el teléfono sin cuenta se puede (el QR es la prueba)',
+          has_function_privilege('anon', 'cambiar_mi_turno(text)', 'execute'));
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+      exception when others then
+        perform set_config('request.jwt.claim.sub', v_admin::text, true);
+        perform pg_temp.comprobar('Cambiar o cancelar mi turno: las pruebas no terminaron', false, sqlerrm);
+      end;
     end if;
 
     update personal set rol = 'voluntario' where usuario_id = v_admin;
@@ -4115,6 +4249,119 @@ begin
   exception when others then
     perform pg_temp.comprobar('Empezar a entregar: las pruebas corrieron completas', false, sqlerrm);
   end;
+
+  -- ==========================================================
+  --  58. La lista de quienes recibieron (Excel, PDF y CSV)
+  -- ==========================================================
+  if v_admin is null then
+    perform pg_temp.comprobar('Lista de quienes recibieron: OMITIDAS porque no hay ninguna cuenta admin', true, 'omitidas');
+  else
+  declare
+    v_l_dia    date := current_date - 3;
+    v_l_bc     uuid;
+    v_l_bp     uuid;
+    v_l_p      uuid[] := '{}';
+    v_l_id     uuid;
+    v_l_pase   uuid;
+    v_l_i      int;
+    v_l_antes  int;
+    v_l_texto  text;
+  begin
+    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+    perform set_config('request.jwt.claims', json_build_object('sub', v_admin, 'role', 'authenticated')::text, true);
+
+    insert into dias_entrega (fecha, abre_en, codigo_anticipado) values (v_l_dia, now() - interval '9 days', 'LISTA58')
+      on conflict (fecha) do nothing;
+    insert into bloques (fecha, hora, capacidad, fila) values (v_l_dia, '15:00', 50, 'carro') returning id into v_l_bc;
+    insert into bloques (fecha, hora, capacidad, fila) values (v_l_dia, '14:00', 50, 'a_pie') returning id into v_l_bp;
+    for v_l_i in 1..5 loop
+      insert into personas (codigo_corto, nombre, nombres, apellidos, telefono, email, calle, numero_exterior,
+                            ciudad, estado, codigo_postal, pais)
+      values (format('CB-LS%s', v_l_i), format('Lista%s Prueba', v_l_i), format('Lista%s', v_l_i), format('Prueba%s', v_l_i),
+              format('+161955520%s', lpad(v_l_i::text, 2, '0')), format('lista%s@ejemplo.com', v_l_i),
+              'Calle de Prueba', '123', 'San Diego', 'CA', '92113', 'Estados Unidos')
+      returning id into v_l_id;
+      v_l_p := v_l_p || v_l_id;
+    end loop;
+
+    --  1 y 2 recibieron en carro (2 es acompanante de 1); 3 tenia cita y no
+    --  vino; 4 recibio a pie; 5 recibio con su pase permanente.
+    insert into citas (persona_id, bloque_id, semana, estado, token_qr, usado_en)
+    values (v_l_p[1], v_l_bc, date_trunc('week', v_l_dia)::date, 'entregada', 'tk-lista-1',
+            (v_l_dia + time '15:05') at time zone 'America/Los_Angeles')
+    returning id into v_l_id;
+    insert into citas (persona_id, bloque_id, semana, estado, token_qr, usado_en, acompana_a)
+    values (v_l_p[2], v_l_bc, date_trunc('week', v_l_dia)::date, 'entregada', 'tk-lista-2',
+            (v_l_dia + time '15:06') at time zone 'America/Los_Angeles', v_l_id);
+    insert into citas (persona_id, bloque_id, semana, estado, token_qr)
+    values (v_l_p[3], v_l_bc, date_trunc('week', v_l_dia)::date, 'reservada', 'tk-lista-3');
+    insert into citas (persona_id, bloque_id, semana, estado, token_qr, usado_en)
+    values (v_l_p[4], v_l_bp, date_trunc('week', v_l_dia)::date, 'entregada', 'tk-lista-4',
+            (v_l_dia + time '14:20') at time zone 'America/Los_Angeles');
+    insert into pases (persona_id, token) values (v_l_p[5], 'tk-lista-pase') returning id into v_l_pase;
+    insert into entregas_pase (pase_id, fecha, usuario_id, fila) values (v_l_pase, v_l_dia, v_admin, 'carro');
+
+    select count(*) into v_l_antes from descargas_lista;
+
+    perform pg_temp.comprobar('Lista: de entrada solo quienes recibieron en carro, con cita o con pase',
+      (select array_agg(l.codigo_corto order by l.codigo_corto)
+         from lista_de_personas(v_l_dia, v_l_dia) l where l.codigo_corto like 'CB-LS%') = array['CB-LS1', 'CB-LS2', 'CB-LS5'],
+      (select string_agg(l.codigo_corto, ',') from lista_de_personas(v_l_dia, v_l_dia) l where l.codigo_corto like 'CB-LS%'));
+    perform pg_temp.comprobar('Lista: la completa trae teléfono, correo, domicilio y a qué hora recibió',
+      exists (select 1 from lista_de_personas(v_l_dia, v_l_dia) l
+               where l.codigo_corto = 'CB-LS1' and l.telefono = '+16195552001' and l.email = 'lista1@ejemplo.com'
+                 and l.calle = 'Calle de Prueba' and l.codigo_postal = '92113' and l.situacion = 'recibio'
+                 and l.recibio_en = v_l_dia + time '15:05' and l.hora_cita = '15:00' and l.tipo = 'cita'));
+    perform pg_temp.comprobar('Lista: el acompañante dice en el carro de quién vino, y el pase dice que es pase',
+      exists (select 1 from lista_de_personas(v_l_dia, v_l_dia) l where l.codigo_corto = 'CB-LS2' and l.tipo = 'acompanante' and l.en_carro_de = 'CB-LS1')
+      and exists (select 1 from lista_de_personas(v_l_dia, v_l_dia) l where l.codigo_corto = 'CB-LS5' and l.tipo = 'pase'));
+    perform pg_temp.comprobar('Lista: con «No vinieron» sale quien tenía cita y no llegó',
+      exists (select 1 from lista_de_personas(v_l_dia, v_l_dia, true, true) l
+               where l.codigo_corto = 'CB-LS3' and l.situacion = 'no_vino' and l.recibio_en is null));
+    perform pg_temp.comprobar('Lista: sin «Recibieron», solo los que no vinieron',
+      (select array_agg(l.codigo_corto) from lista_de_personas(v_l_dia, v_l_dia, false, true) l where l.codigo_corto like 'CB-LS%') = array['CB-LS3']);
+    perform pg_temp.comprobar('Lista: la fila a pie solo si se pide',
+      not exists (select 1 from lista_de_personas(v_l_dia, v_l_dia) l where l.codigo_corto = 'CB-LS4')
+      and exists (select 1 from lista_de_personas(v_l_dia, v_l_dia, true, false, true) l where l.codigo_corto = 'CB-LS4' and l.fila = 'a_pie'));
+    perform pg_temp.comprobar('Lista para compartir: sin teléfono, correo ni calle, pero con nombre, ciudad y código postal',
+      exists (select 1 from lista_de_personas(v_l_dia, v_l_dia, true, false, false, 'compartir') l
+               where l.codigo_corto = 'CB-LS1' and l.telefono is null and l.email is null and l.calle is null
+                 and l.numero_exterior is null and l.direccion is null
+                 and l.nombres = 'Lista1' and l.ciudad = 'San Diego' and l.codigo_postal = '92113'));
+
+    perform pg_temp.comprobar('Lista: cada vez que se baja queda anotado quién, de qué fechas y qué versión',
+      (select count(*) from descargas_lista) > v_l_antes
+      and exists (select 1 from descargas_lista d where d.usuario_id = v_admin and d.desde = v_l_dia and d.hasta = v_l_dia
+                     and d.version = 'compartir' and d.incluye = array['recibieron']));
+    perform pg_temp.comprobar('Lista: en lo anotado van cuántos renglones salieron',
+      exists (select 1 from descargas_lista d where d.incluye = array['no_vinieron'] and d.renglones >= 1));
+
+    perform pg_temp.esperar_error('Lista: fechas al revés',
+      format('select * from lista_de_personas(%L::date, %L::date)', v_l_dia, v_l_dia - 1), 'RANGO_INVALIDO');
+    perform pg_temp.esperar_error('Lista: más de un año de golpe no',
+      format('select * from lista_de_personas(%L::date, %L::date)', v_l_dia - 400, v_l_dia), 'RANGO_MUY_LARGO');
+    perform pg_temp.esperar_error('Lista: una versión que no existe',
+      format('select * from lista_de_personas(%L::date, %L::date, true, false, false, %L)', v_l_dia, v_l_dia, 'todo'), 'VERSION_INVALIDA');
+
+    update personal set rol = 'voluntario' where usuario_id = v_admin;
+    perform pg_temp.esperar_error('Lista: un voluntario no la baja, aunque vea los reportes',
+      format('select * from lista_de_personas(%L::date, %L::date)', v_l_dia, v_l_dia), 'SIN_PERMISO');
+    update personal set rol = 'admin' where usuario_id = v_admin;
+
+    perform set_config('request.jwt.claim.sub', '', true);
+    perform pg_temp.esperar_error('Lista: sin sesión no',
+      format('select * from lista_de_personas(%L::date, %L::date)', v_l_dia, v_l_dia), 'SIN_SESION');
+    perform set_config('request.jwt.claim.sub', v_admin::text, true);
+
+    perform pg_temp.comprobar('Lista: desde el navegador sin cuenta no se puede llamar, y lo anotado no se lee directo',
+      not has_function_privilege('anon', 'lista_de_personas(date, date, boolean, boolean, boolean, text)', 'execute')
+      and has_function_privilege('authenticated', 'lista_de_personas(date, date, boolean, boolean, boolean, text)', 'execute')
+      and (select relrowsecurity from pg_class where relname = 'descargas_lista')
+      and not exists (select 1 from pg_policies where tablename = 'descargas_lista'));
+  exception when others then
+    perform pg_temp.comprobar('Lista de quienes recibieron: las pruebas corrieron completas', false, sqlerrm);
+  end;
+  end if;
 
   -- ==========================================================
   --  Resultado (y deshacer todo)

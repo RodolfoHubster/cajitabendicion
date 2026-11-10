@@ -144,7 +144,7 @@ export default function CodigoDelDia({ fecha, abreEn = '', horaInicio = '' }) {
             <div className="aparecer mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-dashed border-accion bg-accion/10 px-3 py-2">
               <span className="inline-flex items-center gap-2 text-base font-semibold text-principal">
                 <LuKeyRound aria-hidden="true" className="h-5 w-5 text-accion" />
-                {t('codigoDelDia.esteDia')}
+                <span className="min-w-0">{t('codigoDelDia.esteDia')}</span>
               </span>
               <span className="font-titulo text-4xl font-bold tracking-[0.3em] text-principal">{codigo}</span>
               <button
@@ -154,7 +154,7 @@ export default function CodigoDelDia({ fecha, abreEn = '', horaInicio = '' }) {
                 type="button"
               >
                 <LuRefreshCw aria-hidden="true" className="h-4 w-4" />
-                {t('codigoDelDia.otro')}
+                <span className="min-w-0">{t('codigoDelDia.otro')}</span>
               </button>
             </div>
           )}
@@ -208,7 +208,7 @@ export default function CodigoDelDia({ fecha, abreEn = '', horaInicio = '' }) {
       <div>
         <button className={BOTON} disabled={cartel === 'dibujando'} onClick={descargarCartel} type="button">
           <LuDownload aria-hidden="true" className="h-5 w-5 text-accion" />
-          {cartel === 'dibujando' ? t('codigoDelDia.cartel.dibujando') : t('codigoDelDia.cartel.boton')}
+          <span className="min-w-0">{cartel === 'dibujando' ? t('codigoDelDia.cartel.dibujando') : t('codigoDelDia.cartel.boton')}</span>
         </button>
         <p className="mt-1 text-base text-principal/70">{t('codigoDelDia.cartel.ayuda')}</p>
         {cartel === 'descargada' && (

@@ -166,7 +166,7 @@ export default function DisenoAdmin() {
             type="button"
           >
             <LuCircleHelp aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-            {t('guia.abrir')}
+            <span className="min-w-0">{t('guia.abrir')}</span>
           </button>
         </div>
 

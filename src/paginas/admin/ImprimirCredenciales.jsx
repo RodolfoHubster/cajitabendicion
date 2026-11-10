@@ -84,7 +84,7 @@ export default function ImprimirCredenciales() {
               type="button"
             >
               <LuPrinter aria-hidden="true" className="h-5 w-5" />
-              {t('imprimirCredenciales.imprimir')}
+              <span className="min-w-0">{t('imprimirCredenciales.imprimir')}</span>
             </button>
             {entregadas === null && (
               <button

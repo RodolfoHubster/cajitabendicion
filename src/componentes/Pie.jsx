@@ -70,11 +70,13 @@ export default function Pie() {
 
   return (
     <footer className="mt-10 bg-marca text-white">
-      <div className="mx-auto grid w-full max-w-3xl gap-10 px-4 py-10 sm:grid-cols-2">
-        <section>
-          <div className="flex items-center gap-3">
+      {/* grid-cols-1: la columna nunca es mas ancha que la pantalla. Con la
+          letra grande del telefono, el nombre de la iglesia baja debajo del logo. */}
+      <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-10 px-4 py-10 sm:grid-cols-2">
+        <section className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
             <LogoIglesia className="h-16 w-auto shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-base text-white/70">{t('pie.bienvenidos')}</p>
               <p className="font-titulo text-xl font-bold leading-tight">{ORGANIZACION.iglesia}</p>
               <p className="text-base text-accion">{t('pie.comunidad')}</p>
@@ -166,7 +168,7 @@ export default function Pie() {
               <li key={href}>
                 <a className={`${enlaceClaro} w-full`} href={href} {...EXTERNO}>
                   <Icono aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-                  {texto}
+                  <span className="min-w-0">{texto}</span>
                 </a>
               </li>
             ))}

@@ -223,7 +223,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
 
   const tarjetaResumen = (
     <Tarjeta>
-      <dl className="grid grid-cols-3 gap-2 text-center">
+      <dl className="grid grid-cols-1 gap-2 text-center min-[20rem]:grid-cols-3">
         {[
           ['adentro', resumen.adentro, LuDoorOpen, 'text-puede-pasar'],
           ['vinieron', resumen.vinieron, LuUserCheck, 'text-principal'],
@@ -233,7 +233,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
             <>
               <dt className="flex flex-col items-center gap-1 text-base leading-tight text-principal/80">
                 <Icono aria-hidden="true" className="h-5 w-5 shrink-0" />
-                {t(`voluntarios.resumen.${clave}`)}
+                <span className="min-w-0">{t(`voluntarios.resumen.${clave}`)}</span>
               </dt>
               <dd className={`font-titulo text-3xl font-bold ${color}`}>{hoy === null ? '…' : numero}</dd>
             </>
@@ -265,7 +265,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
         {esAdmin && !viendoAjustes && (
           <button className={BOTON} onClick={() => setViendoAjustes(true)} type="button">
             <LuSlidersHorizontal aria-hidden="true" className="h-5 w-5" />
-            {t('voluntarios.modo.cambiar')}
+            <span className="min-w-0">{t('voluntarios.modo.cambiar')}</span>
           </button>
         )}
       </div>
@@ -330,7 +330,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
                 {puedeDeshacer && (
                   <button className={`${BOTON} mt-3`} disabled={ocupado} onClick={deshacer} type="button">
                     <LuUndo2 aria-hidden="true" className="h-5 w-5" />
-                    {t('voluntarios.deshacer')}
+                    <span className="min-w-0">{t('voluntarios.deshacer')}</span>
                   </button>
                 )}
               </div>
@@ -356,7 +356,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
             type="button"
           >
             <LuClipboardCheck aria-hidden="true" className="h-6 w-6 text-accion" />
-            {t('voluntarios.pasarLista.abrir')}
+            <span className="min-w-0">{t('voluntarios.pasarLista.abrir')}</span>
           </button>
 
           {/* Quien no trae su credencial (o se le acabo la pila): por nombre. */}
@@ -425,7 +425,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
             type="button"
           >
             <LuLogOut aria-hidden="true" className="h-5 w-5" />
-            {t('voluntarios.cierre.boton')}
+            <span className="min-w-0">{t('voluntarios.cierre.boton')}</span>
           </button>
         )}
         {cerrando && (
@@ -508,12 +508,12 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
                         type="button"
                       >
                         <LuLogOut aria-hidden="true" className="h-5 w-5" />
-                        {t('voluntarios.temprano.boton')}
+                        <span className="min-w-0">{t('voluntarios.temprano.boton')}</span>
                       </button>
                     ) : (
                       <button className={BOTON} disabled={ocupado} onClick={() => marcar({ voluntario: a.voluntario_id })} type="button">
                         <LuLogOut aria-hidden="true" className="h-5 w-5" />
-                        {t('voluntarios.marcarSalida')}
+                        <span className="min-w-0">{t('voluntarios.marcarSalida')}</span>
                       </button>
                     )
                   ) : a.estado === 'sin_salida' ? (

@@ -2,7 +2,8 @@
 
 Lo que ve quien escanea en cada situación y qué hace, en la fila de carros y en
 la fila a pie. Revisado el 16 de octubre de 2026, después de la entrega del
-jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
+jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**; lo
+del 10 de noviembre de 2026, con **Nuevo (10 nov)**.
 
 ## Lo más importante
 
@@ -30,7 +31,7 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
 | Pase permanente | Verde «Puede pasar (pase)»; el VIP sale en dorado. | Entrega la caja. |
 | Pase retirado | «Pase retirado». | No procede. |
 | Pase preferente (tercera edad, movilidad reducida) | «Preferente», su nombre y su nota para reconocerla («andadera azul…»). **No se entrega solo.** | Revisa que sea la persona y toca «Sí es la persona, entregar». Pasa sin fila. |
-| El QR no se deja leer | — | «Buscar por nombre o código», toca a la persona y «Registrar entrega». |
+| El QR no se deja leer | — | **Nuevo (10 nov):** debajo de la cámara, «Buscar por nombre o código»: escribe y la persona sale mientras escribes. Tócala y «Registrar entrega». La cámara sigue prendida para el siguiente coche; ya no hay que tocar «Escanear otro». «Ver toda la lista de hoy» enseña a todos. |
 | Llega sin cita | — | «Entró sin cita» en el panel, si tienes ese permiso. |
 
 ## Fila a pie
@@ -44,7 +45,9 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
 | Dos dicen que son el mismo número | — | Abre la «i», pídeles su código y compáralo: el turno es de quien lo sabe. |
 | Lo llamas y no está | — | «No se presentó»: la fila sigue con el siguiente. |
 | **Nuevo:** llega tarde (lo llamaron y no estaba) | Al escanear su QR o buscarlo: «Turno 9: lo llamaron a las 3:05 PM y no estaba (hace 40 min)». Ya **no** se entrega solo. | Si fueron unos minutos, «Entregar de todos modos». Si tardó más (después de 10 minutos el botón naranja sugiere anular), «Anular turno». |
-| **Nuevo:** turno anulado | Rojo «Turno anulado». Su teléfono también se lo dice. | Que saque un turno nuevo en el cartel de la entrada: espera desde el final. Si se le anulan dos turnos en el mismo día, ya no puede sacar otro desde su teléfono. |
+| **Nuevo:** turno anulado | Rojo «Turno anulado». Su teléfono también se lo dice. | **Nuevo (10 nov):** en su teléfono, «Sacar un turno nuevo» le da uno al final con un solo toque (sin volver a escribir el código del día). Si se le anulan dos turnos en el mismo día, ya no puede sacar otro desde su teléfono. |
+| **Nuevo (10 nov):** se marcó «recibió» y no era (se dejó pasar a alguien con el número de otra persona que todavía no llegaba) | Al buscar su turno: «Ya recibió a las…». | Abre la «i» y «Deshacer esta entrega» (administrador o quien tenga el permiso de deshacer entregas). Su turno vuelve a valer: entrégale cuando llegue. Si la fila lo marca como el que va y no está, «No se presentó». Si la caja sí se la llevó otra persona, dale a esa persona su propio turno («Dar turno nuevo») y entrégalo, para que las cajas cuadren. |
+| **Nuevo (10 nov):** la persona canceló su turno, o sacó uno nuevo | Al buscarlo: «Cancelado a las…» o «Sacó el turno nuevo 52 a las…». | Ese número ya no vale. Si trae el nuevo, entrégale con ese. |
 | **Nuevo:** los que no se presentaron (panel) | La lista dice hace cuánto los llamaron. | «Entregar», «Regresar a la fila» o «Anular». Anular pregunta antes, porque no se deshace. |
 | No tiene teléfono | — | «Dar turno nuevo» en el panel. Escríbele en un papel su número y su código. |
 | Se le cerró la página o se quedó sin pila | — | Búscalo por su turno, pídele su código y compáralo, y entrega. |
@@ -69,7 +72,19 @@ jueves 15. Lo que cambió ese día va marcado con **Nuevo** o **Arreglado**.
   tardas mucho, tu turno se anula y tendrás que sacar uno nuevo, al final de
   la fila.» Ya no dice que el turno sigue valiendo.
 - **Si su turno se anula,** su página lo dice, deja de enseñar su QR y le
-  ofrece «Sacar un turno nuevo».
+  ofrece «Sacar un turno nuevo». **Nuevo (10 nov):** con un solo toque le da
+  el turno nuevo (antes lo regresaba al inicio y tenía que tocar otra vez).
+- **Nuevo (10 nov): si lo llamaron y no estaba,** además del aviso le sale
+  «Ya no alcanzo: sacar un turno nuevo». Antes pregunta: su turno se cancela y
+  espera desde el final.
+- **Nuevo (10 nov): cancelar su turno,** como la cita en carro: «Cancelar mi
+  turno» y luego «Sí, cancelar mi turno».
+- **Nuevo (10 nov): cuando le toca,** ya no se pone toda la pantalla verde
+  (había que tocar «Ver mi código» para que lo escanearan): un marco verde
+  parpadea alrededor de la pantalla y su QR queda a la vista.
+- **Nuevo (10 nov): al abrir la página sin turno,** arriba del botón dice
+  «Todavía NO tienes turno» con una flecha, y el botón «llama»: mucha gente
+  abría el QR de la entrada y creía que ya tenía turno.
 - **«¿Tenías cita en carro para hoy?»:** escribe su código CB y se cambia a
   pie aunque abra la página en otro navegador. Su cita en carro se cancela y
   ya no puede regresar a la fila de carros.

@@ -129,7 +129,7 @@ export default function GuiaDelPanel({ pasos, novedades = false, alCerrar }) {
 
         {/* Pegados abajo: con la letra grande en un telefono chico, "Siguiente"
             no se esconde debajo del texto. */}
-        <div className="sticky bottom-0 mt-auto grid grid-cols-2 gap-3 border-t border-principal/10 bg-superficie p-5">
+        <div className="sticky bottom-0 mt-auto grid grid-cols-1 gap-3 border-t border-principal/10 bg-superficie p-5 min-[20rem]:grid-cols-2">
           {indice === 0 ? (
             <button
               className="min-h-14 rounded-xl px-3 text-base font-semibold text-principal underline underline-offset-4"
@@ -145,7 +145,7 @@ export default function GuiaDelPanel({ pasos, novedades = false, alCerrar }) {
               type="button"
             >
               <LuArrowLeft aria-hidden="true" className="h-5 w-5 shrink-0" />
-              {t('guia.anterior')}
+              <span className="min-w-0">{t('guia.anterior')}</span>
             </button>
           )}
           <button

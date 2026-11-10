@@ -53,7 +53,7 @@ export default function CodigoCopiable({ codigo, autoCopiar = false, children })
           type="button"
         >
           <LuCopy aria-hidden="true" className="h-4 w-4" />
-          {copiado ? t('diasAdmin.copiado') : t('diasAdmin.copiar')}
+          <span className="min-w-0">{copiado ? t('diasAdmin.copiado') : t('diasAdmin.copiar')}</span>
         </button>
         {children}
       </div>

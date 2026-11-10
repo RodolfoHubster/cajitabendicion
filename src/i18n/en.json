@@ -59,9 +59,6 @@
     "cuadro": "Place the QR inside the frame",
     "leido": "Code read",
     "buscando": "Looking up the person…",
-    "buscarManual": "Search by name or code",
-    "buscarEtiqueta": "Name or code",
-    "buscar": "Search",
     "sinResultados": "No matching appointments. Name search only covers today; with the full code (for example CB-4871) other days are included too.",
     "volverCamara": "Back to camera",
     "escanearOtro": "Scan another",
@@ -166,12 +163,6 @@
       "paso": "Went ahead of their turn: they have {{turno}} and we are on {{actual}}. If they should not have, undo it with the button below."
     },
     "revisaNombre": "Ask their name: it must match the screen. If it does not, undo the delivery and tell the coordinator.",
-    "aPie": {
-      "etiqueta": "Their number's code",
-      "ayuda": "Just the digits (4 or 5): “CB-” is already there. If two people say they have the same number, it belongs to whoever knows the code.",
-      "turno": "Number {{turno}}",
-      "noEsta": "There's no walk-up number today with that code. Check the digits."
-    },
     "lista": {
       "cargando": "Loading today's list…",
       "ejemplo": "Name or CB-4871",
@@ -239,7 +230,9 @@
         "saltado": "Called at {{hora}} and wasn't here · {{hace}}",
         "recibio": "Received at {{hora}}",
         "anulado": "Voided at {{hora}}",
-        "repetido": "Canceled at {{hora}}: already had another number"
+        "repetido": "Canceled at {{hora}}: already had another number",
+        "cambiado": "Got the new number {{nuevo}} at {{hora}}",
+        "cancelado": "Canceled at {{hora}}"
       },
       "repetido": {
         "boton": "Got another number: cancel this one",
@@ -252,7 +245,10 @@
         "regresado": "Done: number {{turno}} is back in line."
       },
       "seQueda": "Keeps number",
-      "cancelado": "Canceled"
+      "cancelado": "Canceled",
+      "cambiadoA": "Their new number",
+      "deshecho": "Done: the delivery for number {{turno}} was undone. Their number counts again: give them their box when they arrive. If the line shows it as the current number and they aren't here, tap «Did not show up».",
+      "deshacerSinPermiso": "Marked by mistake? An administrator, or someone allowed to undo deliveries, can undo it here."
     },
     "preferente": {
       "nota": "How to recognize them: {{nota}}",
@@ -266,6 +262,12 @@
       "hoy": "Boxes given out today",
       "enTuFila": "In your line: {{n}}",
       "faltan": "Still to arrive: {{n}}"
+    },
+    "buscarCita": {
+      "etiqueta": "Search by name or code",
+      "ayuda": "Type their name or the numbers of their code: today's people show up as you type, and the camera stays ready.",
+      "verLista": "See today's whole list",
+      "ocultarLista": "Hide today's list"
     }
   },
   "pase": {
@@ -1430,6 +1432,108 @@
       "cambios": "Switched from car to walk-up: {{cambios}}"
     }
   },
+  "listaPersonas": {
+    "titulo": "List of people who received",
+    "ayuda": "For the dates you chose above: each person with their name, phone, email and address, one sheet per day, by last name. To show the food bank and supporters that the food really is given out.",
+    "incluye": {
+      "titulo": "Who is included?",
+      "recibieron": "Received",
+      "recibieronAyuda": "They were scanned and received their box in the car line (with an appointment or a pass).",
+      "noVinieron": "Did not come",
+      "noVinieronAyuda": "They had a car appointment and did not arrive.",
+      "aPie": "Walk-up line",
+      "aPieAyuda": "Usually only the number and its code: no personal details are given there."
+    },
+    "version": {
+      "titulo": "Which version?",
+      "completa": "Full, for internal use",
+      "completaAyuda": "With phone, email and address. Not to be handed outside the church.",
+      "compartir": "To share",
+      "compartirAyuda": "Name, city, ZIP code and the time they received. No phone, email or address: for the food bank or supporters."
+    },
+    "privacidad": "When people register, they are promised their information is not shared with anyone. Outside the church, hand out only the “To share” version. Every download is recorded: who, when and which dates.",
+    "formatos": {
+      "excel": "Download Excel",
+      "pdf": "Download PDF",
+      "csv": "Download CSV"
+    },
+    "preparando": "Preparing…",
+    "escogeAlgo": "Check “Received” or “Did not come”.",
+    "listo_one": "Done: the list was downloaded with {{count}} person. Distribution days: {{dias}}.",
+    "listo_other": "Done: the list was downloaded with {{count}} people. Distribution days: {{dias}}.",
+    "vacio": "Nobody matches those dates and what you checked.",
+    "errores": {
+      "SIN_PERMISO": "Only an administrator can download this list.",
+      "SIN_SESION": "Your session ended. Sign in again.",
+      "RANGO_INVALIDO": "Check the dates: the first one goes before the second.",
+      "RANGO_MUY_LARGO": "Choose one year or less.",
+      "SIN_CONEXION": "No connection. Check your signal and try again.",
+      "FUNCION_NO_INSTALADA": "This option is not turned on yet. Let whoever maintains the system know.",
+      "ERROR_DESCONOCIDO": "The list couldn't be prepared. Try again."
+    },
+    "situacion": {
+      "recibio": "Received",
+      "no_vino": "Did not come"
+    },
+    "tipo": {
+      "cita": "Appointment",
+      "acompanante": "Passenger of {{codigo}}",
+      "pase": "Permanent pass",
+      "turno": "Number {{turno}}"
+    },
+    "columnas": {
+      "numero": "#",
+      "fechaValor": "Date",
+      "fechaTexto": "Date",
+      "apellidos": "Last name",
+      "nombres": "First name",
+      "codigo": "Code",
+      "telefono": "Phone",
+      "correo": "Email",
+      "calle": "Street",
+      "numeroExterior": "Number",
+      "numeroInterior": "Unit",
+      "colonia": "Neighborhood",
+      "direccion": "Address",
+      "domicilio": "Address",
+      "ciudad": "City",
+      "municipio": "County",
+      "estado": "State",
+      "codigoPostal": "ZIP code",
+      "pais": "Country",
+      "horaCita": "Appointment time",
+      "recibio": "Received at",
+      "tipo": "Type",
+      "fila": "Line",
+      "situacion": "Status"
+    },
+    "archivo": {
+      "iglesia": "Iglesia Casa de Alabanza · Cajita de Bendición",
+      "titulo": "List of people who received",
+      "rango": "From {{desde}} to {{hasta}}",
+      "generado": "Generated on {{cuando}}",
+      "notaCompleta": "Confidential: contains personal information. For internal use of Iglesia Casa de Alabanza; not to be shared outside the church.",
+      "notaCompartir": "Version to share: no phone, email or address.",
+      "resumen": "Summary",
+      "todas": "All dates",
+      "porDia": "By distribution day",
+      "porLugar": "Where the people who received live (by ZIP code)",
+      "sinDato": "(no data)",
+      "total": "Total",
+      "personas_one": "{{count}} person",
+      "personas_other": "{{count}} people",
+      "interior": "unit {{numero}}",
+      "pagina": "Page {{n}} of {{total}}",
+      "ayudaExcel": "On each sheet, the little arrows on the headers sort or filter (by date, last name, city, ZIP code…). The “All dates” sheet puts every day together: you can build a pivot table from it with Insert › PivotTable.",
+      "totales": {
+        "fecha": "Distribution day",
+        "carro": "Received in the car line",
+        "aPie": "Received in the walk-up line",
+        "recibieron": "Total who received",
+        "noVinieron": "Did not come"
+      }
+    }
+  },
   "domicilio": {
     "titulo": "Your home address",
     "tituloPanel": "Person's home address",
@@ -2347,9 +2451,6 @@
     "revisando": "Checking the line…",
     "noHay": "There is no walk-up line today.",
     "llena": "There are no more numbers today.",
-    "esTuTurno": "It is your turn!",
-    "acercate": "Come up and show your QR code.",
-    "verMiQr": "See my code",
     "avisos": {
       "sinDatos": "We do not ask for your name, age or phone number. None of this is saved or shared.",
       "soloHoy": "Your number is for today only and for one box.",
@@ -2380,7 +2481,8 @@
       "SIN_CONEXION": "No connection. Check your signal and tap the button again.",
       "FUNCION_NO_INSTALADA": "This option is not ready yet. Please tell a volunteer.",
       "DISPOSITIVO_INVALIDO": "We could not give you a number from this phone. Please ask a volunteer.",
-      "ERROR_DESCONOCIDO": "We could not give you a number. Tap the button again or ask a volunteer."
+      "ERROR_DESCONOCIDO": "We could not give you a number. Tap the button again or ask a volunteer.",
+      "BLOQUE_LLENO": "There are no more numbers today."
     },
     "terminada": "Today's line is over. Thank you for coming! We hope to see you at the next distribution.",
     "codigoEsTuyo": "This code is yours alone: don't show it to anyone. It proves the number is yours.",
@@ -2405,7 +2507,37 @@
       "cancelar": "I didn't have a car appointment",
       "CODIGO_CARRO_NO_EXISTE": "We couldn't find a car appointment for today with that code. Check the digits."
     },
-    "verFila": "See the line live"
+    "verFila": "See the line live",
+    "aunNo": {
+      "titulo": "You do NOT have a number yet",
+      "texto": "Opening this page does not give you a number. Tap the orange button «Get my number».",
+      "conCodigo": "Opening this page does not give you a number. Type today's code and tap the orange button «Get my number»."
+    },
+    "cambiar": {
+      "boton": "I can't make it: get a new number",
+      "pregunta": "Get a new number?",
+      "explicacion": "Your number {{turno}} is canceled and you wait from the end of the line. If you are close, go to the volunteer now instead: your number still counts.",
+      "si": "Yes, give me a new number",
+      "no": "No, I'll keep number {{turno}}",
+      "resultado": {
+        "AUN_VALE": "Your number still counts: they haven't called you yet. Wait here.",
+        "YA_RECIBIO": "You already got your box with this number. Thank you for coming!",
+        "CERRADA": "No new numbers are being given today. If your number still counts, go to the volunteer.",
+        "NO_EXISTE": "We couldn't find your number for today. Talk to a volunteer."
+      }
+    },
+    "cancelar": {
+      "boton": "Cancel my number",
+      "pregunta": "Are you sure you want to cancel your number {{turno}}?",
+      "explicacion": "You won't be able to use this number or its code anymore. If you change your mind, you'll have to get a new number and wait from the end of the line.",
+      "si": "Yes, cancel my number",
+      "no": "No, keep my number",
+      "cancelando": "Canceling…"
+    },
+    "cancelado": {
+      "titulo": "Your number {{turno}} was canceled.",
+      "texto": "If you still want your box, get a new number: you'll wait from the end of the line."
+    }
   },
   "codigoDelDia": {
     "casilla": "Ask for today's code",

@@ -157,7 +157,7 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
             type="button"
           >
             <LuRefreshCw aria-hidden="true" className="h-5 w-5" />
-            {t('escaneo.camara.reintentar')}
+            <span className="min-w-0">{t('escaneo.camara.reintentar')}</span>
           </button>
         )}
         <p className="text-base text-principal/70">{t('escaneo.camara.usaManual')}</p>
@@ -196,7 +196,7 @@ export default function LectorQR({ activo, alLeer, ignorar = null, olvidar = nul
           type="button"
         >
           <LuRefreshCw aria-hidden="true" className="h-5 w-5 shrink-0" />
-          {t('escaneo.camara.reiniciar')}
+          <span className="min-w-0">{t('escaneo.camara.reiniciar')}</span>
         </button>
       </div>
       {/* Vive aqui y no en la pagina para que no quede colgado cuando la

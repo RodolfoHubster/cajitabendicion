@@ -18,7 +18,7 @@ export default function AvisoPrivacidad({ acepto, alCambiar, error, panel = fals
     >
       <p className="flex items-center gap-2 text-base font-bold text-principal">
         <LuLock aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-        {t('privacidad.titulo')}
+        <span className="min-w-0">{t('privacidad.titulo')}</span>
       </p>
       <p className="mt-1 text-base text-principal/80">{t('privacidad.texto')}</p>
 
