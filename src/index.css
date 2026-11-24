@@ -711,6 +711,15 @@
 }
 
 /*
+ * El menu del panel, en pantalla grande, se desliza solo (DisenoAdmin): su
+ * barra, delgada y del color de la letra, para que se note que hay mas abajo.
+ */
+.menu-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--c-principal) / 0.35) transparent;
+}
+
+/*
  * Las hojas para imprimir del panel (la constancia de horas y las
  * credenciales de los voluntarios, seccion 49) llevan .solo-imprimir: al
  * imprimir sale la hoja y nada mas, sin encabezado, menu, avisos ni pie.

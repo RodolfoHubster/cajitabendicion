@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuChevronDown, LuCircleHelp, LuMenu } from 'react-icons/lu'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
@@ -29,6 +29,20 @@ export default function DisenoAdmin() {
 
   const secciones = seccionesVisibles(rol, permisos)
   const actual = seccionActual(secciones, pathname)
+
+  //  En pantalla grande el menu se desliza solo (21 de noviembre de 2026):
+  //  la pantalla de la derecha ya no se alarga hasta donde acaba el menu. Si
+  //  se entra directo a una seccion de las de abajo, que se vea marcada.
+  const menu = useRef(null)
+  useEffect(() => {
+    const caja = menu.current
+    const marcado = caja?.querySelector('a[aria-current="page"]')
+    if (!caja || !marcado || caja.scrollHeight <= caja.clientHeight) return
+    const limites = caja.getBoundingClientRect()
+    const enlace = marcado.getBoundingClientRect()
+    if (enlace.top < limites.top) caja.scrollTop -= limites.top - enlace.top + 8
+    else if (enlace.bottom > limites.bottom) caja.scrollTop += enlace.bottom - limites.bottom + 8
+  }, [pathname])
   //  Agrupado: el dia de la entrega, personas y pases, preparar, numeros,
   //  administracion. Con un solo grupo (el voluntario) no hace falta titulo.
   const grupos = menuPorGrupos(secciones)
@@ -122,7 +136,16 @@ export default function DisenoAdmin() {
         En movil, un boton que abre la lista completa de una vez. En
         pantalla grande, la misma lista siempre a la vista, a un lado.
       */}
-      <nav className="lg:sticky lg:top-24 lg:w-60 lg:shrink-0">
+      {/*
+        En pantalla grande, con su propio deslizador: con el raton encima se
+        mueve solo el menu (y al llegar al final no arrastra la pagina); sobre
+        la derecha, solo la pantalla. Lo de arriba (6rem) es lo que mide el
+        encabezado, mas la franja de pruebas si la hay.
+      */}
+      <nav
+        className="menu-panel lg:sticky lg:top-[calc(var(--alto-aviso-pruebas,0px)_+_6rem)] lg:-mx-1 lg:max-h-[calc(100dvh_-_var(--alto-aviso-pruebas,0px)_-_7rem)] lg:w-64 lg:shrink-0 lg:overflow-y-auto lg:overscroll-contain lg:px-1 lg:pb-1"
+        ref={menu}
+      >
         <button
           aria-controls="menu-panel"
           aria-expanded={abierto}
