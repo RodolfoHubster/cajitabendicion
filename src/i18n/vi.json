@@ -859,6 +859,14 @@
       "ambas": "Xe hơi và đi bộ",
       "faltoAPie": "Đã tạo ngày, nhưng chưa lưu được hàng đi bộ. Hãy mở ngày đó trong danh sách bên dưới và tạo hàng tại đó.",
       "faltoCodigo": "Đã tạo ngày, nhưng không bật được mã của hôm nay. Hãy mở ngày đó trong danh sách bên dưới và bật ở đó."
+    },
+    "interruptor": {
+      "titulo": "Đăng ký sớm cho người theo dõi trên Facebook",
+      "apagado": "Tắt: trang chỉ hiện «Đặt lịch hẹn» và không ai đăng ký được trước giờ mở đăng ký.",
+      "prendido": "Bật: ở mỗi ngày, bạn có thể cho người theo dõi trên Facebook đăng ký sớm bằng mã của họ. Nếu tắt, các ngày sắp tới sẽ mất quyền đó.",
+      "si": "Bật",
+      "no": "Tắt",
+      "leyendo": "Đang kiểm tra…"
     }
   },
   "incidencias": {

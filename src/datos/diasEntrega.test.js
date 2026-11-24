@@ -6,10 +6,12 @@ import { supabase } from '../lib/supabase'
 import {
   ANTICIPOS,
   OPCIONES_ANTICIPO,
+  accesoSuscriptoresActivo,
   actualizarBloque,
   actualizarDiaEntrega,
   anticipoDe,
   calcularAnticipado,
+  cambiarAccesoSuscriptores,
   contarHorarios,
   crearDiaEntrega,
   listarDiasEntrega,
@@ -128,6 +130,27 @@ describe('llamadas a la base', () => {
   ])('traduce el error %o a %s', async (error, codigo) => {
     supabase.rpc.mockResolvedValue({ data: null, error })
     await expect(actualizarDiaEntrega({ fecha: '2026-09-21', abreEn: '2026-09-18T12:00' })).rejects.toThrow(codigo)
+  })
+
+  it('el interruptor de suscriptores se lee y se cambia, y dice como quedo', async () => {
+    supabase.rpc.mockResolvedValueOnce({ data: false, error: null })
+    await expect(accesoSuscriptoresActivo()).resolves.toBe(false)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('acceso_suscriptores_activo', undefined)
+
+    supabase.rpc.mockResolvedValueOnce({ data: true, error: null })
+    await expect(cambiarAccesoSuscriptores(true)).resolves.toBe(true)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('cambiar_acceso_suscriptores', { p_activo: true })
+
+    supabase.rpc.mockResolvedValueOnce({ data: false, error: null })
+    await expect(cambiarAccesoSuscriptores(0)).resolves.toBe(false)
+    expect(supabase.rpc).toHaveBeenLastCalledWith('cambiar_acceso_suscriptores', { p_activo: false })
+  })
+
+  it('el interruptor sin instalar en la base, o sin permiso, avisa', async () => {
+    supabase.rpc.mockResolvedValueOnce({ data: null, error: { code: 'PGRST202', message: 'Could not find the function' } })
+    await expect(accesoSuscriptoresActivo()).rejects.toThrow('FUNCION_NO_INSTALADA')
+    supabase.rpc.mockResolvedValueOnce({ data: null, error: { code: '42501', message: 'SIN_PERMISO' } })
+    await expect(cambiarAccesoSuscriptores(false)).rejects.toThrow('SIN_PERMISO')
   })
 
   it('listar sin datos devuelve lista vacia', async () => {

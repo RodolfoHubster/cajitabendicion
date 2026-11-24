@@ -8,8 +8,10 @@ import Campo from '../../componentes/Campo'
 import CamposFilaAPie from '../../componentes/CamposFilaAPie'
 import CodigoCopiable from '../../componentes/CodigoCopiable'
 import DiaEntregaAdmin from '../../componentes/DiaEntregaAdmin'
+import InterruptorSuscriptores from '../../componentes/InterruptorSuscriptores'
 import Tarjeta from '../../componentes/Tarjeta'
 import {
+  accesoSuscriptoresActivo,
   calcularAnticipado,
   crearDiaEntrega,
   listarDiasEntrega,
@@ -43,7 +45,7 @@ const OPCIONES_FILAS = [
   { valor: 'ambas', Icono: LuLayers },
 ]
 
-function NuevoDia({ alCrear, alCancelar }) {
+function NuevoDia({ alCrear, alCancelar, suscriptores }) {
   const { t } = useTranslation()
 
   const [fecha, setFecha] = useState('')
@@ -74,11 +76,14 @@ function NuevoDia({ alCrear, alCancelar }) {
     if (valor) setAbreEn(`${sumarDias(valor, -3)}T12:00`)
   }
 
+  //  Con el registro para suscriptores apagado la casilla no se ve.
+  const usarSuscriptores = suscriptores && conSuscriptores
+
   async function enviar(evento) {
     evento.preventDefault()
     setError(null)
 
-    if (conCarros && cuando !== 'ahora' && suscriptoresSinEfecto(conSuscriptores, abreEn)) {
+    if (conCarros && cuando !== 'ahora' && suscriptoresSinEfecto(usarSuscriptores, abreEn)) {
       setError('SUSCRIPTORES_FECHA_ABIERTA')
       return
     }
@@ -113,7 +118,7 @@ function NuevoDia({ alCrear, alCancelar }) {
 
     const ahora = cuando === 'ahora'
     const anticipado =
-      !ahora && conSuscriptores ? calcularAnticipado(abreEn, anticipo, abreAnticipadoEn) : null
+      !ahora && usarSuscriptores ? calcularAnticipado(abreEn, anticipo, abreAnticipadoEn) : null
 
     try {
       // La base genera el codigo al azar al crear la fecha.
@@ -264,6 +269,7 @@ function NuevoDia({ alCrear, alCancelar }) {
                 alCambiarAnticipo={setAnticipo}
                 alCambiarConSuscriptores={setConSuscriptores}
                 anticipo={anticipo}
+                conAcceso={suscriptores}
                 conSuscriptores={conSuscriptores}
                 id="nueva"
               />
@@ -324,7 +330,38 @@ export default function HorariosAdmin() {
   // (la fila) o 'faltoCodigo' (el codigo del dia). null: nada.
   const [falto, setFalto] = useState(null)
 
+  //  El registro para suscriptores de Facebook, prendido o apagado (seccion
+  //  60). null: todavia no se sabe, o no se pudo leer; mientras, cada fecha
+  //  ensena su casilla como antes.
+  const [suscriptores, setSuscriptores] = useState(null)
+  const [errorSuscriptores, setErrorSuscriptores] = useState(null)
+  const conSuscriptores = suscriptores !== false
+
   const recargar = () => setRecarga((n) => n + 1)
+
+  useEffect(() => {
+    let vigente = true
+
+    accesoSuscriptoresActivo()
+      .then((activo) => {
+        if (vigente) setSuscriptores(activo)
+      })
+      .catch((e) => {
+        if (vigente) setErrorSuscriptores(e.message)
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [])
+
+  //  Al apagarlo, las fechas que vienen pierden su acceso anticipado: se
+  //  vuelven a leer para que ya no lo ensenen.
+  function alCambiarSuscriptores(activo) {
+    setSuscriptores(activo)
+    setErrorSuscriptores(null)
+    recargar()
+  }
 
   useEffect(() => {
     let vigente = true
@@ -391,7 +428,9 @@ export default function HorariosAdmin() {
         )}
       </Tarjeta>
 
-      {creando && <NuevoDia alCancelar={() => setCreando(false)} alCrear={alCrear} />}
+      {creando && (
+        <NuevoDia alCancelar={() => setCreando(false)} alCrear={alCrear} suscriptores={conSuscriptores} />
+      )}
 
       <Tarjeta>
         <h2 className="mb-2 text-xl font-bold">{t('diasAdmin.lista')}</h2>
@@ -413,11 +452,19 @@ export default function HorariosAdmin() {
                 alCambiar={recargar}
                 dia={dia}
                 key={dia.fecha}
+                suscriptores={conSuscriptores}
               />
             ))}
           </ul>
         )}
       </Tarjeta>
+
+      {/* Al final: el pastor lo apago y casi nunca se mueve. */}
+      <InterruptorSuscriptores
+        activo={suscriptores}
+        alCambiar={alCambiarSuscriptores}
+        errorAlLeer={errorSuscriptores}
+      />
     </div>
   )
 }

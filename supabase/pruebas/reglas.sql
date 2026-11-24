@@ -9,7 +9,7 @@
 --  escaneos de prueba. No queda nada guardado y no se tocan las fechas
 --  reales (las de prueba estan a unos 9 meses de hoy).
 --
---  Requiere todas las migraciones, hasta 2026-11-10-cambiar-mi-turno.sql.
+--  Requiere todas las migraciones, hasta 2026-11-23-suscriptores-apagado.sql.
 --  El catalogo real de codigos postales no hace falta: las pruebas traen los suyos.
 --
 --  Las pruebas del panel, del escaneo y de roles se hacen "como" la primera
@@ -240,6 +240,12 @@ begin
         p_anticipado at time zone 'America/Los_Angeles');
     $b$
   $f$;
+
+  --  El registro para suscriptores se prende para estas pruebas: apagado
+  --  (como esta desde el 23 de noviembre de 2026, seccion 60) ninguna fecha
+  --  guarda hora de acceso anticipado. Se deshace al final, con todo lo demas.
+  insert into configuracion (clave, valor) values ('acceso_suscriptores', 'si')
+  on conflict (clave) do update set valor = excluded.valor;
 
   -- ==========================================================
   --  Datos de prueba
@@ -4361,6 +4367,80 @@ begin
   exception when others then
     perform pg_temp.comprobar('Lista de quienes recibieron: las pruebas corrieron completas', false, sqlerrm);
   end;
+
+    -- ==========================================================
+    --  60. Suscriptores de Facebook: el interruptor general
+    -- ==========================================================
+    declare
+      v_s_fecha  date := current_date + 700;
+      v_s_pasada date := current_date - 731;
+      v_s_b      uuid;
+      v_s_quedo  boolean;
+    begin
+      perform pg_temp.comprobar('Suscriptores: prendido (como lo dejan estas pruebas), se lee prendido',
+        acceso_suscriptores_activo());
+
+      --  Una fecha que abre mañana, con su hora de suscriptores ya corriendo,
+      --  y una que ya pasó y tuvo acceso anticipado.
+      insert into dias_entrega (fecha, abre_en, abre_anticipado_en, codigo_anticipado)
+      values (v_s_fecha, now() + interval '1 day', now() - interval '1 hour', 'FBFBFB');
+      insert into bloques (fecha, hora, capacidad) values (v_s_fecha, '14:00', 50) returning id into v_s_b;
+      insert into dias_entrega (fecha, abre_en, abre_anticipado_en, codigo_anticipado)
+      values (v_s_pasada, now() - interval '731 days', now() - interval '732 days', 'VIEJOS');
+      perform pg_temp.comprobar('Suscriptores: prendido, el código sirve en su hora',
+        validar_codigo_anticipado(v_s_fecha, 'FBFBFB'));
+
+      --  En su propia instruccion: la lectura de la misma instruccion todavia
+      --  ve el valor de antes.
+      v_s_quedo := cambiar_acceso_suscriptores(false);
+      perform pg_temp.comprobar('Suscriptores: al apagarlo dice que quedó apagado',
+        v_s_quedo = false and not acceso_suscriptores_activo());
+      perform pg_temp.comprobar('Suscriptores: al apagarlo, las fechas que vienen se quedan sin acceso anticipado',
+        (select abre_anticipado_en is null from dias_entrega where fecha = v_s_fecha)
+        and (select abre_anticipado_en is null from dias_entrega where fecha = v_ventana));
+      perform pg_temp.comprobar('Suscriptores: al apagarlo, las fechas que ya pasaron no se tocan',
+        (select abre_anticipado_en is not null from dias_entrega where fecha = v_s_pasada));
+      perform pg_temp.comprobar('Suscriptores: al apagarlo, el código de la fecha se guarda',
+        (select codigo_anticipado = 'FBFBFB' from dias_entrega where fecha = v_s_fecha));
+
+      perform pg_temp.comprobar('Suscriptores: apagado, el código ya no sirve',
+        not validar_codigo_anticipado(v_s_fecha, 'FBFBFB'));
+      perform pg_temp.esperar_error('Suscriptores: apagado, nadie se registra antes de la apertura aunque traiga el código',
+        pg_temp.registro(v_s_b, p_codigo => 'FBFBFB', p_telefono => '+16195557001', p_email => 'fb1@gmail.com'),
+        'AUN_NO_ABRE');
+      perform pg_temp.comprobar('Suscriptores: apagado, la página no recibe hora de suscriptores (no sale el botón)',
+        not exists (select 1 from consultar_disponibilidad(v_s_fecha, v_s_fecha, 'carro') d
+                     where d.abre_anticipado_en is not null));
+
+      update dias_entrega set abre_anticipado_en = now() - interval '1 hour' where fecha = v_s_fecha;
+      perform pg_temp.comprobar('Suscriptores: apagado, la base no deja ponerle acceso anticipado a una fecha',
+        (select abre_anticipado_en is null from dias_entrega where fecha = v_s_fecha));
+      execute pg_temp.crear(v_s_fecha + 7, '14:00', '14:30', 20, now() + interval '1 day', now() - interval '1 hour');
+      perform pg_temp.comprobar('Suscriptores: apagado, una fecha nueva nace sin acceso anticipado',
+        (select abre_anticipado_en is null from dias_entrega where fecha = v_s_fecha + 7));
+
+      v_s_quedo := cambiar_acceso_suscriptores(true);
+      perform pg_temp.comprobar('Suscriptores: al prenderlo otra vez dice que quedó prendido',
+        v_s_quedo and acceso_suscriptores_activo());
+      update dias_entrega set abre_anticipado_en = now() - interval '1 hour' where fecha = v_s_fecha;
+      perform pg_temp.comprobar('Suscriptores: prendido otra vez y activado en la fecha, el mismo código vuelve a servir',
+        validar_codigo_anticipado(v_s_fecha, 'FBFBFB'));
+
+      update personal set rol = 'voluntario' where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Suscriptores: solo el administrador lo prende o lo apaga',
+        'select cambiar_acceso_suscriptores(false)', 'SIN_PERMISO');
+      update personal set rol = 'admin' where usuario_id = v_admin;
+      perform pg_temp.esperar_error('Suscriptores: sin decir prendido o apagado no',
+        'select cambiar_acceso_suscriptores(null)', 'VALOR_INVALIDO');
+
+      perform pg_temp.comprobar('Suscriptores: el interruptor no se cambia desde el navegador sin cuenta, y los ajustes no se leen directo',
+        not has_function_privilege('anon', 'cambiar_acceso_suscriptores(boolean)', 'execute')
+        and has_function_privilege('authenticated', 'cambiar_acceso_suscriptores(boolean)', 'execute')
+        and (select relrowsecurity from pg_class where relname = 'configuracion')
+        and not exists (select 1 from pg_policies where tablename = 'configuracion'));
+    exception when others then
+      perform pg_temp.comprobar('Suscriptores de Facebook: las pruebas corrieron completas', false, sqlerrm);
+    end;
   end if;
 
   -- ==========================================================

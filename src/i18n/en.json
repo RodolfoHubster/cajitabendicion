@@ -864,6 +864,14 @@
       "ambas": "Cars and walk-up",
       "faltoAPie": "The date was created, but the walk-up line could not be saved. Open it in the list below and set it up there.",
       "faltoCodigo": "The date was created, but today's code could not be turned on. Open it in the list below and turn it on there."
+    },
+    "interruptor": {
+      "titulo": "Registration for Facebook subscribers",
+      "apagado": "Off: the page only shows “Make an appointment” and no one can register before registration opens.",
+      "prendido": "On: for each date you can let subscribers register early with their code. If you turn it off, upcoming dates lose that early access.",
+      "si": "On",
+      "no": "Off",
+      "leyendo": "Checking…"
     }
   },
   "incidencias": {

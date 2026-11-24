@@ -10,9 +10,13 @@ const ESTILO_SELECT =
  * Cuando se abren los registros al publico y, si se activa, desde cuando
  * entran los suscriptores de Facebook. Lo que venga en children (el codigo)
  * se muestra solo con el acceso activado.
+ *
+ * conAcceso: false con el registro para suscriptores apagado en Horarios y
+ * cupos (23 de noviembre de 2026): ni la casilla se ensena.
  */
 export default function CamposApertura({
   id,
+  conAcceso = true,
   abreEn,
   alCambiarAbreEn,
   conSuscriptores,
@@ -44,18 +48,20 @@ export default function CamposApertura({
         value={abreEn}
       />
 
-      <label className="flex min-h-12 items-center gap-3" htmlFor={`${id}-suscriptores`}>
-        <input
-          checked={conSuscriptores}
-          className="h-6 w-6 shrink-0 accent-principal"
-          id={`${id}-suscriptores`}
-          onChange={(e) => alCambiarConSuscriptores(e.target.checked)}
-          type="checkbox"
-        />
-        <span className="text-base font-semibold text-principal">{t('diasAdmin.activarSuscriptores')}</span>
-      </label>
+      {conAcceso && (
+        <label className="flex min-h-12 items-center gap-3" htmlFor={`${id}-suscriptores`}>
+          <input
+            checked={conSuscriptores}
+            className="h-6 w-6 shrink-0 accent-principal"
+            id={`${id}-suscriptores`}
+            onChange={(e) => alCambiarConSuscriptores(e.target.checked)}
+            type="checkbox"
+          />
+          <span className="text-base font-semibold text-principal">{t('diasAdmin.activarSuscriptores')}</span>
+        </label>
+      )}
 
-      {conSuscriptores && (
+      {conAcceso && conSuscriptores && (
         <div className="space-y-3 border-l-4 border-accion pl-4">
           <label className="flex flex-col gap-2" htmlFor={`${id}-anticipo`}>
             <span className="text-base font-semibold text-principal">{t('diasAdmin.entran')}</span>

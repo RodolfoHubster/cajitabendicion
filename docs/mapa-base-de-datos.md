@@ -146,6 +146,13 @@ Toda fecha de entrega se crea desde el panel, no con SQL a mano. Antes de
 `abre_en` la fecha está con candado; desde `abre_anticipado_en` reserva quien
 trae el código de suscriptor de Facebook de esa fecha.
 
+**Interruptor general (sección 60, al final del archivo):**
+`acceso_suscriptores_activo()` y `cambiar_acceso_suscriptores(activo)`
+(solo admin), guardado en `configuracion.acceso_suscriptores`. Apagado (así
+quedó el 23 de noviembre de 2026), el disparador `dias_entrega_sin_anticipado`
+deja vacía `abre_anticipado_en`: nadie entra antes de la apertura y la página
+no enseña el botón de Facebook. Sin el renglón cuenta como apagado.
+
 ## Roles y equipo
 
 | Función | Líneas |

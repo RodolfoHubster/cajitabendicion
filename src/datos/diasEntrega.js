@@ -103,6 +103,20 @@ export function regenerarCodigoAnticipado(fecha) {
   return llamar('regenerar_codigo_anticipado', { p_fecha: fecha })
 }
 
+/**
+ * El interruptor general del registro para suscriptores de Facebook
+ * (seccion 60; el pastor lo apago el 23 de noviembre de 2026). Apagado,
+ * ninguna fecha tiene acceso anticipado y la pagina no ensena el boton.
+ */
+export async function accesoSuscriptoresActivo() {
+  return (await llamar('acceso_suscriptores_activo')) === true
+}
+
+/** Lo prende o lo apaga (solo admin). Devuelve como quedo. */
+export async function cambiarAccesoSuscriptores(activo) {
+  return (await llamar('cambiar_acceso_suscriptores', { p_activo: Boolean(activo) })) === true
+}
+
 export function eliminarDiaEntrega(fecha) {
   return llamar('eliminar_dia_entrega', { p_fecha: fecha })
 }

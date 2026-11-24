@@ -124,6 +124,10 @@ export default function Calendario() {
 
   const faltaSuscriptores = dia.abreAnticipadoEn ? segundosHasta(dia.abreAnticipadoEn) : null
   const puedeRegistrarse = abierta && hayLugar
+  //  El boton de suscriptores sale solo si esta fecha tiene registro
+  //  anticipado. El 23 de noviembre de 2026 el pastor lo apago para todas
+  //  (Horarios y cupos): queda solo "Hacer cita", a lo ancho.
+  const conSuscriptores = Boolean(dia.abreAnticipadoEn)
 
   return (
     <>
@@ -196,15 +200,17 @@ export default function Calendario() {
             arriba del otro y "Hacer cita" primero: es lo que busca casi todo
             el mundo, y quien no es suscriptor tocaba el de Facebook por ser
             el primero (17 de noviembre de 2026). */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <button
-            className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-4 text-center text-base font-bold transition focus-visible:outline-none focus-visible:ring-4 ${AZUL_FACEBOOK}`}
-            onClick={() => setModalAbierto(true)}
-            type="button"
-          >
-            <FaFacebook aria-hidden="true" className="h-5 w-5 shrink-0" />
-            <span className="min-w-0">{t('proxima.conCodigo')}</span>
-          </button>
+        <div className={`mt-5 grid gap-3 ${conSuscriptores ? 'sm:grid-cols-2' : ''}`}>
+          {conSuscriptores && (
+            <button
+              className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-4 text-center text-base font-bold transition focus-visible:outline-none focus-visible:ring-4 ${AZUL_FACEBOOK}`}
+              onClick={() => setModalAbierto(true)}
+              type="button"
+            >
+              <FaFacebook aria-hidden="true" className="h-5 w-5 shrink-0" />
+              <span className="min-w-0">{t('proxima.conCodigo')}</span>
+            </button>
+          )}
 
           {puedeRegistrarse ? (
             <Boton className="order-first sm:order-none" onClick={() => navegar(`/horarios/${dia.fecha}`)}>

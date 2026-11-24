@@ -53,7 +53,7 @@ function Seccion({ titulo, children }) {
  * Apertura de registros y acceso de suscriptores. Editable en cualquier
  * estado de la fecha.
  */
-function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
+function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien, suscriptores }) {
   const { t, i18n } = useTranslation()
 
   const [abreEn, setAbreEn] = useState(aCampo(dia.abre_en))
@@ -61,12 +61,16 @@ function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
   const [anticipo, setAnticipo] = useState(anticipoDe(dia.abre_en, dia.abre_anticipado_en))
   const [abreAnticipadoEn, setAbreAnticipadoEn] = useState(aCampo(dia.abre_anticipado_en))
 
+  //  Con el registro para suscriptores apagado la casilla no se ve: lo que
+  //  tuviera guardado no cuenta.
+  const usarSuscriptores = suscriptores && conSuscriptores
+
   function guardar(evento) {
     evento.preventDefault()
 
     // Sin este freno se guardaba el acceso en una fecha ya abierta y el
     // publico se seguia registrando sin codigo.
-    if (suscriptoresSinEfecto(conSuscriptores, abreEn)) {
+    if (suscriptoresSinEfecto(usarSuscriptores, abreEn)) {
       ejecutar(
         async () => {
           throw new Error('SUSCRIPTORES_FECHA_ABIERTA')
@@ -76,14 +80,14 @@ function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
       return
     }
 
-    const activando = conSuscriptores && !dia.abre_anticipado_en
+    const activando = usarSuscriptores && !dia.abre_anticipado_en
 
     ejecutar(
       async () => {
         await actualizarDiaEntrega({
           fecha: dia.fecha,
           abreEn,
-          abreAnticipadoEn: conSuscriptores ? calcularAnticipado(abreEn, anticipo, abreAnticipadoEn) : null,
+          abreAnticipadoEn: usarSuscriptores ? calcularAnticipado(abreEn, anticipo, abreAnticipadoEn) : null,
           cerrado: dia.cerrado,
         })
         // Al activarse se genera un codigo nuevo: el de una activacion
@@ -161,6 +165,7 @@ function Apertura({ dia, estado, ocupado, ejecutar, mensaje, codigoRecien }) {
           alCambiarAnticipo={setAnticipo}
           alCambiarConSuscriptores={setConSuscriptores}
           anticipo={anticipo}
+          conAcceso={suscriptores}
           conSuscriptores={conSuscriptores}
           id={dia.fecha}
         >
@@ -259,7 +264,7 @@ function FilaHorario({ bloque, ocupado, alGuardar, alAlternar, alEliminar }) {
  * Un renglon de la lista de fechas. Plegado muestra fecha, lugares y estado;
  * abierto muestra todo editable: apertura (con suscriptores) y lugares.
  */
-export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar }) {
+export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar, suscriptores = true }) {
   const { t, i18n } = useTranslation()
 
   const [ocupado, setOcupado] = useState(false)
@@ -422,6 +427,7 @@ export default function DiaEntregaAdmin({ dia, abierta, alAlternar, alCambiar })
               key={`${dia.abre_en}|${dia.abre_anticipado_en}|${dia.cerrado}`}
               mensaje={mensajeDe('apertura')}
               ocupado={ocupado}
+              suscriptores={suscriptores}
             />
           )}
 

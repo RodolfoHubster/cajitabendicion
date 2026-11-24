@@ -864,6 +864,14 @@
       "ambas": "Carros y a pie",
       "faltoAPie": "La fecha se creó, pero la fila a pie no se pudo guardar. Ábrela en la lista de abajo y ármala ahí.",
       "faltoCodigo": "La fecha se creó, pero el código del día no se pudo prender. Ábrela en la lista de abajo y préndelo ahí."
+    },
+    "interruptor": {
+      "titulo": "Registro para suscriptores de Facebook",
+      "apagado": "Apagado: en la página solo sale «Hacer cita» y nadie se registra antes de que abran los registros.",
+      "prendido": "Prendido: en cada fecha puedes dejar que los suscriptores se registren antes, con su código. Si lo apagas, las fechas que vienen se quedan sin ese acceso.",
+      "si": "Prendido",
+      "no": "Apagado",
+      "leyendo": "Revisando…"
     }
   },
   "incidencias": {
