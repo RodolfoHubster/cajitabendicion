@@ -415,7 +415,7 @@ export default function Turno() {
               <p>{t('ayuda.codigoTexto')}</p>
             </Ayuda>
           </div>
-          <p className="whitespace-nowrap font-titulo text-2xl font-bold tracking-wide text-principal min-[22rem]:text-3xl">
+          <p className="whitespace-nowrap font-titulo text-2xl font-bold tracking-wide text-principal min-[22em]:text-3xl">
             {miTurno.codigo}
           </p>
         </div>
@@ -695,7 +695,7 @@ export default function Turno() {
               type="submit"
             >
               <LuTicket aria-hidden="true" className="h-9 w-9 shrink-0" />
-              <span className="max-w-full font-titulo text-2xl font-bold min-[22rem]:text-3xl">
+              <span className="max-w-full font-titulo text-2xl font-bold min-[22em]:text-3xl">
                 {frenado
                   ? t('turnoAPie.codigo.esperaBoton', { reloj: relojDeEspera(segundosFreno) })
                   : ocupado

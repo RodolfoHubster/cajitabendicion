@@ -92,7 +92,7 @@ export default function TurnoQueVa({ datos, ocupado = false, alEntregar, alSalta
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2">
+        <div className="mt-3 grid grid-cols-1 gap-2 min-[22.5em]:grid-cols-2">
           <button
             className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-marca px-2 text-base font-bold text-white transition hover:brightness-110 disabled:opacity-60"
             disabled={ocupado}

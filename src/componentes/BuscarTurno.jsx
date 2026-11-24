@@ -219,12 +219,12 @@ export default function BuscarTurno({
                   {/* El numero a un lado del texto; con la letra grande del
                       telefono, arriba: lado a lado, "Esperando" salia partido. */}
                   <button
-                    className="flex min-h-16 min-w-0 flex-1 flex-col items-start gap-x-3 gap-y-1 p-3 text-left disabled:opacity-60 min-[20rem]:flex-row min-[20rem]:items-center"
+                    className="flex min-h-16 min-w-0 flex-1 flex-col items-start gap-x-3 gap-y-1 p-3 text-left disabled:opacity-60 min-[20em]:flex-row min-[20em]:items-center"
                     disabled={ocupado && directo}
                     onClick={directo ? () => hecho(alEntregar)(fila.turno) : verDetalle}
                     type="button"
                   >
-                    <span className="shrink-0 font-titulo text-4xl font-bold leading-none text-principal min-[20rem]:w-[min(4rem,16vw)] min-[20rem]:text-center">
+                    <span className="shrink-0 font-titulo text-4xl font-bold leading-none text-principal min-[20em]:w-[min(4rem,16vw)] min-[20em]:text-center">
                       {fila.turno}
                     </span>
                     <span className="min-w-0 flex-1">

@@ -223,7 +223,7 @@ export default function EntradaSalidaVoluntarios({ voluntarios, alCambiar, ajust
 
   const tarjetaResumen = (
     <Tarjeta>
-      <dl className="grid grid-cols-1 gap-2 text-center min-[20rem]:grid-cols-3">
+      <dl className="grid grid-cols-1 gap-2 text-center min-[20em]:grid-cols-3">
         {[
           ['adentro', resumen.adentro, LuDoorOpen, 'text-puede-pasar'],
           ['vinieron', resumen.vinieron, LuUserCheck, 'text-principal'],

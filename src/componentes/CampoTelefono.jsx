@@ -65,7 +65,7 @@ export default function CampoTelefono({
 
       {/* El pais y el numero lado a lado; con la letra muy grande o la
           pantalla muy angosta, uno debajo del otro. */}
-      <div className="grid grid-cols-1 gap-2 min-[20rem]:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)] sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-2 min-[20em]:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)] sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
         <select
           aria-label={t('registro.pais')}
           className={`min-h-14 w-full rounded-xl border bg-superficie px-2 text-base text-principal shadow-sm outline-none focus:ring-4 ${borde}`}

@@ -85,7 +85,7 @@ export default function Voluntarios() {
         <div
           aria-label={t('voluntarios.titulo')}
           className={`mt-3 grid grid-cols-1 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 ${
-            esAdmin ? 'min-[20rem]:grid-cols-3' : 'min-[20rem]:grid-cols-2'
+            esAdmin ? 'min-[22.5em]:grid-cols-3' : 'min-[22.5em]:grid-cols-2'
           }`}
           role="tablist"
         >
@@ -94,7 +94,7 @@ export default function Voluntarios() {
             return (
               <button
                 aria-selected={activa}
-                className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 text-base font-semibold transition min-[20rem]:flex-col sm:flex-row ${
+                className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 text-base font-semibold transition min-[22.5em]:flex-col sm:flex-row ${
                   activa ? 'bg-marca text-white shadow-sm' : 'text-principal hover:bg-principal/10'
                 }`}
                 key={clave}

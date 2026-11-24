@@ -165,7 +165,7 @@ export default function CitasDeHoy() {
         {cargando ? (
           <EsqueletoNumeros texto={t('panel.cargando')} />
         ) : (
-          <dl className="grid grid-cols-1 gap-3 min-[20rem]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7">
+          <dl className="grid grid-cols-1 gap-3 min-[20em]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7">
             {numeros.map(({ clave, valor, color, nota }) => (
               <div className="rounded-xl bg-principal/5 p-3" key={clave}>
                 <dd className={`text-3xl font-bold ${color}`}>{valor}</dd>

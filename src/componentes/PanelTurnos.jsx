@@ -296,7 +296,7 @@ export default function PanelTurnos({
                 placeholder={t('filaTurnos.sinTelefono.senaEjemplo')}
                 value={sena}
               />
-              <div className="mt-2 grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2">
+              <div className="mt-2 grid grid-cols-1 gap-2 min-[20em]:grid-cols-2">
                 <button className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-marca px-3 text-base font-bold text-white disabled:opacity-60" disabled={ocupado} type="submit">
                   <LuUserPlus aria-hidden="true" className="h-5 w-5" />
                   <span className="min-w-0">{t('filaTurnos.sinTelefono.dar')}</span>
@@ -340,7 +340,7 @@ export default function PanelTurnos({
       )}
 
       {/* Las cuentas del dia. */}
-      <dl className="mt-3 grid grid-cols-1 gap-2 text-center min-[20rem]:grid-cols-3">
+      <dl className="mt-3 grid grid-cols-1 gap-2 text-center min-[22.5em]:grid-cols-3">
         {[
           ['atendidos', datos.atendidos],
           ['esperando', datos.en_espera],

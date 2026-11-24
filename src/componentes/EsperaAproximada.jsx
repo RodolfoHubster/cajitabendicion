@@ -29,7 +29,7 @@ export default function EsperaAproximada({ antes, segundos, nuevo = false }) {
       <p className="flex items-center justify-center gap-2 text-lg font-bold">
         {/* Con la letra grande del telefono el reloj se quita: le deja el
             renglon al texto ("aproximada" salia partido). */}
-        <LuTimer aria-hidden="true" className="hidden h-5 w-5 shrink-0 text-accion min-[20rem]:block" />
+        <LuTimer aria-hidden="true" className="hidden h-5 w-5 shrink-0 text-accion min-[20em]:block" />
         <span className="min-w-0">{nuevo ? t('espera.siSacasAhora', { tiempo }) : t('espera.tuya', { tiempo })}</span>
       </p>
       <p className="text-base text-principal/80">{t('espera.aviso')}</p>

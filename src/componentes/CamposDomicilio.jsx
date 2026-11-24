@@ -37,7 +37,7 @@ export default function CamposDomicilio({ valor, alCambiar, busqueda, errorDe, t
 
       {/* Lado a lado; con la letra muy grande o la pantalla muy angosta, uno
           debajo del otro ("Estados Unidos" ya no se parte a media palabra). */}
-      <div aria-label={t('domicilio.pais')} className="grid grid-cols-1 gap-2 min-[20rem]:grid-cols-2" role="radiogroup">
+      <div aria-label={t('domicilio.pais')} className="grid grid-cols-1 gap-2 min-[20em]:grid-cols-2" role="radiogroup">
         {PAISES_DOMICILIO.map((codigo) => (
           <button
             aria-checked={pais === codigo}

@@ -19,7 +19,7 @@ export default function SelectorFila({ valor, alCambiar, className = '' }) {
   return (
     <div
       aria-label={t('filas.titulo')}
-      className={`inline-grid w-full grid-cols-1 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 min-[20rem]:grid-cols-3 sm:w-auto ${className}`}
+      className={`inline-grid w-full grid-cols-1 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 min-[20em]:grid-cols-3 sm:w-auto ${className}`}
       role="radiogroup"
     >
       {VISTAS.map((vista) => {
@@ -29,7 +29,7 @@ export default function SelectorFila({ valor, alCambiar, className = '' }) {
         return (
           <button
             aria-checked={activa}
-            className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 py-1 text-center text-base font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/40 min-[20rem]:flex-col sm:flex-row sm:px-3 ${
+            className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 py-1 text-center text-base font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/40 min-[20em]:flex-col sm:flex-row sm:px-3 ${
               activa ? 'bg-marca text-white shadow-sm' : 'text-principal hover:bg-principal/10'
             }`}
             key={vista}
