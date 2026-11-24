@@ -8,6 +8,10 @@ const ICONOS = { juntas: LuLayers, carro: FaCarSide, a_pie: FaPersonWalking }
 /**
  * Juntas · En carro · A pie. Tres botones de un toque, no una lista
  * desplegable: se cambia de vista a media entrega, con prisa.
+ *
+ * En el telefono el icono va arriba de la palabra: lado a lado, en un
+ * telefono de 360 px, "En carro" salia como "En c…". Con la letra grande,
+ * uno debajo del otro.
  */
 export default function SelectorFila({ valor, alCambiar, className = '' }) {
   const { t } = useTranslation()
@@ -15,7 +19,7 @@ export default function SelectorFila({ valor, alCambiar, className = '' }) {
   return (
     <div
       aria-label={t('filas.titulo')}
-      className={`inline-grid w-full grid-cols-3 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 sm:w-auto ${className}`}
+      className={`inline-grid w-full grid-cols-1 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 min-[20rem]:grid-cols-3 sm:w-auto ${className}`}
       role="radiogroup"
     >
       {VISTAS.map((vista) => {
@@ -25,7 +29,7 @@ export default function SelectorFila({ valor, alCambiar, className = '' }) {
         return (
           <button
             aria-checked={activa}
-            className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-3 text-base font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/40 ${
+            className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 py-1 text-center text-base font-semibold leading-tight transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accion/40 min-[20rem]:flex-col sm:flex-row sm:px-3 ${
               activa ? 'bg-marca text-white shadow-sm' : 'text-principal hover:bg-principal/10'
             }`}
             key={vista}
@@ -34,7 +38,7 @@ export default function SelectorFila({ valor, alCambiar, className = '' }) {
             type="button"
           >
             <Icono aria-hidden="true" className="h-4 w-4 shrink-0" />
-            <span className="truncate">{t(`filas.vista.${vista}`)}</span>
+            <span className="min-w-0">{t(`filas.vista.${vista}`)}</span>
           </button>
         )
       })}

@@ -19,6 +19,30 @@ const conTope = Object.fromEntries(
   }),
 )
 
+//  Titulos con tope (17 de noviembre de 2026). Con la letra al doble del
+//  telefono, un text-3xl llegaba a 60 px y "noviembre" no cabia en el
+//  renglon: salia "noviembr-e". Ahora nunca pasan de un tanto del ancho de
+//  la pantalla, y aun asi quedan del tamano de la letra normal o mas. Con
+//  la letra normal, en cualquier telefono de 320 px o mas, miden lo de
+//  siempre (la misma cuenta que conTope). La altura de renglon, sin unidad:
+//  la misma proporcion de siempre, aunque la letra quede con tope.
+const TITULOS = {
+  //  text-lg: con la letra al doble queda del tamano del texto normal.
+  lg: ['1.125rem', 9, '1.5556'],
+  xl: ['1.25rem', 9, '1.4'],
+  '2xl': ['1.5rem', 10, '1.3334'],
+  '3xl': ['1.875rem', 11, '1.2'],
+  '4xl': ['2.25rem', 12, '1.1112'],
+  '5xl': ['3rem', 15, '1'],
+  '6xl': ['3.75rem', 18.75, '1'],
+  '7xl': ['4.5rem', 22.5, '1'],
+  '8xl': ['6rem', 30, '1'],
+  '9xl': ['8rem', 40, '1'],
+}
+const titulosConTope = Object.fromEntries(
+  Object.entries(TITULOS).map(([clave, [rem, vw, renglon]]) => [clave, [`min(${rem}, ${vw}vw)`, { lineHeight: renglon }]]),
+)
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   // `dark:` se activa con <html data-tema="oscuro">, que pone el boton del
@@ -63,6 +87,7 @@ export default {
         //  El minimo de letra del proyecto (15px con la letra normal). En rem
         //  y no en px: asi tambien crece con "letra grande".
         chica: ['0.9375rem', { lineHeight: '1.4rem' }],
+        ...titulosConTope,
       },
       boxShadow: {
         tarjeta: 'var(--sombra-tarjeta)',

@@ -257,7 +257,7 @@ export default function Reportes() {
 
       {filas && (
         <>
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+          <dl className="grid grid-cols-1 gap-3 min-[20rem]:grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
             {tarjetas.map(({ clave: dato, valor, color = 'text-principal', destacada }) => (
               <div
                 className={`rounded-2xl p-4 ring-1 ${

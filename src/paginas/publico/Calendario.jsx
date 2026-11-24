@@ -192,7 +192,10 @@ export default function Calendario() {
           </div>
         )}
 
-        {/* Izquierda: suscriptores. Derecha: registro normal. En celular, uno arriba del otro. */}
+        {/* Izquierda: suscriptores. Derecha: registro normal. En celular, uno
+            arriba del otro y "Hacer cita" primero: es lo que busca casi todo
+            el mundo, y quien no es suscriptor tocaba el de Facebook por ser
+            el primero (17 de noviembre de 2026). */}
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <button
             className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-4 text-center text-base font-bold transition focus-visible:outline-none focus-visible:ring-4 ${AZUL_FACEBOOK}`}
@@ -204,10 +207,12 @@ export default function Calendario() {
           </button>
 
           {puedeRegistrarse ? (
-            <Boton onClick={() => navegar(`/horarios/${dia.fecha}`)}>{t('proxima.registrarme')}</Boton>
+            <Boton className="order-first sm:order-none" onClick={() => navegar(`/horarios/${dia.fecha}`)}>
+              {t('proxima.registrarme')}
+            </Boton>
           ) : (
             <button
-              className="inline-flex min-h-14 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-principal/10 px-4 text-base font-bold text-principal/70"
+              className="order-first inline-flex min-h-14 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-principal/10 px-4 text-base font-bold text-principal/70 sm:order-none"
               disabled
               type="button"
             >

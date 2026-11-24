@@ -798,5 +798,73 @@
     "siguiente": "Xiga",
     "pausar": "Jooji",
     "seguir": "Sii wad"
+  },
+  "ayuda": {
+    "entendido": "Waan fahmay",
+    "qrTitulo": "Maxaan ku sameeyaa koodkan?",
+    "qrTexto": "Ku kaydi taleefankaaga: riix «Kaydi sawirka» ama sawir shaashadda. Maalinta qaybinta, tus mutadawacaha: wuu iskaan gareynayaa wuxuuna ku siinayaa sanduuqaaga. Hal mar oo keliya ayuu shaqeeyaa.",
+    "codigoTitulo": "Lambarkani maxuu u yahay?",
+    "codigoTexto": "Haddii kamaraddu akhrin weydo koodkaaga QR, u sheeg lambarkan mutadawacaha: wuxuu kugu heli doonaa liiska.",
+    "codigoProxima": "Sidoo kale u hay mar kale: lambarkan iyo taleefankaaga, uma baahnid inaad mar kale qorto xogtaada.",
+    "telefonoTitulo": "Maxaa taleefankayga loo weydiinayaa?",
+    "telefonoTexto": "Taleefankaaga iyo koodkaaga, marka xigta uma baahnid inaad mar kale qorto xogtaada. Xogtaadu waa sir: cidna lama wadaagno, oo ay ku jiraan maamulka dawladda.",
+    "turnoTitulo": "Sidee buu lambarku u shaqeeyaa?",
+    "turnoTexto": "Ku sug meel dhow. Halkan waxaad ku arkaysaa lambarka hadda la joogo iyo inta qof ee kaa horreysa. Marka ay kugu soo gaarto, shaashaddu waxay noqonaysaa cagaar: tus koodkaaga mutadawacaha."
+  },
+  "ayudaPantalla": {
+    "boton": "Caawimo",
+    "titulo": "Maxaan halkan ku sameeyaa?",
+    "dudas": "Weli su'aalo ma qabtaa?",
+    "llamar": "Wac kaniisadda: {{telefono}}",
+    "todas": "Arag dhammaan su'aalaha",
+    "cerrar": "Xir caawimada",
+    "pasos": {
+      "inicio": {
+        "1": "Haddii aad baabuur ku imanayso, riix «Baabuur» oo dooro maalinta iyo saacadda ballantaada.",
+        "2": "Haddii aad lug ku imanayso, riix «Lug»: maalinta qaybinta lambarkaaga halkan ayaad ka qaadanaysaa.",
+        "3": "Cuntadu waa bilaash. Qof kasta oo 18 jir ah ama ka weyn wuxuu sameeyaa diiwaangelin u gaar ah."
+      },
+      "calendario": {
+        "1": "Halkan waxaad ku aragtaa maalinta qaybinta xigta. Qaybintu waa Isniinta iyo Khamiista oo keliya.",
+        "2": "Riix badhanka oranjiga ah «Ballan qabso» si aad u doorato saacadda.",
+        "3": "Haddii uu leeyahay «Meelo ma jiraan», maalintaas waa buuxdaa. Haddii aan weli la furin, halkan ayuu ku qoran yahay goorta la furayo."
+      },
+      "horarios": {
+        "1": "Riix saacadda aad iman karto. Waqti kastaa waa 15 daqiiqo.",
+        "2": "Kadib riix badhanka oranjiga ah ee hoose si aad u sii wadato.",
+        "3": "Haddii saacad ay leedahay «Waa buuxa», meel ma jirto: dooro mid kale."
+      },
+      "registro": {
+        "1": "Haddii aad hore u timid, riix «Isticmaal koodkayga» si aadan mar kale u qorin xogtaada.",
+        "2": "Haddii ay tahay markaagii ugu horreysay, qor xogtaada. Dhammaadka calaamadee sanduuqa oo riix «Xaqiiji ballanta».",
+        "3": "Xogtaadu waa sir: cidna lama wadaagno, oo ay ku jiraan maamulka dawladda."
+      },
+      "confirmacion": {
+        "1": "Waa dhammaatay, ballan ayaad leedahay! Kaydi koodkaaga: riix «Kaydi sawirka» ama sawir shaashadda.",
+        "2": "Maalinta qaybinta, koodkaaga tus mutadawacaha. Hal mar oo keliya ayuu shaqeeyaa.",
+        "3": "Haddii aadan iman karin, riix «Jooji ballanta» si qof kale u isticmaalo meeshaada."
+      },
+      "cambiar": {
+        "1": "Dooro maalinta iyo saacadda cusub, kadibna riix «Beddel waqtiga».",
+        "2": "Koodkaagu waa isku mid. Waqtiga hal mar oo keliya ayaa la beddeli karaa."
+      },
+      "turno": {
+        "1": "Riix badhanka oranjiga ah «Qaado lambarkayga» si aad lambar u hesho.",
+        "2": "Ku sug meel dhow. Halkan waxaad ku arkaysaa lambarka hadda la joogo iyo inta qof ee kaa horreysa.",
+        "3": "Marka ay kugu soo gaarto, shaashaddu waxay noqonaysaa cagaar: tus koodkaaga mutadawacaha."
+      },
+      "fila": {
+        "1": "Halkan waxaad si toos ah ugu arkaysaa sida safka lugtu u socdo. Uma baahnid lambar si aad u aragto.",
+        "2": "Kuwani waa lambarrada dad kale. Si aad u hesho kaaga, riix «Qaado lambarkayga»."
+      },
+      "pase": {
+        "1": "Kani waa kaarkaaga. Kaalay Isniin ama Khamiis kasta oo aad awoodo, oo tus mutadawacaha.",
+        "2": "Adiga oo keliya ayuu kuu yahay: hal sanduuq maalintii. Haddii aad wadaagto, waa la joojinayaa."
+      },
+      "general": {
+        "1": "Si aad ballan u qabsato, tag bogga hore oo riix «Baabuur» ama «Lug».",
+        "2": "Haddii aad su'aalo qabto, eeg su'aalaha badanaa la is weydiiyo ama wac kaniisadda."
+      }
+    }
   }
 }

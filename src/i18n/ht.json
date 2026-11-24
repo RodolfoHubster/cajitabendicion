@@ -798,5 +798,73 @@
     "siguiente": "Pwochen",
     "pausar": "Kanpe",
     "seguir": "Kontinye"
+  },
+  "ayuda": {
+    "entendido": "Mwen konprann",
+    "qrTitulo": "Kisa pou m fè ak kòd sa a?",
+    "qrTexto": "Kenbe l nan telefòn ou: peze “Anrejistre imaj la” oswa pran yon foto ekran an. Jou distribisyon an, montre l bay volontè a: l ap eskane l epi l ap ba ou bwat ou. Li sèvi yon sèl fwa.",
+    "codigoTitulo": "Pou kisa nimewo sa a ye?",
+    "codigoTexto": "Si kamera a pa ka li kòd QR ou a, bay volontè a nimewo sa a: avè l, l ap jwenn ou sou lis la.",
+    "codigoProxima": "Kenbe l tou pou pwochen fwa: avèk nimewo sa a ak telefòn ou, ou pa bezwen ekri enfòmasyon ou ankò.",
+    "telefonoTitulo": "Poukisa nou mande telefòn mwen?",
+    "telefonoTexto": "Avèk telefòn ou ak kòd ou, pwochen fwa ou pa bezwen ekri enfòmasyon ou ankò. Enfòmasyon ou prive: nou pa pataje l ak pèsonn, ni ak otorite yo.",
+    "turnoTitulo": "Kijan nimewo a mache?",
+    "turnoTexto": "Rete tou pre. Isit la ou wè ki nimewo k ap pase ak konbyen moun ki devan ou. Lè se tou pa w, ekran an vin vèt: montre kòd ou bay volontè a."
+  },
+  "ayudaPantalla": {
+    "boton": "Èd",
+    "titulo": "Kisa pou m fè isit la?",
+    "dudas": "Ou gen lòt kesyon toujou?",
+    "llamar": "Rele legliz la: {{telefono}}",
+    "todas": "Wè tout kesyon yo",
+    "cerrar": "Fèmen èd la",
+    "pasos": {
+      "inicio": {
+        "1": "Si w ap vini an machin, peze “An machin” epi chwazi jou ak lè randevou ou.",
+        "2": "Si w ap vini apye, peze “Apye”: jou distribisyon an, ou pran nimewo ou isit la menm.",
+        "3": "Manje a gratis. Chak moun ki gen 18 an oswa plis fè pwòp enskripsyon pa yo."
+      },
+      "calendario": {
+        "1": "Isit la ou wè pwochen jou distribisyon an. Gen distribisyon sèlman lendi ak jedi.",
+        "2": "Peze bouton zoranj “Pran randevou” a pou w chwazi lè ou.",
+        "3": "Si li di “Pa gen plas”, jou sa a plen. Si li poko louvri, li di isit la ki lè l ap louvri."
+      },
+      "horarios": {
+        "1": "Peze lè ou ka rive a. Chak lè dire 15 minit.",
+        "2": "Apre sa, peze bouton zoranj ki anba a pou w kontinye.",
+        "3": "Si yon lè di “Plen”, pa gen plas ankò: chwazi yon lòt."
+      },
+      "registro": {
+        "1": "Si w te deja vini, peze “Sèvi ak kòd mwen” pou w pa ekri enfòmasyon ou ankò.",
+        "2": "Si se premye fwa, ekri enfòmasyon ou. Nan fen an, make ti kare a epi peze “Konfime randevou mwen”.",
+        "3": "Enfòmasyon ou prive: nou pa pataje l ak pèsonn, ni ak otorite yo."
+      },
+      "confirmacion": {
+        "1": "Fini, ou gen randevou ou! Kenbe kòd ou: peze “Anrejistre imaj la” oswa pran yon foto ekran an.",
+        "2": "Jou distribisyon an, montre kòd ou bay volontè a. Li sèvi yon sèl fwa.",
+        "3": "Si ou pa ka vini ankò, peze “Anile randevou mwen” pou yon lòt moun ka pran plas ou."
+      },
+      "cambiar": {
+        "1": "Chwazi nouvo jou a ak nouvo lè a, epi peze “Chanje lè mwen”.",
+        "2": "Kòd ou rete menm jan an. Ou ka chanje lè a yon sèl fwa."
+      },
+      "turno": {
+        "1": "Peze bouton zoranj “Pran nimewo mwen” an pou w jwenn nimewo ou.",
+        "2": "Rete tou pre. Isit la ou wè ki nimewo k ap pase ak konbyen moun ki devan ou.",
+        "3": "Lè se tou pa w, ekran an vin vèt: montre kòd ou bay volontè a."
+      },
+      "fila": {
+        "1": "Isit la ou wè kijan liy apye a ap avanse, an dirèk. Ou pa bezwen gen nimewo pou w gade l.",
+        "2": "Nimewo sa yo se pou lòt moun. Pou w jwenn pa w, peze “Pran nimewo mwen”."
+      },
+      "pase": {
+        "1": "Sa a se pas ou. Vini nenpòt lendi oswa jedi ou kapab, epi montre l bay volontè a.",
+        "2": "Se pou ou sèlman: yon bwat chak jou. Si ou pataje l, y ap anile l."
+      },
+      "general": {
+        "1": "Pou w pran randevou, ale nan premye paj la epi peze “An machin” oswa “Apye”.",
+        "2": "Si ou gen kesyon, gade kesyon moun poze souvan yo oswa rele legliz la."
+      }
+    }
   }
 }

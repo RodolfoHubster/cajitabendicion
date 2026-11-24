@@ -63,7 +63,9 @@ export default function Inicio() {
         <div className="flex flex-col items-center gap-3 px-5 pb-8 pt-8 text-center">
           <div>
             <div className="rounded-full bg-white p-2 shadow-md ring-4 ring-accion/80 ring-offset-4 ring-offset-marca">
-              <LogoCompleto className="h-36 w-36 rounded-full sm:h-44 sm:w-44" />
+              {/* Con tope: con la letra grande del telefono el logo llenaba
+                  toda la primera pantalla y no se veia ningun boton. */}
+              <LogoCompleto className="h-[min(9rem,45vw)] w-[min(9rem,45vw)] rounded-full sm:h-44 sm:w-44" />
             </div>
           </div>
 

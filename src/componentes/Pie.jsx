@@ -115,7 +115,8 @@ export default function Pie() {
                 className="inline-flex min-h-14 items-center font-semibold underline-offset-4 hover:underline"
                 href={ORGANIZACION.telefonoEnlace}
               >
-                {ORGANIZACION.telefono}
+                {/* En un renglon: con la letra grande salia "(619) 734-" y "5886". */}
+                <span className="whitespace-nowrap">{ORGANIZACION.telefono}</span>
               </a>
             </li>
 

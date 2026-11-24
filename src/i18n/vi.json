@@ -59,7 +59,6 @@
     "voluntarios": "Tình nguyện viên"
   },
   "escaneo": {
-    "instruccion": "Hướng camera vào mã của gia đình. Nếu không quét được, hãy tìm theo tên hoặc mã.",
     "apunta": "Đang tìm mã…",
     "cuadro": "Đặt mã QR vào trong khung",
     "leido": "Đã đọc mã",
@@ -266,13 +265,23 @@
     "cajas": {
       "hoy": "Số thùng đã phát hôm nay",
       "enTuFila": "Ở hàng của bạn: {{n}}",
-      "faltan": "Còn chờ đến: {{n}}"
+      "faltan": "Còn chờ đến: {{n}}",
+      "ayudaTitulo": "Con số này đếm gì?",
+      "ayudaTexto": "Tất cả số thùng đã phát hôm nay, ở mọi hàng: đây là số báo cáo cho ngân hàng thực phẩm. Bên dưới là số ở hàng của bạn và, ở hàng xe hơi, số lịch hẹn còn chờ đến. Tự cập nhật."
     },
     "buscarCita": {
       "etiqueta": "Tìm theo tên hoặc mã",
       "ayuda": "Gõ tên hoặc các số trong mã của họ: những người của hôm nay hiện ra khi bạn gõ, và máy ảnh vẫn sẵn sàng.",
       "verLista": "Xem cả danh sách hôm nay",
       "ocultarLista": "Ẩn danh sách hôm nay"
+    },
+    "ayuda": {
+      "titulo": "Quét mã thế nào?",
+      "camara": "Đưa mã QR của người đó vào trong khung. Nếu mọi thứ đúng, việc phát được ghi tự động và máy ảnh sẵn sàng cho người tiếp theo: không cần chạm nút nào.",
+      "verde": "Xanh: được vào, hãy đưa thùng cho họ.",
+      "rojo": "Đỏ: hôm nay đã nhận rồi, đừng đưa thêm.",
+      "naranja": "Cam: là của ngày khác hoặc hàng khác. Hãy đọc màn hình trước khi phát.",
+      "buscar": "Nếu mã không quét được, hãy tìm người đó ở dưới máy ảnh: hàng xe hơi tìm theo tên hoặc mã CB; hàng đi bộ tìm theo số thứ tự."
     }
   },
   "pase": {
@@ -1061,7 +1070,8 @@
       "reglaEjemplo": "Đến sớm 5 phút",
       "guardar": "Lưu",
       "enLaPortada": "Đã hiện ở trang chủ"
-    }
+    },
+    "verTodo": "Xem toàn bộ hướng dẫn"
   },
   "validacion": {
     "nombres": {
@@ -2984,5 +2994,73 @@
     "siguiente": "Tiếp",
     "pausar": "Tạm dừng",
     "seguir": "Phát"
+  },
+  "ayuda": {
+    "entendido": "Đã hiểu",
+    "qrTitulo": "Tôi làm gì với mã này?",
+    "qrTexto": "Hãy giữ mã này trong điện thoại: bấm «Lưu hình» hoặc chụp màn hình. Vào ngày phát, đưa mã cho tình nguyện viên xem: họ quét mã và đưa phần quà cho bạn. Mã chỉ dùng được một lần.",
+    "codigoTitulo": "Số này dùng để làm gì?",
+    "codigoTexto": "Nếu máy ảnh không đọc được mã QR của bạn, hãy đọc số này cho tình nguyện viên: họ sẽ tìm thấy bạn trong danh sách.",
+    "codigoProxima": "Hãy giữ số này cho lần sau: với số này và số điện thoại, bạn không cần ghi lại thông tin của mình.",
+    "telefonoTitulo": "Vì sao cần số điện thoại của tôi?",
+    "telefonoTexto": "Với số điện thoại và mã của bạn, lần sau bạn không cần ghi lại thông tin. Thông tin của bạn được giữ kín: chúng tôi không chia sẻ với bất kỳ ai, kể cả cơ quan chức năng.",
+    "turnoTitulo": "Lấy số hoạt động thế nào?",
+    "turnoTexto": "Hãy chờ ở gần. Ở đây bạn thấy đang đến số nào và còn bao nhiêu người trước bạn. Khi đến lượt bạn, màn hình chuyển sang màu xanh: hãy đưa mã cho tình nguyện viên xem."
+  },
+  "ayudaPantalla": {
+    "boton": "Trợ giúp",
+    "titulo": "Tôi làm gì ở đây?",
+    "dudas": "Bạn vẫn còn thắc mắc?",
+    "llamar": "Gọi cho nhà thờ: {{telefono}}",
+    "todas": "Xem tất cả câu hỏi",
+    "cerrar": "Đóng trợ giúp",
+    "pasos": {
+      "inicio": {
+        "1": "Nếu bạn đi xe hơi, bấm «Bằng xe hơi» rồi chọn ngày và giờ hẹn.",
+        "2": "Nếu bạn đi bộ, bấm «Đi bộ»: vào ngày phát, bạn lấy số ngay tại đây.",
+        "3": "Thực phẩm miễn phí. Mỗi người từ 18 tuổi trở lên tự đăng ký riêng."
+      },
+      "calendario": {
+        "1": "Đây là ngày phát tiếp theo. Chỉ phát vào thứ Hai và thứ Năm.",
+        "2": "Bấm nút màu cam «Đặt lịch hẹn» để chọn giờ.",
+        "3": "Nếu ghi «Hết chỗ», ngày đó đã đầy. Nếu chưa mở đăng ký, ở đây sẽ ghi khi nào mở."
+      },
+      "horarios": {
+        "1": "Bấm vào giờ bạn có thể đến. Mỗi khung giờ dài 15 phút.",
+        "2": "Sau đó bấm nút màu cam ở dưới để tiếp tục.",
+        "3": "Nếu một giờ ghi «Hết chỗ», giờ đó đã đầy: hãy chọn giờ khác."
+      },
+      "registro": {
+        "1": "Nếu bạn đã đến trước đây, bấm «Dùng mã của tôi» để không phải ghi lại thông tin.",
+        "2": "Nếu là lần đầu, hãy điền thông tin. Cuối cùng, đánh dấu vào ô và bấm «Xác nhận lịch hẹn».",
+        "3": "Thông tin của bạn được giữ kín: chúng tôi không chia sẻ với bất kỳ ai, kể cả cơ quan chức năng."
+      },
+      "confirmacion": {
+        "1": "Xong, bạn đã có lịch hẹn! Hãy giữ mã: bấm «Lưu hình» hoặc chụp màn hình.",
+        "2": "Vào ngày phát, đưa mã cho tình nguyện viên xem. Mã chỉ dùng được một lần.",
+        "3": "Nếu bạn không đến được nữa, bấm «Hủy lịch hẹn của tôi» để người khác dùng chỗ của bạn."
+      },
+      "cambiar": {
+        "1": "Chọn ngày và giờ mới, rồi bấm «Đổi giờ hẹn của tôi».",
+        "2": "Mã của bạn vẫn giữ nguyên. Bạn chỉ được đổi giờ một lần."
+      },
+      "turno": {
+        "1": "Bấm nút màu cam «Lấy số của tôi» để nhận số.",
+        "2": "Hãy chờ ở gần. Ở đây bạn thấy đang đến số nào và còn bao nhiêu người trước bạn.",
+        "3": "Khi đến lượt bạn, màn hình chuyển sang màu xanh: hãy đưa mã cho tình nguyện viên xem."
+      },
+      "fila": {
+        "1": "Ở đây bạn xem trực tiếp hàng đi bộ đang tiến lên thế nào. Không cần có số mới xem được.",
+        "2": "Đây là số của người khác. Để có số của bạn, bấm «Lấy số của tôi»."
+      },
+      "pase": {
+        "1": "Đây là thẻ của bạn. Hãy đến vào thứ Hai hoặc thứ Năm nào bạn tiện, và đưa thẻ cho tình nguyện viên xem.",
+        "2": "Thẻ chỉ dành cho bạn: mỗi ngày một phần. Nếu cho người khác dùng, thẻ sẽ bị hủy."
+      },
+      "general": {
+        "1": "Để đặt lịch hẹn, về trang đầu và bấm «Bằng xe hơi» hoặc «Đi bộ».",
+        "2": "Nếu có thắc mắc, xem phần câu hỏi thường gặp hoặc gọi cho nhà thờ."
+      }
+    }
   }
 }

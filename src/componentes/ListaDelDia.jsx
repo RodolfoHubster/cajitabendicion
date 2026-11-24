@@ -113,7 +113,9 @@ export default function ListaDelDia({ texto, version = 0, ocupado, alVer, alEntr
                 type="button"
               >
                 <span className="min-w-[min(8rem,100%)] flex-1 basis-0">
-                  <span className="block truncate text-lg font-semibold text-principal">{persona.nombre}</span>
+                  {/* Completo, sin "…": los nombres se repiten mucho y lo que
+                      distingue a una persona suele ser el segundo apellido. */}
+                  <span className="block text-lg font-semibold leading-snug text-principal">{persona.nombre}</span>
                   <span className="block text-base text-principal/70">
                     {persona.codigo_corto} · {formatearHora(persona.hora)}
                     {persona.en_carro_de && ` · ${t('escaneo.lista.enCarroDe', { codigo: persona.en_carro_de })}`}

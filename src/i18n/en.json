@@ -54,7 +54,6 @@
     "voluntarios": "Volunteers"
   },
   "escaneo": {
-    "instruccion": "Point at the family's code. If it will not scan, look them up by name or code.",
     "apunta": "Looking for a code…",
     "cuadro": "Place the QR inside the frame",
     "leido": "Code read",
@@ -261,13 +260,23 @@
     "cajas": {
       "hoy": "Boxes given out today",
       "enTuFila": "In your line: {{n}}",
-      "faltan": "Still to arrive: {{n}}"
+      "faltan": "Still to arrive: {{n}}",
+      "ayudaTitulo": "What does this number count?",
+      "ayudaTexto": "Every box given out today, in all lines: it is what gets reported to the food bank. Below, the ones in your line and, in the car line, how many appointments are still to arrive. It updates on its own."
     },
     "buscarCita": {
       "etiqueta": "Search by name or code",
       "ayuda": "Type their name or the numbers of their code: today's people show up as you type, and the camera stays ready.",
       "verLista": "See today's whole list",
       "ocultarLista": "Hide today's list"
+    },
+    "ayuda": {
+      "titulo": "How do I scan?",
+      "camara": "Put the person's QR inside the frame. If everything is right, it is delivered on its own and the camera is ready for the next one: no button to tap.",
+      "verde": "Green: let them through, give them their box.",
+      "rojo": "Red: they already received today, do not give another.",
+      "naranja": "Orange: it is for another date or another line. Read what the screen says before delivering.",
+      "buscar": "If the code will not scan, look them up below the camera: in the car line by name or CB code; in the walk-up line by their number."
     }
   },
   "pase": {
@@ -1066,7 +1075,8 @@
       "reglaEjemplo": "Arrive 5 minutes early",
       "guardar": "Save",
       "enLaPortada": "Now on the home page"
-    }
+    },
+    "verTodo": "See the whole guide"
   },
   "validacion": {
     "nombres": {
@@ -3035,5 +3045,73 @@
     "siguiente": "Next",
     "pausar": "Pause",
     "seguir": "Play"
+  },
+  "ayuda": {
+    "entendido": "Got it",
+    "qrTitulo": "What do I do with this code?",
+    "qrTexto": "Keep it on your phone: tap “Save image” or take a screenshot. On distribution day, show it to the volunteer: they scan it and give you your box. It works only once.",
+    "codigoTitulo": "What is this number for?",
+    "codigoTexto": "If the camera can't read your QR code, tell this number to the volunteer: it lets them find you on the list.",
+    "codigoProxima": "Keep it for next time too: with this number and your phone, you won't have to type your information again.",
+    "telefonoTitulo": "Why do you ask for my phone?",
+    "telefonoTexto": "With your phone and your code, next time you won't have to type your information again. Your information is private: we don't share it with anyone, including the authorities.",
+    "turnoTitulo": "How does the number work?",
+    "turnoTexto": "Wait nearby. Here you can see which number is being served and how many people are ahead of you. When it's your turn, the screen turns green: show your code to the volunteer."
+  },
+  "ayudaPantalla": {
+    "boton": "Help",
+    "titulo": "What do I do here?",
+    "dudas": "Still have questions?",
+    "llamar": "Call the church: {{telefono}}",
+    "todas": "See all questions",
+    "cerrar": "Close help",
+    "pasos": {
+      "inicio": {
+        "1": "If you're coming by car, tap “By car” and choose the day and time of your appointment.",
+        "2": "If you're coming on foot, tap “On foot”: on distribution day you get your number right here.",
+        "3": "The food is free. Each person 18 or older makes their own registration."
+      },
+      "calendario": {
+        "1": "Here you see the next distribution day. Distributions are only on Mondays and Thursdays.",
+        "2": "Tap the orange “Make an appointment” button to choose your time.",
+        "3": "If it says “No spots left”, that day is full. If it isn't open yet, it says here when it opens."
+      },
+      "horarios": {
+        "1": "Tap the time you can arrive. Each time slot lasts 15 minutes.",
+        "2": "Then tap the orange button at the bottom to continue.",
+        "3": "If a time says “Full”, there's no room left: choose another one."
+      },
+      "registro": {
+        "1": "If you've been here before, tap “Use my code” so you don't have to type your information again.",
+        "2": "If it's your first time, fill in your information. At the end, check the box and tap “Confirm my appointment”.",
+        "3": "Your information is private: we don't share it with anyone, including the authorities."
+      },
+      "confirmacion": {
+        "1": "Done, you have your appointment! Save your code: tap “Save image” or take a screenshot.",
+        "2": "On distribution day, show your code to the volunteer. It works only once.",
+        "3": "If you can't come anymore, tap “Cancel my appointment” so someone else can use your spot."
+      },
+      "cambiar": {
+        "1": "Choose the new day and time, and tap “Change my time”.",
+        "2": "Your code stays the same. You can only change your time once."
+      },
+      "turno": {
+        "1": "Tap the orange “Get my number” button to get your number.",
+        "2": "Wait nearby. Here you can see which number is being served and how many people are ahead of you.",
+        "3": "When it's your turn, the screen turns green: show your code to the volunteer."
+      },
+      "fila": {
+        "1": "Here you can watch the walk-up line move, live. You don't need a number to watch it.",
+        "2": "These numbers belong to other people. To get yours, tap “Get my number”."
+      },
+      "pase": {
+        "1": "This is your pass. Come any Monday or Thursday you can, and show it to the volunteer.",
+        "2": "It's only for you: one box per day. If you share it, it gets canceled."
+      },
+      "general": {
+        "1": "To make an appointment, go to the home page and tap “By car” or “On foot”.",
+        "2": "If you have questions, check the frequently asked questions or call the church."
+      }
+    }
   }
 }

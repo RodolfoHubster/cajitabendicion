@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuBellRing, LuCircleCheck, LuClock, LuCopyX, LuFlag, LuMegaphone, LuUsers } from 'react-icons/lu'
+import Ayuda from './Ayuda'
 import EsperaAproximada from './EsperaAproximada'
 import useCadaRato from './useCadaRato'
 import usePantallaEncendida from './usePantallaEncendida'
@@ -80,7 +81,13 @@ export default function TurnoEnVivo({
       aria-live="polite"
       className={`rounded-2xl border-4 p-4 text-center ${leToca ? 'border-puede-pasar bg-puede-pasar/10' : 'border-accion bg-accion/10'}`}
     >
-      <p className="text-lg font-bold uppercase tracking-wide text-principal/80">{t('turno.tuTurno')}</p>
+      <div className="flex items-center justify-center gap-2">
+        <p className="text-lg font-bold uppercase tracking-wide text-principal/80">{t('turno.tuTurno')}</p>
+        {/* Como funciona, a un toque: para quien viene a pie por primera vez. */}
+        <Ayuda titulo={t('ayuda.turnoTitulo')}>
+          <p>{t('ayuda.turnoTexto')}</p>
+        </Ayuda>
+      </div>
       <p className="font-titulo text-7xl font-bold leading-none text-principal">{turno ?? '—'}</p>
 
       {leToca && (

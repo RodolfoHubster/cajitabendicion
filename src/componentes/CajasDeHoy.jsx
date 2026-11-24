@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuPackageCheck, LuVolume2 } from 'react-icons/lu'
+import Ayuda from './Ayuda'
 import useCadaRato from './useCadaRato'
 import { cajasDeHoy } from '../datos/escaneo'
 import { prepararSonido, probarSonido, sonarAunEnSilencio } from '../datos/sonido'
@@ -14,6 +15,9 @@ import { prepararSonido, probarSonido, sonarAunEnSilencio } from '../datos/sonid
  *
  * Al lado, "Probar sonido": para revisar el volumen al empezar el dia. El
  * toque tambien deja listo el sonido (el navegador lo pide).
+ *
+ * Compacto (17 de noviembre de 2026): el numero y lo que cuenta en un
+ * renglon, y lo que significa en el "?": la camara queda mas arriba.
  */
 export default function CajasDeHoy({ fila, version }) {
   const { t } = useTranslation()
@@ -38,28 +42,34 @@ export default function CajasDeHoy({ fila, version }) {
   }
 
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-principal/5 p-3">
-      <div aria-live="polite">
-        <p className="flex items-center gap-2 text-base font-semibold text-principal">
-          <LuPackageCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-accion" />
-          <span className="min-w-0">{t('escaneo.cajas.hoy')}</span>
-        </p>
-        <p className="font-titulo text-4xl font-bold leading-tight text-principal">{cuentas ? cuentas.cajas : '—'}</p>
-        {cuentas && (
-          <p className="text-base text-principal/80">
-            {t('escaneo.cajas.enTuFila', { n: cuentas.cajas_fila })}
-            {fila === 'carro' && ` · ${t('escaneo.cajas.faltan', { n: cuentas.faltan_fila })}`}
-          </p>
-        )}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-principal/5 px-3 py-2">
+      <div aria-live="polite" className="flex min-w-[min(11rem,100%)] flex-1 basis-0 flex-wrap items-center gap-x-3 gap-y-1">
+        <LuPackageCheck aria-hidden="true" className="h-6 w-6 shrink-0 text-accion" />
+        <p className="font-titulo text-3xl font-bold leading-none text-principal">{cuentas ? cuentas.cajas : '—'}</p>
+        {/* Con la letra grande, lo que cuenta baja debajo del numero entero. */}
+        <div className="min-w-[min(8rem,100%)] flex-1 basis-0">
+          <p className="text-base font-semibold leading-tight text-principal">{t('escaneo.cajas.hoy')}</p>
+          {cuentas && (
+            <p className="text-chica text-principal/80">
+              {t('escaneo.cajas.enTuFila', { n: cuentas.cajas_fila })}
+              {fila === 'carro' && ` · ${t('escaneo.cajas.faltan', { n: cuentas.faltan_fila })}`}
+            </p>
+          )}
+        </div>
       </div>
-      <button
-        className="inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-4 text-base font-semibold text-principal transition hover:border-principal"
-        onClick={probar}
-        type="button"
-      >
-        <LuVolume2 aria-hidden="true" className="h-5 w-5 shrink-0" />
-        <span className="min-w-0">{t('escaneo.sonido.probar')}</span>
-      </button>
+      <div className="flex items-center gap-2">
+        <Ayuda titulo={t('escaneo.cajas.ayudaTitulo')}>
+          <p>{t('escaneo.cajas.ayudaTexto')}</p>
+        </Ayuda>
+        <button
+          className="inline-flex min-h-12 items-center gap-2 rounded-xl border-2 border-principal/25 bg-superficie px-3 text-base font-semibold text-principal transition hover:border-principal"
+          onClick={probar}
+          type="button"
+        >
+          <LuVolume2 aria-hidden="true" className="h-5 w-5 shrink-0" />
+          <span className="min-w-0">{t('escaneo.sonido.probar')}</span>
+        </button>
+      </div>
     </div>
   )
 }

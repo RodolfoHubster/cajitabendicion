@@ -84,7 +84,9 @@ export default function Voluntarios() {
 
         <div
           aria-label={t('voluntarios.titulo')}
-          className={`mt-3 grid ${esAdmin ? 'grid-cols-3' : 'grid-cols-2'} gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10`}
+          className={`mt-3 grid grid-cols-1 gap-1 rounded-2xl bg-principal/5 p-1 ring-1 ring-principal/10 ${
+            esAdmin ? 'min-[20rem]:grid-cols-3' : 'min-[20rem]:grid-cols-2'
+          }`}
           role="tablist"
         >
           {pestanas.map(({ clave, Icono }) => {
@@ -92,7 +94,7 @@ export default function Voluntarios() {
             return (
               <button
                 aria-selected={activa}
-                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-2 text-base font-semibold transition sm:flex-row sm:gap-2 ${
+                className={`flex min-h-12 flex-row items-center justify-center gap-x-2 gap-y-0.5 rounded-xl px-2 text-base font-semibold transition min-[20rem]:flex-col sm:flex-row ${
                   activa ? 'bg-marca text-white shadow-sm' : 'text-principal hover:bg-principal/10'
                 }`}
                 key={clave}
@@ -101,7 +103,8 @@ export default function Voluntarios() {
                 type="button"
               >
                 <Icono aria-hidden="true" className="h-5 w-5 shrink-0" />
-                <span className="min-w-0 max-w-full truncate">{t(`voluntarios.pestanas.${clave}`)}</span>
+                {/* Con la letra grande, una pestana por renglon: entera, sin "…". */}
+                <span className="min-w-0 max-w-full text-center leading-tight">{t(`voluntarios.pestanas.${clave}`)}</span>
               </button>
             )
           })}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import AceptarReglas from '../../componentes/AceptarReglas'
 import AvisoPrivacidad from '../../componentes/AvisoPrivacidad'
+import Ayuda from '../../componentes/Ayuda'
 import Boton from '../../componentes/Boton'
 import CasillaBoletin from '../../componentes/CasillaBoletin'
 import Campo from '../../componentes/Campo'
@@ -433,6 +434,12 @@ export default function Registro() {
         <CampoTelefono
           alCambiarPais={cambiarPaisTelefono}
           alCambiarValor={setTelefono}
+          // Por que se pide, a un toque: con esta comunidad, la pregunta llega sola.
+          ayuda={
+            <Ayuda titulo={t('ayuda.telefonoTitulo')}>
+              <p>{t('ayuda.telefonoTexto')}</p>
+            </Ayuda>
+          }
           error={errorDe('telefono')}
           etiqueta={t('registro.telefono')}
           id="telefono"

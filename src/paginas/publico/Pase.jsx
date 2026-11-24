@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaWheelchair } from 'react-icons/fa6'
 import { LuCircleX, LuCrown, LuDownload, LuStar } from 'react-icons/lu'
+import Ayuda from '../../componentes/Ayuda'
 import SelloPreferente from '../../componentes/SelloPreferente'
 import { Link, useParams } from 'react-router-dom'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
@@ -167,8 +168,13 @@ export default function Pase() {
         />
 
         <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-4 text-center">
-          <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-          <p className="my-1 font-titulo text-4xl font-bold tracking-wide text-principal">
+          <div className="flex items-center justify-center gap-2">
+            <p className="min-w-0 text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+            <Ayuda titulo={t('ayuda.codigoTitulo')}>
+              <p>{t('ayuda.codigoTexto')}</p>
+            </Ayuda>
+          </div>
+          <p className="my-1 whitespace-nowrap font-titulo text-[min(2.25rem,11.5vw)] font-bold tracking-wide text-principal">
             {pase.codigo_corto}
           </p>
           <p className="text-base text-principal/70">

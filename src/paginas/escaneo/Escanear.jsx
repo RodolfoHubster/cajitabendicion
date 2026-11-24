@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaPersonWalking } from 'react-icons/fa6'
 import { LuArrowLeftRight, LuCircleHelp, LuKeyRound, LuLayers, LuLogIn, LuRefreshCw, LuShieldCheck } from 'react-icons/lu'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import Ayuda from '../../componentes/Ayuda'
 import AyudaFilaAPie from '../../componentes/AyudaFilaAPie'
 import Boton from '../../componentes/Boton'
 import BuscarCita from '../../componentes/BuscarCita'
@@ -67,6 +68,14 @@ const ESTILO_RESULTADO = {
 
 const ICONO_FILA = { carro: FaCarSide, a_pie: FaPersonWalking, ambas: LuLayers }
 
+//  Los colores del resultado, en el "?" del escaner: con su muestra al lado.
+//  El rojo lleno es bg-peligro (ver datos/tema.test.js).
+const COLORES_AYUDA = [
+  ['verde', 'bg-puede-pasar'],
+  ['rojo', 'bg-peligro'],
+  ['naranja', 'bg-accion'],
+]
+
 //  Lo que la vista previa muestra sin ser una cita que entregar: el codigo
 //  no existe, no hubo senal, se cerro la sesion, otra falla, es el que se
 //  acaba de entregar, o su turno se anulo. Con todos, la camara sigue lista
@@ -122,6 +131,17 @@ export default function Escanear() {
   const cargandoFila = filaHoy === undefined && !sinEleccion
   const debeElegir = filaHoy === null && !sinEleccion
   const listo = !cargandoFila && !debeElegir
+
+  //  Al abrir el escaner (17 de noviembre de 2026) la pagina sube hasta el,
+  //  como despues de cada escaneo: en el telefono, el encabezado y el menu
+  //  dejaban la camara cortada abajo y habia que bajar a buscarla con la
+  //  fila afuera. Una sola vez: despues, cada quien se mueve como quiera.
+  const subioAlEscaner = useRef(false)
+  useEffect(() => {
+    if (!listo || subioAlEscaner.current) return
+    subioAlEscaner.current = true
+    document.getElementById('escaner-arriba')?.scrollIntoView?.({ block: 'start' })
+  }, [listo])
 
   // A pie: el turno que va (lo trae el panel de turnos) y cuantas veces ha
   // cambiado la fila, para que el panel pregunte de inmediato.
@@ -501,8 +521,26 @@ export default function Escanear() {
     <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       {/* El color de arriba es el de la fila: azul carros, naranja a pie. */}
       <Tarjeta className={listo && fila === 'a_pie' ? 'border-t-8 border-accion' : listo && fila === 'carro' ? 'border-t-8 border-principal' : ''}>
-        <h1 className="mb-1 scroll-mt-24 text-2xl font-bold" id="escaner-arriba">{t('pages.escanear')}</h1>
-        <p className="text-base text-principal/70">{t('escaneo.instruccion')}</p>
+        {/* El titulo y su "?" (17 de noviembre de 2026): la explicacion y los
+            colores, a un toque, en vez de un parrafo que empujaba la camara
+            hacia abajo. Quien escanea con la fila afuera no lee: actua. */}
+        <div className="mb-1 flex items-center justify-between gap-3">
+          <h1 className="scroll-mt-24 text-2xl font-bold" id="escaner-arriba">
+            {t('pages.escanear')}
+          </h1>
+          <Ayuda titulo={t('escaneo.ayuda.titulo')}>
+            <p>{t('escaneo.ayuda.camara')}</p>
+            <ul className="space-y-1.5">
+              {COLORES_AYUDA.map(([clave, color]) => (
+                <li className="flex items-start gap-2" key={clave}>
+                  <span aria-hidden="true" className={`mt-1.5 h-3.5 w-3.5 shrink-0 rounded-full ${color}`} />
+                  <span className="min-w-0">{t(`escaneo.ayuda.${clave}`)}</span>
+                </li>
+              ))}
+            </ul>
+            <p>{t('escaneo.ayuda.buscar')}</p>
+          </Ayuda>
+        </div>
 
         {cargandoFila && (
           <div className="mt-4 space-y-3" role="status">

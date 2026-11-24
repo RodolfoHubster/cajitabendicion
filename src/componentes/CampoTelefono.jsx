@@ -10,8 +10,20 @@ import { normalizarTelefono } from '../datos/telefono'
  *
  * Si la persona escribe la lada con "+" o "00" (+52 664...), el selector
  * cambia solo al pais que corresponde.
+ *
+ * ayuda: un <Ayuda> junto a la etiqueta (para que se pide), si se quiere.
  */
-export default function CampoTelefono({ id, etiqueta, pais, alCambiarPais, valor, alCambiarValor, onBlur, error }) {
+export default function CampoTelefono({
+  id,
+  etiqueta,
+  pais,
+  alCambiarPais,
+  valor,
+  alCambiarValor,
+  onBlur,
+  error,
+  ayuda = null,
+}) {
   const { t, i18n } = useTranslation()
   const idioma = i18n.language
 
@@ -44,9 +56,12 @@ export default function CampoTelefono({ id, etiqueta, pais, alCambiarPais, valor
 
   return (
     <div className="flex w-full flex-col gap-2 text-left">
-      <label className="text-base font-semibold text-principal" htmlFor={id}>
-        {etiqueta}
-      </label>
+      <div className="flex items-center justify-between gap-2">
+        <label className="min-w-0 text-base font-semibold text-principal" htmlFor={id}>
+          {etiqueta}
+        </label>
+        {ayuda}
+      </div>
 
       {/* El pais y el numero lado a lado; con la letra muy grande o la
           pantalla muy angosta, uno debajo del otro. */}

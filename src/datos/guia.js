@@ -73,6 +73,17 @@ export function pasosDeGuia({ rol, permisos = [], secciones = [] }) {
   })
 }
 
+/**
+ * Los pasos de la pantalla en la que se esta (17 de noviembre de 2026): la
+ * "Ayuda" del encabezado abre primero esos, como un mini tutorial de esa
+ * pantalla; la guia completa queda a un toque. Si la pantalla no tiene
+ * pasos propios, todos.
+ */
+export function pasosDeSeccion(pasos, seccion) {
+  const deEsta = pasos.filter((paso) => paso.seccion && paso.seccion === seccion)
+  return deEsta.length > 0 ? deEsta : pasos
+}
+
 /** Lo que falta por ver: todo la primera vez; despues, solo las novedades. */
 export function pasosPendientes(pasos, versionVista = 0) {
   if (!versionVista) return pasos

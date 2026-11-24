@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaCarSide, FaUserGroup } from 'react-icons/fa6'
-import { LuCircleHelp } from 'react-icons/lu'
+import Ayuda from './Ayuda'
 import Campo from './Campo'
 
 const OPCIONES = [
@@ -21,28 +20,16 @@ const OPCIONES = [
  */
 export default function ComoVienes({ valor, alCambiar, codigo, alCambiarCodigo, alSalirCodigo, error, panel = false }) {
   const { t } = useTranslation()
-  const [explicando, setExplicando] = useState(false)
   const texto = (clave) => t(panel ? `acompanante.panel.${clave}` : `acompanante.${clave}`)
 
   return (
     <fieldset className="rounded-2xl border border-principal/20 p-4">
       <legend className="flex items-center gap-2 px-1 text-base font-bold text-principal">
         {texto('titulo')}
-        <button
-          aria-expanded={explicando}
-          aria-label={t('acompanante.queEs')}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-accion transition hover:bg-accion/15"
-          onClick={() => setExplicando((abierto) => !abierto)}
-          title={t('acompanante.queEs')}
-          type="button"
-        >
-          <LuCircleHelp aria-hidden="true" className="h-6 w-6" />
-        </button>
+        <Ayuda titulo={t('acompanante.queEs')}>
+          <p>{texto('explicacion')}</p>
+        </Ayuda>
       </legend>
-
-      {explicando && (
-        <p className="mb-3 rounded-xl bg-accion/10 p-3 text-base text-principal">{texto('explicacion')}</p>
-      )}
 
       <div className="grid gap-2 sm:grid-cols-2">
         {OPCIONES.map(({ valor: opcion, Icono }) => (

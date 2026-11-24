@@ -21,7 +21,8 @@ export default function CasillaBoletin({ acepto, alCambiar }) {
           type="checkbox"
         />
         <span className="flex min-w-0 items-start gap-2 text-base font-semibold text-principal">
-          <LuMail aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accion" />
+          {/* Con la letra grande el sobre se quita: le deja el renglon al texto. */}
+          <LuMail aria-hidden="true" className="mt-0.5 hidden h-5 w-5 shrink-0 text-accion min-[20rem]:block" />
           <span className="min-w-0">{t('boletin.casilla')}</span>
         </span>
       </label>

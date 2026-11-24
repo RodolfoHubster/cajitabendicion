@@ -9,6 +9,7 @@ import {
   guiaDeRol,
   marcarGuiaVista,
   pasosDeGuia,
+  pasosDeSeccion,
   pasosPendientes,
   versionVista,
 } from '../datos/guia'
@@ -62,17 +63,27 @@ export default function DisenoAdmin() {
     marcarGuiaVista(tipoGuia, correo)
   }, [tipoGuia, correo])
 
-  //  El "?" del encabezado abre esta guia: dentro del panel no lleva a las
-  //  preguntas del publico (16 de octubre de 2026: sacaba del panel).
+  //  La "Ayuda" del encabezado abre esta guia: dentro del panel no lleva a
+  //  las preguntas del publico (16 de octubre de 2026: sacaba del panel).
+  //  Desde el 17 de noviembre de 2026 abre primero los pasos de la pantalla
+  //  en la que se esta (en el escaner, los del escaner): quien pide ayuda a
+  //  media entrega no tiene que pasar los veinte pasos. La completa, a un toque.
   useEffect(() => {
     const abrir = () => {
       setAbierto(false)
-      const claves = seccionesVisibles(rol, permisos).map((seccion) => seccion.clave)
-      setGuia({ pasos: pasosDeGuia({ rol, permisos, secciones: claves }), novedades: false })
+      const visibles = seccionesVisibles(rol, permisos)
+      const todos = pasosDeGuia({ rol, permisos, secciones: visibles.map((seccion) => seccion.clave) })
+      const deEsta = pasosDeSeccion(todos, seccionActual(visibles, pathname)?.clave)
+      setGuia({ pasos: deEsta, novedades: false, completa: deEsta.length < todos.length ? todos : null })
     }
     globalThis.addEventListener?.(EVENTO_ABRIR_GUIA, abrir)
     return () => globalThis.removeEventListener?.(EVENTO_ABRIR_GUIA, abrir)
-  }, [rol, permisos])
+  }, [rol, permisos, pathname])
+
+  //  De los pasos de esta pantalla a la guia completa, desde su primer paso.
+  function verGuiaCompleta() {
+    setGuia((abierta) => (abierta?.completa ? { pasos: abierta.completa, novedades: false } : abierta))
+  }
 
   function abrirGuia() {
     setAbierto(false)
@@ -122,7 +133,8 @@ export default function DisenoAdmin() {
           <span className="flex min-w-0 items-center gap-3">
             <LuMenu aria-hidden="true" className="h-6 w-6 shrink-0" />
             {/* El nombre de donde se esta: el boton dice algo, no solo tres rayas. */}
-            <span className="truncate">{actual ? t(`nav.${actual.clave}`) : t('nav.menu')}</span>
+            {/* Entero, aunque baje de renglon con la letra grande: "Registrar pers…" no se entiende. */}
+            <span className="min-w-0 text-left leading-tight">{actual ? t(`nav.${actual.clave}`) : t('nav.menu')}</span>
           </span>
           <LuChevronDown
             aria-hidden="true"
@@ -182,7 +194,16 @@ export default function DisenoAdmin() {
         <div className="mt-4 rounded-xl bg-principal/5 p-3 lg:hidden print:hidden">{cuenta}</div>
       </div>
 
-      {guia && <GuiaDelPanel alCerrar={cerrarGuia} novedades={guia.novedades} pasos={guia.pasos} />}
+      {guia && (
+        <GuiaDelPanel
+          alCerrar={cerrarGuia}
+          alVerTodo={guia.completa ? verGuiaCompleta : null}
+          // Con key: al pasar a la guia completa empieza desde su primer paso.
+          key={guia.completa ? 'pantalla' : 'completa'}
+          novedades={guia.novedades}
+          pasos={guia.pasos}
+        />
+      )}
     </div>
   )
 }

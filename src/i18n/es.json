@@ -54,7 +54,6 @@
     "voluntarios": "Voluntarios"
   },
   "escaneo": {
-    "instruccion": "Apunta al código de la familia. Si no se deja leer, búscala por nombre o código.",
     "apunta": "Buscando un código…",
     "cuadro": "Pon el QR dentro del cuadro",
     "leido": "Código leído",
@@ -261,13 +260,23 @@
     "cajas": {
       "hoy": "Cajas entregadas hoy",
       "enTuFila": "En tu fila: {{n}}",
-      "faltan": "Faltan por llegar: {{n}}"
+      "faltan": "Faltan por llegar: {{n}}",
+      "ayudaTitulo": "¿Qué cuenta este número?",
+      "ayudaTexto": "Todas las cajas entregadas hoy, en todas las filas: es lo que se le reporta al banco de alimentos. Debajo, las de tu fila y, en carros, cuántas citas faltan por llegar. Se actualiza solo."
     },
     "buscarCita": {
       "etiqueta": "Buscar por nombre o código",
       "ayuda": "Escribe su nombre o los números de su código: sale la gente de hoy mientras escribes, y la cámara sigue lista.",
       "verLista": "Ver toda la lista de hoy",
       "ocultarLista": "Ocultar la lista de hoy"
+    },
+    "ayuda": {
+      "titulo": "¿Cómo se escanea?",
+      "camara": "Pon el QR de la persona dentro del cuadro. Si todo está bien, se entrega solo y la cámara queda lista para el siguiente: no hay que tocar ningún botón.",
+      "verde": "Verde: puede pasar, dale su caja.",
+      "rojo": "Rojo: ya recibió hoy, no le des otra.",
+      "naranja": "Naranja: es de otra fecha o de otra fila. Lee lo que dice la pantalla antes de entregar.",
+      "buscar": "Si el código no se lee, búscala debajo de la cámara: en carros, por nombre o por su código CB; a pie, por su número de turno."
     }
   },
   "pase": {
@@ -1066,7 +1075,8 @@
       "reglaEjemplo": "Llega 5 minutos antes",
       "guardar": "Guardar",
       "enLaPortada": "Ya sale en la portada"
-    }
+    },
+    "verTodo": "Ver toda la guía"
   },
   "validacion": {
     "nombres": {
@@ -3035,5 +3045,73 @@
     "siguiente": "Siguiente",
     "pausar": "Pausar",
     "seguir": "Seguir"
+  },
+  "ayuda": {
+    "entendido": "Entendido",
+    "qrTitulo": "¿Qué hago con este código?",
+    "qrTexto": "Guárdalo en tu teléfono: toca «Guardar imagen» o tómale una captura de pantalla. El día de la entrega, enséñaselo a la voluntaria: ella lo escanea y te da tu caja. Sirve una sola vez.",
+    "codigoTitulo": "¿Para qué es este número?",
+    "codigoTexto": "Si la cámara no puede leer tu código QR, dile este número a la voluntaria: con él te encuentra en la lista.",
+    "codigoProxima": "Guárdalo también para la próxima vez: con este número y tu teléfono ya no tienes que escribir tus datos otra vez.",
+    "telefonoTitulo": "¿Para qué me piden mi teléfono?",
+    "telefonoTexto": "Con tu teléfono y tu código, la próxima vez no tienes que escribir tus datos otra vez. Tu información es privada: no la compartimos con nadie, tampoco con las autoridades.",
+    "turnoTitulo": "¿Cómo funciona el turno?",
+    "turnoTexto": "Espera cerca. Aquí ves qué número va y cuántas personas faltan antes de ti. Cuando sea tu turno, la pantalla se pone verde: enséñale tu código a la voluntaria."
+  },
+  "ayudaPantalla": {
+    "boton": "Ayuda",
+    "titulo": "¿Qué hago aquí?",
+    "dudas": "¿Todavía tienes dudas?",
+    "llamar": "Llamar a la iglesia: {{telefono}}",
+    "todas": "Ver todas las preguntas",
+    "cerrar": "Cerrar la ayuda",
+    "pasos": {
+      "inicio": {
+        "1": "Si vienes en carro, toca «En carro» y escoge el día y la hora de tu cita.",
+        "2": "Si vienes caminando, toca «A pie»: el día de la entrega sacas tu turno aquí mismo.",
+        "3": "La despensa es gratis. Cada persona de 18 años o más hace su propio registro."
+      },
+      "calendario": {
+        "1": "Aquí ves el próximo día de entrega. Solo hay entrega los lunes y los jueves.",
+        "2": "Toca el botón naranja «Hacer cita» para escoger tu hora.",
+        "3": "Si dice «Sin lugares», ese día ya se llenó. Si todavía no abre, aquí dice cuándo abre."
+      },
+      "horarios": {
+        "1": "Toca la hora a la que puedes llegar. Cada horario dura 15 minutos.",
+        "2": "Luego toca el botón naranja de abajo para seguir.",
+        "3": "Si una hora dice «Lleno», ya no hay lugar: escoge otra."
+      },
+      "registro": {
+        "1": "Si ya viniste antes, toca «Usar mi código»: así no escribes tus datos otra vez.",
+        "2": "Si es tu primera vez, escribe tus datos. Al final marca la casilla y toca «Confirmar mi cita».",
+        "3": "Tu información es privada: no la compartimos con nadie, tampoco con las autoridades."
+      },
+      "confirmacion": {
+        "1": "¡Listo, ya tienes tu cita! Guarda tu código: toca «Guardar imagen» o tómale una captura de pantalla.",
+        "2": "El día de la entrega, enséñale tu código a la voluntaria. Sirve una sola vez.",
+        "3": "Si ya no puedes venir, toca «Cancelar mi cita»: tu lugar le sirve a otra persona."
+      },
+      "cambiar": {
+        "1": "Escoge el día y la hora nuevos, y toca «Cambiar mi horario».",
+        "2": "Tu código sigue siendo el mismo. El horario solo se puede cambiar una vez."
+      },
+      "turno": {
+        "1": "Toca el botón naranja «Sacar mi turno» para recibir tu número.",
+        "2": "Espera cerca. Aquí ves qué número va y cuántas personas faltan antes de ti.",
+        "3": "Cuando sea tu turno, la pantalla se pone verde: enséñale tu código a la voluntaria."
+      },
+      "fila": {
+        "1": "Aquí ves en vivo cómo avanza la fila a pie. No necesitas tener turno para verla.",
+        "2": "Estos números son de otras personas. Para tener el tuyo, toca «Sacar mi turno»."
+      },
+      "pase": {
+        "1": "Este es tu pase. Ven el lunes o jueves que puedas y enséñaselo a la voluntaria.",
+        "2": "Es solo tuyo: sirve para una caja por día. Si lo compartes, se cancela."
+      },
+      "general": {
+        "1": "Para hacer una cita, ve al inicio y toca «En carro» o «A pie».",
+        "2": "Si tienes dudas, revisa las preguntas frecuentes o llama a la iglesia."
+      }
+    }
   }
 }

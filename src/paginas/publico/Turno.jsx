@@ -14,6 +14,7 @@ import {
 } from 'react-icons/lu'
 import { Link } from 'react-router-dom'
 import AperturaFilaAPie from '../../componentes/AperturaFilaAPie'
+import Ayuda from '../../componentes/Ayuda'
 import Boton from '../../componentes/Boton'
 import CampoCodigo from '../../componentes/CampoCodigo'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
@@ -408,8 +409,15 @@ export default function Turno() {
           <Hueso className="mx-auto h-56 w-56 max-w-full" />
         )}
         <div className="rounded-xl border-2 border-dashed border-principal/25 bg-superficie px-3 py-2">
-          <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-          <p className="font-titulo text-2xl font-bold tracking-wide text-principal min-[22rem]:text-3xl">{miTurno.codigo}</p>
+          <div className="flex items-center justify-center gap-2">
+            <p className="min-w-0 text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+            <Ayuda titulo={t('ayuda.codigoTitulo')}>
+              <p>{t('ayuda.codigoTexto')}</p>
+            </Ayuda>
+          </div>
+          <p className="whitespace-nowrap font-titulo text-2xl font-bold tracking-wide text-principal min-[22rem]:text-3xl">
+            {miTurno.codigo}
+          </p>
         </div>
       </div>
     )

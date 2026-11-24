@@ -806,5 +806,73 @@
     "siguiente": "Suivant",
     "pausar": "Pause",
     "seguir": "Reprendre"
+  },
+  "ayuda": {
+    "entendido": "J'ai compris",
+    "qrTitulo": "Que faire de ce code ?",
+    "qrTexto": "Gardez-le dans votre téléphone : touchez « Enregistrer l'image » ou faites une capture d'écran. Le jour de la distribution, montrez-le au bénévole : il le scanne et vous remet votre colis. Il ne sert qu'une fois.",
+    "codigoTitulo": "À quoi sert ce numéro ?",
+    "codigoTexto": "Si la caméra n'arrive pas à lire votre code QR, donnez ce numéro au bénévole : il vous retrouvera sur la liste.",
+    "codigoProxima": "Gardez-le aussi pour la prochaine fois : avec ce numéro et votre téléphone, vous n'aurez pas à réécrire vos informations.",
+    "telefonoTitulo": "Pourquoi demander mon téléphone ?",
+    "telefonoTexto": "Avec votre téléphone et votre code, la prochaine fois vous n'aurez pas à réécrire vos informations. Vos informations sont privées : nous ne les partageons avec personne, y compris les autorités.",
+    "turnoTitulo": "Comment marche le numéro ?",
+    "turnoTexto": "Attendez à proximité. Ici, vous voyez quel numéro passe et combien de personnes sont avant vous. Quand c'est votre tour, l'écran devient vert : montrez votre code au bénévole."
+  },
+  "ayudaPantalla": {
+    "boton": "Aide",
+    "titulo": "Que dois-je faire ici ?",
+    "dudas": "Vous avez encore des questions ?",
+    "llamar": "Appeler l'église : {{telefono}}",
+    "todas": "Voir toutes les questions",
+    "cerrar": "Fermer l'aide",
+    "pasos": {
+      "inicio": {
+        "1": "Si vous venez en voiture, touchez « En voiture » et choisissez le jour et l'heure de votre rendez-vous.",
+        "2": "Si vous venez à pied, touchez « À pied » : le jour de la distribution, vous prenez votre numéro ici même.",
+        "3": "La nourriture est gratuite. Chaque personne de 18 ans ou plus fait sa propre inscription."
+      },
+      "calendario": {
+        "1": "Ici, vous voyez le prochain jour de distribution. Il n'y a de distribution que le lundi et le jeudi.",
+        "2": "Touchez le bouton orange « Prendre rendez-vous » pour choisir votre heure.",
+        "3": "S'il est écrit « Plus de places », ce jour est complet. Si ce n'est pas encore ouvert, il est écrit ici quand cela ouvrira."
+      },
+      "horarios": {
+        "1": "Touchez l'heure à laquelle vous pouvez arriver. Chaque créneau dure 15 minutes.",
+        "2": "Ensuite, touchez le bouton orange en bas pour continuer.",
+        "3": "Si une heure indique « Complet », il n'y a plus de place : choisissez-en une autre."
+      },
+      "registro": {
+        "1": "Si vous êtes déjà venu, touchez « Utiliser mon code » pour ne pas réécrire vos informations.",
+        "2": "Si c'est votre première fois, écrivez vos informations. À la fin, cochez la case et touchez « Confirmer le rendez-vous ».",
+        "3": "Vos informations sont privées : nous ne les partageons avec personne, y compris les autorités."
+      },
+      "confirmacion": {
+        "1": "C'est fait, vous avez votre rendez-vous ! Gardez votre code : touchez « Enregistrer l'image » ou faites une capture d'écran.",
+        "2": "Le jour de la distribution, montrez votre code au bénévole. Il ne sert qu'une fois.",
+        "3": "Si vous ne pouvez plus venir, touchez « Annuler le rendez-vous » pour que votre place serve à quelqu'un d'autre."
+      },
+      "cambiar": {
+        "1": "Choisissez le nouveau jour et la nouvelle heure, puis touchez « Changer d'heure ».",
+        "2": "Votre code reste le même. Vous ne pouvez changer d'heure qu'une seule fois."
+      },
+      "turno": {
+        "1": "Touchez le bouton orange « Prendre mon numéro » pour recevoir votre numéro.",
+        "2": "Attendez à proximité. Ici, vous voyez quel numéro passe et combien de personnes sont avant vous.",
+        "3": "Quand c'est votre tour, l'écran devient vert : montrez votre code au bénévole."
+      },
+      "fila": {
+        "1": "Ici, vous voyez en direct comment avance la file à pied. Pas besoin d'avoir un numéro pour la regarder.",
+        "2": "Ce sont les numéros d'autres personnes. Pour avoir le vôtre, touchez « Prendre mon numéro »."
+      },
+      "pase": {
+        "1": "Voici votre laissez-passer. Venez le lundi ou le jeudi qui vous convient et montrez-le au bénévole.",
+        "2": "Il est à vous seul : un colis par jour. Si vous le partagez, il sera annulé."
+      },
+      "general": {
+        "1": "Pour prendre rendez-vous, allez à l'accueil et touchez « En voiture » ou « À pied ».",
+        "2": "Si vous avez des questions, consultez les questions fréquentes ou appelez l'église."
+      }
+    }
   }
 }

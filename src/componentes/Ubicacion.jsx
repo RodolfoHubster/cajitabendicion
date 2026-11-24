@@ -45,7 +45,9 @@ export default function Ubicacion() {
         href={ORGANIZACION.telefonoEnlace}
       >
         <LuPhone aria-hidden="true" className="h-5 w-5 text-accion" />
-        <span className="min-w-0">{t('ubicacion.llamar')} · {ORGANIZACION.telefono}</span>
+        <span className="min-w-0">
+          {t('ubicacion.llamar')} · <span className="whitespace-nowrap">{ORGANIZACION.telefono}</span>
+        </span>
       </a>
     </Tarjeta>
   )

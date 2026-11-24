@@ -15,8 +15,10 @@ const ENFOCABLES = 'button:not([disabled]), a[href], input:not([disabled]), [tab
  *
  * pasos: los de datos/guia.js que le tocan a esta cuenta.
  * novedades: true si solo son los pasos nuevos desde la ultima vez.
+ * alVerTodo: si son solo los de la pantalla en la que se esta (la "Ayuda"
+ *   del encabezado), abre la guia completa.
  */
-export default function GuiaDelPanel({ pasos, novedades = false, alCerrar }) {
+export default function GuiaDelPanel({ pasos, novedades = false, alCerrar, alVerTodo = null }) {
   const { t } = useTranslation()
   const [indice, setIndice] = useState(0)
   const caja = useRef(null)
@@ -107,6 +109,18 @@ export default function GuiaDelPanel({ pasos, novedades = false, alCerrar }) {
             <p className="mt-2 text-lg leading-relaxed text-principal/80">{t(`guia.pasos.${paso.clave}.texto`)}</p>
           </div>
         </div>
+
+        {alVerTodo && (
+          <div className="mt-3 px-5 text-center">
+            <button
+              className="min-h-12 rounded-xl px-3 text-base font-semibold text-principal underline underline-offset-4 transition hover:bg-principal/10"
+              onClick={alVerTodo}
+              type="button"
+            >
+              {t('guia.verTodo')}
+            </button>
+          </div>
+        )}
 
         {total > 1 && (
           <div className="mt-4 flex flex-wrap justify-center gap-0.5 px-5">

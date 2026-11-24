@@ -99,6 +99,55 @@
     min-width: 0;
   }
 
+  /* Los iconos y las casillas no crecen con la letra grande del telefono
+     mas de lo que miden en una pantalla de 320 px (17 de noviembre de 2026).
+     Con la letra al doble, un icono de 40 px junto a una casilla de 48 px le
+     dejaban al texto una tira donde "alguien" salia partido en dos. El texto
+     si crece; el dibujo de al lado, no tanto. Con la letra normal se ven
+     igual que siempre (la misma cuenta que los rellenos de tailwind.config.js). */
+  svg.h-4 {
+    max-height: 5vw;
+  }
+  svg.w-4 {
+    max-width: 5vw;
+  }
+  svg.h-5 {
+    max-height: 6.25vw;
+  }
+  svg.w-5 {
+    max-width: 6.25vw;
+  }
+  svg.h-6 {
+    max-height: 7.5vw;
+  }
+  svg.w-6 {
+    max-width: 7.5vw;
+  }
+  svg.h-7 {
+    max-height: 8.75vw;
+  }
+  svg.w-7 {
+    max-width: 8.75vw;
+  }
+  input[type='checkbox'],
+  input[type='radio'] {
+    max-height: 7.5vw;
+    max-width: 7.5vw;
+  }
+  /* Los circulos y cuadros de color que llevan un icono adentro. */
+  span.h-10.w-10 {
+    max-height: 12.5vw;
+    max-width: 12.5vw;
+  }
+  span.h-11.w-11 {
+    max-height: 13.75vw;
+    max-width: 13.75vw;
+  }
+  span.h-12.w-12 {
+    max-height: 15vw;
+    max-width: 15vw;
+  }
+
   /* Al cambiar de modo, un fundido corto en vez de un parpadeo. Solo en
      colores: nada se mueve. */
   :root.cambiando-tema *,
@@ -153,6 +202,22 @@
 }
 .aparecer {
   animation: aparecer 0.4s ease-out backwards;
+}
+
+/* El globo del "?" (componentes/Ayuda.jsx): aparece rapido, sin brincar. */
+@keyframes globo-ayuda {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+.globo-ayuda {
+  animation: globo-ayuda 0.18s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .globo-ayuda {
+    animation-name: fundido;
+  }
 }
 
 /* Las ventanas (la ficha, el pase) suben desde abajo. */

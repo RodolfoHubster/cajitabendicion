@@ -798,5 +798,73 @@
     "siguiente": "Susunod",
     "pausar": "I-pause",
     "seguir": "Ituloy"
+  },
+  "ayuda": {
+    "entendido": "Naintindihan ko",
+    "qrTitulo": "Ano ang gagawin ko sa code na ito?",
+    "qrTexto": "I-save ito sa telepono mo: pindutin ang “I-save ang larawan” o mag-screenshot. Sa araw ng pamimigay, ipakita ito sa volunteer: i-scan niya ito at ibibigay sa iyo ang kahon mo. Isang beses lang ito magagamit.",
+    "codigoTitulo": "Para saan ang numerong ito?",
+    "codigoTexto": "Kung hindi mabasa ng camera ang QR code mo, sabihin ang numerong ito sa volunteer: dito ka niya mahahanap sa listahan.",
+    "codigoProxima": "Itago mo rin ito para sa susunod: gamit ang numerong ito at ang telepono mo, hindi mo na kailangang isulat ulit ang impormasyon mo.",
+    "telefonoTitulo": "Bakit hinihingi ang telepono ko?",
+    "telefonoTexto": "Gamit ang telepono at code mo, sa susunod hindi mo na kailangang isulat ulit ang impormasyon mo. Pribado ang impormasyon mo: hindi namin ito ibinabahagi kaninuman, pati sa mga awtoridad.",
+    "turnoTitulo": "Paano gumagana ang numero?",
+    "turnoTexto": "Maghintay sa malapit. Dito mo makikita kung anong numero na at ilan pa ang nauuna sa iyo. Kapag ikaw na, magiging berde ang screen: ipakita ang code mo sa volunteer."
+  },
+  "ayudaPantalla": {
+    "boton": "Tulong",
+    "titulo": "Ano ang gagawin ko dito?",
+    "dudas": "May tanong ka pa?",
+    "llamar": "Tawagan ang simbahan: {{telefono}}",
+    "todas": "Tingnan lahat ng tanong",
+    "cerrar": "Isara ang tulong",
+    "pasos": {
+      "inicio": {
+        "1": "Kung naka-kotse ka, pindutin ang “Naka-kotse” at piliin ang araw at oras ng appointment mo.",
+        "2": "Kung naglalakad ka, pindutin ang “Naglalakad”: sa araw ng pamimigay, dito ka kukuha ng numero.",
+        "3": "Libre ang pagkain. Bawat taong 18 taong gulang pataas ay magpaparehistro nang sarili."
+      },
+      "calendario": {
+        "1": "Dito mo makikita ang susunod na araw ng pamimigay. Lunes at Huwebes lang may pamimigay.",
+        "2": "Pindutin ang orange na button na “Mag-book” para pumili ng oras.",
+        "3": "Kung nakasulat ang “Wala nang puwesto”, puno na ang araw na iyon. Kung hindi pa bukas, nakasulat dito kung kailan."
+      },
+      "horarios": {
+        "1": "Pindutin ang oras na kaya mong dumating. Bawat oras ay 15 minuto.",
+        "2": "Pagkatapos, pindutin ang orange na button sa ibaba para magpatuloy.",
+        "3": "Kung nakasulat ang “Puno” sa isang oras, wala nang puwesto: pumili ng iba."
+      },
+      "registro": {
+        "1": "Kung nakapunta ka na dati, pindutin ang “Gamitin ang code ko” para hindi mo na isulat ulit ang impormasyon mo.",
+        "2": "Kung unang beses mo, isulat ang impormasyon mo. Sa dulo, lagyan ng tsek ang kahon at pindutin ang “Kumpirmahin ang appointment ko”.",
+        "3": "Pribado ang impormasyon mo: hindi namin ito ibinabahagi kaninuman, pati sa mga awtoridad."
+      },
+      "confirmacion": {
+        "1": "Ayan, may appointment ka na! I-save ang code mo: pindutin ang “I-save ang larawan” o mag-screenshot.",
+        "2": "Sa araw ng pamimigay, ipakita ang code mo sa volunteer. Isang beses lang ito magagamit.",
+        "3": "Kung hindi ka na makakapunta, pindutin ang “Kanselahin ang appointment ko” para magamit ng iba ang puwesto mo."
+      },
+      "cambiar": {
+        "1": "Piliin ang bagong araw at oras, at pindutin ang “Palitan ang oras ko”.",
+        "2": "Pareho pa rin ang code mo. Isang beses lang puwedeng palitan ang oras."
+      },
+      "turno": {
+        "1": "Pindutin ang orange na button na “Kunin ang numero ko” para makakuha ng numero.",
+        "2": "Maghintay sa malapit. Dito mo makikita kung anong numero na at ilan pa ang nauuna sa iyo.",
+        "3": "Kapag ikaw na, magiging berde ang screen: ipakita ang code mo sa volunteer."
+      },
+      "fila": {
+        "1": "Dito mo makikita nang live kung paano umuusad ang pila ng naglalakad. Hindi mo kailangan ng numero para makita ito.",
+        "2": "Numero ng ibang tao ang mga ito. Para makakuha ng sa iyo, pindutin ang “Kunin ang numero ko”."
+      },
+      "pase": {
+        "1": "Ito ang pass mo. Pumunta sa Lunes o Huwebes na kaya mo, at ipakita ito sa volunteer.",
+        "2": "Sa iyo lang ito: isang kahon bawat araw. Kapag ipinagamit mo sa iba, makakansela ito."
+      },
+      "general": {
+        "1": "Para mag-book, pumunta sa simula at pindutin ang “Naka-kotse” o “Naglalakad”.",
+        "2": "Kung may tanong ka, tingnan ang mga madalas itanong o tawagan ang simbahan."
+      }
+    }
   }
 }

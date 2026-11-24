@@ -11,18 +11,20 @@ export default function Pasos({ actual }) {
   const pasos = [t('pasos.fecha'), t('pasos.horario'), t('pasos.datos')]
 
   return (
-    <ol className="mb-4 flex items-center gap-2" aria-label={t('pasos.etiqueta')}>
+    //  Tres partes iguales mientras quepan. Con la letra grande del telefono
+    //  bajan de renglon enteras: "Horario" ya no se parte en "Horar-io".
+    <ol className="mb-4 flex flex-wrap items-end gap-2" aria-label={t('pasos.etiqueta')}>
       {pasos.map((nombre, indice) => {
         const numero = indice + 1
         const hecho = numero < actual
         const activo = numero === actual
 
         return (
-          <li className="flex min-w-0 flex-1 items-center gap-2" key={nombre}>
+          <li className="flex grow basis-20 items-center" key={nombre}>
             <span
               aria-current={activo ? 'step' : undefined}
               className={[
-                'min-w-0 flex-1 border-b-2 pb-1 text-base',
+                'flex-1 border-b-2 pb-1 text-base',
                 activo && 'border-accion font-semibold text-principal',
                 hecho && 'border-principal/40 text-principal/70',
                 !activo && !hecho && 'border-principal/15 text-principal/70',

@@ -340,7 +340,7 @@ export default function PanelTurnos({
       )}
 
       {/* Las cuentas del dia. */}
-      <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+      <dl className="mt-3 grid grid-cols-1 gap-2 text-center min-[20rem]:grid-cols-3">
         {[
           ['atendidos', datos.atendidos],
           ['esperando', datos.en_espera],

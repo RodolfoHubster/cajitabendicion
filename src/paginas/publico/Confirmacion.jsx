@@ -12,6 +12,7 @@ import {
 } from 'react-icons/lu'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import AvisoDeMiCita from '../../componentes/AvisoDeMiCita'
+import Ayuda from '../../componentes/Ayuda'
 import Boton from '../../componentes/Boton'
 import EnlaceVolver from '../../componentes/EnlaceVolver'
 import Tarjeta from '../../componentes/Tarjeta'
@@ -320,18 +321,25 @@ export default function Confirmacion() {
 
           {/* De que fila es el codigo, arriba del QR: cada fila tiene su
               gente escaneando, y el de carros no entrega uno a pie. */}
-          <p
-            className={`mx-auto mb-3 flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-base font-bold ${
-              filaDe(cita) === 'a_pie' ? 'bg-accion/20 text-principal' : 'bg-principal/10 text-principal'
-            }`}
-          >
-            {filaDe(cita) === 'a_pie' ? (
-              <FaPersonWalking aria-hidden="true" className="h-5 w-5" />
-            ) : (
-              <FaCarSide aria-hidden="true" className="h-5 w-5" />
-            )}
-            {t(`filas.nombre.${filaDe(cita)}`)}
-          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
+            <p
+              className={`flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-base font-bold ${
+                filaDe(cita) === 'a_pie' ? 'bg-accion/20 text-principal' : 'bg-principal/10 text-principal'
+              }`}
+            >
+              {filaDe(cita) === 'a_pie' ? (
+                <FaPersonWalking aria-hidden="true" className="h-5 w-5" />
+              ) : (
+                <FaCarSide aria-hidden="true" className="h-5 w-5" />
+              )}
+              {t(`filas.nombre.${filaDe(cita)}`)}
+            </p>
+            {/* Que hacer con el codigo, a un toque: hay quien no sabe que se
+                ensena el dia de la entrega (17 de noviembre de 2026). */}
+            <Ayuda titulo={t('ayuda.qrTitulo')}>
+              <p>{t('ayuda.qrTexto')}</p>
+            </Ayuda>
+          </div>
 
           {/* El QR a pie lleva marco naranja: se distingue de lejos. */}
           <img
@@ -343,8 +351,15 @@ export default function Confirmacion() {
           />
 
           <div className="mt-4 rounded-xl border-2 border-dashed border-principal/25 p-4 text-center">
-            <p className="text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
-            <p className="my-1 font-titulo text-4xl font-bold tracking-wide text-principal">
+            <div className="flex items-center justify-center gap-2">
+              <p className="min-w-0 text-base text-principal/70">{t('confirmacion.siNoSeLee')}</p>
+              <Ayuda titulo={t('ayuda.codigoTitulo')}>
+                <p>{t('ayuda.codigoTexto')}</p>
+                {!aPie && <p>{t('ayuda.codigoProxima')}</p>}
+              </Ayuda>
+            </div>
+            {/* En un solo renglon: partido en "CB-" y "48213" no se lee. */}
+            <p className="my-1 whitespace-nowrap font-titulo text-[min(2.25rem,11.5vw)] font-bold tracking-wide text-principal">
               {cita.codigo_corto}
             </p>
             <p className="text-base text-principal/70">

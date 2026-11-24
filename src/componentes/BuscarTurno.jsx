@@ -216,17 +216,20 @@ export default function BuscarTurno({
             return (
               <li className={`aparecer overflow-hidden rounded-xl border-2 ${BORDE_ESTADO[estado]}`} key={fila.turno}>
                 <div className="flex items-stretch">
+                  {/* El numero a un lado del texto; con la letra grande del
+                      telefono, arriba: lado a lado, "Esperando" salia partido. */}
                   <button
-                    className="flex min-h-16 min-w-0 flex-1 items-center gap-3 p-3 text-left disabled:opacity-60"
+                    className="flex min-h-16 min-w-0 flex-1 flex-col items-start gap-x-3 gap-y-1 p-3 text-left disabled:opacity-60 min-[20rem]:flex-row min-[20rem]:items-center"
                     disabled={ocupado && directo}
                     onClick={directo ? () => hecho(alEntregar)(fila.turno) : verDetalle}
                     type="button"
                   >
-                    <span className="w-[min(4rem,16vw)] shrink-0 text-center font-titulo text-4xl font-bold leading-none text-principal">
+                    <span className="shrink-0 font-titulo text-4xl font-bold leading-none text-principal min-[20rem]:w-[min(4rem,16vw)] min-[20rem]:text-center">
                       {fila.turno}
                     </span>
                     <span className="min-w-0 flex-1">
-                      {sena && <span className="block truncate text-base font-semibold text-principal">{sena}</span>}
+                      {/* La sena completa, sin "…": es como se reconoce a quien no dio su nombre. */}
+                      {sena && <span className="block text-base font-semibold text-principal">{sena}</span>}
                       <span className={`block text-base ${COLOR_ESTADO[estado]}`}>
                         {t(`escaneo.turnos.estado.${estado}`, {
                           hora: horaDeMarca(marca),
@@ -318,7 +321,7 @@ function DetalleTurno({ fila, estado, ocupado, puedeDeshacer, alEntregar, alAnul
   }
 
   const datos = [
-    ['codigo', <span className="font-titulo text-xl font-bold" key="c">{fila.codigo_corto}</span>],
+    ['codigo', <span className="whitespace-nowrap font-titulo text-xl font-bold" key="c">{fila.codigo_corto}</span>],
     ['sacado', horaDeMarca(fila.sacado_en)],
     fila.dado_por && ['dadoPor', <span className="break-all" key="d">{fila.dado_por}</span>],
     fila.saltado_en && ['llamado', `${horaDeMarca(fila.saltado_en)} · ${haceCuanto(t, fila.saltado_en)}`],

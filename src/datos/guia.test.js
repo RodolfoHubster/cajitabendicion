@@ -13,6 +13,7 @@ import {
   guiaDeRol,
   marcarGuiaVista,
   pasosDeGuia,
+  pasosDeSeccion,
   pasosPendientes,
   versionVista,
   versionVistaLocal,
@@ -116,6 +117,26 @@ describe('pasosDeGuia (cada quien ve solo lo que puede usar)', () => {
   it('cada rol tiene su guía', () => {
     expect(guiaDeRol('admin')).toBe('admin')
     expect(guiaDeRol('voluntario')).toBe('voluntario')
+  })
+})
+
+describe('pasosDeSeccion (la Ayuda del encabezado: primero lo de esta pantalla)', () => {
+  const todos = pasosDeGuia({ rol: 'admin', permisos: [], secciones: TODAS })
+
+  it('en el escáner, solo los pasos del escáner, en su orden', () => {
+    const delEscaner = pasosDeSeccion(todos, 'escanear')
+    expect(delEscaner.length).toBeGreaterThan(1)
+    expect(delEscaner.every((paso) => paso.seccion === 'escanear')).toBe(true)
+    expect(claves(delEscaner)).toEqual(claves(todos.filter((paso) => paso.seccion === 'escanear')))
+  })
+
+  it('sin bienvenida ni despedida: van directo a lo de la pantalla', () => {
+    expect(claves(pasosDeSeccion(todos, 'reportes'))).toEqual(['reportes'])
+  })
+
+  it('una pantalla sin pasos propios (o ninguna) abre la guía completa', () => {
+    expect(pasosDeSeccion(todos, 'permisos')).toEqual(todos)
+    expect(pasosDeSeccion(todos, undefined)).toEqual(todos)
   })
 })
 
