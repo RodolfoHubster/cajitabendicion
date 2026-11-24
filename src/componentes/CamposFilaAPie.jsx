@@ -30,8 +30,9 @@ export default function CamposFilaAPie({ id, fecha, valor, alCambiar, conCodigo 
     <div className="space-y-4">
       <label className="flex flex-col gap-1" htmlFor={`aPieHora-${id}`}>
         <span className="text-base font-semibold">{t('filaAPieAdmin.hora')}</span>
+        {/* max-w-full: con la letra muy grande, 10rem ya no cabe en el celular. */}
         <input
-          className={`${ESTILO_INPUT} w-40`}
+          className={`${ESTILO_INPUT} w-40 max-w-full`}
           id={`aPieHora-${id}`}
           onChange={(e) => cambiar({ hora: e.target.value })}
           required
